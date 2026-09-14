@@ -5,7 +5,7 @@ and the future local-network boundary are documented in
 [`../../docs/subscriptions.md`](../../docs/subscriptions.md). Storefront prices
 come from StoreKit; the app does not hardcode a purchase price.
 
-The SwiftUI application for reviewing coding-agent actions, browsing
+The publicly readable SwiftUI source for reviewing coding-agent actions, browsing
 active and recently active tasks, reading their latest visible activity, and
 replying or starting a new task by voice from iPhone, iPad, or Apple Watch.
 
@@ -32,6 +32,9 @@ the same audio and preserves time-aligned English technology names in Russian
 speech. Apple Watch uses the system dictation UI, whose locale the app cannot
 change programmatically, then locally normalizes common English technology names.
 
+The source is public under the separate GrantTap commercial source license. The
+App Store distribution remains a separate, subscription-backed product.
+
 ## Project Mesh and Agents & Mesh
 
 **Project Mesh** keeps one Task identity while execution moves between agents or
@@ -41,6 +44,12 @@ bounded encrypted Task Capsule—goal, git state, changed files, tests,
 dependencies, claims, remaining work, explicit decisions—and never transcripts or
 hidden reasoning. The destination works in its own branch or worktree, and the
 accepted handoff is verified against a SHA-256 receipt over the exact capsule.
+
+The Task's Runtime section asks each linked Project computer for a bounded page
+of Engine-owned Invocation evidence. It shows tool requests, reported results,
+denials, and source gaps separately; it never calls a requested edit a verified
+file change. Pages are encrypted with the Project key and kept only in memory on
+the phone. The section says when a computer's Engine is unavailable.
 
 Technical agent-to-agent questions and advisory conflicts stay inside the mesh.
 Product, business, security, destructive, unresolved-conflict, and failed-handoff
@@ -139,8 +148,8 @@ xcodebuild \
   build
 ```
 
-`project.yml` contains the product Team ID. Select your own team in Xcode for
-a personal device build, then run the `GrantTap` scheme for the universal app or
+`project.yml` contains the product Team ID. Sign into that team in Xcode, then
+run the `GrantTap` scheme for the universal iPhone/iPad app or
 `GrantTapWatch` for the watch app.
 
 For distribution, archive the `GrantTap` iOS scheme. Its **Embed Watch
@@ -249,6 +258,15 @@ use a paid team App ID with Push enabled, or the Debug/Release schemes.
   never the background helper's process directory.
 - No advertising, cross-app tracking, or analytics SDK is present.
 - `PrivacyInfo.xcprivacy` is included for both targets.
+
+## Apple review materials
+
+- [App Store metadata](AppStore/APP_STORE_METADATA.md)
+- [Review notes](AppStore/APP_REVIEW_NOTES.md)
+- [App Privacy answers](AppStore/APP_PRIVACY_ANSWERS.md)
+- [Submission checklist](AppStore/SUBMISSION_CHECKLIST.md)
+- [Localized screenshots](AppStore/Screenshots/README.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Architecture note
 

@@ -69,6 +69,9 @@ struct ProjectResourceClaim: Codable, Equatable, Identifiable {
     let projectId: String
     var taskId: String
     let ownerSessionId: String
+    var repositoryId: String? = nil
+    var endpointId: String? = nil
+    var worktree: String? = nil
     let resource: String
     let mode: String
     let createdAt: Double

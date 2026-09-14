@@ -120,12 +120,22 @@ enum TaskHandoffReadiness {
         return parts[0..<last].joined(separator: "/")
     }
 
-    enum OverlapKind { case file, module }
+    enum OverlapKind { case file, logicalFile, module }
 
     static func overlapKind(_ left: String, _ right: String) -> OverlapKind? {
         if resourcesOverlap(left, right) { return .file }
         let a = moduleRoot(left), b = moduleRoot(right)
         return !a.isEmpty && a == b ? .module : nil
+    }
+
+    static func overlapKind(_ left: ProjectResourceClaim, _ right: ProjectResourceClaim) -> OverlapKind? {
+        if let a = left.repositoryId, let b = right.repositoryId, a != b { return nil }
+        guard let kind = overlapKind(left.resource, right.resource) else { return nil }
+        guard kind == .file else { return kind }
+        if (left.repositoryId == nil) != (right.repositoryId == nil) { return .logicalFile }
+        if let a = left.worktree, let b = right.worktree, a != b { return .logicalFile }
+        if let a = left.endpointId, let b = right.endpointId, a != b { return .logicalFile }
+        return .file
     }
 
     /// Someone else's claim in the same module as this Task's own — the merge
@@ -134,27 +144,27 @@ enum TaskHandoffReadiness {
         session: SessionInfo, snapshot: ProjectMeshSnapshot?
     ) -> ProjectResourceClaim? {
         guard let snapshot, let taskId = session.taskId else { return nil }
-        let owned = snapshot.claims.filter { $0.taskId == taskId }.map(\.resource)
+        let owned = snapshot.claims.filter { $0.taskId == taskId }
         return snapshot.claims.first { claim in
             claim.taskId != taskId
                 && claim.ownerSessionId != session.sessionId
-                && owned.contains { overlapKind($0, claim.resource) == .module }
+                && owned.contains {
+                    let kind = overlapKind($0, claim)
+                    return kind == .module || kind == .logicalFile
+                }
         }
     }
 
     static func resourcesOverlap(_ left: String, _ right: String) -> Bool {
-        if left == right || glob(left, matches: right) || glob(right, matches: left) {
+        let a = left.replacingOccurrences(of: "\\", with: "/")
+            .replacingOccurrences(of: "/+$", with: "", options: .regularExpression)
+        let b = right.replacingOccurrences(of: "\\", with: "/")
+            .replacingOccurrences(of: "/+$", with: "", options: .regularExpression)
+        if a == b || glob(a, matches: b) || glob(b, matches: a) {
             return true
         }
-        let prefix: (String) -> String = { value in
-            String(value.prefix { $0 != "*" }).replacingOccurrences(
-                of: "/$", with: "", options: .regularExpression
-            )
-        }
-        let first = prefix(left)
-        let second = prefix(right)
-        return !first.isEmpty && !second.isEmpty
-            && (first.hasPrefix(second) || second.hasPrefix(first))
+        return (!a.contains("*") && b.hasPrefix(a + "/"))
+            || (!b.contains("*") && a.hasPrefix(b + "/"))
     }
 
     private static func glob(_ pattern: String, matches candidate: String) -> Bool {
@@ -185,11 +195,11 @@ enum TaskHandoffReadiness {
         snapshot: ProjectMeshSnapshot?
     ) -> ProjectResourceClaim? {
         guard let snapshot, let taskId = session.taskId else { return nil }
-        let owned = snapshot.claims.filter { $0.taskId == taskId }.map(\.resource)
+        let owned = snapshot.claims.filter { $0.taskId == taskId }
         return snapshot.claims.first { claim in
             claim.taskId != taskId
                 && claim.ownerSessionId != session.sessionId
-                && owned.contains { resourcesOverlap($0, claim.resource) }
+                && owned.contains { overlapKind($0, claim) == .file }
         }
     }
 }

@@ -66,24 +66,7 @@ extension AppModel {
         client.onMachineLoad = { [weak self] load in
             self?.recordMachineLoad(load, fromRoom: room)
         }
-        client.onMeshSnapshot = { [weak self] snapshot in
-            self?.receive(snapshot, fromRoom: room)
-        }
-        client.onMeshEvent = { [weak self] event in
-            self?.receive(event, fromRoom: room)
-        }
-        client.onProjectPolicyStatus = { [weak self] status in
-            self?.receive(status, fromRoom: room)
-        }
-        client.onProjectPolicyAck = { [weak self] acknowledgement in
-            self?.receive(acknowledgement, fromRoom: room)
-        }
-        client.onProjectPolicyRejected = { [weak self] rejected in
-            self?.receive(rejected, fromRoom: room)
-        }
-        client.onClaimReleaseResult = { [weak self] result in
-            self?.receive(result, fromRoom: room)
-        }
+        attachProjectRelayCallbacks(client, room: room)
         client.onDeliveryReceipt = { [weak self] receipt in
             self?.receive(receipt, fromRoom: room)
             self?.finishBackgroundWake(.newData)
@@ -102,6 +85,30 @@ extension AppModel {
         }
         relaysByRoom[room] = client
         client.connect()
+    }
+
+    private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
+        client.onMeshSnapshot = { [weak self] snapshot in
+            self?.receive(snapshot, fromRoom: room)
+        }
+        client.onMeshEvent = { [weak self] event in
+            self?.receive(event, fromRoom: room)
+        }
+        client.onInvocationPage = { [weak self] page in
+            self?.receiveInvocationPage(page, fromRoom: room)
+        }
+        client.onProjectPolicyStatus = { [weak self] status in
+            self?.receive(status, fromRoom: room)
+        }
+        client.onProjectPolicyAck = { [weak self] acknowledgement in
+            self?.receive(acknowledgement, fromRoom: room)
+        }
+        client.onProjectPolicyRejected = { [weak self] rejected in
+            self?.receive(rejected, fromRoom: room)
+        }
+        client.onClaimReleaseResult = { [weak self] result in
+            self?.receive(result, fromRoom: room)
+        }
     }
 
     func applyRoomConnectionChange(_ up: Bool, client: RelayClient) {

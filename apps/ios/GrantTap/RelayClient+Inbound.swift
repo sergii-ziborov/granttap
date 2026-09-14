@@ -131,6 +131,11 @@ extension RelayClient {
         case "machine.load": return deliver(MachineLoad.self, plain, to: onMachineLoad)
         case "machine.heartbeat": return deliver(MachineHeartbeat.self, plain, to: onMachineHeartbeat)
         case "mesh.event", "mesh.snapshot": return handleMesh(kind.type, plain: plain)
+        case "mesh.invocation.page":
+            guard scopedSessionId != nil, plain.count <= 64 * 1024 else { return false }
+            return deliver(ProjectInvocationPage.self, plain, to: onInvocationPage) { page in
+                page.isWellFormed && page.projectId == scopedSessionId
+            }
         case "project.policy.status", "project.policy.ack", "project.policy.rejected":
             return handleProjectPolicy(kind.type, plain: plain, scopedSessionId: scopedSessionId)
         case "mesh.claim.release.result":

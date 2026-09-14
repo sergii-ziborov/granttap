@@ -9,6 +9,10 @@ final class ClaimOverlapVectorTests: XCTestCase {
             ("src/auth/*", "src/db/x.ts", false),
             ("Pairing.swift", "Pairing.swift", true),
             ("src/auth", "src/auth/login.ts", true),
+            ("src/auth.ts", "src/auth.ts.bak", false),
+            ("src/auth", "src/author/index.ts", false),
+            ("src/auth/*", "src/authentication/file.ts", false),
+            ("src/auth/**", "src/authentication/file.ts", false),
         ]
         for (left, right, expected) in vectors {
             XCTAssertEqual(
@@ -16,6 +20,25 @@ final class ClaimOverlapVectorTests: XCTestCase {
                 "\(left) vs \(right)"
             )
         }
+    }
+
+    func testClaimScopeSeparatesRepositoriesAndCheckouts() {
+        var left = ProjectResourceClaim(
+            claimId: "left", projectId: "project", taskId: "one", ownerSessionId: "one",
+            resource: "src/index.ts", mode: "intent", createdAt: 1, expiresAt: 9e15
+        )
+        var right = left
+        left.repositoryId = "github.com/example/frontend"
+        right.repositoryId = "github.com/example/backend"
+        XCTAssertNil(TaskHandoffReadiness.overlapKind(left, right))
+        right.repositoryId = left.repositoryId
+        left.worktree = "/repo/a"
+        right.worktree = "/repo/b"
+        XCTAssertEqual(TaskHandoffReadiness.overlapKind(left, right), .logicalFile)
+        right.worktree = left.worktree
+        XCTAssertEqual(TaskHandoffReadiness.overlapKind(left, right), .file)
+        right.repositoryId = nil
+        XCTAssertEqual(TaskHandoffReadiness.overlapKind(left, right), .logicalFile)
     }
 
     /// Shared with the bridge's observed-claims test: change one, change both.

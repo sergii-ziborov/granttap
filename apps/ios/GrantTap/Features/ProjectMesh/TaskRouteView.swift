@@ -43,12 +43,13 @@ struct TaskRouteView: View {
     /// Someone else's claim touching this Task's files or modules: the merge
     /// conflict that has not happened yet, shown while it can still be avoided.
     var neighbours: [(claim: ProjectResourceClaim, kind: TaskHandoffReadiness.OverlapKind)] {
-        let mine = claims.map(\.resource)
+        let mine = claims
         return (snapshot?.claims ?? [])
             .filter { $0.taskId != route.taskId }
             .compactMap { other in
-                let kinds = mine.compactMap { TaskHandoffReadiness.overlapKind($0, other.resource) }
-                guard let kind = kinds.contains(.file) ? .file : kinds.first else { return nil }
+                let kinds = mine.compactMap { TaskHandoffReadiness.overlapKind($0, other) }
+                guard let kind = kinds.contains(.file) ? .file
+                    : kinds.contains(.logicalFile) ? .logicalFile : kinds.first else { return nil }
                 return (claim: other, kind: kind)
             }
     }
@@ -144,13 +145,15 @@ struct TaskRouteView: View {
                         executionRow(execution)
                     }
                 }
+                runtimeSection
                 if !claims.isEmpty {
                     Section {
                         ForEach(claims) { claim in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(claim.resource).font(.system(size: 13, design: .monospaced))
-                                // An intent claim was not announced; it was seen.
-                                Text(claim.mode == "intent" ? L("Seen editing") : L("Claimed"))
+                                // A requested Edit may fail; the claim is early
+                                // coordination evidence, never proof of a change.
+                                Text(claim.mode == "intent" ? L("Edit requested") : L("Claimed"))
                                     .font(.caption).foregroundStyle(Theme.muted)
                                 releaseNotice(claim)
                             }
@@ -174,7 +177,9 @@ struct TaskRouteView: View {
                                         .font(.system(size: 13, design: .monospaced))
                                     Text(String(format: item.kind == .file
                                                 ? L("%@ is editing the same file")
-                                                : L("%@ is working in the same module"),
+                                                : item.kind == .logicalFile
+                                                    ? L("%@ is working on another checkout of this file")
+                                                    : L("%@ is working in the same module"),
                                                 item.claim.ownerSessionId))
                                         .font(.caption).foregroundStyle(Theme.muted)
                                     releaseNotice(item.claim)
@@ -223,6 +228,9 @@ struct TaskRouteView: View {
                 }
             }
             .navigationTitle(L("Task"))
+            .onAppear {
+                model.requestInvocationHistory(projectId: route.projectId, taskId: route.taskId)
+            }
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(
                 releasing.map { String(format: L("Release the claim on %@?"), $0.resource) } ?? "",

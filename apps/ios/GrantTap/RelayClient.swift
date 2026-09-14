@@ -82,6 +82,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onToolUpdateResult: ((ToolUpdateResult) -> Void)?
     var onMeshEvent: ((ProjectMeshEvent) -> Void)?
     var onMeshSnapshot: ((ProjectMeshSnapshot) -> Void)?
+    var onInvocationPage: ((ProjectInvocationPage) -> Void)?
     var onProjectPolicyStatus: ((ProjectPolicyStatus) -> Void)?
     var onProjectPolicyAck: ((ProjectPolicyAck) -> Void)?
     var onProjectPolicyRejected: ((ProjectPolicyRejected) -> Void)?

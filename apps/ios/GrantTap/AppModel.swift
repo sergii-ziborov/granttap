@@ -68,6 +68,13 @@ final class AppModel: ObservableObject {
     /// Short status under the Sessions header after pull-to-refresh / tap refresh.
     @Published var refreshHint: String?
     @Published var meshSnapshots: [String: ProjectMeshSnapshot] = restoredMesh.snapshots
+    /// Bounded, in-memory projection of Engine history. No plaintext journal is
+    /// written to the phone; opening a Task requests it under the Project key.
+    @Published var invocationHistoryByTask: [String: [ProjectInvocationRecord]] = [:]
+    @Published var invocationAvailabilityByTask: [String: String] = [:]
+    var invocationPendingRooms: [String: String] = [:]
+    var invocationOlderCursor: [String: Int] = [:]
+    var invocationRequestedTasks: Set<String> = []
     /// Bounded phone projection only. The endpoint engine owns canonical policy.
     @Published var projectGovernance: [String: ProjectGovernanceProjection] = restoredGovernance
     @Published var pendingProjectPolicyRevisions: [String: Int] = [:]

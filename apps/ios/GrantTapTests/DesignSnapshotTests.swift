@@ -8,8 +8,8 @@ import XCTest
 /// A simulator nobody can tap still runs tests, so the screens that matter
 /// are rendered here into PNG files for a person to look at — at the size of
 /// an iPhone 16 Pro Max, which is what the store and the website show — only
-/// when `GRANTTAP_SNAPSHOT_DIR` names where to put them. Without it this does
-/// nothing but render each screen once, which is a check of its own.
+/// when `GRANTTAP_SNAPSHOT_DIR` names where to put them. Otherwise snapshots
+/// are saved in the test app's temporary directory for simulator inspection.
 @MainActor
 final class DesignSnapshotTests: XCTestCase {
     private let now = Date().timeIntervalSince1970 * 1_000
@@ -69,9 +69,36 @@ final class DesignSnapshotTests: XCTestCase {
     func testTheChangedScreensRenderAndAreKeptForALook() throws {
         let (model, ownProject, sharedProject, link) = try demoModel()
         let directory = ProcessInfo.processInfo.environment["GRANTTAP_SNAPSHOT_DIR"]
+            ?? FileManager.default.temporaryDirectory.appendingPathComponent("GrantTapScreenshots").path
         let own = try XCTUnwrap(model.meshSnapshots[ownProject])
         let shared = try XCTUnwrap(model.meshSnapshots[sharedProject])
         let task = try XCTUnwrap(own.tasks.first { task in own.claims.contains { $0.taskId == task.taskId } } ?? own.tasks.first)
+        let runtimeKey = AppModel.invocationTaskKey(ownProject, task.taskId)
+        let runtimeCall = ProjectInvocationEvent(
+            event_id: "demo-request", invocation_id: "demo-call", project_id: ownProject,
+            task_id: task.taskId, execution_id: "demo-execution", provider: "claude",
+            native_call_id: "demo-native-call", session_id: task.ownerSessionId,
+            tool_name: "Edit", phase: "requested", source: "transcript",
+            occurred_at: now - 120_000, repository_id: own.project.canonicalRepositoryId,
+            worktree: nil, resource: "packages/pairing/src/handshake.ts", revision: nil,
+            content_hash: nil, capability_artifact_hash: nil, policy_revision: nil,
+            policy_rule_id: nil
+        )
+        let runtimeResult = ProjectInvocationEvent(
+            event_id: "demo-result", invocation_id: "demo-call", project_id: ownProject,
+            task_id: task.taskId, execution_id: "demo-execution", provider: "claude",
+            native_call_id: "demo-native-call", session_id: task.ownerSessionId,
+            tool_name: "Edit", phase: "reported_success", source: "transcript",
+            occurred_at: now - 119_000, repository_id: own.project.canonicalRepositoryId,
+            worktree: nil, resource: "packages/pairing/src/handshake.ts", revision: nil,
+            content_hash: nil, capability_artifact_hash: nil, policy_revision: nil,
+            policy_rule_id: nil
+        )
+        model.invocationHistoryByTask[runtimeKey] = [
+            .init(room: "demo", sequence: 1, event: runtimeCall),
+            .init(room: "demo", sequence: 2, event: runtimeResult),
+        ]
+        model.invocationAvailabilityByTask[runtimeKey] = "ready"
         let session = try XCTUnwrap(model.sessions.first { $0.projectId == ownProject } ?? model.sessions.first)
         let open: (SessionInfo) -> Void = { _ in }
         let screens: [(String, AnyView)] = [
@@ -90,10 +117,8 @@ final class DesignSnapshotTests: XCTestCase {
         for (name, screen) in screens {
             let image = Self.render(screen)
             XCTAssertGreaterThan(image.pngData()?.count ?? 0, 8_000, name)
-            if let directory {
-                try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
-                try XCTUnwrap(image.pngData()).write(to: URL(fileURLWithPath: directory).appendingPathComponent("\(name).png"))
-            }
+            try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
+            try XCTUnwrap(image.pngData()).write(to: URL(fileURLWithPath: directory).appendingPathComponent("\(name).png"))
         }
     }
 
