@@ -35,6 +35,10 @@ struct ProjectInvocationEvent: Codable, Equatable, Identifiable {
                provider, native_call_id, tool_name].allSatisfy({ !$0.isEmpty && $0.count <= 160 }),
               [session_id, repository_id, worktree, resource, revision, policy_rule_id]
                 .compactMap({ $0 }).allSatisfy({ !$0.isEmpty && $0.count <= 512 }) else { return false }
+        let sha256Pattern = "^[a-fA-F0-9]{64}$"
+        guard [content_hash, capability_artifact_hash].compactMap({ $0 }).allSatisfy({
+            $0.range(of: sha256Pattern, options: .regularExpression) != nil
+        }) else { return false }
         if phase == "change_observed" {
             return source == "filesystem" && repository_id != nil && resource != nil
                 && revision != nil && content_hash != nil
