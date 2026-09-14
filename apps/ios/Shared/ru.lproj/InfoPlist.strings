@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "GrantTap";
+"NSCameraUsageDescription" = "GrantTap использует камеру для сканирования QR-кода подключения или съёмки фото, которое вы сами прикрепляете к сообщению агенту.";
+"NSMicrophoneUsageDescription" = "GrantTap использует микрофон только когда вы выбираете голосовой ответ кодовому агенту.";
+"NSSpeechRecognitionUsageDescription" = "GrantTap преобразует выбранный вами голосовой ответ в текст для кодового агента.";
+"NSLocalNetworkUsageDescription" = "GrantTap может подключаться к relay, который вы запускаете в своей локальной сети.";
+"NSFaceIDUsageDescription" = "GrantTap использует Face ID только когда вы включаете блокировку приложения для защиты задач и подтверждений.";

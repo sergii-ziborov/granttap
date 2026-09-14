@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Xcode replaces this from the provisioning profile: development for a
+	     development build, production for TestFlight and App Store. -->
+	<key>aps-environment</key>
+	<string>$(APS_ENVIRONMENT)</string>
+	<!-- Lets approval alerts use .interruptionLevel = .timeSensitive so they break
+	     through Focus and Do Not Disturb. Without this iOS silently downgrades them
+	     to .active. Needs the matching capability on App ID com.ziborov.granttap. -->
+	<key>com.apple.developer.usernotifications.time-sensitive</key>
+	<true/>
+</dict>
+</plist>

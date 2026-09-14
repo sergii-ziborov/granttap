@@ -1,0 +1,272 @@
+# XcodeGen spec — generates GrantTap.xcodeproj from the Swift sources.
+#
+#   brew install xcodegen
+#   cd apps/ios && xcodegen generate && open GrantTap.xcodeproj
+#
+# Capabilities are deliberately narrow and mirror Apple documentation:
+# Push Notifications, Background Modes → Remote notifications, and Time
+# Sensitive Notifications. There is no Critical Alerts, VoIP, background audio,
+# location, App Groups, or other unrelated entitlement.
+
+name: GrantTap
+options:
+  bundleIdPrefix: com.ziborov
+  # Keep generated projects and schemes stable when opened by the App Store
+  # workflow's Xcode version.
+  xcodeVersion: "26.6"
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+# A Personal Team can install on the owner's devices, including Apple Watch,
+# but Apple doesn't issue Push Notifications or Time Sensitive Notifications
+# entitlements to that team. Keep the real Debug/Release configurations intact
+# and provide an explicit local-device configuration for free-account testing.
+configs:
+  Debug: debug
+  LocalTest: debug
+  Release: release
+
+packages:
+  TweetNacl:
+    url: https://github.com/bitmark-inc/tweetnacl-swiftwrap
+    # Crypto is part of the protocol boundary. Do not allow a future package
+    # release to change shipped primitives without an explicit review.
+    exactVersion: 1.1.0
+
+targets:
+  GrantTap:
+    type: application
+    platform: iOS
+    sources:
+      - path: GrantTap
+        excludes:
+          - "**/README.md"
+      - path: GrantTap/Assets.xcassets
+      - path: Shared          # phone↔watch payloads, shared with the watch target
+    dependencies:
+      - package: TweetNacl
+      - target: GrantTapWatch   # creates the standard Embed Watch Content phase
+    # A real Info.plist (not generated) because ATS needs a nested dictionary:
+    # a self-hosted relay may sit on the local network over plain http/ws.
+    info:
+      path: GrantTap/Info.plist
+      properties:
+        CFBundleDisplayName: GrantTap
+        CFBundleName: GrantTap
+        # iOS resolves the icon in Assets.car through this name. Without it the
+        # bundle keeps only the legacy CFBundleIconFiles fallback, and surfaces
+        # that look the icon up by name — a Lock Screen notification among them —
+        # fall back to a generic tile.
+        CFBundleIconName: AppIcon
+        CFBundleLocalizations: [en, ru]
+        # explicit plist -> versions must reference the build settings
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UIUserInterfaceStyle: Automatic     # follow the system in both directions
+        # Keep every iPad multitasking orientation available. iPhone continues
+        # to use the platform defaults because no unqualified key is declared.
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortraitUpsideDown
+        # false: Crypto.swift uses published standard NaCl primitives. With
+        # France excluded from availability, Apple requires no documentation,
+        # so this encryption is exempt for the first release.
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationCategoryType: public.app-category.developer-tools
+        NSHumanReadableCopyright: "© 2026 Serhii Ziborov. All rights reserved."
+        CFBundleURLTypes:
+          - CFBundleURLName: com.ziborov.granttap.pair
+            CFBundleTypeRole: Editor
+            CFBundleURLSchemes: [granttap, nodvox]   # accepts legacy pairing links during migration
+        NSCameraUsageDescription: "GrantTap uses the camera to scan a one-time computer-pairing QR, or capture a photo you explicitly attach to an agent message."
+        NSMicrophoneUsageDescription: "GrantTap uses the microphone only when you choose to dictate a reply to your coding agent."
+        NSSpeechRecognitionUsageDescription: "GrantTap turns the voice reply you choose to record into text for your coding agent."
+        NSLocalNetworkUsageDescription: "GrantTap can connect to a relay that you run on your own local network."
+        NSFaceIDUsageDescription: "GrantTap uses Face ID only when you enable the app lock for task details and approvals."
+        UIBackgroundModes: [remote-notification]
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap
+        PRODUCT_NAME: GrantTap
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "95"
+        SWIFT_VERSION: "5.9"
+        # Universal phone/tablet binary. iPad uses the same encrypted relay and
+        # a stack-style navigation flow so split-view never opens a blank pane.
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: XMS5ZC28UJ
+        # Xcode 27 otherwise linker-signs Simulator apps without the simulated
+        # application-identifier section, so every Keychain write fails with
+        # errSecMissingEntitlement and pairing disappears after relaunch.
+        "ENTITLEMENTS_ALLOWED[sdk=iphonesimulator*]": YES
+        # Time Sensitive Notifications: the entitlement alone is not enough —
+        # the capability has to be enabled on the App ID (paid program).
+        CODE_SIGN_ENTITLEMENTS: GrantTap/GrantTap.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          APS_ENVIRONMENT: development
+          CODE_SIGN_IDENTITY: Apple Development
+        LocalTest:
+          # Paid-team device installs need APNs; GrantTapLocal.entitlements must
+          # include aps-environment (empty file previously broke BG delivery).
+          CODE_SIGN_ENTITLEMENTS: GrantTap/GrantTapLocal.entitlements
+          APS_ENVIRONMENT: development
+          CODE_SIGN_IDENTITY: Apple Development
+        Release:
+          APS_ENVIRONMENT: production
+          CODE_SIGN_IDENTITY: Apple Distribution
+
+  # Modern single-target watchOS companion. Xcode 14+ combines the former
+  # WatchKit app and extension into this one target. The iOS target embeds it
+  # under Watch/ and App Store Connect receives one iOS archive.
+  GrantTapWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: GrantTapWatch
+      - path: Shared          # same phone↔watch payloads
+    info:
+      path: GrantTapWatch/Info.plist
+      properties:
+        CFBundleDisplayName: GrantTap
+        CFBundleName: GrantTap
+        CFBundleIconName: AppIcon
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        # Companion of the iPhone app (the standard shape, and the right one here:
+        # watchOS can't hold its own WebSocket, so the phone stays the relay
+        # endpoint and the watch talks to it). Still runs on its own on the wrist.
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.ziborov.granttap
+        WKRunsIndependentlyOfCompanionApp: false
+        CFBundleLocalizations: [en, ru]
+        # Ships inside the same archive as the phone app; both targets use the
+        # same documentation-exempt declaration for the first release.
+        ITSAppUsesNonExemptEncryption: false
+        NSHumanReadableCopyright: "© 2026 Serhii Ziborov. All rights reserved."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.watchkitapp
+        PRODUCT_NAME: GrantTapWatch
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "95"
+        SWIFT_VERSION: "5.9"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: XMS5ZC28UJ
+        # No GENERATE_INFOPLIST_FILE / INFOPLIST_KEY_*: the generator overrides
+        # the explicit plist above — it rewrote CFBundleName and injected a
+        # MinimumOSVersion~ipad key into a watchOS bundle.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          CODE_SIGN_IDENTITY: Apple Development
+        LocalTest:
+          CODE_SIGN_IDENTITY: Apple Development
+        Release:
+          CODE_SIGN_IDENTITY: Apple Distribution
+
+  GrantTapTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: GrantTapTests
+        excludes:
+          - "**/README.md"
+    dependencies:
+      - target: GrantTap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+
+  GrantTapWatchTests:
+    type: bundle.unit-test
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: GrantTapWatchTests
+    dependencies:
+      - target: GrantTapWatch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.watch-tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+
+  GrantTapUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: GrantTapUITests
+    dependencies:
+      - target: GrantTap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.ui-tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: GrantTap
+
+# Shared scheme, regenerated by XcodeGen and committed with the project so a
+# fresh clone, including Xcode Cloud, can archive without a generation step.
+# Run `xcodegen generate` after changing this file and commit the project update.
+# The watch target builds as an embedded dependency of GrantTap.
+schemes:
+  GrantTap:
+    build:
+      targets:
+        GrantTap: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      environmentVariables:
+        GRANTTAP_TEST_LANGUAGE: en
+      targets:
+        - GrantTapTests
+        - GrantTapUITests
+    analyze:
+      config: Debug
+    profile:
+      config: Release
+    archive:
+      config: Release
+  GrantTap Local:
+    build:
+      targets:
+        GrantTap: all
+    run:
+      config: LocalTest
+    test:
+      config: LocalTest
+    analyze:
+      config: LocalTest
+    profile:
+      config: LocalTest
+  GrantTapWatch:
+    build:
+      targets:
+        GrantTapWatch: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      environmentVariables:
+        GRANTTAP_TEST_LANGUAGE: en
+      targets:
+        - GrantTapWatchTests
+    analyze:
+      config: Debug

@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "GrantTap";
+"NSCameraUsageDescription" = "GrantTap uses the camera to scan a pairing QR or capture a photo you explicitly attach to an agent message.";
+"NSMicrophoneUsageDescription" = "GrantTap uses the microphone only when you choose to dictate a reply to your coding agent.";
+"NSSpeechRecognitionUsageDescription" = "GrantTap turns the voice reply you choose to record into text for your coding agent.";
+"NSLocalNetworkUsageDescription" = "GrantTap can connect to a relay that you run on your own local network.";
+"NSFaceIDUsageDescription" = "GrantTap uses Face ID only when you enable the app lock for task details and approvals.";

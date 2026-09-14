@@ -1,0 +1,17 @@
+GrantTap Proprietary License
+
+Copyright (c) 2026 Serhii Ziborov. All rights reserved.
+
+The GrantTap iPhone and Apple Watch application, desktop product,
+artwork, and source code in this repository are proprietary. No
+permission is granted to copy, modify, distribute, sublicense, sell, publish,
+or create derivative works from them except with prior written permission from
+the copyright holder.
+
+Public supporting projects are licensed separately in their own repositories:
+
+- granttap-mcp — MIT License
+- granttap-relay — MIT License
+- granttap-site — MIT License
+
+Third-party components remain subject to their respective licenses.
