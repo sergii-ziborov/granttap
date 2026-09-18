@@ -194,7 +194,7 @@ enum PairingJoinSender {
             client.onConnectionChange = { up in
                 guard up else { return }
                 client.send(
-                    PairingJoinLogic.payload(existing: existing, machinePublicKey: candidate.peerPublicKey),
+                    payload: PairingJoinLogic.payload(existing: existing, machinePublicKey: candidate.peerPublicKey),
                     to: "machine",
                     ttl: 60
                 ) { error in

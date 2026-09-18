@@ -37,7 +37,12 @@ extension AppModel {
               let existing else {
             return addConnection(candidate, mode: .add, prefer: true)
         }
-        let sent = await (sendJoin ?? PairingJoinSender.send)(existing, candidate)
+        let sent: Bool
+        if let sendJoin {
+            sent = await sendJoin(existing, candidate)
+        } else {
+            sent = await PairingJoinSender.send(existing: existing, candidate: candidate)
+        }
         guard sent else {
             append(Self.pairingJoinFailureMessage)
             return false
