@@ -159,9 +159,16 @@ final class PairingProtocolCoverageTests: XCTestCase {
         candidate.peerPublicKey = Data(repeating: 9, count: 32).base64EncodedString()
         XCTAssertTrue(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: candidate))
         XCTAssertFalse(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: existing))
-        let remembered = PairingJoinLogic.remembered(existing, machinePublicKey: candidate.peerPublicKey)
+        var existingWithoutAuth = existing
+        existingWithoutAuth.pushAuth = nil
+        var candidateWithAuth = candidate
+        candidateWithAuth.pushAuth = String(repeating: "ab", count: 32)
+        let remembered = PairingJoinLogic.remembered(
+            existingWithoutAuth, machinePublicKey: candidate.peerPublicKey, from: candidateWithAuth
+        )
         XCTAssertEqual(remembered.room, existing.room)
         XCTAssertEqual(remembered.extraPeerPublicKeys, [candidate.peerPublicKey])
+        XCTAssertEqual(remembered.pushAuth, candidateWithAuth.pushAuth)
         let join = PairingJoinLogic.payload(existing: existing, machinePublicKey: candidate.peerPublicKey, now: 7)
         XCTAssertEqual(join.type, "pairing.join")
         XCTAssertEqual(join.room, existing.room)

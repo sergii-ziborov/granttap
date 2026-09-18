@@ -142,13 +142,17 @@ enum PairingJoinLogic {
         return existing.room != candidate.room
     }
 
-    static func remembered(_ existing: Pairing, machinePublicKey: String) -> Pairing {
+    static func remembered(_ existing: Pairing, machinePublicKey: String, from candidate: Pairing? = nil) -> Pairing {
         var next = existing
         var extras = next.extraPeerPublicKeys ?? []
         if machinePublicKey != next.peerPublicKey, !extras.contains(machinePublicKey) {
             extras.append(machinePublicKey)
         }
         next.extraPeerPublicKeys = extras.isEmpty ? nil : extras
+        if (next.pushAuth == nil || next.pushAuth?.isEmpty == true),
+           let auth = candidate?.pushAuth, !(auth.isEmpty) {
+            next.pushAuth = auth
+        }
         return next
     }
 

@@ -47,7 +47,9 @@ extension AppModel {
             append(Self.pairingJoinFailureMessage)
             return false
         }
-        let next = PairingJoinLogic.remembered(existing, machinePublicKey: candidate.peerPublicKey)
+        let next = PairingJoinLogic.remembered(
+            existing, machinePublicKey: candidate.peerPublicKey, from: candidate
+        )
         return addConnection(next, mode: .add, prefer: true)
     }
 
