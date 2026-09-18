@@ -140,12 +140,24 @@ extension AppModel {
         guard let index = memberLinks.firstIndex(where: { $0.id == link.id }) else { return }
         let before = memberLinks[index]
         memberLinks[index] = link
-        MemberLinkStore.save(memberLinks)
+        guard MemberLinkStore.save(memberLinks) else {
+            memberLinks[index] = before
+            append(L("Member permissions could not be stored securely — the previous rights stay."))
+            return
+        }
         // Chats newly allowed are handed over at once, not on the next hello.
         if link.rules.canSeeChats, !before.rules.canSeeChats { forwardChatsToMember(link) }
     }
 
     func removeMemberLink(id: String) {
+        guard memberLinks.contains(where: { $0.id == id }) else { return }
+        let previous = memberLinks
+        let next = memberLinks.filter { $0.id != id }
+        guard MemberLinkStore.save(next) else {
+            append(L("The member could not be removed securely — they are still in the Project."))
+            return
+        }
+        memberLinks = next
         memberHubTimers[id]?.invalidate()
         memberHubTimers.removeValue(forKey: id)
         memberLinkConnected.remove(id)
@@ -156,8 +168,6 @@ extension AppModel {
         // What this member spoke for is nobody's now: invited again, they
         // arrive through a new pairing and must be able to speak for it again.
         meshContributionRooms = meshContributionRooms.filter { $0.value != id }
-        memberLinks.removeAll { $0.id == id }
-        MemberLinkStore.save(memberLinks)
     }
 
     func attachStoredMemberLinks() {

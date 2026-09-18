@@ -14,6 +14,9 @@ final class ProjectGovernanceRowTests: XCTestCase {
         model.projectGovernance[snapshot.projectId] = ProjectGovernanceViewFixtures.policyProjection()
         ProjectGovernanceViewFixtures.render(List { ProjectDestinationRows(snapshot: snapshot, model: model) })
         ProjectGovernanceViewFixtures.render(ProjectDestinationLabel(title: "Governance", detail: "2 rules", icon: "checkmark.shield"))
+        ProjectGovernanceViewFixtures.render(ProjectKnowledgeView(snapshot: snapshot, model: model))
+        ProjectGovernanceViewFixtures.render(ProjectToolsSkillsView(snapshot: snapshot, model: model))
+        ProjectGovernanceViewFixtures.render(ProjectWriteToAgentsSheet(snapshot: snapshot, model: model))
         ProjectGovernanceViewFixtures.render(ProjectGovernanceView(project: snapshot.project, model: model))
         model.projectGovernance = [:]
         ProjectGovernanceViewFixtures.render(ProjectGovernanceView(project: snapshot.project, model: model))

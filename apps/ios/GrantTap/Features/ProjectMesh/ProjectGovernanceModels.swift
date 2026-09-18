@@ -114,6 +114,27 @@ enum ProjectManagePresentation {
         return "\(L(count > 1 ? "Shared" : "Private")) · \(computers)"
     }
 
+    /// Compact Health / Graph line: Mesh mode, then usage only when the phone
+    /// already holds calls for this Project. Missing usage is omitted, never
+    /// described as a graph of unused capacity.
+    static func healthSummary(
+        _ snapshot: ProjectMeshSnapshot, usageEvents: [CapabilityUsageEvent] = []
+    ) -> String {
+        let mesh = meshSummary(snapshot)
+        let events = ProjectUsageStats.events(usageEvents, snapshot: snapshot)
+        guard !events.isEmpty else { return mesh }
+        return "\(mesh) · \(String(format: L(events.count == 1 ? "%d call" : "%d calls"), events.count))"
+    }
+
+    /// Working section detail: open tasks and executors still alive.
+    static func workingSummary(_ snapshot: ProjectMeshSnapshot) -> String {
+        let openTasks = snapshot.tasks.filter { !["completed", "failed"].contains($0.state) }.count
+        let executors = snapshot.executions.filter { $0.endedAt == nil }.count
+        let tasks = String(format: L(openTasks == 1 ? "%d task" : "%d tasks"), openTasks)
+        let running = String(format: L(executors == 1 ? "%d executor" : "%d executors"), executors)
+        return "\(tasks) · \(running)"
+    }
+
     /// The computers actually taking part in this Project.
     ///
     /// A computer counts when it has reported a repository for the Project, or

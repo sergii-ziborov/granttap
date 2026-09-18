@@ -17,6 +17,15 @@ final class SwiftUISurfaceCoverageTests: XCTestCase {
         model = nil
     }
 
+    func testProjectSectionDestinationsRender() throws {
+        let snapshot = try XCTUnwrap(model.meshSnapshots.values.first)
+        assertRendered(List { ProjectDestinationRows(snapshot: snapshot, model: model) })
+        assertRendered(ProjectKnowledgeView(snapshot: snapshot, model: model))
+        assertRendered(ProjectToolsSkillsView(snapshot: snapshot, model: model))
+        assertRendered(ProjectWriteToAgentsSheet(snapshot: snapshot, model: model))
+        assertRendered(ProjectMeshView(snapshot: snapshot, model: model))
+    }
+
     func testHistoryAndUsageDestinationsRender() throws {
         let historical = try XCTUnwrap(model.sessionHistory.first)
         assertRendered(ChatHistorySheet().environmentObject(model))

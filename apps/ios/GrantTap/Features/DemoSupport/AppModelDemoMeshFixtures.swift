@@ -47,6 +47,20 @@ enum AppModelDemoMeshFixtures {
                     revision: String(repeating: "d", count: 40)
                 ),
             ],
+            skills: [
+                SharedSkill(
+                    name: "release-check",
+                    description: "Run the repository release checklist",
+                    version: "1.0",
+                    digest: String(repeating: "a", count: 64),
+                    source: "repo", state: "installed"
+                ),
+                SharedSkill(
+                    name: "ios-qa",
+                    description: "Verify the iPhone and Apple Watch apps",
+                    version: "1.1", source: "repo", state: "available"
+                ),
+            ],
             tasks: [
                 .init(taskId: releaseTaskId, projectId: projectId, title: "GrantTap release audit",
                       goal: capsule.goal, state: "working",

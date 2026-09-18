@@ -27,8 +27,31 @@ extension AppModel {
         addConnection(p, mode: .add, prefer: true)
     }
 
+    /// Scan of a new PC joins this iPhone's room. It does not mint a second room.
+    func admitScannedComputer(
+        _ candidate: Pairing,
+        sendJoin: ((Pairing, Pairing) async -> Bool)? = nil
+    ) async -> Bool {
+        let existing = connectionRegistry.preferred?.pairing
+        guard PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: candidate),
+              let existing else {
+            return addConnection(candidate, mode: .add, prefer: true)
+        }
+        let sent = await (sendJoin ?? PairingJoinSender.send)(existing, candidate)
+        guard sent else {
+            append(Self.pairingJoinFailureMessage)
+            return false
+        }
+        let next = PairingJoinLogic.remembered(existing, machinePublicKey: candidate.peerPublicKey)
+        return addConnection(next, mode: .add, prefer: true)
+    }
+
     static var pairingStorageFailureMessage: String {
         L("Pairing could not be stored securely — no computer links were changed.")
+    }
+
+    static var pairingJoinFailureMessage: String {
+        L("This computer did not join the room. Keep GrantTap running on that PC and scan again.")
     }
 
     static let approvalTombstoneRetentionMs = 24 * 60 * 60 * 1_000.0

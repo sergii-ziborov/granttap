@@ -31,9 +31,12 @@ extension RelayClient {
               env.from == peerRole,
               env.to == role.rawValue || env.to == "all",
               env.expiresAt.map({ $0 > Date().timeIntervalSince1970 * 1000 }) ?? true,
-              let plain = Crypto.open(nonceB64: env.nonce, boxB64: env.box,
-                                      theirPublicKeyB64: pairing.peerPublicKey,
-                                      mySecretKeyB64: pairing.mySecretKey),
+              let plain = Crypto.openFromPeers(
+                  nonceB64: env.nonce, boxB64: env.box,
+                  mySecretKeyB64: pairing.mySecretKey,
+                  peerPublicKeyB64: pairing.peerPublicKey,
+                  extraPeerPublicKeys: pairing.extraPeerPublicKeys
+              ),
               let kind = try? JSONDecoder().decode(PayloadKind.self, from: plain)
         else { return }
 

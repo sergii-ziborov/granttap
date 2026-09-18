@@ -61,6 +61,9 @@ enum ProjectMeshLogic {
         // map is their union, kept absent while nobody states an edge.
         let peers = merge(current.peers ?? [], incoming.peers ?? [], key: \.id)
         merged.peers = peers.isEmpty ? nil : peers
+        let skills = merge(current.skills ?? [], incoming.skills ?? [], key: \.name,
+                           prefer: preferredSkill)
+        merged.skills = skills.isEmpty ? nil : skills.sorted { $0.name < $1.name }
         merged.events = compactEvents(current.events + incoming.events, nowMs: nowMs)
         return rejoinSplitChats(merged)
     }
@@ -270,6 +273,19 @@ enum ProjectMeshLogic {
                 && other.generatedAt < incoming.generatedAt
                 ? projectId : nil
         }
+    }
+
+    /// Incoming wins when it names a field; a sparser later copy does not
+    /// erase version, digest, source, or state the phone already holds.
+    private static func preferredSkill(_ current: SharedSkill, _ incoming: SharedSkill) -> SharedSkill {
+        SharedSkill(
+            name: incoming.name,
+            description: incoming.description ?? current.description,
+            version: incoming.version ?? current.version,
+            digest: incoming.digest ?? current.digest,
+            source: incoming.source ?? current.source,
+            state: incoming.state ?? current.state
+        )
     }
 
     private static func merge<T, Key: Hashable>(

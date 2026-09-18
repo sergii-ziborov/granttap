@@ -142,6 +142,9 @@ extension Pairing {
               isValidKey(pairing.myPublicKey),
               isValidKey(pairing.mySecretKey),
               isValidKey(pairing.peerPublicKey) else { return false }
+        if let extras = pairing.extraPeerPublicKeys {
+            guard extras.count <= 16, extras.allSatisfy(isValidKey) else { return false }
+        }
         if let pushAuth = pairing.pushAuth {
             return pushAuth.count == 64 && pushAuth == pushAuth.lowercased()
                 && pushAuth.allSatisfy({ $0.isHexDigit })

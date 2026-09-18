@@ -146,6 +146,44 @@ final class PairingProtocolCoverageTests: XCTestCase {
     }
 
     @MainActor
+    func testScannedComputerJoinsThePhoneRoomInsteadOfMintingASecondRoom() async {
+        let stored = PairedConnectionStore.load()
+        PairedConnectionStore.removeAll()
+        defer {
+            PairedConnectionStore.removeAll()
+            if !stored.connections.isEmpty { _ = PairedConnectionStore.save(stored) }
+        }
+        let existing = validPairing()
+        var candidate = validPairing()
+        candidate.room = String(repeating: "c", count: 32)
+        candidate.peerPublicKey = Data(repeating: 9, count: 32).base64EncodedString()
+        XCTAssertTrue(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: candidate))
+        XCTAssertFalse(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: existing))
+        let remembered = PairingJoinLogic.remembered(existing, machinePublicKey: candidate.peerPublicKey)
+        XCTAssertEqual(remembered.room, existing.room)
+        XCTAssertEqual(remembered.extraPeerPublicKeys, [candidate.peerPublicKey])
+        let join = PairingJoinLogic.payload(existing: existing, machinePublicKey: candidate.peerPublicKey, now: 7)
+        XCTAssertEqual(join.type, "pairing.join")
+        XCTAssertEqual(join.room, existing.room)
+        XCTAssertEqual(join.phoneCfg.extraPeerPublicKeys, [candidate.peerPublicKey])
+
+        let model = AppModel()
+        model.loadConnectionRegistry()
+        XCTAssertTrue(model.addConnection(existing))
+        let joined = await model.admitScannedComputer(candidate) { _, _ in true }
+        XCTAssertTrue(joined)
+        XCTAssertEqual(model.connectionRegistry.connections.count, 1)
+        XCTAssertEqual(model.connectionRegistry.preferredId, existing.room)
+        XCTAssertEqual(
+            model.connectionRegistry.preferred?.pairing.extraPeerPublicKeys,
+            [candidate.peerPublicKey]
+        )
+        let refused = await model.admitScannedComputer(candidate) { _, _ in false }
+        XCTAssertFalse(refused)
+        XCTAssertEqual(model.connectionRegistry.connections.count, 1)
+    }
+
+    @MainActor
     func testPairingSheetHandlesManualSecureAndPersistenceOutcomes() async throws {
         let model = AppModel()
         let valid = validPairing()

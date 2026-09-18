@@ -200,6 +200,19 @@ struct ProjectIntegrationPeer: Codable, Equatable, Identifiable {
     }
 }
 
+/// A skill the Project catalog published. Presence here is not permission;
+/// Governance is the only authority for what may run.
+struct SharedSkill: Codable, Equatable, Identifiable {
+    let name: String
+    var description: String? = nil
+    var version: String? = nil
+    var digest: String? = nil
+    var source: String? = nil
+    /// installed | available | used | unknown
+    var state: String? = nil
+    var id: String { name }
+}
+
 struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     let type: String
     let sessionId: String
@@ -207,6 +220,8 @@ struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     let project: ProjectMeshProject
     var bindings: [ProjectBindingSummary]? = nil
     var peers: [ProjectIntegrationPeer]? = nil
+    var skills: [SharedSkill]? = nil
+    var incomplete: Bool? = nil
     var tasks: [ProjectMeshTask]
     var executions: [ExecutionSessionLink]
     var claims: [ProjectResourceClaim]

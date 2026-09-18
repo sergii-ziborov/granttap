@@ -501,11 +501,14 @@
 "Demo never executes a command on a computer." = "Демо никогда не выполняет команды на компьютере.";
 "Ask any agent to connect GrantTap — scan adds that computer. You can link several Macs/PCs." = "Попросите любого агента подключить GrantTap — скан добавит этот компьютер. Можно связать несколько Mac/PC.";
 "Ask the agent to connect GrantTap, then scan the one-time QR. This adds a computer; other links stay." = "Попросите агента подключить GrantTap и отсканируйте одноразовый QR. Это добавит компьютер; остальные связи сохранятся.";
+"Scan the QR on the computer. If this iPhone is already in a room, that computer joins it — a second room is not created." = "Сканируйте QR на компьютере. Если этот iPhone уже в комнате, компьютер входит в неё — вторая комната не создаётся.";
+"This computer did not join the room. Keep GrantTap running on that PC and scan again." = "Компьютер не вошёл в комнату. Оставьте GrantTap запущенным на том ПК и сканируйте снова.";
 "Linked keys stay on this iPhone. Reconnect reopens the WebSocket; it does not require a new QR." = "Ключи остаются на iPhone. «Переподключить» открывает WebSocket заново; новый QR не нужен.";
 "Pairing is still valid. Restart GrantTap monitor on that computer if Reconnect does not restore Live." = "Пейринг действителен. Перезапустите GrantTap monitor на том компьютере, если «Переподключить» не возвращает «В сети».";
 "Do not delete other links. Scan a new QR only for this computer." = "Не удаляйте другие связи. Новый QR нужен только для этого компьютера.";
 "Reconnect refreshes this link and asks the computer for a fresh chat list." = "«Переподключить» обновляет эту связь и запрашивает свежий список чатов.";
 "Each Mac/PC has its own room. Scan adds a link; it does not replace the others. Active for chats is where new tasks and the session list go; asks still arrive from every Live computer." = "У каждого Mac/PC своя комната. Скан добавляет связь и не затирает остальные. «Активен для чатов» — куда идут новые задачи и список сессий; asks приходят со всех Live-компьютеров.";
+"Computers you scan join this iPhone's room. A new PC does not start a second room. Active for chats is where new tasks and the session list go; asks still arrive from every Live computer." = "Компьютеры, которые вы сканируете, входят в комнату этого iPhone. Новый ПК не открывает вторую комнату. «Активен для чатов» — куда идут новые задачи и список сессий; asks приходят со всех Live-компьютеров.";
 "Relay %@ · room %@\n\nThis adds a linked computer. Other Mac/PC links stay. Continue only if you started this on your own computer." = "Relay %@ · комната %@\n\nЭто добавит связанный компьютер. Остальные Mac/PC сохранятся. Продолжайте только если вы начали это на своём компьютере.";
 "Pairing keys were incomplete. Ask the agent for a fresh QR — other links were not changed." = "Ключи пейринга неполные. Попросите агента дать свежий QR — другие связи не менялись.";
 "Last Mac publish · %@ ago" = "Последняя публикация · %@ назад";
@@ -949,6 +952,8 @@
 "GrantTap could not create the invite keys." = "GrantTap не смог создать ключи приглашения.";
 "The relay could not hold the one-time invite." = "Relay не смог принять одноразовое приглашение.";
 "The invite could not be stored securely." = "Приглашение не удалось сохранить безопасно.";
+"Member permissions could not be stored securely — the previous rights stay." = "Права участника не сохранились — остаются прежние.";
+"The member could not be removed securely — they are still in the Project." = "Участника не удалось удалить надёжно — он ещё в проекте.";
 "No computer in this Project is reachable right now." = "Ни один компьютер проекта сейчас недоступен.";
 "Invite code" = "Код приглашения";
 "The code could not be drawn; copy the invite instead." = "Код не удалось нарисовать; скопируйте приглашение.";

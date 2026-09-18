@@ -86,7 +86,8 @@ enum MemberContribution {
     private static func withProject(_ snapshot: ProjectMeshSnapshot, _ project: ProjectMeshProject) -> ProjectMeshSnapshot {
         ProjectMeshSnapshot(
             type: snapshot.type, sessionId: snapshot.sessionId, projectId: snapshot.projectId, project: project,
-            bindings: snapshot.bindings, peers: snapshot.peers, tasks: snapshot.tasks, executions: snapshot.executions,
+            bindings: snapshot.bindings, peers: snapshot.peers, skills: snapshot.skills,
+            incomplete: snapshot.incomplete, tasks: snapshot.tasks, executions: snapshot.executions,
             claims: snapshot.claims, dependencies: snapshot.dependencies, events: snapshot.events,
             generatedAt: snapshot.generatedAt
         )

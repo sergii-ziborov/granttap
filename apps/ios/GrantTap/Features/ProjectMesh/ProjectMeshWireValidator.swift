@@ -44,7 +44,8 @@ enum ProjectMeshWireValidator {
     static func validSnapshot(_ data: Data) -> Bool {
         let allowed: Set<String> = [
             "type", "sessionId", "projectId", "project", "tasks", "executions",
-            "bindings", "peers", "claims", "dependencies", "events", "generatedAt",
+            "bindings", "peers", "skills", "incomplete", "claims", "dependencies",
+            "events", "generatedAt",
         ]
         guard data.count <= 256 * 1_024,
               let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -54,6 +55,8 @@ enum ProjectMeshWireValidator {
               sessionId == boundedString(value["projectId"], max: 128),
               validBindings(value["bindings"], projectId: sessionId),
               validPeers(value["peers"], projectId: sessionId),
+              validSkills(value["skills"]),
+              validIncomplete(value["incomplete"]),
               let tasks = value["tasks"] as? [Any], tasks.count <= 64,
               let executions = value["executions"] as? [Any], executions.count <= 128,
               let claims = value["claims"] as? [Any], claims.count <= 128,
@@ -115,6 +118,39 @@ enum ProjectMeshWireValidator {
             if peer["through"] != nil, boundedString(peer["through"], max: 160) == nil { return false }
         }
         return true
+    }
+
+    private static func validSkills(_ value: Any?) -> Bool {
+        guard value != nil else { return true }
+        guard let skills = value as? [[String: Any]], skills.count <= 64 else { return false }
+        let allowed: Set<String> = [
+            "name", "description", "version", "digest", "source", "state",
+        ]
+        let states: Set<String> = ["installed", "available", "used", "unknown"]
+        var names = Set<String>()
+        for skill in skills {
+            guard Set(skill.keys).isSubset(of: allowed),
+                  let name = boundedString(skill["name"], max: 160),
+                  names.insert(name).inserted
+            else { return false }
+            if skill["description"] != nil,
+               boundedString(skill["description"], max: 1_000) == nil { return false }
+            if skill["version"] != nil,
+               boundedString(skill["version"], max: 128) == nil { return false }
+            if skill["digest"] != nil,
+               boundedString(skill["digest"], max: 128) == nil { return false }
+            if skill["source"] != nil,
+               boundedString(skill["source"], max: 512) == nil { return false }
+            if skill["state"] != nil {
+                guard let state = boundedString(skill["state"], max: 16),
+                      states.contains(state) else { return false }
+            }
+        }
+        return true
+    }
+
+    private static func validIncomplete(_ value: Any?) -> Bool {
+        value == nil || value is Bool
     }
 
     private static func validPayload(_ payload: [String: Any]) -> Bool {

@@ -6,6 +6,7 @@ struct ProjectMeshView: View {
     @ObservedObject var model: AppModel
     var onOpenSession: (SessionInfo) -> Void = { _ in }
     @State private var showReport = false
+    @State private var showWriteToAgents = false
 
     /// Most recently worked first: the list says when each Task last moved,
     /// so the order follows the same clock.
@@ -15,18 +16,34 @@ struct ProjectMeshView: View {
 
     var body: some View {
         List {
-            Section(L("Project")) {
-                ProjectDestinationRows(snapshot: snapshot, model: model)
-            }
             Section {
+                Button {
+                    showWriteToAgents = true
+                } label: {
+                    ProjectDestinationLabel(
+                        title: L("Write to agents"),
+                        detail: L("Send through the existing task delivery"),
+                        icon: "square.and.pencil"
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("project.write-to-agents")
+                ForEach(activeExecutors) { execution in
+                    NavigationLink {
+                        TaskRouteView(
+                            route: .init(projectId: snapshot.projectId, taskId: execution.taskId),
+                            model: model, onOpenSession: onOpenSession,
+                            presentedAsSheet: false
+                        )
+                    } label: {
+                        executorRow(execution)
+                    }
+                }
                 HStack {
                     count("Working", state: "working")
                     count("Blocked", state: "blocked")
                     count("Needs You", state: "needs_user")
                 }
-            }
-            ProjectRepositoriesSection(snapshot: snapshot, model: model, onOpenSession: onOpenSession)
-            Section {
                 ForEach(orderedTasks) { task in
                     NavigationLink {
                         TaskRouteView(
@@ -39,12 +56,16 @@ struct ProjectMeshView: View {
                     }
                 }
             } header: {
-                Text(L("Tasks"))
+                Text(L("Working"))
             } footer: {
                 if !snapshot.tasks.isEmpty {
                     Text(L("Most recently worked first."))
                 }
             }
+            Section(L("Project")) {
+                ProjectDestinationRows(snapshot: snapshot, model: model)
+            }
+            ProjectRepositoriesSection(snapshot: snapshot, model: model, onOpenSession: onOpenSession)
         }
         .navigationTitle(model.projectDisplayName(snapshot))
         .toolbar {
@@ -64,6 +85,31 @@ struct ProjectMeshView: View {
         .sheet(isPresented: $showReport) {
             ReportExportSheet(report: model.report(for: .project(snapshot)))
         }
+        .sheet(isPresented: $showWriteToAgents) {
+            ProjectWriteToAgentsSheet(snapshot: snapshot, model: model)
+        }
+    }
+
+    var activeExecutors: [ExecutionSessionLink] {
+        snapshot.executions.filter { $0.endedAt == nil }
+            .sorted {
+                if $0.lastSeenAt != $1.lastSeenAt { return $0.lastSeenAt > $1.lastSeenAt }
+                return $0.id < $1.id
+            }
+    }
+
+    func executorRow(_ execution: ExecutionSessionLink) -> some View {
+        let task = snapshot.tasks.first { $0.taskId == execution.taskId }
+        return VStack(alignment: .leading, spacing: 3) {
+            Text(MeshActorPresentation.executionName(execution))
+            if let task {
+                Text(ProjectMeshTaskTitle.text(task, session: model.sessions.first {
+                    $0.sessionId == execution.sessionId
+                }))
+                .font(.caption).foregroundStyle(Theme.muted)
+            }
+        }
+        .accessibilityIdentifier("project.executor.\(execution.sessionId)")
     }
 
     private func count(_ title: String, state: String) -> some View {

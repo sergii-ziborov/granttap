@@ -47,7 +47,7 @@ struct SettingsConnectionSection: View {
         } header: {
             Text(L("Connections"))
         } footer: {
-            Text(L("Each Mac/PC has its own room. Scan adds a link; it does not replace the others. Active for chats is where new tasks and the session list go; asks still arrive from every Live computer."))
+            Text(L("Computers you scan join this iPhone's room. A new PC does not start a second room. Active for chats is where new tasks and the session list go; asks still arrive from every Live computer."))
         }
         .confirmationDialog(
             L("Unlink this computer?"),

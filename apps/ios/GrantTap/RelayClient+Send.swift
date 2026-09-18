@@ -206,32 +206,43 @@ extension RelayClient {
                  deliveryId: String? = nil,
                  completion: ((Error?) -> Void)? = nil) {
         let to = addressee ?? peerRole.rawValue
-        guard let sealed = try? Crypto.seal(body,
-                                            theirPublicKeyB64: pairing.peerPublicKey,
-                                            mySecretKeyB64: pairing.mySecretKey) else {
-            completion?(RelaySendError.encryption)
-            return
-        }
-        let env = Envelope(room: pairing.room, from: role, to: to,
-                           senderId: pairing.senderId,
-                           deliveryId: deliveryId ?? UUID().uuidString.lowercased(), wake: nil,
-                           // The production relay validates this as an integer.
-                           // Fractional milliseconds made it reject even the
-                           // initial hello, so the socket never became "phone".
-                           expiresAt: ttl.map {
-                               ((Date().timeIntervalSince1970 + $0) * 1000).rounded(.down)
-                           },
-                           nonce: sealed.nonce, box: sealed.box)
-        guard let data = try? Self.encodeOmittingNulls(env),
-              let text = String(data: data, encoding: .utf8) else {
-            completion?(RelaySendError.encoding)
-            return
+        var peers = [pairing.peerPublicKey]
+        if role == .phone, to == peerRole.rawValue || to == "all",
+           let extras = pairing.extraPeerPublicKeys {
+            for key in extras where !peers.contains(key) { peers.append(key) }
         }
         guard let task else {
             completion?(RelaySendError.disconnected)
             return
         }
-        task.send(.string(text)) { error in completion?(error) }
+        var remaining = peers.count
+        var firstError: Error?
+        for peer in peers {
+            guard let sealed = try? Crypto.seal(body,
+                                                theirPublicKeyB64: peer,
+                                                mySecretKeyB64: pairing.mySecretKey) else {
+                completion?(RelaySendError.encryption)
+                return
+            }
+            let env = Envelope(room: pairing.room, from: role, to: to,
+                               senderId: pairing.senderId,
+                               deliveryId: deliveryId ?? UUID().uuidString.lowercased(),
+                               wake: nil,
+                               expiresAt: ttl.map {
+                                   ((Date().timeIntervalSince1970 + $0) * 1000).rounded(.down)
+                               },
+                               nonce: sealed.nonce, box: sealed.box)
+            guard let data = try? Self.encodeOmittingNulls(env),
+                  let text = String(data: data, encoding: .utf8) else {
+                completion?(RelaySendError.encoding)
+                return
+            }
+            task.send(.string(text)) { error in
+                if firstError == nil { firstError = error }
+                remaining -= 1
+                if remaining == 0 { completion?(firstError) }
+            }
+        }
     }
 
 

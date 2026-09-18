@@ -171,6 +171,60 @@ final class ProjectMeshTests: XCTestCase {
         ))
     }
 
+    func testSkillsAndIncompleteDecodeAdditivelyAndStayAllowlisted() throws {
+        let legacy = try JSONEncoder().encode(fixtureSnapshot())
+        let decodedLegacy = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: legacy)
+        XCTAssertNil(decodedLegacy.skills)
+        XCTAssertNil(decodedLegacy.incomplete)
+        XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(legacy))
+
+        var current = fixtureSnapshot()
+        current.skills = [
+            SharedSkill(name: "release-check", description: "Checklist", version: "1.0",
+                        digest: String(repeating: "a", count: 64), source: "repo", state: "installed"),
+            SharedSkill(name: "ios-qa", state: "available"),
+        ]
+        current.incomplete = true
+        let encoded = try JSONEncoder().encode(current)
+        let decoded = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: encoded)
+        XCTAssertEqual(decoded.skills?.map(\.name), ["release-check", "ios-qa"])
+        XCTAssertEqual(decoded.incomplete, true)
+        XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(encoded))
+
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object["foreignKey"] = "no"
+        XCTAssertFalse(ProjectMeshWireValidator.validSnapshot(
+            try JSONSerialization.data(withJSONObject: object)
+        ), "the snapshot allowlist still rejects unknown keys")
+        object.removeValue(forKey: "foreignKey")
+        var skills = try XCTUnwrap(object["skills"] as? [[String: Any]])
+        skills[0]["secret"] = "x"
+        object["skills"] = skills
+        XCTAssertFalse(ProjectMeshWireValidator.validSnapshot(
+            try JSONSerialization.data(withJSONObject: object)
+        ), "a skill row stays allowlisted")
+        skills[0]["secret"] = nil
+        skills[0]["state"] = "installed"
+        object["skills"] = skills
+        XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(
+            try JSONSerialization.data(withJSONObject: object)
+        ))
+
+        var incoming = current
+        incoming.skills = [
+            SharedSkill(name: "ios-qa", version: "1.1", state: "used"),
+            SharedSkill(name: "docs", state: "unknown"),
+        ]
+        incoming.incomplete = false
+        let merged = ProjectMeshLogic.merged(current: current, incoming: incoming, nowMs: now + 1)
+        XCTAssertEqual(merged.skills?.map(\.name), ["docs", "ios-qa", "release-check"])
+        XCTAssertEqual(merged.skills?.first { $0.name == "ios-qa" }?.version, "1.1")
+        XCTAssertEqual(merged.skills?.first { $0.name == "release-check" }?.state, "installed")
+        XCTAssertNil(ProjectMeshLogic.merged(
+            current: fixtureSnapshot(), incoming: fixtureSnapshot(), nowMs: now
+        ).skills)
+    }
+
     func testHandoffReceiptAuthenticatesTheExactCapsule() {
         let request = fixtureEvent(targetSessionId: nil, targetComputer: "Workstation")
         var snapshot = fixtureSnapshot()

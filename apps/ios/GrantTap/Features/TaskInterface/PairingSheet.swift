@@ -20,7 +20,7 @@ enum PairingPurpose {
     var scanExplanation: String {
         switch self {
         case .computer:
-            return L("Ask the agent to connect GrantTap, then scan the one-time QR. This adds a computer; other links stay.")
+            return L("Scan the QR on the computer. If this iPhone is already in a room, that computer joins it — a second room is not created.")
         case .joinProject:
             return L("Scan the invite on the other person's phone. Their Project arrives through their phone with the role they gave you: its Tasks, computers and Governance, and the chats they let you see. Your own computers can join it afterwards.")
         }
@@ -221,11 +221,7 @@ struct PairingSheet: View {
                         error = L("Pairing keys were incomplete. Ask the agent for a fresh QR — other links were not changed.")
                         return
                     }
-                    guard consume(pairing) else {
-                        error = AppModel.pairingStorageFailureMessage
-                        return
-                    }
-                    finishPairing()
+                    admit(pairing)
                 case .failure(let err):
                     // Keep the sheet open with an honest error (common: mailbox already used).
                     error = err.message
@@ -253,11 +249,7 @@ struct PairingSheet: View {
                 error = L("Pairing keys were incomplete. Ask the agent for a fresh QR — other links were not changed.")
                 return
             }
-            guard consume(p) else {
-                error = AppModel.pairingStorageFailureMessage
-                return
-            }
-            finishPairing()
+            admit(p)
         } else {
             error = L("This does not look like a GrantTap pairing. Ask the agent to connect GrantTap and scan the QR shown in the chat.")
         }
@@ -265,6 +257,30 @@ struct PairingSheet: View {
 
     private func consume(_ pairing: Pairing) -> Bool {
         pairingConsumer?(pairing) ?? (modelOverride ?? model).setPairing(pairing)
+    }
+
+    private func admit(_ pairing: Pairing) {
+        if pairingConsumer != nil {
+            guard consume(pairing) else {
+                error = AppModel.pairingStorageFailureMessage
+                return
+            }
+            finishPairing()
+            return
+        }
+        busy = true
+        error = nil
+        Task {
+            let ok = await (modelOverride ?? model).admitScannedComputer(pairing)
+            await MainActor.run {
+                busy = false
+                if ok {
+                    finishPairing()
+                } else {
+                    error = AppModel.pairingJoinFailureMessage
+                }
+            }
+        }
     }
 
     private func finishPairing() {

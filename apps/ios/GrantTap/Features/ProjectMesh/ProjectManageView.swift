@@ -1,13 +1,57 @@
 import SwiftUI
 
-/// The three doors of a Project — its rules, its members, its Mesh — each
-/// with what stands behind it, on the Project screen itself. A "Manage
-/// Project" screen that only held these rows was one tap of nothing.
+/// The doors of a Project — Knowledge, Tools & Skills, rules, members, and
+/// Health — each with what stands behind it, on the Project screen itself.
 struct ProjectDestinationRows: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
 
+    var knowledgeDetail: String {
+        ProjectKnowledgePresentation.summary(
+            snapshot: snapshot,
+            invocations: ProjectKnowledgePresentation.invocations(
+                from: model.invocationHistoryByTask,
+                projectId: snapshot.projectId,
+                taskIds: snapshot.tasks.map(\.taskId)
+            )
+        ).rowDetail
+    }
+
+    var toolsDetail: String {
+        ProjectToolsSkillsPresentation.catalog(
+            snapshot: snapshot,
+            sessions: model.sessions + model.allSessionHistory,
+            usage: CapabilityUsageStore.shared.events
+        ).rowDetail
+    }
+
+    var healthDetail: String {
+        ProjectManagePresentation.healthSummary(
+            snapshot, usageEvents: CapabilityUsageStore.shared.events
+        )
+    }
+
     var body: some View {
+        NavigationLink {
+            ProjectKnowledgeView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Knowledge"),
+                detail: knowledgeDetail,
+                icon: "book"
+            )
+        }
+        .accessibilityIdentifier("project.knowledge")
+        NavigationLink {
+            ProjectToolsSkillsView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Tools & Skills"),
+                detail: toolsDetail,
+                icon: "wrench.and.screwdriver"
+            )
+        }
+        .accessibilityIdentifier("project.tools-skills")
         NavigationLink {
             ProjectGovernanceView(project: snapshot.project, model: model)
         } label: {
@@ -33,11 +77,12 @@ struct ProjectDestinationRows: View {
             ProjectMeshStatusView(snapshot: snapshot, model: model)
         } label: {
             ProjectDestinationLabel(
-                title: L("Mesh status"),
-                detail: ProjectManagePresentation.meshSummary(snapshot),
+                title: L("Health / Graph"),
+                detail: healthDetail,
                 icon: "point.3.connected.trianglepath.dotted"
             )
         }
+        .accessibilityIdentifier("project.health")
     }
 }
 

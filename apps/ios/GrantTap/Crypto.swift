@@ -26,6 +26,24 @@ enum Crypto {
         return try? NaclBox.open(message: boxed, nonce: nonce, publicKey: their, secretKey: mine)
     }
 
+    /// A phone in a shared room tries every machine public key in that room.
+    static func openFromPeers(
+        nonceB64: String, boxB64: String, mySecretKeyB64: String,
+        peerPublicKeyB64: String, extraPeerPublicKeys: [String]? = nil
+    ) -> Data? {
+        var keys = [peerPublicKeyB64]
+        if let extras = extraPeerPublicKeys {
+            for key in extras where !keys.contains(key) { keys.append(key) }
+        }
+        for key in keys {
+            if let plain = open(nonceB64: nonceB64, boxB64: boxB64,
+                                theirPublicKeyB64: key, mySecretKeyB64: mySecretKeyB64) {
+                return plain
+            }
+        }
+        return nil
+    }
+
     static func transferKeyData(_ key: String) -> Data? {
         var base64 = key.replacingOccurrences(of: "-", with: "+")
             .replacingOccurrences(of: "_", with: "/")

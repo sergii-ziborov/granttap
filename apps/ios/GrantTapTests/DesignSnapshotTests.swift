@@ -105,6 +105,8 @@ final class DesignSnapshotTests: XCTestCase {
             ("iphone-projects-shared", AnyView(NavigationView { ProjectsTabView(model: model) }.environmentObject(model))),
             ("iphone-join-project", AnyView(PairingSheet(purpose: .joinProject).environmentObject(model))),
             ("iphone-project-mesh", AnyView(NavigationView { ProjectMeshView(snapshot: own, model: model, onOpenSession: open) }.environmentObject(model))),
+            ("iphone-project-knowledge", AnyView(NavigationView { ProjectKnowledgeView(snapshot: own, model: model) }.environmentObject(model))),
+            ("iphone-project-tools-skills", AnyView(NavigationView { ProjectToolsSkillsView(snapshot: own, model: model) }.environmentObject(model))),
             ("iphone-members", AnyView(NavigationView { ProjectMembersView(snapshot: own, model: model) }.environmentObject(model))),
             ("iphone-members-shared", AnyView(NavigationView { ProjectMembersView(snapshot: shared, model: model) }.environmentObject(model))),
             ("iphone-invite", AnyView(MemberInviteSheet(projectId: ownProject, model: model).environmentObject(model))),
