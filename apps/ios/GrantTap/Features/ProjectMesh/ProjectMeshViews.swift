@@ -14,6 +14,10 @@ struct ProjectMeshView: View {
         ProjectMeshRecency.ordered(snapshot.tasks, snapshot: snapshot, sessions: model.sessions)
     }
 
+    var attentionItems: [ProjectOverviewPresentation.AttentionItem] {
+        ProjectOverviewPresentation.attention(snapshot: snapshot, events: model.meshNeedsYouEvents)
+    }
+
     var body: some View {
         List {
             Section {
@@ -22,12 +26,32 @@ struct ProjectMeshView: View {
                 } label: {
                     ProjectDestinationLabel(
                         title: L("Write to agents"),
-                        detail: L("Send through the existing task delivery"),
+                        detail: ProjectOverviewPresentation.writeDetail(snapshot),
                         icon: "square.and.pencil"
                     )
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("project.write-to-agents")
+            }
+            Section(L("Needs You")) {
+                if attentionItems.isEmpty {
+                    Text(L("Nothing needs you in this Project."))
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
+                ForEach(attentionItems) { item in
+                    NavigationLink {
+                        TaskRouteView(
+                            route: .init(projectId: snapshot.projectId, taskId: item.taskId),
+                            model: model, onOpenSession: onOpenSession,
+                            presentedAsSheet: false
+                        )
+                    } label: {
+                        Text(item.title)
+                    }
+                    .accessibilityIdentifier("project.attention.\(item.eventId)")
+                }
+            }
+            Section {
                 ForEach(activeExecutors) { execution in
                     NavigationLink {
                         TaskRouteView(
@@ -56,13 +80,11 @@ struct ProjectMeshView: View {
                     }
                 }
             } header: {
-                Text(L("Working"))
+                Text(L("Work"))
             } footer: {
-                if !snapshot.tasks.isEmpty {
-                    Text(L("Most recently worked first."))
-                }
+                Text(L("Bounded snapshot. Activity in the last hour is not a live chat."))
             }
-            Section(L("Project")) {
+            Section(L("Management")) {
                 ProjectDestinationRows(snapshot: snapshot, model: model)
             }
             ProjectRepositoriesSection(snapshot: snapshot, model: model, onOpenSession: onOpenSession)
@@ -169,14 +191,27 @@ struct ProjectMeshTaskRow: View {
     /// "Last active 2 h ago", from the Task's own executions.
     var recencyLine: String? {
         guard let lastActiveAt, lastActiveAt > 0 else { return nil }
+        let now = Date().timeIntervalSince1970 * 1_000
+        if ProjectMeshActivityWindow.isActiveInLastHour(lastSeenAt: lastActiveAt, now: now) {
+            return L("Activity in the last hour")
+        }
         let seconds = Int(max(0, Date().timeIntervalSince1970 - lastActiveAt / 1_000))
         return "\(L("Last active")) \(ConnectionLoadFormat.age(seconds: seconds))"
+    }
+
+    var workLines: [String] {
+        ProjectOverviewPresentation.workFields(
+            task: task, execution: execution, lastActiveAt: lastActiveAt
+        )
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(ProjectMeshTaskTitle.text(task, session: currentSession)).font(.headline)
             Text(detailLine).font(.caption).foregroundStyle(Theme.muted)
+            ForEach(workLines, id: \.self) { line in
+                Text(line).font(.caption2).foregroundStyle(Theme.muted)
+            }
             if let recencyLine {
                 Text(recencyLine).font(.caption2).foregroundStyle(Theme.muted)
                     .accessibilityIdentifier("task.recency.\(task.taskId)")

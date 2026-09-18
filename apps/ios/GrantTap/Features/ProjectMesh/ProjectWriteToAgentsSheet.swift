@@ -78,7 +78,7 @@ struct ProjectWriteToAgentsSheet: View {
                 } header: {
                     Text(L("Write to agents"))
                 } footer: {
-                    Text(L("Uses the existing task delivery path. Shared skills stay on the Project list and are not attached to this message."))
+                    Text("\(ProjectOverviewPresentation.writeDetail(snapshot)). \(L("Uses the existing task delivery path. Shared skills stay on the Project list and are not attached to this message."))")
                 }
                 Section {
                     TaskComposerRoutePicker(

@@ -27,14 +27,20 @@ extension AppModel {
         addConnection(p, mode: .add, prefer: true)
     }
 
-    /// Scan of a new PC joins this iPhone's room. It does not mint a second room.
+    /// Scan of a new PC joins this iPhone's room only when another computer is Live.
     func admitScannedComputer(
         _ candidate: Pairing,
         sendJoin: ((Pairing, Pairing) async -> Bool)? = nil
     ) async -> Bool {
         let existing = connectionRegistry.preferred?.pairing
-        guard PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: candidate),
-              let existing else {
+        let phoneHasLivePeer = connectionRegistry.connections.contains {
+            snapshotForConnection($0).phase == .live
+        }
+        guard PairingJoinLogic.shouldJoinExistingRoom(
+            existing: existing,
+            candidate: candidate,
+            phoneHasLivePeer: phoneHasLivePeer
+        ), let existing else {
             return addConnection(candidate, mode: .add, prefer: true)
         }
         let sent: Bool

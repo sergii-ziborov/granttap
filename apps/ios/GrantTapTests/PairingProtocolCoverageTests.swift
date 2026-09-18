@@ -157,7 +157,12 @@ final class PairingProtocolCoverageTests: XCTestCase {
         var candidate = validPairing()
         candidate.room = String(repeating: "c", count: 32)
         candidate.peerPublicKey = Data(repeating: 9, count: 32).base64EncodedString()
-        XCTAssertTrue(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: candidate))
+        XCTAssertTrue(PairingJoinLogic.shouldJoinExistingRoom(
+            existing: existing, candidate: candidate, phoneHasLivePeer: true
+        ))
+        XCTAssertFalse(PairingJoinLogic.shouldJoinExistingRoom(
+            existing: existing, candidate: candidate, phoneHasLivePeer: false
+        ))
         XCTAssertFalse(PairingJoinLogic.shouldJoinExistingRoom(existing: existing, candidate: existing))
         var existingWithoutAuth = existing
         existingWithoutAuth.pushAuth = nil
@@ -177,6 +182,10 @@ final class PairingProtocolCoverageTests: XCTestCase {
         let model = AppModel()
         model.loadConnectionRegistry()
         XCTAssertTrue(model.addConnection(existing))
+        let now = Date().timeIntervalSince1970 * 1_000
+        model.roomRuntime[existing.room] = AppModel.RoomRuntime(
+            socketUp: true, socketUpSince: now, lastHeartbeatAt: now
+        )
         let joined = await model.admitScannedComputer(candidate) { _, _ in true }
         XCTAssertTrue(joined)
         XCTAssertEqual(model.connectionRegistry.connections.count, 1)
@@ -185,9 +194,35 @@ final class PairingProtocolCoverageTests: XCTestCase {
             model.connectionRegistry.preferred?.pairing.extraPeerPublicKeys,
             [candidate.peerPublicKey]
         )
+        model.roomRuntime[existing.room] = AppModel.RoomRuntime(
+            socketUp: true, socketUpSince: now, lastHeartbeatAt: now
+        )
         let refused = await model.admitScannedComputer(candidate) { _, _ in false }
         XCTAssertFalse(refused)
         XCTAssertEqual(model.connectionRegistry.connections.count, 1)
+    }
+
+    @MainActor
+    func testOfflinePhoneAdoptsTheWebsiteRoomInsteadOfKeepingAStaleOne() async {
+        let stored = PairedConnectionStore.load()
+        PairedConnectionStore.removeAll()
+        defer {
+            PairedConnectionStore.removeAll()
+            if !stored.connections.isEmpty { _ = PairedConnectionStore.save(stored) }
+        }
+        let stale = validPairing()
+        var website = validPairing()
+        website.room = String(repeating: "d", count: 32)
+        website.peerPublicKey = Data(repeating: 7, count: 32).base64EncodedString()
+        let model = AppModel()
+        model.loadConnectionRegistry()
+        XCTAssertTrue(model.addConnection(stale))
+        let adopted = await model.admitScannedComputer(website) { _, _ in
+            XCTFail("offline phone must not send pairing.join")
+            return false
+        }
+        XCTAssertTrue(adopted)
+        XCTAssertEqual(model.connectionRegistry.preferredId, website.room)
     }
 
     @MainActor

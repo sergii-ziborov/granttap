@@ -172,8 +172,9 @@ enum ProjectToolsSkillsPresentation {
         var stateLabel: String { ProjectToolsSkillsPresentation.stateLabel(state) }
 
         var detail: String {
+            let desired = version.map { "\(L("Desired")) \($0)" }
             let digestShort = digest.map { $0.count > 12 ? String($0.prefix(12)) : $0 }
-            return [version, digestShort, source, description]
+            return [desired, digestShort, source, description]
                 .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
                 .joined(separator: " · ")
@@ -296,5 +297,126 @@ enum ProjectToolsSkillsPresentation {
     static func usageLabel(name: String, usedNames: Set<String>) -> String? {
         if usedNames.contains(name) { return L("Used") }
         return L("Unknown")
+    }
+}
+
+enum ProjectMeshActivityWindow {
+    static let liveMs: Double = 60 * 60 * 1_000
+
+    static func isActiveInLastHour(lastSeenAt: Double, now: Double) -> Bool {
+        now - lastSeenAt <= liveMs
+    }
+}
+
+enum ProjectOverviewPresentation {
+    struct AttentionItem: Identifiable, Equatable {
+        let eventId: String
+        let taskId: String
+        let title: String
+        var id: String { eventId }
+    }
+
+    static func attention(
+        snapshot: ProjectMeshSnapshot,
+        events: [ProjectMeshEvent]
+    ) -> [AttentionItem] {
+        events.filter { $0.projectId == snapshot.projectId }.map { event in
+            let task = snapshot.tasks.first { $0.taskId == event.taskId }
+            let text = event.payload.question
+                ?? event.payload.reason
+                ?? event.payload.summary
+                ?? event.eventType
+            return AttentionItem(
+                eventId: event.eventId,
+                taskId: event.taskId,
+                title: [task.map { ProjectMeshTaskTitle.text($0, session: nil) }, text]
+                    .compactMap { $0 }.joined(separator: " · ")
+            )
+        }
+    }
+
+    static func recipientCount(_ snapshot: ProjectMeshSnapshot) -> Int {
+        snapshot.executions.filter { $0.endedAt == nil }.count
+    }
+
+    static func writeDetail(_ snapshot: ProjectMeshSnapshot) -> String {
+        LPlural(recipientCount(snapshot), one: "%d recipient", many: "%d recipients")
+    }
+
+    static func workFields(
+        task: ProjectMeshTask,
+        execution: ExecutionSessionLink?,
+        lastActiveAt: Double?,
+        now: Double = Date().timeIntervalSince1970 * 1_000
+    ) -> [String] {
+        var fields: [String] = []
+        if let owner = task.ownerSessionId { fields.append("\(L("Owner")) \(owner)") }
+        if let execution {
+            fields.append("\(L("Agent")) \(MeshActorPresentation.executionName(execution))")
+            fields.append("\(L("Computer")) \(execution.computerId)")
+            if let branch = execution.branch, !branch.isEmpty {
+                fields.append("\(L("Branch")) \(branch)")
+            }
+        }
+        _ = (lastActiveAt, now)
+        return fields
+    }
+}
+
+enum TaskContextPresentation {
+    struct Card: Equatable {
+        let title: String
+        let goal: String?
+        let revision: String?
+        let sources: [String]
+        let decisions: [String]
+        let missing: [String]
+        let sizeLabel: String
+        let offered: Bool
+        let issued: Bool
+        let confirmed: Bool
+    }
+
+    static func card(
+        task: ProjectMeshTask?,
+        snapshot: ProjectMeshSnapshot,
+        events: [ProjectMeshEvent],
+        invocations: [ProjectInvocationRecord] = []
+    ) -> Card {
+        let knowledge = ProjectKnowledgePresentation.summary(
+            snapshot: snapshot,
+            invocations: invocations
+        )
+        let taskEvents = events.filter { $0.taskId == task?.taskId }
+        let offered = taskEvents.contains {
+            $0.eventType == "AGENT_QUESTION" || $0.eventType == "HANDOFF_REQUEST"
+        }
+        let issued = !invocations.isEmpty || taskEvents.contains { $0.eventType == "TASK_PROGRESS" }
+        let confirmed = invocations.contains { $0.event.phase == "change_observed" }
+        let missing = task.map { item in
+            [
+                item.goal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? L("Goal") : nil,
+                item.revision == nil ? L("Revision") : nil,
+            ].compactMap { $0 }
+        } ?? [L("Task")]
+        return Card(
+            title: task.map { ProjectMeshTaskTitle.text($0, session: nil) } ?? L("Task"),
+            goal: task?.goal,
+            revision: task?.revision.map { String(Int($0)) },
+            sources: [knowledge.source].compactMap { $0 },
+            decisions: Array(knowledge.decisions.prefix(4)),
+            missing: missing,
+            sizeLabel: String(format: L("%d events shown"), min(taskEvents.count, 8)),
+            offered: offered,
+            issued: issued,
+            confirmed: confirmed
+        )
+    }
+
+    static func deliveryLabel(offered: Bool, issued: Bool, confirmed: Bool) -> String {
+        if confirmed { return L("Confirmed by client") }
+        if issued { return L("Issued via MCP") }
+        if offered { return L("Offered to agent") }
+        return L("Not yet offered")
     }
 }

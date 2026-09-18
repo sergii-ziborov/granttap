@@ -39,6 +39,7 @@ final class ProjectSectionPresentationTests: XCTestCase {
         XCTAssertEqual(catalog.skills.map(\.name), ["docs", "release-check"])
         XCTAssertEqual(catalog.skills.first { $0.name == "docs" }?.state, "unknown")
         XCTAssertEqual(catalog.skills.first { $0.name == "release-check" }?.state, "installed")
+        XCTAssertTrue(catalog.skills.first { $0.name == "release-check" }?.detail.contains("\(L("Desired")) 1.0") == true)
         XCTAssertEqual(catalog.servers.map(\.name), ["figma", "github"])
         XCTAssertEqual(catalog.items(kind: .mcp, state: "installed").map(\.name), ["github"])
         XCTAssertEqual(catalog.items(kind: .mcp, state: "available").map(\.name), ["figma"])
@@ -133,7 +134,7 @@ final class ProjectSectionPresentationTests: XCTestCase {
         XCTAssertEqual(ProjectManagePresentation.workingSummary(snapshot), "0 tasks · 0 executors")
         XCTAssertEqual(
             ProjectManagePresentation.healthSummary(snapshot),
-            ProjectManagePresentation.meshSummary(snapshot)
+            "\(ProjectManagePresentation.meshSummary(snapshot)) · \(L("Usage not yet observed"))"
         )
         snapshot.tasks = [
             ProjectMeshTask(
@@ -152,6 +153,12 @@ final class ProjectSectionPresentationTests: XCTestCase {
             id: "u", sourceId: "s", kind: .cli, name: "rg", sessionId: "owner", createdAt: now
         )
         XCTAssertTrue(ProjectManagePresentation.healthSummary(snapshot, usageEvents: [usage]).contains("1 call"))
+        XCTAssertEqual(ProjectOverviewPresentation.recipientCount(snapshot), 1)
+        XCTAssertEqual(ProjectOverviewPresentation.writeDetail(snapshot), "1 recipient")
+        XCTAssertEqual(
+            TaskContextPresentation.deliveryLabel(offered: true, issued: false, confirmed: false),
+            L("Offered to agent")
+        )
     }
 
     func testKnowledgeAndToolsScreensRenderEmptyAndPopulated() {

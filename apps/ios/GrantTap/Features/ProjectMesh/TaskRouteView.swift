@@ -94,6 +94,41 @@ struct TaskRouteView: View {
         }
     }
 
+    @ViewBuilder
+    var contextCard: some View {
+        if let snapshot {
+            let card = TaskContextPresentation.card(
+                task: task,
+                snapshot: snapshot,
+                events: events,
+                invocations: model.invocationHistoryByTask[
+                    AppModel.invocationTaskKey(route.projectId, route.taskId)
+                ] ?? []
+            )
+            Section {
+                if let revision = card.revision {
+                    Text("\(L("Revision")) \(revision)").font(.caption)
+                }
+                Text(TaskContextPresentation.deliveryLabel(
+                    offered: card.offered, issued: card.issued, confirmed: card.confirmed
+                )).font(.caption).foregroundStyle(Theme.muted)
+                if !card.sources.isEmpty {
+                    Text(card.sources.joined(separator: " · ")).font(.caption)
+                }
+                ForEach(card.decisions, id: \.self) { decision in
+                    Text(decision).font(.caption)
+                }
+                if !card.missing.isEmpty {
+                    Text("\(L("Missing")) · \(card.missing.joined(separator: ", "))")
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
+                Text(card.sizeLabel).font(.caption2).foregroundStyle(Theme.muted)
+            } header: {
+                Text(L("Context"))
+            }
+        }
+    }
+
     /// Why a release of this claim was refused, when it was.
     @ViewBuilder
     private func releaseNotice(_ claim: ProjectResourceClaim) -> some View {
@@ -135,6 +170,7 @@ struct TaskRouteView: View {
                     }
                     Text(stateLine).font(.caption).foregroundStyle(Theme.muted)
                 }
+                contextCard
                 if let question = pendingQuestion { answerSection(question) }
                 Section(L("Executions")) {
                     if executions.isEmpty {

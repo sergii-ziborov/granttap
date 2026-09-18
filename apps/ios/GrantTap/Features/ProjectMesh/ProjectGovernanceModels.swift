@@ -122,7 +122,7 @@ enum ProjectManagePresentation {
     ) -> String {
         let mesh = meshSummary(snapshot)
         let events = ProjectUsageStats.events(usageEvents, snapshot: snapshot)
-        guard !events.isEmpty else { return mesh }
+        guard !events.isEmpty else { return "\(mesh) · \(L("Usage not yet observed"))" }
         return "\(mesh) · \(String(format: L(events.count == 1 ? "%d call" : "%d calls"), events.count))"
     }
 

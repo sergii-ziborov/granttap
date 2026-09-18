@@ -136,10 +136,17 @@ struct PairingJoin: Codable, Equatable {
 }
 
 enum PairingJoinLogic {
-    /// First computer, same room, or a Project hub stay as add. A new PC joins.
-    static func shouldJoinExistingRoom(existing: Pairing?, candidate: Pairing) -> Bool {
+    /// Live peers decide the room. A leftover pairing file does not.
+    /// Solo/offline phone adopts the QR room. A Live phone keeps its room and
+    /// the scanned computer joins it. Two Live rooms merge into the phone's.
+    static func shouldJoinExistingRoom(
+        existing: Pairing?,
+        candidate: Pairing,
+        phoneHasLivePeer: Bool = false
+    ) -> Bool {
         guard let existing, !existing.isHub, !candidate.isHub else { return false }
-        return existing.room != candidate.room
+        guard existing.room != candidate.room else { return false }
+        return phoneHasLivePeer
     }
 
     static func remembered(_ existing: Pairing, machinePublicKey: String, from candidate: Pairing? = nil) -> Pairing {

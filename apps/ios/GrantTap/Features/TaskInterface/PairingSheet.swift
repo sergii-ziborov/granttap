@@ -20,7 +20,7 @@ enum PairingPurpose {
     var scanExplanation: String {
         switch self {
         case .computer:
-            return L("Scan the QR on the computer. If this iPhone is already in a room, that computer joins it — a second room is not created.")
+            return L("Scan the QR on the computer. If this iPhone is Live with another device, that computer joins this room. If it is not, this iPhone joins the room on the QR. Two Live rooms merge.")
         case .joinProject:
             return L("Scan the invite on the other person's phone. Their Project arrives through their phone with the role they gave you: its Tasks, computers and Governance, and the chats they let you see. Your own computers can join it afterwards.")
         }

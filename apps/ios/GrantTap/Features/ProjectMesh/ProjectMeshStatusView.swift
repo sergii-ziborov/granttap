@@ -24,6 +24,10 @@ struct ProjectMeshStatusView: View {
                 )
                 CompatLabeledContent(L("Tasks"), value: "\(snapshot.tasks.count)")
                 CompatLabeledContent(L("Executions"), value: "\(snapshot.executions.count)")
+                if snapshot.incomplete == true {
+                    Text(L("Bounded snapshot. Not the whole Project."))
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
             }
             projectUsageSection
             Section(L("Repository bindings")) {
@@ -57,6 +61,7 @@ struct ProjectMeshStatusView: View {
         let events = ProjectUsageStats.events(
             CapabilityUsageStore.shared.events, snapshot: snapshot
         )
+        inventorySection(events: events)
         if !events.isEmpty {
             if let totals = TaskUsageHistory.totals(events, sessionIds: sessionIds) {
                 Section(L("This Project")) {
@@ -99,47 +104,60 @@ struct ProjectMeshStatusView: View {
                     Text(L("Where the time went"))
                 }
             }
-            Section(L("Load by computer")) {
-                ForEach(ProjectUsageStats.perComputer(events, snapshot: snapshot)) { row in
-                    NavigationLink {
-                        ProjectComputerUsageView(
-                            endpointId: row.endpointId, snapshot: snapshot, model: model
-                        )
-                    } label: {
-                        ProjectComputerUsageRow(
-                            usage: row, model: model,
-                            work: ProjectComputerWork.current(
-                                snapshot: snapshot, endpointId: row.endpointId, sessions: model.sessions
-                            )
-                        )
-                    }
-                    .accessibilityIdentifier("mesh.computer.\(row.endpointId)")
-                }
+        }
+    }
+
+    @ViewBuilder
+    private func inventorySection(
+        events: [CapabilityUsageEvent]
+    ) -> some View {
+        let computers = ProjectUsageStats.inventory(events, snapshot: snapshot)
+        Section(L("Load by computer")) {
+            if computers.isEmpty {
+                Text(L("No computers reported yet."))
+                    .font(.caption).foregroundStyle(Theme.muted)
             }
-            Section {
-                ForEach(summaries) { summary in
-                    NavigationLink {
-                        CapabilityUsageHistoryView(
-                            kind: summary.kind, name: summary.name,
-                            agent: nil, modelName: nil, sessionIds: sessionIds
+            ForEach(computers) { row in
+                NavigationLink {
+                    ProjectComputerUsageView(
+                        endpointId: row.endpointId, snapshot: snapshot, model: model
+                    )
+                } label: {
+                    ProjectComputerUsageRow(
+                        usage: row, model: model,
+                        work: ProjectComputerWork.current(
+                            snapshot: snapshot, endpointId: row.endpointId, sessions: model.sessions
                         )
-                    } label: {
-                        UsageToolRow(summary: summary)
-                    }
-                    // The rule is written where the tool is looked at, not on a
-                    // settings screen nobody starts from.
-                    .contextMenu {
-                        ProjectGovernanceQuickMenu(
-                            kind: summary.kind, name: summary.name,
-                            projectId: snapshot.projectId, model: model, toast: $toast
-                        )
-                    }
+                    )
                 }
-            } header: {
-                Text(L("Tools"))
-            } footer: {
-                Text(L("Touch and hold a tool to allow, ask, or deny it for this Project."))
+                .accessibilityIdentifier("mesh.computer.\(row.endpointId)")
             }
+        }
+        let catalog = ProjectToolsSkillsPresentation.catalog(
+            snapshot: snapshot,
+            sessions: model.sessions + model.allSessionHistory,
+            usage: events
+        )
+        Section {
+            if catalog.skills.isEmpty && catalog.servers.isEmpty {
+                Text(L("Usage not yet observed"))
+                    .font(.caption).foregroundStyle(Theme.muted)
+            }
+            ForEach(catalog.servers + catalog.skills) { item in
+                Text([
+                    item.name,
+                    ProjectToolsSkillsPresentation.stateLabel(item.state),
+                    item.version.map { "\(L("Desired")) \($0)" },
+                    ProjectToolsSkillsPresentation.usageLabel(name: item.name, usedNames: catalog.usedNames),
+                ].compactMap { $0 }.joined(separator: " · "))
+                    .accessibilityIdentifier("mesh.inventory.\(item.name)")
+            }
+        } header: {
+            Text(L("Tools"))
+        } footer: {
+            Text(events.isEmpty
+                 ? L("Usage not yet observed")
+                 : L("Touch and hold a tool to allow, ask, or deny it for this Project."))
         }
     }
 }

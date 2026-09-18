@@ -57,6 +57,18 @@ enum ProjectUsageStats {
         .sorted { $0.calls == $1.calls ? $0.endpointId < $1.endpointId : $0.calls > $1.calls }
     }
 
+    /// Computers that belong to the Project even when no usage event exists.
+    static func inventory(
+        _ events: [CapabilityUsageEvent], snapshot: ProjectMeshSnapshot
+    ) -> [ProjectComputerUsage] {
+        let measured = Dictionary(uniqueKeysWithValues: perComputer(events, snapshot: snapshot).map { ($0.endpointId, $0) })
+        return ProjectManagePresentation.endpointIds(snapshot).map { endpoint in
+            measured[endpoint] ?? ProjectComputerUsage(
+                endpointId: endpoint, calls: 0, failures: 0, cpuTimeMs: nil, peakMemoryBytes: nil
+            )
+        }
+    }
+
     /// Tokens the chats spent, added up: each chat carries its own total, and a
     /// Project or a computer is the sum of the chats it holds.
     static func tokens(_ sessions: [SessionInfo], sessionIds: Set<String>) -> Int {
