@@ -40,6 +40,23 @@ extension RelayClient {
                      permissionMode: String? = nil,
                      effort: String? = nil,
                      completion: ((Error?) -> Void)? = nil) {
+        let isNewTask = sessionId == nil && (requestId == nil || requestId?.isEmpty == true)
+        if isNewTask, let cwd, !cwd.isEmpty {
+            send(payload: TaskCreate(
+                type: "project.task.create",
+                operationId: messageId,
+                text: text,
+                cwd: cwd,
+                agent: agent,
+                model: model,
+                instanceEpoch: lastInstanceEpoch,
+                attachments: attachments.isEmpty ? nil : attachments,
+                attachmentRefs: attachmentRefs.isEmpty ? nil : attachmentRefs,
+                createdAt: Date().timeIntervalSince1970 * 1000
+            ), ttl: DeliveryOutboxPolicy.userMessageRelayTTLSeconds,
+               deliveryId: messageId, completion: completion)
+            return
+        }
         let payload = Payloads.message(text, messageId: messageId, agent: agent, cwd: cwd,
                                        sessionId: sessionId, requestId: requestId,
                                        attachments: attachments, attachmentRefs: attachmentRefs,
@@ -160,8 +177,7 @@ extension RelayClient {
                 level: clearAutoAcceptSession ? nil : autoAcceptSessionLevel
             )
         }
-        send(payload: ConfigSet(
-            type: "config.set",
+        send(payload: ConfigCommandContext.signed(
             enabled: enabled,
             excludeSession: excludeSession,
             includeSession: includeSession,
@@ -171,7 +187,8 @@ extension RelayClient {
             provider: nil,
             providerEnabled: nil,
             meshEnabled: nil,
-            createdAt: Date().timeIntervalSince1970 * 1000
+            baseRevision: lastConfigRevision,
+            instanceEpoch: lastInstanceEpoch
         ))
     }
 
@@ -180,11 +197,18 @@ extension RelayClient {
         providerEnabled: Bool? = nil,
         meshEnabled: Bool? = nil
     ) {
-        send(payload: ConfigSet(
-            type: "config.set", enabled: nil, excludeSession: nil, includeSession: nil,
-            autoAcceptDefault: nil, autoAcceptSession: nil, autoAcceptPaused: nil,
-            provider: provider, providerEnabled: providerEnabled, meshEnabled: meshEnabled,
-            createdAt: Date().timeIntervalSince1970 * 1_000
+        send(payload: ConfigCommandContext.signed(
+            enabled: nil,
+            excludeSession: nil,
+            includeSession: nil,
+            autoAcceptDefault: nil,
+            autoAcceptSession: nil,
+            autoAcceptPaused: nil,
+            provider: provider,
+            providerEnabled: providerEnabled,
+            meshEnabled: meshEnabled,
+            baseRevision: lastConfigRevision,
+            instanceEpoch: lastInstanceEpoch
         ))
     }
 

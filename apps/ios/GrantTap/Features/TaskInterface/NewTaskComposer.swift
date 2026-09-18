@@ -113,7 +113,8 @@ extension ContentView {
                     workspace: $newTaskCwd,
                     computers: taskComposerComputers,
                     workspaces: model.workspaceFolders(for: composeAgent),
-                    enabledProviders: model.agentMeshPreferences.enabledProviders
+                    enabledProviders: model.agentMeshPreferences.enabledProviders,
+                    pinnedEndpointId: model.pinnedEndpointId(forWorkspace: newTaskCwd)
                 )
                 .padding(.top, 8)
             } label: {

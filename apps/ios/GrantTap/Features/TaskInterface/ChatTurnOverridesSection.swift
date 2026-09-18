@@ -10,7 +10,15 @@ struct ChatTurnOverridesSection: View {
     let agent: String
     @ObservedObject var model: AppModel
 
-    private var models: [TurnModel] { TurnModel.supported(by: agent) }
+    private var advertised: [String] {
+        model.advertisedModels(for: agent, sessionId: sessionId)
+    }
+
+    private var models: [TurnModel] {
+        let ids = advertised
+        if ids.isEmpty { return [] }
+        return ids.compactMap(TurnModel.init(rawValue:))
+    }
     private var efforts: [TurnEffort] { TurnEffort.supported(by: agent) }
 
     var body: some View {
@@ -35,7 +43,9 @@ struct ChatTurnOverridesSection: View {
             } header: {
                 Text(L("Model"))
             } footer: {
-                Text(L("Applies to future turns sent from GrantTap."))
+                Text(advertised.isEmpty
+                     ? L("Catalog not reported")
+                     : L("Applies to future turns sent from GrantTap."))
                     .font(.system(size: 11))
             }
         }

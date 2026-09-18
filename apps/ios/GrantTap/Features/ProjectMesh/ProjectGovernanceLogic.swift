@@ -106,7 +106,8 @@ enum ProjectGovernanceLogic {
             )
         }.sorted { $0.ruleId < $1.ruleId }
         return ProjectPolicy(
-            projectId: projectId, revision: revision, enforcement: enforcement, rules: rules
+            projectId: projectId, revision: revision, enforcement: enforcement, rules: rules,
+            execution: current?.execution
         )
     }
 

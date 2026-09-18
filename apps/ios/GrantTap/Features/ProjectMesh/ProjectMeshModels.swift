@@ -213,6 +213,25 @@ struct SharedSkill: Codable, Equatable, Identifiable {
     var id: String { name }
 }
 
+struct AdvertisedModel: Codable, Equatable, Identifiable {
+    let modelId: String
+    let provider: String
+    let endpointId: String
+    let source: String
+    var label: String? = nil
+    let observedAt: Double
+    var id: String { "\(endpointId)\u{1f}\(provider)\u{1f}\(modelId)" }
+}
+
+struct EndpointModelCatalog: Codable, Equatable, Identifiable {
+    let endpointId: String
+    let observedAt: Double
+    var stale: Bool? = nil
+    var models: [AdvertisedModel]
+    var reason: String? = nil
+    var id: String { endpointId }
+}
+
 struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     let type: String
     let sessionId: String
@@ -222,6 +241,8 @@ struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     var peers: [ProjectIntegrationPeer]? = nil
     var skills: [SharedSkill]? = nil
     var incomplete: Bool? = nil
+    var execution: ProjectExecutionPolicy? = nil
+    var modelCatalog: [EndpointModelCatalog]? = nil
     var tasks: [ProjectMeshTask]
     var executions: [ExecutionSessionLink]
     var claims: [ProjectResourceClaim]

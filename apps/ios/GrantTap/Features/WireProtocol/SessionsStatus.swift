@@ -34,6 +34,8 @@ struct SessionsStatus: Decodable {
     var autoAcceptPaused: Bool?
     var providerSettings: [String: Bool]?
     var meshEnabled: Bool?
+    var configRevision: Int?
+    var instanceEpoch: String?
     var globalMcpDisabled: [String]?
     var globalSkillsDisabled: [String]?
     var globalShellDisabled: Bool?
@@ -43,7 +45,7 @@ struct SessionsStatus: Decodable {
     private enum CodingKeys: String, CodingKey {
         case type, machine, sessions, history, activities, tokensRecent, tokenWindowHours, tokensAllTime
         case gatingEnabled, excludedSessions, autoAcceptDefault, autoAcceptBySession, autoAcceptPaused
-        case providerSettings, meshEnabled
+        case providerSettings, meshEnabled, configRevision, instanceEpoch
         case globalMcpDisabled, globalSkillsDisabled, globalShellDisabled
         case agents, generatedAt
     }
@@ -62,6 +64,8 @@ struct SessionsStatus: Decodable {
          autoAcceptPaused: Bool? = nil,
          providerSettings: [String: Bool]? = nil,
          meshEnabled: Bool? = nil,
+         configRevision: Int? = nil,
+         instanceEpoch: String? = nil,
          globalMcpDisabled: [String]? = nil,
          globalSkillsDisabled: [String]? = nil,
          globalShellDisabled: Bool? = nil,
@@ -81,6 +85,8 @@ struct SessionsStatus: Decodable {
         self.autoAcceptPaused = autoAcceptPaused
         self.providerSettings = providerSettings
         self.meshEnabled = meshEnabled
+        self.configRevision = configRevision
+        self.instanceEpoch = instanceEpoch
         self.globalMcpDisabled = globalMcpDisabled
         self.globalSkillsDisabled = globalSkillsDisabled
         self.globalShellDisabled = globalShellDisabled
@@ -106,6 +112,8 @@ struct SessionsStatus: Decodable {
         autoAcceptPaused = try? c.decode(Bool.self, forKey: .autoAcceptPaused)
         providerSettings = try? c.decode([String: Bool].self, forKey: .providerSettings)
         meshEnabled = try? c.decode(Bool.self, forKey: .meshEnabled)
+        configRevision = Self.decodeInt(c, forKey: .configRevision)
+        instanceEpoch = try? c.decode(String.self, forKey: .instanceEpoch)
         globalMcpDisabled = try? c.decode([String].self, forKey: .globalMcpDisabled)
         globalSkillsDisabled = try? c.decode([String].self, forKey: .globalSkillsDisabled)
         globalShellDisabled = try? c.decode(Bool.self, forKey: .globalShellDisabled)

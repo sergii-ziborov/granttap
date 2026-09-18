@@ -50,6 +50,8 @@ final class MemberChatsTests: XCTestCase {
         XCTAssertTrue(stored.canEditGovernance)
         XCTAssertFalse(stored.canSeeChats, "a link from before chats were shared shares none")
         XCTAssertFalse(stored.canSendToChats)
+        XCTAssertFalse(stored.canCreateTasks)
+        XCTAssertFalse(stored.canManageProjectExecution)
         XCTAssertEqual(MemberRules(canSeeChats: true).summary, L("reads chats"))
         XCTAssertEqual(MemberRules(canSeeChats: true, canSendToChats: true).summary, L("chats"))
         XCTAssertTrue(MemberHubPolicy.allows("session.events", rules: MemberRules(canSeeChats: true)))

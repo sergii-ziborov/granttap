@@ -109,7 +109,14 @@ extension AppModel {
         )
         // Only send what this provider can act on; anything else is dropped
         // here rather than travelling as a value the computer would ignore.
-        let wire = overrides.wire(for: effectiveAgent)
+        let routedRoom: String? = {
+            if isNewTask, let pinned = pinnedEndpointId(forWorkspace: cwd ?? "") { return pinned }
+            return sourceRoom
+        }()
+        let advertised = advertisedModels(
+            for: effectiveAgent, sessionId: resolvedIncoming, computerId: routedRoom
+        )
+        let wire = overrides.wire(for: effectiveAgent, advertised: advertised)
         let resolvedOverrides = (
             model: wire.model, permissionMode: wire.permissionMode, effort: wire.effort
         )
@@ -121,8 +128,8 @@ extension AppModel {
             title: text.isEmpty ? nil : String(text.prefix(80)),
             at: now
         )
-        if let sourceRoom, let stubId {
-            rememberSessionSourceRoom(sourceRoom, sessionId: stubId)
+        if let routedRoom, let stubId {
+            rememberSessionSourceRoom(routedRoom, sessionId: stubId)
         }
         let candidate = OutgoingDelivery(
             id: messageId, text: text,
@@ -132,7 +139,7 @@ extension AppModel {
             agent: mcpReply ? nil : effectiveAgent,
             cwd: mcpReply ? nil : (isNewTask ? cwd : nil),
             sessionId: mcpReply ? resolvedIncoming : stubId,
-            requestId: correlatedId, roomId: sourceRoom,
+            requestId: correlatedId, roomId: routedRoom,
             attachments: attachments,
             // Only what went ahead to this very room can be named there.
             attachmentRefs: attachmentRefs.isEmpty ? nil : attachmentRefs,
@@ -151,7 +158,7 @@ extension AppModel {
             admission, messageId: messageId, mcpReply: mcpReply,
             stubId: stubId, effectiveAgent: effectiveAgent, text: text,
             attachments: attachments, createdAt: now,
-            awaitingSessionRemap: awaitingSessionRemap, sourceRoom: sourceRoom,
+            awaitingSessionRemap: awaitingSessionRemap, sourceRoom: routedRoom,
             isNewTask: isNewTask, requestedAgent: agent
         )
     }

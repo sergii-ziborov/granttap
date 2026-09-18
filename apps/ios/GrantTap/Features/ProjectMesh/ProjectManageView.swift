@@ -53,6 +53,18 @@ struct ProjectDestinationRows: View {
         }
         .accessibilityIdentifier("project.tools-skills")
         NavigationLink {
+            ProjectExecutionView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Execution"),
+                detail: ProjectManagePresentation.executionSummary(
+                    snapshot, governance: model.projectGovernance[snapshot.projectId]
+                ),
+                icon: "desktopcomputer"
+            )
+        }
+        .accessibilityIdentifier("project.execution")
+        NavigationLink {
             ProjectGovernanceView(project: snapshot.project, model: model)
         } label: {
             ProjectDestinationLabel(

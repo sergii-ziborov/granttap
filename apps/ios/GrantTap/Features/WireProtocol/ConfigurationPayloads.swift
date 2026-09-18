@@ -11,6 +11,25 @@ struct ConfigSet: Codable {
     var provider: String? = nil
     var providerEnabled: Bool? = nil
     var meshEnabled: Bool? = nil
+    var operationId: String? = nil
+    var baseRevision: Int? = nil
+    var expiresAt: Double? = nil
+    var payloadDigest: String? = nil
+    var instanceEpoch: String? = nil
+    let createdAt: Double
+}
+
+struct TaskCreate: Codable {
+    let type: String
+    let operationId: String
+    let text: String
+    let cwd: String
+    var agent: String? = nil
+    var model: String? = nil
+    var instanceEpoch: String? = nil
+    var parentSessionId: String? = nil
+    var attachments: [UserAttachment]? = nil
+    var attachmentRefs: [UserAttachmentRef]? = nil
     let createdAt: Double
 }
 

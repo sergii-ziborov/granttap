@@ -65,11 +65,38 @@ struct ProjectPolicyRule: Codable, Equatable, Identifiable {
     var id: String { ruleId }
 }
 
+enum ProjectExecutionMode: String, Codable, CaseIterable {
+    case distributed
+    case pinned
+}
+
+enum HostGrantStatus: String, Codable {
+    case none
+    case pending
+    case applied
+    case unavailable
+}
+
+enum ExecutionOfflineBehavior: String, Codable, CaseIterable {
+    case reject
+    case queueUntilDeadline
+}
+
+struct ProjectExecutionPolicy: Codable, Equatable {
+    var mode: ProjectExecutionMode
+    var targetEndpointId: String? = nil
+    var revision: Int
+    var hostGrantId: String? = nil
+    var hostGrantStatus: HostGrantStatus = .none
+    var offlineBehavior: ExecutionOfflineBehavior = .reject
+}
+
 struct ProjectPolicy: Codable, Equatable {
     let projectId: String
     var revision: Int
     var enforcement: ProjectEnforcementMode
     var rules: [ProjectPolicyRule]
+    var execution: ProjectExecutionPolicy? = nil
 }
 
 struct ProjectCapabilityCoverage: Codable, Equatable {

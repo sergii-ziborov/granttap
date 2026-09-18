@@ -98,6 +98,15 @@ final class TurnOverridesTests: XCTestCase {
         XCTAssertTrue(TurnEffort.allCases.allSatisfy { !$0.label.isEmpty })
     }
 
+    func testAnEmptyHostCatalogDoesNotSendAStaticAlias() {
+        let wire = TurnOverrides(model: .opus).wire(for: "claude", advertised: [])
+        XCTAssertNil(wire.model)
+        XCTAssertEqual(
+            TurnOverrides(model: .opus).wire(for: "claude", advertised: ["opus"]).model,
+            "opus"
+        )
+    }
+
     func testEveryModelAndModeHasStableReadableMetadata() {
         XCTAssertEqual(
             TurnModel.supported(by: "CLAUDE").map(\.id),

@@ -98,6 +98,21 @@ enum ProjectManagePresentation {
         return String(format: L(configured == 1 ? "%d rule" : "%d rules"), configured)
     }
 
+    static func executionSummary(
+        _ snapshot: ProjectMeshSnapshot, governance: ProjectGovernanceProjection?
+    ) -> String {
+        let policy = snapshot.execution ?? governance?.policy?.execution
+        guard let policy else { return L("Distributed") }
+        if policy.mode == .distributed { return L("Distributed") }
+        let host = policy.targetEndpointId.map { String($0.suffix(8)) } ?? L("No host")
+        switch policy.hostGrantStatus {
+        case .applied: return "\(L("Pinned")) · \(host)"
+        case .pending: return "\(L("Waiting for host")) · \(host)"
+        case .unavailable: return "\(L("Host unavailable")) · \(host)"
+        case .none: return "\(L("Pinned")) · \(host)"
+        }
+    }
+
     static func membersSummary(_ snapshot: ProjectMeshSnapshot) -> String {
         let count = endpointIds(snapshot).count
         let computers = String(

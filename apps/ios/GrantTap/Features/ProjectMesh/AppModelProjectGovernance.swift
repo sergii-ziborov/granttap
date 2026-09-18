@@ -134,6 +134,56 @@ extension AppModel {
         return true
     }
 
+    @discardableResult
+    func applyProjectExecution(
+        projectId: String,
+        mode: ProjectExecutionMode,
+        targetEndpointId: String?,
+        offlineBehavior: ExecutionOfflineBehavior
+    ) -> Bool {
+        guard agentMeshPreferences.meshEnabled, let current = projectGovernance[projectId] else {
+            projectPolicyErrors[projectId] = L("Refresh Project policy before editing.")
+            return false
+        }
+        let rooms = computerRooms(for: projectId)
+        guard !rooms.isEmpty else {
+            projectPolicyErrors[projectId] = L("No linked Project computer is ready to receive policy.")
+            return false
+        }
+        var policy = current.policy ?? ProjectPolicy(
+            projectId: projectId, revision: 1, enforcement: current.enforcement, rules: []
+        )
+        policy.revision += current.policy == nil ? 0 : 1
+        if current.policy == nil { policy.revision = 1 }
+        policy.execution = ProjectExecutionPolicy(
+            mode: mode,
+            targetEndpointId: mode == .pinned ? targetEndpointId : nil,
+            revision: policy.revision,
+            hostGrantStatus: mode == .pinned ? .pending : .none,
+            offlineBehavior: offlineBehavior
+        )
+        let request = ProjectPolicySet(
+            type: "project.policy.set", sessionId: projectId, projectId: projectId,
+            expectedRevision: current.policy?.revision ?? 0, policy: policy,
+            requestId: UUID().uuidString.lowercased(),
+            createdAt: Date().timeIntervalSince1970 * 1_000
+        )
+        guard ProjectGovernanceWireValidator.validSet(request) else {
+            projectPolicyErrors[projectId] = L("Policy update could not be delivered.")
+            return false
+        }
+        projectPolicyErrors.removeValue(forKey: projectId)
+        projectPolicyOutbox = projectPolicyOutbox.filter {
+            $0.projectId != projectId || $0.revision > policy.revision
+        } + ProjectPolicyOutboxLogic.entries(
+            for: request, rooms: rooms, at: Date().timeIntervalSince1970 * 1_000
+        )
+        ProjectPolicyOutboxStore.save(projectPolicyOutbox)
+        deliveredProjectPolicyRevisions[projectId] = policy.revision
+        flushProjectPolicyOutbox()
+        return true
+    }
+
     /// Hand the relay every Governance edit it can take right now.
     ///
     /// Called after an edit and whenever a Project room comes back up. The

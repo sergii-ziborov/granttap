@@ -12,6 +12,11 @@ struct WatchSettingsView: View {
                     Text(L("Russian")).tag("ru")
                 }
             }
+            Section(L("Host models")) {
+                Text(L("Models come from the paired iPhone's host catalog. The watch does not invent a list."))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
             Section(L("About")) {
                 NavigationLink {
                     WatchAboutView()

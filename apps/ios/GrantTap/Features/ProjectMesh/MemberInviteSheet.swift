@@ -41,6 +41,12 @@ struct MemberInviteSheet: View {
                         Toggle(L("Write to the Project's chats"), isOn: $rules.canSendToChats)
                         Toggle(L("Post to the Project"), isOn: $rules.canPostEvents)
                         Toggle(L("Edit Governance"), isOn: $rules.canEditGovernance)
+                        Toggle(L("Create tasks"), isOn: $rules.canCreateTasks)
+                        Toggle(L("Use the Project executor"), isOn: $rules.canUseProjectExecutor)
+                        Toggle(L("Choose an allowed model"), isOn: $rules.canChooseAllowedModel)
+                        Toggle(L("Manage Project execution"), isOn: $rules.canManageProjectExecution)
+                        Toggle(L("Rename Project devices"), isOn: $rules.canRenameProjectDevices)
+                        Toggle(L("Enroll bots"), isOn: $rules.canEnrollBots)
                     } header: {
                         Text(L("May"))
                     } footer: {
@@ -185,6 +191,30 @@ struct MemberLinkDetailView: View {
                     Toggle(L("Edit Governance"), isOn: Binding(
                         get: { link.rules.canEditGovernance },
                         set: { model.updateMemberLink(MemberLinkEdits.withGovernance(link, $0)) }
+                    ))
+                    Toggle(L("Create tasks"), isOn: Binding(
+                        get: { link.rules.canCreateTasks },
+                        set: { var next = link; next.rules.canCreateTasks = $0; model.updateMemberLink(next) }
+                    ))
+                    Toggle(L("Use the Project executor"), isOn: Binding(
+                        get: { link.rules.canUseProjectExecutor },
+                        set: { var next = link; next.rules.canUseProjectExecutor = $0; model.updateMemberLink(next) }
+                    ))
+                    Toggle(L("Choose an allowed model"), isOn: Binding(
+                        get: { link.rules.canChooseAllowedModel },
+                        set: { var next = link; next.rules.canChooseAllowedModel = $0; model.updateMemberLink(next) }
+                    ))
+                    Toggle(L("Manage Project execution"), isOn: Binding(
+                        get: { link.rules.canManageProjectExecution },
+                        set: { var next = link; next.rules.canManageProjectExecution = $0; model.updateMemberLink(next) }
+                    ))
+                    Toggle(L("Rename Project devices"), isOn: Binding(
+                        get: { link.rules.canRenameProjectDevices },
+                        set: { var next = link; next.rules.canRenameProjectDevices = $0; model.updateMemberLink(next) }
+                    ))
+                    Toggle(L("Enroll bots"), isOn: Binding(
+                        get: { link.rules.canEnrollBots },
+                        set: { var next = link; next.rules.canEnrollBots = $0; model.updateMemberLink(next) }
                     ))
                 } header: {
                     Text(L("May"))

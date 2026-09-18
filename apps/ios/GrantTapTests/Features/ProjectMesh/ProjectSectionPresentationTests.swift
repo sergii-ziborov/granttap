@@ -217,6 +217,44 @@ final class ProjectSectionPresentationTests: XCTestCase {
         )
     }
 
+    func testPinnedModeLocksTheHostAndKeepsAliasOffTheRoute() {
+        var snapshot = emptySnapshot()
+        snapshot.execution = ProjectExecutionPolicy(
+            mode: .pinned, targetEndpointId: "mac-host", revision: 3,
+            hostGrantStatus: .applied
+        )
+        snapshot.modelCatalog = [
+            EndpointModelCatalog(
+                endpointId: "mac-host", observedAt: now,
+                models: [
+                    AdvertisedModel(
+                        modelId: "sonnet", provider: "claude", endpointId: "mac-host",
+                        source: "observed", observedAt: now
+                    )
+                ]
+            )
+        ]
+        XCTAssertEqual(snapshot.execution?.targetEndpointId, "mac-host")
+        XCTAssertEqual(snapshot.modelCatalog?.first?.models.map(\.modelId), ["sonnet"])
+        XCTAssertNotEqual(snapshot.project.name, snapshot.execution?.targetEndpointId)
+    }
+
+    func testExecutionSummaryDistinguishesPinnedPendingFromDistributed() {
+        var snapshot = emptySnapshot()
+        XCTAssertEqual(
+            ProjectManagePresentation.executionSummary(snapshot, governance: nil),
+            L("Distributed")
+        )
+        snapshot.execution = ProjectExecutionPolicy(
+            mode: .pinned, targetEndpointId: "computer-host-1", revision: 2,
+            hostGrantStatus: .pending
+        )
+        XCTAssertEqual(
+            ProjectManagePresentation.executionSummary(snapshot, governance: nil),
+            "\(L("Waiting for host")) · ost-1"
+        )
+    }
+
     private func emptySnapshot() -> ProjectMeshSnapshot {
         ProjectMeshSnapshot(
             type: "mesh.snapshot", sessionId: "project", projectId: "project",

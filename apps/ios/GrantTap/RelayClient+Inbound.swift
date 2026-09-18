@@ -116,6 +116,8 @@ extension RelayClient {
         case "agent.event": return deliver(AgentEvent.self, plain, to: onAgentEvent)
         case "sessions.status":
             guard let status = Self.decodeSessionsStatus(plain), let callback = onSessions else { return false }
+            if let revision = status.configRevision { lastConfigRevision = revision }
+            if let epoch = status.instanceEpoch, !epoch.isEmpty { lastInstanceEpoch = epoch }
             DispatchQueue.main.async { callback(status) }
             return true
         case "session.activity", "sessions.activity", "session.events":

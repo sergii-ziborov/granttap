@@ -16,13 +16,15 @@ struct TaskComposerRoutePicker: View {
     let computers: [TaskComposerComputerOption]
     let workspaces: [String]
     let enabledProviders: Set<String>
+    var pinnedEndpointId: String? = nil
     @State private var showWorkspacePicker = false
 
     init(
         provider: Binding<String>, computerId: Binding<String?>,
         workspace: Binding<String>, computers: [TaskComposerComputerOption],
         workspaces: [String], catalog: CapabilityCatalogStore? = nil,
-        enabledProviders: Set<String> = Set(AgentIdentity.composeIds)
+        enabledProviders: Set<String> = Set(AgentIdentity.composeIds),
+        pinnedEndpointId: String? = nil
     ) {
         _provider = provider
         _computerId = computerId
@@ -31,6 +33,7 @@ struct TaskComposerRoutePicker: View {
         self.workspaces = workspaces
         self.enabledProviders = enabledProviders
         self.catalog = catalog ?? .shared
+        self.pinnedEndpointId = pinnedEndpointId
     }
 
     var providerIds: [String] {
@@ -49,6 +52,9 @@ struct TaskComposerRoutePicker: View {
             providerMenu
             computerMenu
             workspaceMenu
+        }
+        .onAppear {
+            if let pinnedEndpointId { computerId = pinnedEndpointId }
         }
     }
 
@@ -100,7 +106,7 @@ struct TaskComposerRoutePicker: View {
                 accessibility: selected?.name ?? L("No computer")
             )
         }
-        .disabled(computers.isEmpty)
+        .disabled(computers.isEmpty || pinnedEndpointId != nil)
         .accessibilityLabel("Computer, \(selectedComputer?.name ?? L("No computer"))")
         .frame(maxWidth: .infinity)
     }

@@ -39,16 +39,31 @@ struct MemberRules: Codable, Equatable {
     var canSeeChats = false
     /// Messages, pauses and resumes into those chats. Approvals never leave this phone.
     var canSendToChats = false
+    var canCreateTasks = false
+    var canUseProjectExecutor = false
+    var canChooseAllowedModel = false
+    var canManageProjectExecution = false
+    var canRenameProjectDevices = false
+    var canEnrollBots = false
 
     init(
         canEditGovernance: Bool = false, canHandOffTasks: Bool = false, canPostEvents: Bool = false,
-        canSeeChats: Bool = false, canSendToChats: Bool = false
+        canSeeChats: Bool = false, canSendToChats: Bool = false,
+        canCreateTasks: Bool = false, canUseProjectExecutor: Bool = false,
+        canChooseAllowedModel: Bool = false, canManageProjectExecution: Bool = false,
+        canRenameProjectDevices: Bool = false, canEnrollBots: Bool = false
     ) {
         self.canEditGovernance = canEditGovernance
         self.canHandOffTasks = canHandOffTasks
         self.canPostEvents = canPostEvents
         self.canSeeChats = canSeeChats
         self.canSendToChats = canSendToChats
+        self.canCreateTasks = canCreateTasks
+        self.canUseProjectExecutor = canUseProjectExecutor
+        self.canChooseAllowedModel = canChooseAllowedModel
+        self.canManageProjectExecution = canManageProjectExecution
+        self.canRenameProjectDevices = canRenameProjectDevices
+        self.canEnrollBots = canEnrollBots
     }
 
     /// A link stored before chats could be shared decodes with them off.
@@ -59,6 +74,12 @@ struct MemberRules: Codable, Equatable {
         canPostEvents = try container.decodeIfPresent(Bool.self, forKey: .canPostEvents) ?? false
         canSeeChats = try container.decodeIfPresent(Bool.self, forKey: .canSeeChats) ?? false
         canSendToChats = try container.decodeIfPresent(Bool.self, forKey: .canSendToChats) ?? false
+        canCreateTasks = try container.decodeIfPresent(Bool.self, forKey: .canCreateTasks) ?? false
+        canUseProjectExecutor = try container.decodeIfPresent(Bool.self, forKey: .canUseProjectExecutor) ?? false
+        canChooseAllowedModel = try container.decodeIfPresent(Bool.self, forKey: .canChooseAllowedModel) ?? false
+        canManageProjectExecution = try container.decodeIfPresent(Bool.self, forKey: .canManageProjectExecution) ?? false
+        canRenameProjectDevices = try container.decodeIfPresent(Bool.self, forKey: .canRenameProjectDevices) ?? false
+        canEnrollBots = try container.decodeIfPresent(Bool.self, forKey: .canEnrollBots) ?? false
     }
 
     static func preset(_ role: MemberRole) -> MemberRules {
@@ -66,10 +87,15 @@ struct MemberRules: Codable, Equatable {
         case .viewer: return MemberRules()
         case .member:
             return MemberRules(canEditGovernance: false, canHandOffTasks: true, canPostEvents: true,
-                               canSeeChats: true, canSendToChats: true)
+                               canSeeChats: true, canSendToChats: true,
+                               canCreateTasks: true, canUseProjectExecutor: true,
+                               canChooseAllowedModel: true)
         case .admin:
             return MemberRules(canEditGovernance: true, canHandOffTasks: true, canPostEvents: true,
-                               canSeeChats: true, canSendToChats: true)
+                               canSeeChats: true, canSendToChats: true,
+                               canCreateTasks: true, canUseProjectExecutor: true,
+                               canChooseAllowedModel: true, canManageProjectExecution: true,
+                               canRenameProjectDevices: true, canEnrollBots: true)
         }
     }
 
@@ -119,7 +145,10 @@ struct MemberLink: Codable, Identifiable, Equatable {
 enum MemberHubPolicy {
     static func allows(_ type: String, rules: MemberRules) -> Bool {
         switch type {
-        case "project.policy.set", "mesh.claim.release": return rules.canEditGovernance
+        case "project.policy.set":
+            return rules.canEditGovernance || rules.canManageProjectExecution
+        case "mesh.claim.release": return rules.canEditGovernance
+        case "project.task.create": return rules.canCreateTasks
         case "mesh.handoff.prepare": return rules.canHandOffTasks
         case "mesh.event", "mesh.snapshot": return rules.canPostEvents
         case "user.message", "session.control": return rules.canSendToChats

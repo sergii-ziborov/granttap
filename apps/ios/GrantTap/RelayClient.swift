@@ -74,6 +74,8 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onApprovalsStatus: ((ApprovalsStatus) -> Void)?
     var onAgentEvent: ((AgentEvent) -> Void)?
     var onSessions: ((SessionsStatus) -> Void)?
+    var lastConfigRevision: Int = 0
+    var lastInstanceEpoch: String?
     var onActivity: ((SessionActivity) -> Void)?
     var onCapabilityUsage: ((CapabilityUsageStatus) -> Void)?
     var onCapabilityCatalog: ((CapabilityCatalogStatus) -> Void)?

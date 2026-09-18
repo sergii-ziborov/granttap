@@ -11,6 +11,7 @@ struct ProjectWriteToAgentsSheet: View {
     @State private var provider: String
     @State private var computerId: String?
     @State private var workspace: String
+    @State private var confirmSend = false
 
     init(snapshot: ProjectMeshSnapshot, model: AppModel) {
         self.snapshot = snapshot
@@ -35,7 +36,11 @@ struct ProjectWriteToAgentsSheet: View {
                 || names.contains(connection.displayName)
                 || names.contains(connection.lastMachineName)
         }
-        _computerId = State(initialValue: match?.id ?? model.connectionRegistry.preferred?.id)
+        if snapshot.execution?.mode == .pinned, let host = snapshot.execution?.targetEndpointId {
+            _computerId = State(initialValue: host)
+        } else {
+            _computerId = State(initialValue: match?.id ?? model.connectionRegistry.preferred?.id)
+        }
     }
 
     var computers: [TaskComposerComputerOption] {
@@ -87,7 +92,9 @@ struct ProjectWriteToAgentsSheet: View {
                         workspace: $workspace,
                         computers: computers,
                         workspaces: model.workspaceFolders(for: provider),
-                        enabledProviders: model.agentMeshPreferences.enabledProviders
+                        enabledProviders: model.agentMeshPreferences.enabledProviders,
+                        pinnedEndpointId: snapshot.execution?.mode == .pinned
+                            ? snapshot.execution?.targetEndpointId : nil
                     )
                 } header: {
                     Text(L("Route"))
@@ -106,12 +113,28 @@ struct ProjectWriteToAgentsSheet: View {
                     Button(L("Cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L("Send")) { send() }
+                    Button(L("Send")) { confirmSend = true }
                         .disabled(!canSend)
                         .accessibilityIdentifier("project.write-to-agents.send")
                 }
             }
+            .confirmationDialog(
+                L("Send to the people this change touches?"),
+                isPresented: $confirmSend,
+                titleVisibility: .visible
+            ) {
+                Button(L("Send")) { send() }
+                Button(L("Cancel"), role: .cancel) {}
+            } message: {
+                Text(affectedSummary)
+            }
         }
+    }
+
+    var affectedSummary: String {
+        let owners = Set(snapshot.executions.map(\.sessionId))
+        if owners.isEmpty { return L("No running tasks are marked as affected.") }
+        return String(format: L("%d tasks would receive this. Confirm before it is sent."), owners.count)
     }
 
     var canSend: Bool {
