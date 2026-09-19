@@ -63,4 +63,14 @@ final class ProjectMeshTaskTitleTests: XCTestCase {
             ProjectMeshTaskTitle.text(task("   "), session: nil), L("Untitled chat")
         )
     }
+
+    func testHostQueryMarksAreNotOfferedAsAName() {
+        XCTAssertEqual(
+            ProjectMeshTaskTitle.presentable("<user_query>\nFix the relay handshake"),
+            "Fix the relay handshake"
+        )
+        let tagged = session(title: "<timestamp>1</timestamp><user_query>Pairing refactor</user_query>")
+        XCTAssertEqual(tagged.displayTitle, "Pairing refactor")
+        XCTAssertFalse(tagged.displayTitle.contains("user_query"))
+    }
 }

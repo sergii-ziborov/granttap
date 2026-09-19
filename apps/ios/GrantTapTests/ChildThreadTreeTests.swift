@@ -175,6 +175,20 @@ final class ChildThreadTreeTests: XCTestCase {
         XCTAssertEqual(rows.map(\.thread.threadId), ["listed-child"])
     }
 
+    func testDisplayLabelDropsHostQueryMarks() {
+        let row = ChildThreadDisplayRow(
+            thread: thread(
+                "child",
+                parent: "root",
+                depth: 1,
+                title: "<user_query>\nInspect pairing"
+            ),
+            visualDepth: 1
+        )
+        XCTAssertEqual(row.displayLabel, "Inspect pairing")
+        XCTAssertFalse(row.displayLabel.contains("user_query"))
+    }
+
     private func thread(
         _ id: String,
         parent: String,

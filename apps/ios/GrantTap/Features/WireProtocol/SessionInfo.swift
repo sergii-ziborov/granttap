@@ -48,7 +48,9 @@ struct SessionInfo: Codable, Identifiable, Equatable {
     /// header (`projectGroupTitle`) — never use the folder name as every row title.
     /// Never fall back to a raw session id / hex prefix (looked like foreign "code" chats).
     var displayTitle: String {
-        if let t = title?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty {
+        if let raw = title?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty {
+            let t = ChatTranscriptText.display(raw)
+            guard !t.isEmpty else { return L("Untitled chat") }
             let project = projectGroupTitle
             // Ignore slug/folder mirrors so rows stay distinct under the section.
             if t.caseInsensitiveCompare(project) != .orderedSame,

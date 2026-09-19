@@ -8,7 +8,10 @@ struct ChildThreadDisplayRow: Identifiable {
 
     var displayLabel: String {
         if let agentName = nonempty(thread.agentName) { return agentName }
-        if let title = nonempty(thread.title) { return title }
+        if let title = nonempty(thread.title) {
+            let shown = ChatTranscriptText.display(title)
+            if !shown.isEmpty { return shown }
+        }
         return "Agent \(thread.threadId.prefix(8))"
     }
 

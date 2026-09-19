@@ -24,7 +24,8 @@ enum ProjectMeshTaskTitle {
 
     /// The opening line of a published title, when that line reads as a name.
     static func presentable(_ raw: String) -> String? {
-        let line = raw.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
+        let cleaned = ChatTranscriptText.display(raw)
+        let line = cleaned.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         // A path or an identifier is residue rather than a name anyone chose,

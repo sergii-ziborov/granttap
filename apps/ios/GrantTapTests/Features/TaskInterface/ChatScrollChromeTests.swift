@@ -14,7 +14,7 @@ final class ChatScrollChromeTests: XCTestCase {
 
     func testUserLinesStripHostMarksAndNameAnEmptyPhoto() {
         let lines = ChatScrollChrome.userLines([
-            user("a", text: "<timestamp>1</timestamp><user_query>Ship it</user_query>", at: 1),
+            user("a", text: "<timestamp>1</timestamp><user_query>\nShip it", at: 1),
             agent("b", at: 2),
             user("c", text: "   ", at: 3),
         ])

@@ -20,6 +20,15 @@ final class MessageMarkdownTests: XCTestCase {
             ChatTranscriptText.display("<timestamp>Saturday, Sep 19, 2026, 5:11 PM (UTC+3)</timestamp>\n<user_query>pin this</user_query>"),
             "pin this"
         )
+        XCTAssertEqual(
+            ChatTranscriptText.display("<timestamp>Saturday, Sep 19, 2026, 10:08 PM (UTC+3)</timestamp>\n<user_query>\nalso the user query is still in the tags"),
+            "also the user query is still in the tags"
+        )
+        XCTAssertEqual(
+            ChatTranscriptText.display("<user_query id=\"turn\">attributed wrap</user_query>"),
+            "attributed wrap"
+        )
+        XCTAssertFalse(ChatTranscriptText.display("<user_query>\nstill open").contains("user_query"))
         XCTAssertEqual(String(MessageMarkdown.attributed("").characters), "")
 
         // Fenced code keeps its own block, and a heading is styling, not a mark.

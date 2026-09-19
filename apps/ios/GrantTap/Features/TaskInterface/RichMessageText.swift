@@ -198,21 +198,45 @@ extension MessageMarkdown.Table {
 enum ChatTranscriptText {
     static func display(_ text: String) -> String {
         var next = text.replacingOccurrences(
-            of: "<timestamp[^>]*>[\\s\\S]*?</timestamp>",
+            of: "<timestamp\\b[^>]*>[\\s\\S]*?</timestamp>",
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
-        if let query = queryBody(in: next) { next = query }
+        if let query = queryBody(in: next) {
+            next = query
+        } else if let start = openQueryRange(in: next) {
+            next = String(next[start.upperBound...])
+        }
+        next = next.replacingOccurrences(
+            of: "</?user_query\\b[^>]*>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        next = next.replacingOccurrences(
+            of: "</?timestamp\\b[^>]*>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
         return next.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private static func queryBody(in text: String) -> String? {
-        guard let start = text.range(of: "<user_query>", options: .caseInsensitive),
-              let end = text.range(of: "</user_query>", options: .caseInsensitive),
+        guard let start = openQueryRange(in: text),
+              let end = text.range(
+                of: "</user_query\\b[^>]*>",
+                options: [.regularExpression, .caseInsensitive]
+              ),
               start.upperBound < end.lowerBound else { return nil }
         let body = text[start.upperBound..<end.lowerBound]
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return body.isEmpty ? nil : String(body)
+    }
+
+    private static func openQueryRange(in text: String) -> Range<String.Index>? {
+        text.range(
+            of: "<user_query\\b[^>]*>",
+            options: [.regularExpression, .caseInsensitive]
+        )
     }
 }
 
