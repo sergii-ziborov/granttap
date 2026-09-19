@@ -78,4 +78,84 @@ final class OneCardPerChatTests: XCTestCase {
                        "the retired twin hides; a repository nobody offers stays listed as unavailable")
         XCTAssertEqual(ProjectMeshLogic.visibleBindings([retired]).map(\.bindingId), ["old"])
     }
+
+    func testCursorTaskClonesFoldIntoTheParentChat() {
+        let parentId = "077ac587-8ac9-459c-b58a-8278f2767635"
+        let cloneId = "task-3ef3af57-1111-4111-8111-1234567890ab"
+        var parent = SessionInfo(
+            sessionId: parentId, agent: "cursor", projectId: "project",
+            taskId: "task-parent", title: "GrantTap MCP configuration issues",
+            cwd: "/Users/serhiirihgt/dev/granttap-mcp", state: "working",
+            startedAt: 1, lastActivityAt: 5_000, tokensSession: 11, tokensLastTurn: 2
+        )
+        parent.childThreads = [
+            ChildThreadInfo(
+                threadId: cloneId, parentThreadId: parentId, title: "Explore",
+                depth: 1, state: "working", startedAt: 2, lastActivityAt: 4_000,
+                tokensSession: 0, tokensLastTurn: 0
+            )
+        ]
+        let clone = SessionInfo(
+            sessionId: cloneId, agent: "cursor", projectId: "project",
+            taskId: "task-clone", title: "GrantTap MCP configuration issues",
+            cwd: "/Users/serhiirihgt/dev/granttap-mcp", state: "working",
+            startedAt: 2, lastActivityAt: 4_000, tokensSession: 0, tokensLastTurn: 0
+        )
+        let model = AppModel()
+        model.sessions = [parent, clone]
+        model.meshSnapshots["project"] = ProjectMeshSnapshot(
+            type: "mesh.snapshot", sessionId: "project", projectId: "project",
+            project: .init(projectId: "project", name: "granttap-mcp", repositoryRoot: "/repo",
+                           canonicalRepositoryId: "github.com/x/granttap-mcp", createdAt: 1),
+            tasks: [
+                .init(taskId: "task-parent", projectId: "project", title: "GrantTap MCP configuration issues",
+                      goal: "Fix pairing", state: "working", ownerSessionId: parentId,
+                      createdAt: 1, updatedAt: 5_000),
+                .init(taskId: "task-clone", projectId: "project", title: "GrantTap MCP configuration issues",
+                      goal: "Fix pairing", state: "working", ownerSessionId: cloneId,
+                      createdAt: 2, updatedAt: 4_000),
+            ],
+            executions: [
+                .init(taskId: "task-parent", sessionId: parentId, provider: "cursor",
+                      computerId: "Mac", workspace: "/repo", startedAt: 1),
+                .init(taskId: "task-clone", sessionId: cloneId, provider: "cursor",
+                      computerId: "Mac", workspace: "/repo", startedAt: 2),
+            ],
+            claims: [], dependencies: [], events: [], generatedAt: 10
+        )
+
+        let items = TaskListCatalog.items(model: model, sessions: [parent, clone])
+        XCTAssertEqual(items.filter { $0.currentSession?.sessionId == parentId }.count, 1)
+        XCTAssertFalse(items.contains { $0.currentSession?.sessionId == cloneId })
+        XCTAssertFalse(items.contains { $0.sessionIds.contains(cloneId) })
+        XCTAssertFalse(items.contains { $0.taskId == "task-clone" })
+
+        let filtered = AppModel.filterRealCatalogSessions([parent, clone], allowDemo: false)
+        XCTAssertEqual(filtered.map(\.sessionId), [parentId])
+
+        XCTAssertEqual(model.resolvedSessionId(cloneId), parentId)
+    }
+
+    func testOrphanCursorTaskCloneIsNotAWorkingCard() {
+        let cloneId = "task-aaaaaaaa-1111-4111-8111-1234567890ab"
+        let model = AppModel()
+        model.meshSnapshots["project"] = ProjectMeshSnapshot(
+            type: "mesh.snapshot", sessionId: "project", projectId: "project",
+            project: .init(projectId: "project", name: "granttap-mcp", repositoryRoot: "/repo",
+                           canonicalRepositoryId: "github.com/x/granttap-mcp", createdAt: 1),
+            tasks: [
+                .init(taskId: "task-clone", projectId: "project", title: "GrantTap MCP configuration issues",
+                      goal: "Fix pairing", state: "working", ownerSessionId: cloneId,
+                      createdAt: 2, updatedAt: 4_000),
+            ],
+            executions: [
+                .init(taskId: "task-clone", sessionId: cloneId, provider: "cursor",
+                      computerId: "Mac", workspace: "/repo", startedAt: 2),
+            ],
+            claims: [], dependencies: [], events: [], generatedAt: 10
+        )
+
+        let items = TaskListCatalog.items(model: model, sessions: [])
+        XCTAssertTrue(items.isEmpty, "a clone with no parent chat is not a card")
+    }
 }

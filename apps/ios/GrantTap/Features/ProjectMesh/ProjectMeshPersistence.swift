@@ -81,7 +81,9 @@ enum ProjectMeshPersistence {
         // change: rebuilding the archive around them dropped the answered
         // questions and their rooms, which are restored from the same file.
         var restored = archive
-        restored.snapshots = archive.snapshots.mapValues(ProjectMeshLogic.rejoinSplitChats)
+        restored.snapshots = archive.snapshots.mapValues {
+            ProjectMeshLogic.withoutNestedCursorComposers(ProjectMeshLogic.rejoinSplitChats($0))
+        }
         return restored
     }
 

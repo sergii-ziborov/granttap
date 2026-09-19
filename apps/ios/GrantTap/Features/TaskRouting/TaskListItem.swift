@@ -75,6 +75,7 @@ enum TaskListCatalog {
             if model.isProjectHidden(snapshot.projectId) { continue }
             let projectName = model.projectDisplayName(snapshot)
             for task in snapshot.tasks {
+                if shouldHideNestedTask(task, sessions: sessions) { continue }
                 let key = meshKey(projectId: snapshot.projectId, taskId: task.taskId)
                 meshKeys.insert(key)
                 result.append(meshItem(
@@ -103,14 +104,21 @@ enum TaskListCatalog {
         projectName: String? = nil
     ) -> TaskListItem {
         let executions = snapshot.executions.filter { $0.taskId == task.taskId }
-        let owner = task.ownerSessionId.flatMap { id in executions.first { $0.sessionId == id } }
+        let ownerId = task.ownerSessionId.map { AppModel.rootSessionId($0, in: sessions) }
+        let owner = ownerId.flatMap { id in executions.first { $0.sessionId == id } }
+            ?? task.ownerSessionId.flatMap { id in executions.first { $0.sessionId == id } }
         let taskSessions = sessions.filter {
             $0.projectId == snapshot.projectId && $0.taskId == task.taskId
         }
         let fallback = taskSessions.max { $0.lastActivityAt < $1.lastActivityAt }
-        let current = task.ownerSessionId.flatMap { newestById[$0] }
+        let current = ownerId.flatMap { newestById[$0] }
+            ?? task.ownerSessionId.flatMap { newestById[$0] }
             ?? (task.ownerSessionId == nil ? fallback : nil)
-        let ids = Set(executions.map(\.sessionId) + taskSessions.map(\.sessionId)).sorted()
+        let ids = Set(
+            (executions.map(\.sessionId) + taskSessions.map(\.sessionId) + [ownerId].compactMap { $0 })
+                .map { AppModel.rootSessionId($0, in: sessions) }
+                .filter { !AppModel.isNestedCursorSession($0) }
+        ).sorted()
         let activity = max(
             task.updatedAt,
             max(current?.lastActivityAt ?? 0, fallback?.lastActivityAt ?? 0)
@@ -133,6 +141,7 @@ enum TaskListCatalog {
     ) -> [TaskListItem] {
         var representatives: [String: SessionInfo] = [:]
         for session in sessions {
+            if AppModel.isNestedCursorSession(session.sessionId) { continue }
             if let projectId = session.projectId, let taskId = session.taskId,
                meshKeys.contains(meshKey(projectId: projectId, taskId: taskId)) { continue }
             let key = session.projectId.flatMap { project in
@@ -154,6 +163,17 @@ enum TaskListCatalog {
                 currentSession: session, historicalExecutions: [],
                 sessionIds: [session.sessionId], lastActivityAt: session.lastActivityAt
             )
+        }
+    }
+
+    /// A Task-tool clone is the parent chat's work, never its own card.
+    private static func shouldHideNestedTask(
+        _ task: ProjectMeshTask, sessions: [SessionInfo]
+    ) -> Bool {
+        guard let owner = task.ownerSessionId else { return false }
+        if AppModel.isNestedCursorSession(owner) { return true }
+        return sessions.contains { session in
+            session.childThreads?.contains { $0.threadId == owner } == true
         }
     }
 

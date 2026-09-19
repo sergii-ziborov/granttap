@@ -47,7 +47,7 @@ enum ProjectMeshLogic {
             var clean = incoming
             clean.events = compactEvents(incoming.events, nowMs: nowMs)
             clean.claims = incoming.claims.filter { $0.expiresAt > nowMs }
-            return rejoinSplitChats(clean)
+            return withoutNestedCursorComposers(rejoinSplitChats(clean))
         }
         var merged = incoming.generatedAt >= current.generatedAt ? incoming : current
         merged.tasks = merge(current.tasks, incoming.tasks, key: \.taskId,
@@ -65,7 +65,32 @@ enum ProjectMeshLogic {
                            prefer: preferredSkill)
         merged.skills = skills.isEmpty ? nil : skills.sorted { $0.name < $1.name }
         merged.events = compactEvents(current.events + incoming.events, nowMs: nowMs)
-        return rejoinSplitChats(merged)
+        return withoutNestedCursorComposers(rejoinSplitChats(merged))
+    }
+
+    /// Cursor Task-tool composers are work inside a person chat, not chats.
+    static func isNestedCursorSession(_ sessionId: String) -> Bool {
+        sessionId.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("task-")
+    }
+
+    /// Cursor Task-tool composers are work inside a person chat. A snapshot
+    /// used to keep a Task for each spawn, and merge never dropped them, so
+    /// Working filled with the same title and every card opened empty.
+    static func withoutNestedCursorComposers(_ snapshot: ProjectMeshSnapshot) -> ProjectMeshSnapshot {
+        var clean = snapshot
+        clean.executions = snapshot.executions.filter { !isNestedCursorSession($0.sessionId) }
+        clean.tasks = snapshot.tasks.filter { task in
+            guard let owner = task.ownerSessionId else { return true }
+            return !isNestedCursorSession(owner)
+        }
+        let taskIds = Set(clean.tasks.map(\.taskId))
+        clean.executions = clean.executions.filter { taskIds.contains($0.taskId) }
+        clean.claims = snapshot.claims.filter { taskIds.contains($0.taskId) }
+        clean.dependencies = snapshot.dependencies.filter {
+            taskIds.contains($0.taskId) && taskIds.contains($0.dependsOnTaskId)
+        }
+        clean.events = snapshot.events.filter { taskIds.contains($0.taskId) }
+        return clean
     }
 
     /// Rejoin a chat that arrived as two Tasks.

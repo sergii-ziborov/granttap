@@ -81,6 +81,21 @@ extension AppModel {
         return raw.range(of: uuid, options: .regularExpression) != nil
     }
 
+    /// Cursor Task-tool composers. They are work inside a person chat, not chats.
+    static func isNestedCursorSession(_ sessionId: String) -> Bool {
+        ProjectMeshLogic.isNestedCursorSession(sessionId)
+    }
+
+    /// The person chat that owns this composer, when the catalog already has it.
+    static func rootSessionId(_ sessionId: String, in sessions: [SessionInfo]) -> String {
+        if let parent = sessions.first(where: {
+            $0.childThreads?.contains { $0.threadId == sessionId } == true
+        }) {
+            return parent.sessionId
+        }
+        return sessionId
+    }
+
     /// Failed decrypt / wrong-room blobs / id leakage must not appear as chat titles.
     static func looksLikeOpaqueCipherTitle(_ title: String?) -> Bool {
         guard let raw = title?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -118,6 +133,7 @@ extension AppModel {
         guard !allowDemo else { return rows }
         return rows.filter {
             !isGrantTapDemoSessionId($0.sessionId)
+                && !isNestedCursorSession($0.sessionId)
                 && !isCodeBlobCatalogTitle(sessionId: $0.sessionId, title: $0.title)
         }
     }

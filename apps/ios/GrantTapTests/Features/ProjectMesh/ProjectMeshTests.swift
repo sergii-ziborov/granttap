@@ -300,6 +300,25 @@ final class ProjectMeshTests: XCTestCase {
         XCTAssertFalse(ProjectMeshReceiptValidator.valid(forged, for: accepted, in: snapshot))
     }
 
+    func testMergeDropsCursorTaskCloneWork() {
+        var current = fixtureSnapshot()
+        let cloneId = "task-3ef3af57-1111-4111-8111-1234567890ab"
+        current.tasks.append(.init(
+            taskId: "task-clone", projectId: "project", title: "GrantTap MCP configuration issues",
+            goal: "Fix pairing", state: "working", ownerSessionId: cloneId,
+            createdAt: now, updatedAt: now
+        ))
+        current.executions.append(.init(
+            taskId: "task-clone", sessionId: cloneId, provider: "cursor",
+            computerId: "MacBook", workspace: "/repo", startedAt: now
+        ))
+        let incoming = fixtureSnapshot()
+        let merged = ProjectMeshLogic.merged(current: current, incoming: incoming, nowMs: now + 2)
+        XCTAssertFalse(merged.tasks.contains { $0.taskId == "task-clone" })
+        XCTAssertFalse(merged.executions.contains { $0.sessionId == cloneId })
+        XCTAssertTrue(merged.tasks.contains { $0.taskId == "task" })
+    }
+
     private func fixtureSnapshot() -> ProjectMeshSnapshot {
         let project = ProjectMeshProject(
             projectId: "project", name: "GrantTap", repositoryRoot: "/repo",

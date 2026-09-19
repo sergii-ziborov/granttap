@@ -14,7 +14,8 @@ extension AppModel {
             current = next
             guardCount += 1
         }
-        return current
+        let pool = sessions + sessionHistory + Array(archivedSessions.values)
+        return Self.rootSessionId(current, in: pool)
     }
 
     func persistSessionIdAliases() {
