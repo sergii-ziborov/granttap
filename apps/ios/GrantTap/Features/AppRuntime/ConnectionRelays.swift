@@ -95,9 +95,13 @@ extension AppModel {
     private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
         client.onMeshSnapshot = { [weak self] snapshot in
             self?.receive(snapshot, fromRoom: room)
+            self?.append("mesh \(snapshot.project.name) · \(snapshot.tasks.count) tasks")
         }
         client.onMeshEvent = { [weak self] event in
             self?.receive(event, fromRoom: room)
+        }
+        client.onMeshDrop = { [weak self] message in
+            self?.append("link \(String(room.prefix(8)))… \(message)")
         }
         client.onInvocationPage = { [weak self] page in
             self?.receiveInvocationPage(page, fromRoom: room)

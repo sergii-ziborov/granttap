@@ -84,6 +84,8 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onToolUpdateResult: ((ToolUpdateResult) -> Void)?
     var onMeshEvent: ((ProjectMeshEvent) -> Void)?
     var onMeshSnapshot: ((ProjectMeshSnapshot) -> Void)?
+    /// Mesh ciphertext opened, then the snapshot/event was dropped. Link log.
+    var onMeshDrop: ((String) -> Void)?
     var onInvocationPage: ((ProjectInvocationPage) -> Void)?
     var onProjectPolicyStatus: ((ProjectPolicyStatus) -> Void)?
     var onProjectPolicyAck: ((ProjectPolicyAck) -> Void)?

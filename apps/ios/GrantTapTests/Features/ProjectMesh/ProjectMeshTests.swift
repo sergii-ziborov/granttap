@@ -171,6 +171,56 @@ final class ProjectMeshTests: XCTestCase {
         ))
     }
 
+    func testMacModelCatalogAndExecutionAreFirstClassSnapshotKeys() throws {
+        var current = fixtureSnapshot()
+        current.execution = ProjectExecutionPolicy(
+            mode: .pinned, targetEndpointId: "Mac.lan", revision: 2,
+            hostGrantId: "grant:Mac.lan", hostGrantStatus: .applied, offlineBehavior: .reject
+        )
+        current.modelCatalog = [
+            EndpointModelCatalog(
+                endpointId: "Mac.lan", observedAt: now, models: [
+                    AdvertisedModel(
+                        modelId: "composer", provider: "cursor", endpointId: "Mac.lan",
+                        source: "observed", observedAt: now
+                    )
+                ]
+            ),
+            EndpointModelCatalog(
+                endpointId: "Mac.lan-empty", observedAt: now, models: [], reason: "not_reported"
+            ),
+        ]
+        let encoded = try JSONEncoder().encode(current)
+        XCTAssertNil(ProjectMeshWireValidator.snapshotRejectReason(encoded),
+                     ProjectMeshWireValidator.snapshotRejectReason(encoded) ?? "")
+        XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(encoded))
+        let decoded = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: encoded)
+        XCTAssertEqual(decoded.execution?.targetEndpointId, "Mac.lan")
+        XCTAssertEqual(decoded.modelCatalog?.map(\.reason), [nil, "not_reported"])
+
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        XCTAssertTrue(ProjectMeshWireValidator.snapshotKeys.isSuperset(of: object.keys))
+        object["modelCatalog"] = [["endpointId": "Mac.lan", "observedAt": now, "models": [],
+                                   "secret": "x"]]
+        XCTAssertEqual(
+            ProjectMeshWireValidator.snapshotRejectReason(
+                try JSONSerialization.data(withJSONObject: object)
+            ),
+            "mesh snapshot modelCatalog rejected"
+        )
+        object["modelCatalog"] = [["endpointId": "Mac.lan", "observedAt": now, "models": [],
+                                   "reason": "not_reported"]]
+        var execution = try XCTUnwrap(object["execution"] as? [String: Any])
+        execution["mode"] = "anywhere"
+        object["execution"] = execution
+        XCTAssertEqual(
+            ProjectMeshWireValidator.snapshotRejectReason(
+                try JSONSerialization.data(withJSONObject: object)
+            ),
+            "mesh snapshot execution rejected"
+        )
+    }
+
     func testSkillsAndIncompleteDecodeAdditivelyAndStayAllowlisted() throws {
         let legacy = try JSONEncoder().encode(fixtureSnapshot())
         let decodedLegacy = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: legacy)

@@ -187,11 +187,18 @@ extension RelayClient {
             DispatchQueue.main.async { callback(value) }
             return true
         }
-        if type == "mesh.snapshot", ProjectMeshWireValidator.validSnapshot(plain),
-           let value = try? JSONDecoder().decode(ProjectMeshSnapshot.self, from: plain),
-           let callback = onMeshSnapshot {
-            DispatchQueue.main.async { callback(value) }
-            return true
+        if type == "mesh.snapshot" {
+            if let reason = ProjectMeshWireValidator.snapshotRejectReason(plain) {
+                DispatchQueue.main.async { self.onMeshDrop?(reason) }
+                return false
+            }
+            if let value = try? JSONDecoder().decode(ProjectMeshSnapshot.self, from: plain),
+               let callback = onMeshSnapshot {
+                DispatchQueue.main.async { callback(value) }
+                return true
+            }
+            DispatchQueue.main.async { self.onMeshDrop?("mesh snapshot decoded after allowlist failed") }
+            return false
         }
         return false
     }

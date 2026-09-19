@@ -38,6 +38,34 @@ extension AppRuntimeTests {
         XCTAssertEqual(received.count, 17)
     }
 
+    @MainActor
+    func testInboundAcceptsMacMeshSnapshotWithModelCatalog() async throws {
+        let client = RelayClient(pairing: testPairing(room: "mesh-catalog-room"))
+        let accepted = expectation(description: "mac mesh snapshot")
+        var received: ProjectMeshSnapshot?
+        client.onMeshSnapshot = { snapshot in
+            received = snapshot
+            accepted.fulfill()
+        }
+        var snapshot = ProjectMeshSnapshot(
+            type: "mesh.snapshot", sessionId: "project", projectId: "project",
+            project: .init(projectId: "project", name: "GrantTap",
+                           canonicalRepositoryId: "repo", createdAt: 1),
+            tasks: [], executions: [], claims: [], dependencies: [], events: [], generatedAt: 10
+        )
+        snapshot.execution = ProjectExecutionPolicy(
+            mode: .distributed, revision: 1, hostGrantStatus: .none
+        )
+        snapshot.modelCatalog = [
+            EndpointModelCatalog(endpointId: "Mac.lan", observedAt: 10, models: [],
+                                 reason: "not_reported")
+        ]
+        XCTAssertTrue(client.handlePlain(try encoded(snapshot)))
+        await fulfillment(of: [accepted], timeout: 2)
+        XCTAssertEqual(received?.modelCatalog?.first?.reason, "not_reported")
+        XCTAssertEqual(received?.execution?.mode, .distributed)
+    }
+
     private func inboundAllowlistPayloads() throws -> [Data] {
         let request = ApprovalRequest(
             type: "approval.request", requestId: "r", agent: "codex",

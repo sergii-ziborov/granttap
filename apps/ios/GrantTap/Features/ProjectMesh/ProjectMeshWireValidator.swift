@@ -41,33 +41,60 @@ enum ProjectMeshWireValidator {
         return validPayload(payload)
     }
 
+    static let snapshotKeys: Set<String> = [
+        "type", "sessionId", "projectId", "project", "tasks", "executions",
+        "bindings", "peers", "skills", "incomplete", "execution", "modelCatalog",
+        "claims", "dependencies", "events", "generatedAt",
+    ]
+
     static func validSnapshot(_ data: Data) -> Bool {
-        let allowed: Set<String> = [
-            "type", "sessionId", "projectId", "project", "tasks", "executions",
-            "bindings", "peers", "skills", "incomplete", "claims", "dependencies",
-            "events", "generatedAt",
-        ]
-        guard data.count <= 256 * 1_024,
-              let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              Set(value.keys).isSubset(of: allowed),
-              value["type"] as? String == "mesh.snapshot",
-              let sessionId = boundedString(value["sessionId"], max: 128),
-              sessionId == boundedString(value["projectId"], max: 128),
-              validBindings(value["bindings"], projectId: sessionId),
-              validPeers(value["peers"], projectId: sessionId),
-              validSkills(value["skills"]),
-              validIncomplete(value["incomplete"]),
-              let tasks = value["tasks"] as? [Any], tasks.count <= 64,
-              let executions = value["executions"] as? [Any], executions.count <= 128,
-              let claims = value["claims"] as? [Any], claims.count <= 128,
-              let dependencies = value["dependencies"] as? [Any], dependencies.count <= 128,
-              let events = value["events"] as? [Any], events.count <= 128
-        else { return false }
-        return events.allSatisfy { event in
-            guard JSONSerialization.isValidJSONObject(event),
-                  let encoded = try? JSONSerialization.data(withJSONObject: event) else { return false }
-            return validEvent(encoded)
+        snapshotRejectReason(data) == nil
+    }
+
+    /// Why a computer snapshot never became Mesh on the phone. The Mac always
+    /// attaches `modelCatalog` (models or `not_reported`) and may attach
+    /// `execution`; rejecting those keys left Projects empty while chats arrived.
+    static func snapshotRejectReason(_ data: Data) -> String? {
+        if data.count > 256 * 1_024 { return "mesh snapshot too large (\(data.count) bytes)" }
+        guard let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return "mesh snapshot is not an object"
         }
+        let extra = Set(value.keys).subtracting(snapshotKeys).sorted()
+        if !extra.isEmpty { return "mesh snapshot extra keys \(extra.joined(separator: ","))" }
+        guard value["type"] as? String == "mesh.snapshot" else { return "mesh snapshot wrong type" }
+        guard let sessionId = boundedString(value["sessionId"], max: 128),
+              sessionId == boundedString(value["projectId"], max: 128) else {
+            return "mesh snapshot sessionId is not projectId"
+        }
+        if !validBindings(value["bindings"], projectId: sessionId) { return "mesh snapshot bindings rejected" }
+        if !validPeers(value["peers"], projectId: sessionId) { return "mesh snapshot peers rejected" }
+        if !validSkills(value["skills"]) { return "mesh snapshot skills rejected" }
+        if !validIncomplete(value["incomplete"]) { return "mesh snapshot incomplete rejected" }
+        if !validExecution(value["execution"]) { return "mesh snapshot execution rejected" }
+        if !validModelCatalog(value["modelCatalog"]) { return "mesh snapshot modelCatalog rejected" }
+        guard let tasks = value["tasks"] as? [Any], tasks.count <= 64 else {
+            return "mesh snapshot tasks rejected"
+        }
+        guard let executions = value["executions"] as? [Any], executions.count <= 128 else {
+            return "mesh snapshot executions rejected"
+        }
+        guard let claims = value["claims"] as? [Any], claims.count <= 128 else {
+            return "mesh snapshot claims rejected"
+        }
+        guard let dependencies = value["dependencies"] as? [Any], dependencies.count <= 128 else {
+            return "mesh snapshot dependencies rejected"
+        }
+        guard let events = value["events"] as? [Any], events.count <= 128 else {
+            return "mesh snapshot events rejected"
+        }
+        for (index, event) in events.enumerated() {
+            guard JSONSerialization.isValidJSONObject(event),
+                  let encoded = try? JSONSerialization.data(withJSONObject: event),
+                  validEvent(encoded) else {
+                return "mesh snapshot event[\(index)] rejected"
+            }
+        }
+        return nil
     }
 
     private static func validBindings(_ value: Any?, projectId: String) -> Bool {
@@ -151,6 +178,74 @@ enum ProjectMeshWireValidator {
 
     private static func validIncomplete(_ value: Any?) -> Bool {
         value == nil || value is Bool
+    }
+
+    private static func validExecution(_ value: Any?) -> Bool {
+        guard value != nil else { return true }
+        guard let execution = value as? [String: Any] else { return false }
+        let allowed: Set<String> = [
+            "mode", "targetEndpointId", "revision", "hostGrantId",
+            "hostGrantStatus", "offlineBehavior",
+        ]
+        let modes: Set<String> = ["distributed", "pinned"]
+        let grants: Set<String> = ["none", "pending", "applied", "unavailable"]
+        let offline: Set<String> = ["reject", "queueUntilDeadline"]
+        guard Set(execution.keys).isSubset(of: allowed),
+              let mode = execution["mode"] as? String, modes.contains(mode),
+              integer(execution["revision"]).map({ $0 > 0 }) == true
+        else { return false }
+        if mode == "pinned", boundedString(execution["targetEndpointId"], max: 128) == nil {
+            return false
+        }
+        if execution["targetEndpointId"] != nil,
+           boundedString(execution["targetEndpointId"], max: 128) == nil { return false }
+        if execution["hostGrantId"] != nil,
+           boundedString(execution["hostGrantId"], max: 128) == nil { return false }
+        if let status = execution["hostGrantStatus"],
+           !grants.contains(boundedString(status, max: 16) ?? "") { return false }
+        if let behavior = execution["offlineBehavior"],
+           !offline.contains(boundedString(behavior, max: 32) ?? "") { return false }
+        return true
+    }
+
+    private static func validModelCatalog(_ value: Any?) -> Bool {
+        guard value != nil else { return true }
+        guard let catalogs = value as? [[String: Any]], catalogs.count <= 32 else { return false }
+        let catalogKeys: Set<String> = ["endpointId", "observedAt", "stale", "models", "reason"]
+        let modelKeys: Set<String> = [
+            "modelId", "provider", "endpointId", "source", "label", "observedAt",
+        ]
+        let catalogProviders: Set<String> = ["claude", "codex", "cursor", "grok"]
+        let sources: Set<String> = ["observed", "advertised"]
+        for catalog in catalogs {
+            guard Set(catalog.keys).isSubset(of: catalogKeys),
+                  boundedString(catalog["endpointId"], max: 128) != nil,
+                  catalog["observedAt"] is NSNumber,
+                  let models = catalog["models"] as? [[String: Any]], models.count <= 64
+            else { return false }
+            if catalog["stale"] != nil, !(catalog["stale"] is Bool) { return false }
+            if catalog["reason"] != nil,
+               boundedString(catalog["reason"], max: 240) == nil { return false }
+            for model in models {
+                guard Set(model.keys).isSubset(of: modelKeys),
+                      boundedString(model["modelId"], max: 160) != nil,
+                      let provider = model["provider"] as? String, catalogProviders.contains(provider),
+                      boundedString(model["endpointId"], max: 128) != nil,
+                      let source = model["source"] as? String, sources.contains(source),
+                      model["observedAt"] is NSNumber
+                else { return false }
+                if model["label"] != nil, boundedString(model["label"], max: 160) == nil { return false }
+            }
+        }
+        return true
+    }
+
+    private static func integer(_ value: Any?) -> Int? {
+        if let value = value as? Int { return value }
+        if let value = value as? NSNumber, CFNumberIsFloatType(value) == false {
+            return value.intValue
+        }
+        return nil
     }
 
     private static func validPayload(_ payload: [String: Any]) -> Bool {
