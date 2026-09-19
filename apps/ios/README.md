@@ -103,6 +103,15 @@ really did go away is still caught.
 Heartbeat state is runtime-only and never persisted — after a relaunch the app
 must see a real packet before it will call a computer Live again.
 
+Pairing join is Live-only. An empty phone adopts the room from
+`granttap.com/connect`. A phone that is already Live keeps its room. Website
+“seen” or Connected is the mailbox claim, not Live.
+
+**Project → Execution** can pin new tasks to one confirmed host. The composer
+locks that computer; models are the host catalog, not a typed alias. Member
+invites can grant create-task, Project executor, host model, and execution
+management. Those flags default off on old links.
+
 ## Product and trust links
 
 - Website: https://granttap.com

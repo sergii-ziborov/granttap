@@ -11,6 +11,11 @@ this source and artwork. The companion [MCP runtime](https://github.com/sergii-z
 [relay](https://github.com/sergii-ziborov/granttap-relay), and
 [website](https://github.com/sergii-ziborov/granttap-site) have their own licenses.
 
+Pairing is Live-only: an empty phone joins the website room; if this iPhone is
+already Live it keeps that room. A saved pairing is not the same as Live.
+Project Execution can pin new tasks to one confirmed computer; the display
+name is not the route, and models come from that host's catalog.
+
 ## App screenshots
 
 These iPhone screenshots use demo tasks and computers; they do not show a live
