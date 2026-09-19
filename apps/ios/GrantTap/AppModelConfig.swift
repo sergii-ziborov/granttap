@@ -27,9 +27,17 @@ extension AppModel {
 
     func isExcluded(_ sessionId: String) -> Bool { excludedSessions.contains(sessionId) }
 
-    func autoAcceptLevel(for sessionId: String) -> String {
-        if autoAcceptPaused { return "ask" }
-        return autoAcceptBySession[sessionId] ?? autoAcceptDefault
+    func autoAcceptLevel(for sessionId: String, projectId: String? = nil) -> String {
+        AutoAcceptPresentation.resolved(
+            paused: autoAcceptPaused,
+            session: autoAcceptBySession[sessionId],
+            project: projectId.flatMap { autoAcceptByProject[$0] },
+            machine: autoAcceptDefault
+        ).rawValue
+    }
+
+    func autoAcceptLevel(for session: SessionInfo) -> String {
+        autoAcceptLevel(for: session.sessionId, projectId: session.projectId)
     }
 
     func setAutoAcceptDefault(_ level: String) {
@@ -69,6 +77,21 @@ extension AppModel {
         autoAcceptPaused = paused
         relay?.sendConfig(autoAcceptPaused: paused)
         AuditStore.shared.record("auto-accept", detail: paused ? "Auto-accept paused" : "Auto-accept resumed")
+    }
+
+    func setProjectAutoAccept(_ projectId: String, _ level: String?) {
+        if let level {
+            guard Self.autoAcceptLevels.contains(level) else { return }
+            autoAcceptByProject[projectId] = level
+            if !gatingEnabled { setGating(true) }
+            setAutoAcceptPaused(false)
+            relay?.sendConfig(autoAcceptProjectId: projectId, autoAcceptProjectLevel: level)
+            AuditStore.shared.record("auto-accept", detail: "Project auto-accept set to \(level)")
+        } else {
+            autoAcceptByProject.removeValue(forKey: projectId)
+            relay?.sendConfig(autoAcceptProjectId: projectId, clearAutoAcceptProject: true)
+            AuditStore.shared.record("auto-accept", detail: "Project auto-accept cleared (uses computer default)")
+        }
     }
 
     static let autoAcceptLevels = ["ask", "safe", "except_push", "except_destructive", "full"]

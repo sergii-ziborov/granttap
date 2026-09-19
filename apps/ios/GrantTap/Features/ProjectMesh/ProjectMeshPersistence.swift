@@ -28,23 +28,32 @@ struct ProjectMeshArchive: Codable {
     /// snapshot arrived — up to thirty seconds in which the phone believed it
     /// held no Project key and Governance had nobody to send a policy to.
     var projectRooms: [String: [String]]
+    /// Computers hidden from this Project's working set, by Project.
+    var archivedComputers: [String: [String]]
+    /// Computers taken out of this Project, by Project. They can be added again.
+    var removedComputers: [String: [String]]
 
     init(
         snapshots: [String: ProjectMeshSnapshot],
         pendingEvents: [ProjectMeshEvent],
         eventSourceRooms: [String: String] = [:],
         attentionStates: [String: ProjectMeshAttentionState] = [:],
-        projectRooms: [String: [String]] = [:]
+        projectRooms: [String: [String]] = [:],
+        archivedComputers: [String: [String]] = [:],
+        removedComputers: [String: [String]] = [:]
     ) {
         self.snapshots = snapshots
         self.pendingEvents = pendingEvents
         self.eventSourceRooms = eventSourceRooms
         self.attentionStates = attentionStates
         self.projectRooms = projectRooms
+        self.archivedComputers = archivedComputers
+        self.removedComputers = removedComputers
     }
 
     private enum CodingKeys: String, CodingKey {
         case snapshots, pendingEvents, eventSourceRooms, attentionStates, projectRooms
+        case archivedComputers, removedComputers
     }
 
     init(from decoder: Decoder) throws {
@@ -59,6 +68,12 @@ struct ProjectMeshArchive: Codable {
         ) ?? [:]
         projectRooms = try values.decodeIfPresent(
             [String: [String]].self, forKey: .projectRooms
+        ) ?? [:]
+        archivedComputers = try values.decodeIfPresent(
+            [String: [String]].self, forKey: .archivedComputers
+        ) ?? [:]
+        removedComputers = try values.decodeIfPresent(
+            [String: [String]].self, forKey: .removedComputers
         ) ?? [:]
     }
 }

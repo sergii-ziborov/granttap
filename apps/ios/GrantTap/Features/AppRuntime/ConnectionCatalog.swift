@@ -177,6 +177,7 @@ extension AppModel {
         excludedSessions = []
         autoAcceptDefault = "except_push"
         autoAcceptBySession = [:]
+        autoAcceptByProject = [:]
         autoAcceptPaused = false
         deliveries = []
         liveDeliveryAttemptGenerations = []

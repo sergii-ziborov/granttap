@@ -53,7 +53,10 @@ extension AppModel {
         excludedSessions = []
         autoAcceptDefault = "except_push"
         autoAcceptBySession = [:]
+        autoAcceptByProject = [:]
         autoAcceptPaused = false
+        archivedProjectComputers = [:]
+        removedProjectComputers = [:]
         log = [L("Demo mode: no command will be executed.")]
         #if DEBUG
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -84,7 +87,10 @@ extension AppModel {
         excludedSessions = []
         autoAcceptDefault = "except_push"
         autoAcceptBySession = [:]
+        autoAcceptByProject = [:]
         autoAcceptPaused = false
+        archivedProjectComputers = [:]
+        removedProjectComputers = [:]
         activitySubscribers = [:]
         // Clears demo rows + SQLite so they cannot reappear after Pair.
         purgeDemoCatalogResidue(reason: "stop-demo")

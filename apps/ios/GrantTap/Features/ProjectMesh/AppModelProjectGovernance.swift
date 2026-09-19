@@ -4,7 +4,7 @@ extension AppModel {
     func receive(_ status: ProjectPolicyStatus, fromRoom room: String) {
         guard agentMeshPreferences.meshEnabled,
               ProjectGovernanceWireValidator.validStatus(status) else { return }
-        meshProjectSourceRooms[status.projectId, default: []].insert(room)
+        rememberProjectRoom(room, projectId: status.projectId)
         guard let merged = ProjectGovernanceLogic.merged(
             current: projectGovernance[status.projectId], status: status
         ) else { return }
@@ -35,7 +35,7 @@ extension AppModel {
     func receive(_ rejected: ProjectPolicyRejected, fromRoom room: String) {
         guard agentMeshPreferences.meshEnabled,
               ProjectGovernanceWireValidator.validRejected(rejected) else { return }
-        meshProjectSourceRooms[rejected.projectId, default: []].insert(room)
+        rememberProjectRoom(room, projectId: rejected.projectId)
         if handOffRejectionToMember(rejected) { return }
         pendingProjectPolicyRevisions.removeValue(forKey: rejected.projectId)
         deliveredProjectPolicyRevisions.removeValue(forKey: rejected.projectId)
@@ -61,7 +61,7 @@ extension AppModel {
     func receive(_ ack: ProjectPolicyAck, fromRoom room: String) {
         guard agentMeshPreferences.meshEnabled,
               ProjectGovernanceWireValidator.validAck(ack) else { return }
-        meshProjectSourceRooms[ack.projectId, default: []].insert(room)
+        rememberProjectRoom(room, projectId: ack.projectId)
         guard let merged = ProjectGovernanceLogic.merged(
             current: projectGovernance[ack.projectId], ack: ack
         ) else { return }

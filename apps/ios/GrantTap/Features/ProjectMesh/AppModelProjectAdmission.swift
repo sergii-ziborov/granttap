@@ -35,6 +35,7 @@ extension AppModel {
         }
         // An admitted computer receives every later Project forward, not just this one.
         meshProjectSourceRooms[projectId, default: []].insert(target)
+        rememberComputerAdmission(projectId: projectId, endpointId: target)
         return true
     }
 

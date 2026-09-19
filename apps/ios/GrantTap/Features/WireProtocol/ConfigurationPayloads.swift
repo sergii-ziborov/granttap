@@ -7,6 +7,7 @@ struct ConfigSet: Codable {
     var includeSession: String?
     var autoAcceptDefault: String?
     var autoAcceptSession: AutoAcceptSessionSet?
+    var autoAcceptProject: AutoAcceptProjectSet? = nil
     var autoAcceptPaused: Bool?
     var provider: String? = nil
     var providerEnabled: Bool? = nil
@@ -37,6 +38,12 @@ struct TaskCreate: Codable {
 struct AutoAcceptSessionSet: Codable {
     let sessionId: String
     /// nil clears the per-session override (inherit device default).
+    let level: String?
+}
+
+struct AutoAcceptProjectSet: Codable {
+    let projectId: String
+    /// nil clears the Project override (inherit this computer's default).
     let level: String?
 }
 

@@ -8,6 +8,7 @@ enum ConfigCommandContext {
         includeSession: String? = nil,
         autoAcceptDefault: String? = nil,
         autoAcceptSession: AutoAcceptSessionSet? = nil,
+        autoAcceptProject: AutoAcceptProjectSet? = nil,
         autoAcceptPaused: Bool? = nil,
         provider: String? = nil,
         providerEnabled: Bool? = nil,
@@ -23,6 +24,7 @@ enum ConfigCommandContext {
             includeSession: includeSession,
             autoAcceptDefault: autoAcceptDefault,
             autoAcceptSession: autoAcceptSession,
+            autoAcceptProject: autoAcceptProject,
             autoAcceptPaused: autoAcceptPaused,
             provider: provider,
             providerEnabled: providerEnabled,
@@ -46,12 +48,20 @@ enum ConfigCommandContext {
         } else {
             session = "null"
         }
+        let project: String
+        if let item = message.autoAcceptProject {
+            let level = item.level.map(jsonString) ?? "null"
+            project = "{\"projectId\":\(jsonString(item.projectId)),\"level\":\(level)}"
+        } else {
+            project = "null"
+        }
         let body = "{"
             + "\"enabled\":\(jsonBool(message.enabled)),"
             + "\"excludeSession\":\(jsonOptionalString(message.excludeSession)),"
             + "\"includeSession\":\(jsonOptionalString(message.includeSession)),"
             + "\"autoAcceptDefault\":\(jsonOptionalString(message.autoAcceptDefault)),"
             + "\"autoAcceptSession\":\(session),"
+            + "\"autoAcceptProject\":\(project),"
             + "\"autoAcceptPaused\":\(jsonBool(message.autoAcceptPaused)),"
             + "\"provider\":\(jsonOptionalString(message.provider)),"
             + "\"providerEnabled\":\(jsonBool(message.providerEnabled)),"

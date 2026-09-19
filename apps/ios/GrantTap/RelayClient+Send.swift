@@ -170,6 +170,9 @@ extension RelayClient {
         autoAcceptSessionId: String? = nil,
         autoAcceptSessionLevel: String? = nil,
         clearAutoAcceptSession: Bool = false,
+        autoAcceptProjectId: String? = nil,
+        autoAcceptProjectLevel: String? = nil,
+        clearAutoAcceptProject: Bool = false,
         autoAcceptPaused: Bool? = nil
     ) {
         var sessionSet: AutoAcceptSessionSet? = nil
@@ -179,12 +182,20 @@ extension RelayClient {
                 level: clearAutoAcceptSession ? nil : autoAcceptSessionLevel
             )
         }
+        var projectSet: AutoAcceptProjectSet? = nil
+        if let projectId = autoAcceptProjectId {
+            projectSet = AutoAcceptProjectSet(
+                projectId: projectId,
+                level: clearAutoAcceptProject ? nil : autoAcceptProjectLevel
+            )
+        }
         send(payload: ConfigCommandContext.signed(
             enabled: enabled,
             excludeSession: excludeSession,
             includeSession: includeSession,
             autoAcceptDefault: autoAcceptDefault,
             autoAcceptSession: sessionSet,
+            autoAcceptProject: projectSet,
             autoAcceptPaused: autoAcceptPaused,
             provider: nil,
             providerEnabled: nil,
@@ -205,6 +216,7 @@ extension RelayClient {
             includeSession: nil,
             autoAcceptDefault: nil,
             autoAcceptSession: nil,
+            autoAcceptProject: nil,
             autoAcceptPaused: nil,
             provider: provider,
             providerEnabled: providerEnabled,

@@ -6,7 +6,7 @@ extension AppModel {
         guard agentMeshPreferences.meshEnabled else { return }
         let now = Date().timeIntervalSince1970 * 1_000
         guard snapshot.sessionId == snapshot.projectId else { return }
-        meshProjectSourceRooms[snapshot.projectId, default: []].insert(room)
+        rememberProjectRoom(room, projectId: snapshot.projectId)
         meshSnapshots[snapshot.projectId] = withoutReleasedClaims(
             ProjectMeshLogic.merged(
                 current: meshSnapshots[snapshot.projectId], incoming: snapshot, nowMs: now
@@ -33,7 +33,7 @@ extension AppModel {
                 receipt, for: event, in: meshSnapshots[event.projectId]
            ) { return }
         meshEventSourceRooms[event.eventId] = room
-        meshProjectSourceRooms[event.projectId, default: []].insert(room)
+        rememberProjectRoom(room, projectId: event.projectId)
         sessionSourceRooms[event.sourceSessionId] = [room]
         mergeMeshEvent(event, nowMs: now)
         let expectedRoute = event.payload.capsule.map {
@@ -281,7 +281,9 @@ extension AppModel {
             pendingEvents: pendingMeshEvents,
             eventSourceRooms: meshEventSourceRooms.filter { pendingIds.contains($0.key) },
             attentionStates: boundedStates,
-            projectRooms: meshProjectSourceRooms.mapValues { Array($0).sorted() }
+            projectRooms: meshProjectSourceRooms.mapValues { Array($0).sorted() },
+            archivedComputers: archivedProjectComputers.mapValues { Array($0).sorted() },
+            removedComputers: removedProjectComputers.mapValues { Array($0).sorted() }
         ))
     }
 

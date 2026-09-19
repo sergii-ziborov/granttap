@@ -19,11 +19,17 @@ struct UnboundProjectComputer: Identifiable, Equatable {
 /// from here.
 enum ProjectMembership {
     static func unbound(
-        snapshot: ProjectMeshSnapshot, paired: [LinkedComputer]
+        snapshot: ProjectMeshSnapshot,
+        paired: [LinkedComputer],
+        removed: Set<String> = []
     ) -> [UnboundProjectComputer] {
-        let bound = Set(ProjectManagePresentation.endpointIds(snapshot))
+        let bound = Set(ProjectManagePresentation.endpointIds(snapshot)).subtracting(removed)
         return paired
-            .filter { !bound.contains($0.id) }
+            .filter { computer in
+                removed.contains(computer.id)
+                    || removed.contains(computer.lastMachineName)
+                    || !bound.contains(computer.id)
+            }
             .map { UnboundProjectComputer(endpointId: $0.id, displayName: $0.displayName) }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName)
                 == .orderedAscending }

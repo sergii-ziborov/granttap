@@ -129,9 +129,9 @@ final class UIActionCoverageTests: XCTestCase {
         XCTAssertEqual(sheet.accessBinding.wrappedValue, "read-only")
         sheet.accessBinding.wrappedValue = "full"
         XCTAssertTrue(model.log.last?.contains("blocked") == true)
-        XCTAssertEqual(sheet.legacyLabel("safe"), "Safe only")
-        XCTAssertEqual(sheet.legacyLabel("except_destructive"), "Custom relaxed")
-        XCTAssertEqual(sheet.legacyLabel("full"), "Full auto")
+        XCTAssertEqual(sheet.legacyLabel("safe"), AutoAcceptLevel.safe.title)
+        XCTAssertEqual(sheet.legacyLabel("except_destructive"), AutoAcceptLevel.exceptDestructive.title)
+        XCTAssertEqual(sheet.legacyLabel("full"), AutoAcceptLevel.full.title)
 
         for row in rows {
             assertRendered(ChatCapabilityRowView(

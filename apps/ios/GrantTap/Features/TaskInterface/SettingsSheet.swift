@@ -40,19 +40,6 @@ struct SettingsSheet: View {
 
                 AgentsMeshSettingsSection(model: model)
 
-                Section {
-                    Picker(L("Default"), selection: approvalBinding) {
-                        ForEach(DefaultApprovalMode.allCases) { mode in
-                            Text(mode.label).tag(mode)
-                        }
-                    }
-                    .pickerStyle(.inline)
-                } header: {
-                    Text(L("Approval Behavior"))
-                } footer: {
-                    Text(L("Ask for risky actions is recommended. A task can override this in Task Controls."))
-                }
-
                 SettingsSecuritySection()
 
                 Section(L("Subscription")) {

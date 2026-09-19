@@ -8,8 +8,28 @@ struct ProjectMembersView: View {
     @State private var roomsBeforePairing: Set<String> = []
 
     var computers: [ProjectComputerSummary] {
+        summaries(
+            for: ProjectComputerRoster.memberIds(
+                snapshot: snapshot,
+                participating: model.computerRooms(for: snapshot.projectId),
+                memberRooms: Set(model.memberLinks(for: snapshot.projectId).map(\.id)),
+                hidden: model.hiddenComputers(for: snapshot.projectId)
+            )
+        )
+    }
+
+    var archived: [ProjectComputerSummary] {
+        summaries(
+            for: ProjectComputerRoster.archivedIds(
+                snapshot: snapshot,
+                archived: model.archivedComputers(for: snapshot.projectId)
+            )
+        )
+    }
+
+    private func summaries(for endpoints: [String]) -> [ProjectComputerSummary] {
         let bindings = snapshot.bindings ?? []
-        return ProjectManagePresentation.endpointIds(snapshot).map { endpoint in
+        return endpoints.map { endpoint in
             let matches = bindings.filter { $0.endpointId == endpoint }
             let repositories = Set(matches.map(\.repositoryId)).count
             let executionAvailable = snapshot.executions.contains {
@@ -17,7 +37,7 @@ struct ProjectMembersView: View {
             }
             return ProjectComputerSummary(
                 endpointId: endpoint,
-                displayName: computerName(endpoint),
+                displayName: model.displayName(forComputer: endpoint),
                 repositoryCount: repositories,
                 available: matches.isEmpty ? executionAvailable : matches.contains(where: \.available)
             )
@@ -64,18 +84,46 @@ struct ProjectMembersView: View {
                         .foregroundColor(Theme.muted)
                 } else {
                     ForEach(computers) { computer in
-                        ProjectComputerRow(
-                            computer: computer,
-                            work: ProjectComputerWork.current(
-                                snapshot: snapshot, endpointId: computer.endpointId, sessions: model.sessions
+                        NavigationLink {
+                            ProjectComputerDetailView(
+                                endpointId: computer.endpointId, snapshot: snapshot, model: model
                             )
-                        )
+                        } label: {
+                            ProjectComputerRow(
+                                computer: computer,
+                                work: ProjectComputerWork.current(
+                                    snapshot: snapshot, endpointId: computer.endpointId, sessions: model.sessions
+                                )
+                            )
+                        }
+                        .accessibilityIdentifier("members.computer.\(computer.endpointId)")
                     }
                 }
             } header: {
                 Text(L("Computers"))
             } footer: {
                 Text(L("The mesh is encrypted under a key of its own. A computer takes part once this phone hands it that key."))
+            }
+            if !archived.isEmpty {
+                Section {
+                    ForEach(archived) { computer in
+                        NavigationLink {
+                            ProjectComputerDetailView(
+                                endpointId: computer.endpointId, snapshot: snapshot, model: model
+                            )
+                        } label: {
+                            ProjectComputerRow(
+                                computer: computer,
+                                work: ProjectComputerWork.current(
+                                    snapshot: snapshot, endpointId: computer.endpointId, sessions: model.sessions
+                                )
+                            )
+                        }
+                        .accessibilityIdentifier("members.archived.\(computer.endpointId)")
+                    }
+                } header: {
+                    Text(L("Archived computers"))
+                }
             }
             unboundSection
         }
@@ -154,7 +202,9 @@ struct ProjectMembersView: View {
     /// that would let it in.
     @ViewBuilder private var unboundSection: some View {
         let unbound = ProjectMembership.unbound(
-            snapshot: snapshot, paired: model.connectionRegistry.connections
+            snapshot: snapshot,
+            paired: model.connectionRegistry.connections,
+            removed: model.removedComputers(for: snapshot.projectId)
         )
         if !unbound.isEmpty {
             Section {
@@ -210,13 +260,6 @@ struct ProjectMembersView: View {
         )
     }
 
-    private func computerName(_ endpoint: String) -> String {
-        if let connection = model.connectionRegistry.connections.first(where: { $0.id == endpoint }) {
-            return connection.displayName
-        }
-        guard endpoint.count > 24 else { return endpoint }
-        return "\(L("Computer")) \(endpoint.prefix(8))"
-    }
 }
 
 struct ProjectComputerRow: View {

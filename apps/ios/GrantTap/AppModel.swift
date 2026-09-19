@@ -46,6 +46,7 @@ final class AppModel: ObservableObject {
     @Published var excludedSessions: [String] = []
     @Published var autoAcceptDefault: String = "except_push"
     @Published var autoAcceptBySession: [String: String] = [:]
+    @Published var autoAcceptByProject: [String: String] = [:]
     @Published var autoAcceptPaused: Bool = false
     @Published var globalMcpDisabled: Set<String> = []
     @Published var globalSkillsDisabled: Set<String> = []
@@ -164,6 +165,10 @@ final class AppModel: ObservableObject {
     /// a policy to, for as long as it took the next snapshot to arrive.
     var meshProjectSourceRooms: [String: Set<String>] =
         restoredMesh.projectRooms.mapValues(Set.init)
+    @Published var archivedProjectComputers: [String: Set<String>] =
+        restoredMesh.archivedComputers.mapValues(Set.init)
+    @Published var removedProjectComputers: [String: Set<String>] =
+        restoredMesh.removedComputers.mapValues(Set.init)
     var meshEventSourceRooms: [String: String] = restoredMesh.eventSourceRooms
     var authorizedHandoffRoutes: [String: String] = [:]
     /// approval / question id → room that delivered it (for multi-PC decide routing).

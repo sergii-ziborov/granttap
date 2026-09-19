@@ -41,7 +41,9 @@ extension AppModel {
     /// a hand-off is for. A member's phone and a bot endpoint hear the Project
     /// but are not asked to apply anything.
     func computerRooms(for projectId: String) -> Set<String> {
-        (meshProjectSourceRooms[projectId] ?? []).filter { meshEndpointRoomToId[$0] == nil }
+        (meshProjectSourceRooms[projectId] ?? []).filter {
+            meshEndpointRoomToId[$0] == nil && !isRemovedRoom($0, projectId: projectId)
+        }
     }
 
     // MARK: Invite

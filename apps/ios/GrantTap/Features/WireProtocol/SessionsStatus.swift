@@ -31,6 +31,7 @@ struct SessionsStatus: Decodable {
     var excludedSessions: [String]?
     var autoAcceptDefault: String?
     var autoAcceptBySession: [String: String]?
+    var autoAcceptByProject: [String: String]?
     var autoAcceptPaused: Bool?
     var providerSettings: [String: Bool]?
     var meshEnabled: Bool?
@@ -44,7 +45,7 @@ struct SessionsStatus: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case type, machine, sessions, history, activities, tokensRecent, tokenWindowHours, tokensAllTime
-        case gatingEnabled, excludedSessions, autoAcceptDefault, autoAcceptBySession, autoAcceptPaused
+        case gatingEnabled, excludedSessions, autoAcceptDefault, autoAcceptBySession, autoAcceptByProject, autoAcceptPaused
         case providerSettings, meshEnabled, configRevision, instanceEpoch
         case globalMcpDisabled, globalSkillsDisabled, globalShellDisabled
         case agents, generatedAt
@@ -61,6 +62,7 @@ struct SessionsStatus: Decodable {
          excludedSessions: [String]? = nil,
          autoAcceptDefault: String? = nil,
          autoAcceptBySession: [String: String]? = nil,
+         autoAcceptByProject: [String: String]? = nil,
          autoAcceptPaused: Bool? = nil,
          providerSettings: [String: Bool]? = nil,
          meshEnabled: Bool? = nil,
@@ -82,6 +84,7 @@ struct SessionsStatus: Decodable {
         self.excludedSessions = excludedSessions
         self.autoAcceptDefault = autoAcceptDefault
         self.autoAcceptBySession = autoAcceptBySession
+        self.autoAcceptByProject = autoAcceptByProject
         self.autoAcceptPaused = autoAcceptPaused
         self.providerSettings = providerSettings
         self.meshEnabled = meshEnabled
@@ -109,6 +112,7 @@ struct SessionsStatus: Decodable {
         excludedSessions = try? c.decode([String].self, forKey: .excludedSessions)
         autoAcceptDefault = try? c.decode(String.self, forKey: .autoAcceptDefault)
         autoAcceptBySession = try? c.decode([String: String].self, forKey: .autoAcceptBySession)
+        autoAcceptByProject = try? c.decode([String: String].self, forKey: .autoAcceptByProject)
         autoAcceptPaused = try? c.decode(Bool.self, forKey: .autoAcceptPaused)
         providerSettings = try? c.decode([String: Bool].self, forKey: .providerSettings)
         meshEnabled = try? c.decode(Bool.self, forKey: .meshEnabled)

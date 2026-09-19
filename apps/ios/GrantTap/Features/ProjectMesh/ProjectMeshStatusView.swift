@@ -125,6 +125,7 @@ struct ProjectMeshStatusView: View {
         events: [CapabilityUsageEvent]
     ) -> some View {
         let computers = ProjectUsageStats.inventory(events, snapshot: snapshot)
+            .filter { model.computerDisposition($0.endpointId, projectId: snapshot.projectId) != .removed }
         Section(L("Load by computer")) {
             if computers.isEmpty {
                 Text(L("No computers reported yet."))

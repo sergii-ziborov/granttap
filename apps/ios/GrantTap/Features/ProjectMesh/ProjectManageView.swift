@@ -66,6 +66,20 @@ struct ProjectDestinationRows: View {
         }
         .accessibilityIdentifier("project.execution")
         NavigationLink {
+            ProjectAutoAcceptView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Auto-accept"),
+                detail: ProjectManagePresentation.autoAcceptSummary(
+                    paused: model.autoAcceptPaused,
+                    project: model.autoAcceptByProject[snapshot.projectId],
+                    machine: model.autoAcceptDefault
+                ),
+                icon: "checkmark.circle"
+            )
+        }
+        .accessibilityIdentifier("project.auto-accept")
+        NavigationLink {
             ProjectGovernanceView(project: snapshot.project, model: model)
         } label: {
             ProjectDestinationLabel(
@@ -82,10 +96,32 @@ struct ProjectDestinationRows: View {
         } label: {
             ProjectDestinationLabel(
                 title: L("Members / Computers"),
-                detail: ProjectManagePresentation.membersSummary(snapshot),
+                detail: ProjectManagePresentation.membersSummary(
+                    snapshot, hidden: model.hiddenComputers(for: snapshot.projectId)
+                ),
                 icon: "person.2"
             )
         }
+        NavigationLink {
+            ProjectMeshStatsView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Statistics"),
+                detail: ProjectMeshStatsPresentation.summary(
+                    snapshot: snapshot,
+                    events: CapabilityUsageStore.shared.events,
+                    sessions: model.sessions + model.allSessionHistory,
+                    computerCount: ProjectComputerRoster.hostIds(
+                        snapshot: snapshot,
+                        participating: model.computerRooms(for: snapshot.projectId),
+                        archived: model.archivedComputers(for: snapshot.projectId),
+                        removed: model.removedComputers(for: snapshot.projectId)
+                    ).count
+                ),
+                icon: "chart.bar"
+            )
+        }
+        .accessibilityIdentifier("project.stats")
         NavigationLink {
             ProjectMeshStatusView(snapshot: snapshot, model: model)
         } label: {

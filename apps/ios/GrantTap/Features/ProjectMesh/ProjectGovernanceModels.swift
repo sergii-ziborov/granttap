@@ -98,6 +98,10 @@ enum ProjectManagePresentation {
         return String(format: L(configured == 1 ? "%d rule" : "%d rules"), configured)
     }
 
+    static func autoAcceptSummary(paused: Bool, project: String?, machine: String) -> String {
+        AutoAcceptPresentation.summary(paused: paused, project: project, machine: machine)
+    }
+
     static func executionSummary(
         _ snapshot: ProjectMeshSnapshot, governance: ProjectGovernanceProjection?
     ) -> String {
@@ -113,8 +117,8 @@ enum ProjectManagePresentation {
         }
     }
 
-    static func membersSummary(_ snapshot: ProjectMeshSnapshot) -> String {
-        let count = endpointIds(snapshot).count
+    static func membersSummary(_ snapshot: ProjectMeshSnapshot, hidden: Set<String> = []) -> String {
+        let count = endpointIds(snapshot).filter { !hidden.contains($0) }.count
         let computers = String(
             format: L(count == 1 ? "%d computer" : "%d computers"), count
         )

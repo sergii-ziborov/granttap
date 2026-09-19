@@ -58,11 +58,6 @@ struct ChatCapabilitySheet: View {
     private var model: AppModel { modelOverride ?? environmentModel }
     private var ranked: [ChatCapabilityRow] { ChatCapabilitySort.rank(rows) }
     private var route: ChatComputerRoute? { model.chatComputerRoute(forSessionId: sessionId) }
-    private var legacyLevel: String? {
-        let level = model.autoAcceptLevel(for: sessionId)
-        return ["safe", "except_destructive", "full"].contains(level) ? level : nil
-    }
-
     var body: some View {
         CompatNavigationStack {
             List {
@@ -87,22 +82,57 @@ struct ChatCapabilitySheet: View {
     }
 
     private var approvalSection: some View {
-        Section(L("Approval Mode")) {
-            Picker(L("Approval Mode"), selection: approvalBinding) {
-                ForEach(PersonalApprovalMode.allCases) { mode in
-                    Text(mode.label).tag(mode)
+        Section(L("Auto-accept")) {
+            Picker(L("Auto-accept"), selection: chatLevelBinding) {
+                Text(L("Use Project level")).tag(String?.none)
+                ForEach(AutoAcceptLevel.allCases) { level in
+                    Text(level.title).tag(String?.some(level.rawValue))
                 }
             }
-            .pickerStyle(.inline)
-            Text(L("Ask for risky actions is recommended for most tasks."))
+            Toggle(L("Use agent defaults"), isOn: agentDefaultsBinding)
+            Text(effectiveBlurb)
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.muted)
-            if let legacyLevel {
-                CompatLabeledContent(L("Advanced · Custom")) {
-                    Text(legacyLabel(legacyLevel)).foregroundStyle(Theme.riskMed)
+            if let projectId = session.projectId,
+               let snapshot = model.meshSnapshot(for: projectId) {
+                NavigationLink {
+                    ProjectAutoAcceptView(snapshot: snapshot, model: model)
+                } label: {
+                    Text(L("Open Project Auto-accept"))
                 }
             }
         }
+    }
+
+    private var chatLevelBinding: Binding<String?> {
+        Binding(
+            get: { model.isExcluded(sessionId) ? nil : model.autoAcceptBySession[sessionId] },
+            set: { next in
+                model.setAutoAcceptPaused(false)
+                model.setSessionExcluded(sessionId, false)
+                if let next {
+                    model.setSessionAutoAccept(sessionId, next)
+                } else {
+                    model.clearSessionAutoAccept(sessionId)
+                }
+            }
+        )
+    }
+
+    private var agentDefaultsBinding: Binding<Bool> {
+        Binding(
+            get: { model.isExcluded(sessionId) },
+            set: { model.setSessionExcluded(sessionId, $0) }
+        )
+    }
+
+    private var effectiveBlurb: String {
+        if model.isExcluded(sessionId) {
+            return L("This session uses the agent's normal approval flow")
+        }
+        return AutoAcceptLevel.parse(
+            model.autoAcceptLevel(for: session)
+        ).blurb
     }
 
     private var accessSection: some View {
@@ -238,11 +268,7 @@ struct ChatCapabilitySheet: View {
 
 
     func legacyLabel(_ level: String) -> String {
-        switch level {
-        case "safe": return L("Safe only")
-        case "except_destructive": return L("Custom relaxed")
-        default: return L("Full auto")
-        }
+        AutoAcceptLevel.parse(level).title
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {

@@ -181,6 +181,7 @@ extension AppModel {
         if let ex = status.excludedSessions { self.excludedSessions = ex }
         if let d = status.autoAcceptDefault { self.autoAcceptDefault = d }
         if let m = status.autoAcceptBySession { self.autoAcceptBySession = m }
+        if let m = status.autoAcceptByProject { self.autoAcceptByProject = m }
         if let p = status.autoAcceptPaused { self.autoAcceptPaused = p }
         if let names = status.globalMcpDisabled { self.globalMcpDisabled = Set(names) }
         if let names = status.globalSkillsDisabled { self.globalSkillsDisabled = Set(names) }
