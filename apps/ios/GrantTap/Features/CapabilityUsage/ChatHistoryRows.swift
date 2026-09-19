@@ -131,7 +131,7 @@ struct HistoricalChatDetail: View {
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(entry.kind == "tool"
                                                  ? Theme.muted : Theme.accent(for: session.agent))
-                            Text(entry.text)
+                            Text(ChatTranscriptText.display(entry.text))
                                 .font(entry.kind == "tool" ? Theme.mono(12) : .system(size: 14))
                                 .textSelection(.enabled)
                         }

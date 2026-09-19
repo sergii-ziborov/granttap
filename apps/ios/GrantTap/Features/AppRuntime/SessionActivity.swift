@@ -97,12 +97,17 @@ extension AppModel {
             return
         }
         if activity.entries.isEmpty, before == 0 {
-            // Store the empty snapshot so History / full-chat can leave the spinner
-            // and the user can retry — dropping it left "Opening…" forever.
-            var next = self.activities
-            next[activity.sessionId] = activity
-            self.activities = next
-            SessionActivityPersistence.save(next)
+            // Only an opened chat stores an empty ack. A catalog tick used to
+            // mark every Now card "No messages loaded" before anyone opened it.
+            let opened = activitySubscribers[activity.sessionId]?.contains(where: {
+                $0.hasPrefix("phone-chat:") || $0.hasPrefix("phone-history:")
+            }) == true
+            if opened {
+                var next = self.activities
+                next[activity.sessionId] = activity
+                self.activities = next
+                SessionActivityPersistence.save(next)
+            }
             pruneStaleDeliveries()
             self.finishBackgroundWake(.newData)
             return

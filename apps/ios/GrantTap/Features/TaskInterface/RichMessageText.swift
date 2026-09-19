@@ -194,17 +194,40 @@ extension MessageMarkdown.Table {
     }
 }
 
+/// Cursor host tags that leaked into the transcript. They are not the message.
+enum ChatTranscriptText {
+    static func display(_ text: String) -> String {
+        var next = text.replacingOccurrences(
+            of: "<timestamp[^>]*>[\\s\\S]*?</timestamp>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        if let query = queryBody(in: next) { next = query }
+        return next.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func queryBody(in text: String) -> String? {
+        guard let start = text.range(of: "<user_query>", options: .caseInsensitive),
+              let end = text.range(of: "</user_query>", options: .caseInsensitive),
+              start.upperBound < end.lowerBound else { return nil }
+        let body = text[start.upperBound..<end.lowerBound]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return body.isEmpty ? nil : String(body)
+    }
+}
+
 struct RichMessageText: View {
     let text: String
     let compact: Bool
 
-    private var attributed: AttributedString { MessageMarkdown.attributed(text) }
+    private var shown: String { ChatTranscriptText.display(text) }
+    private var attributed: AttributedString { MessageMarkdown.attributed(shown) }
 
     var body: some View {
         if compact {
             plain
         } else {
-            let blocks = MessageMarkdown.blocks(text)
+            let blocks = MessageMarkdown.blocks(shown)
             if blocks.count == 1, case .text = blocks[0] {
                 plain
             } else {

@@ -128,7 +128,7 @@ extension TaskChatView {
     /// user would be dragged back to an old call by every incoming line.
     func settleScroll(_ proxy: ScrollViewProxy) {
         guard let focusEntryId, !focusHonoured else {
-            scrollToBottom(proxy)
+            followTranscript(proxy)
             return
         }
         guard let entry = entries.first(where: { $0.id == focusEntryId }) else { return }
@@ -148,11 +148,32 @@ extension TaskChatView {
         }
     }
 
-    func scrollToBottom(_ proxy: ScrollViewProxy) {
-        guard let last = entries.last else { return }
-        let target = ChatScrollTarget.forEntry(last)
+    /// While older rows are still arriving, keep the person's last line where
+    /// it is. Chasing every new count to the foot is what made that bubble
+    /// fall down the chat during backfill.
+    func followTranscript(_ proxy: ScrollViewProxy) {
+        guard let target = ChatScrollTarget.followTarget(combinedTimeline) else { return }
+        let liveFollow = combinedTimeline.last.map { $0.id == target } == true
         DispatchQueue.main.async {
-            withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(target, anchor: .bottom) }
+            if liveFollow {
+                withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(target, anchor: .bottom) }
+            } else {
+                proxy.scrollTo(target, anchor: .bottom)
+            }
+        }
+    }
+
+    func scrollToBottom(_ proxy: ScrollViewProxy) {
+        guard let last = combinedTimeline.last else {
+            guard let lastEntry = entries.last else { return }
+            let target = ChatScrollTarget.forEntry(lastEntry)
+            DispatchQueue.main.async {
+                withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(target, anchor: .bottom) }
+            }
+            return
+        }
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(last.id, anchor: .bottom) }
         }
     }
 

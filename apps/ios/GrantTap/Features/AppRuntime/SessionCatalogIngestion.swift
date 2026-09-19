@@ -238,6 +238,7 @@ extension AppModel {
         self.finishBackgroundWake(.newData)
         // Members who may watch a Project's chats get its part of this list.
         if let room = sourceNamespace { forwardStatusToMembers(fromRoom: room) }
+        prefetchNowCatalogTranscripts()
         if !catalog.live.isEmpty || !(catalog.history ?? []).isEmpty {
             append("sessions.status applied live=\(self.sessions.count) history=\(self.sessionHistory.count)")
         } else if self.sessions.isEmpty && self.sessionHistory.isEmpty {

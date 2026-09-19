@@ -54,6 +54,25 @@ extension AppModel {
         relayForSession(id)?.requestSessionEvents(sessionId: id, threadId: threadId)
     }
 
+    /// Pull transcripts for Now chats without opening them. Opening used to
+    /// be the first subscribe, so inactive cards sat on "No messages loaded".
+    func prefetchTranscripts(_ sessionIds: [String]) {
+        var seen = Set<String>()
+        for raw in sessionIds {
+            let id = resolvedSessionId(raw)
+            if !seen.insert(id).inserted { continue }
+            if activities[id]?.entries.isEmpty == false { continue }
+            let sourceRelay = relayForSession(id)
+            sourceRelay?.sendSubscription(sessionId: id, active: true)
+            sourceRelay?.requestSessionEvents(sessionId: id)
+        }
+    }
+
+    func prefetchNowCatalogTranscripts() {
+        let ids = sessions.filter { !isArchived($0.sessionId) }.prefix(24).map(\.sessionId)
+        prefetchTranscripts(Array(ids))
+    }
+
     func subscribeSession(_ sessionId: String, active: Bool, source: String) {
         // Always subscribe to the Mac id after stub remap (live chat ticks).
         let id = resolvedSessionId(sessionId)

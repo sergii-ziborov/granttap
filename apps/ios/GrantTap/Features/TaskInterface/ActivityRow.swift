@@ -131,7 +131,7 @@ struct ActivityRow: View {
                         .foregroundStyle(Theme.muted)
                 }
                 if entry.kind == "tool" {
-                    Text(folded ? entry.oneLinePreview : entry.text)
+                    Text(folded ? ChatTranscriptText.display(entry.oneLinePreview) : ChatTranscriptText.display(entry.text))
                         .font(Theme.mono(compact ? 10.5 : 11.5))
                         .foregroundStyle(folded ? Theme.muted : Theme.ink)
                         .lineLimit(folded ? 1 : (compact ? 2 : nil))

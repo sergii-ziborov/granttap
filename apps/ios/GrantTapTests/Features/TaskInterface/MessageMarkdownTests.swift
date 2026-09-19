@@ -12,6 +12,14 @@ final class MessageMarkdownTests: XCTestCase {
         XCTAssertTrue(rendered.contains("1. раз\n2. два"), rendered)
         XCTAssertFalse(rendered.contains("#"), "the heading mark is styling, not text")
         XCTAssertEqual(String(MessageMarkdown.attributed("plain words").characters), "plain words")
+        XCTAssertEqual(
+            ChatTranscriptText.display("<timestamp>Saturday, Sep 19, 2026, 5:11 PM (UTC+3)</timestamp>\nThe graph is the towers."),
+            "The graph is the towers."
+        )
+        XCTAssertEqual(
+            ChatTranscriptText.display("<timestamp>Saturday, Sep 19, 2026, 5:11 PM (UTC+3)</timestamp>\n<user_query>pin this</user_query>"),
+            "pin this"
+        )
         XCTAssertEqual(String(MessageMarkdown.attributed("").characters), "")
 
         // Fenced code keeps its own block, and a heading is styling, not a mark.

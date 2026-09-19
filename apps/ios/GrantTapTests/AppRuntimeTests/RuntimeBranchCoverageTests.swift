@@ -53,6 +53,9 @@ extension AppRuntimeTests {
         let model = AppModel()
         let empty = runtimeActivity(id: "empty", entries: [])
         model.applyActivity(empty)
+        XCTAssertNil(model.activities["empty"], "an unopened chat must not store an empty catalog ack")
+        model.subscribeSession("empty", active: true, source: "phone-chat:empty")
+        model.applyActivity(empty)
         XCTAssertNotNil(model.activities["empty"])
 
         let loaded = runtimeActivity(id: "loaded", entries: [

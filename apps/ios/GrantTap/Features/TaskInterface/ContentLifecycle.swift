@@ -38,6 +38,7 @@ extension ContentView {
             showCapabilityUsage = true
         }
         #endif
+        model.prefetchNowCatalogTranscripts()
         security.sceneChanged(.active)
     }
 
@@ -45,6 +46,7 @@ extension ContentView {
         if phase == .background { LoadHistoryPersistence.flush() }
         if phase != .active && security.enabled { putAway() }
         if phase == .active {
+            model.prefetchNowCatalogTranscripts()
             if model.connected { model.retryQueuedDeliveries() }
             if model.needsForegroundCatalogRecovery {
                 model.recoverCatalogAfterForeground()

@@ -15,6 +15,20 @@ final class ChatActivityRunTests: XCTestCase {
                       diffPreview: added == nil ? nil : "+a\n+b", summary: summary)
     }
 
+    func testFollowKeepsTheLastUserLineWhileHistoryFillsAbove() {
+        let older = CombinedTaskTimelineItem.activity(
+            ActivityEntry(id: "old", kind: "message", text: "old", createdAt: 1_000)
+        )
+        let user = CombinedTaskTimelineItem.activity(
+            ActivityEntry(id: "me", kind: "user", text: "now", createdAt: 10_000)
+        )
+        XCTAssertEqual(ChatScrollTarget.followTarget([older, user]), "activity:me")
+        let reply = CombinedTaskTimelineItem.activity(
+            ActivityEntry(id: "you", kind: "message", text: "ok", createdAt: 10_500)
+        )
+        XCTAssertEqual(ChatScrollTarget.followTarget([older, user, reply]), "activity:you")
+    }
+
     private func message(_ id: String, at: Double) -> ActivityEntry {
         ActivityEntry(id: id, kind: "message", text: "Words", createdAt: at)
     }

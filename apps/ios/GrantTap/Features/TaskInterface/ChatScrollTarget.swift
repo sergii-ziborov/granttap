@@ -11,6 +11,18 @@ import Foundation
 /// conversation itself under a thread id, because that is the row the reader is
 /// actually being sent to.
 enum ChatScrollTarget {
+    /// During backfill keep the last user line. After the agent writes, follow the foot.
+    static func followTarget(_ items: [CombinedTaskTimelineItem]) -> String? {
+        guard let lastUser = items.last(where: {
+            if case .activity(let entry) = $0 { return entry.kind == "user" }
+            return false
+        }) else { return items.last?.id }
+        if items.contains(where: { $0.createdAt > lastUser.createdAt + 400 }) {
+            return items.last?.id
+        }
+        return lastUser.id
+    }
+
     static func forEntry(_ entry: ActivityEntry) -> String {
         if let thread = entry.childThreadId { return "thread:\(thread)" }
         return "activity:\(entry.id)"
