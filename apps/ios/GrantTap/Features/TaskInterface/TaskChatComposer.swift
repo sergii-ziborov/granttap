@@ -120,7 +120,6 @@ extension TaskChatView {
                     }
                     let threadsOpen = TaskChatTranscriptPresentation.threadsOpen(
                         userExpanded: agentThreadsExpanded,
-                        timelineEmpty: combinedTimeline.isEmpty,
                         focusedThread: focusedThread
                     )
                     Button {
@@ -158,7 +157,6 @@ extension TaskChatView {
                                 },
                                 accent: accent,
                                 servers: currentSession.mcpServers ?? [],
-                                expanded: true,
                                 onExpand: {
                                     model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
                                 }

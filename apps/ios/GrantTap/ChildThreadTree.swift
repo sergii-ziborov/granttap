@@ -35,7 +35,8 @@ enum ChildThreadTree {
             ? activityFallbackThreads(rootId: rootId, entries: activity)
             : threads
         var byId: [String: ChildThreadInfo] = [:]
-        for thread in candidates where thread.threadId != rootId {
+        for thread in candidates
+        where thread.threadId != rootId && !ProjectMeshLogic.isNestedCursorSession(thread.threadId) {
             if let previous = byId[thread.threadId],
                previous.lastActivityAt > thread.lastActivityAt { continue }
             byId[thread.threadId] = thread

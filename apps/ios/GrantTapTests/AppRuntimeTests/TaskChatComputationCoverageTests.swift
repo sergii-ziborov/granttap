@@ -229,11 +229,11 @@ extension AppRuntimeTests {
             timelineEmpty: true, threadCount: 0
         ))
         XCTAssertTrue(TaskChatTranscriptPresentation.showsAgentConversations(threadCount: 2))
-        XCTAssertTrue(TaskChatTranscriptPresentation.threadsOpen(
-            userExpanded: false, timelineEmpty: true, focusedThread: false
+        XCTAssertFalse(TaskChatTranscriptPresentation.threadsOpen(
+            userExpanded: false, focusedThread: false
         ))
         XCTAssertTrue(TaskChatTranscriptPresentation.threadsOpen(
-            userExpanded: true, timelineEmpty: false, focusedThread: false
+            userExpanded: true, focusedThread: false
         ))
         let model = AppModel()
         let session = chatCoverageSession(id: "threads-only")
@@ -252,6 +252,9 @@ extension AppRuntimeTests {
         XCTAssertEqual(chat.childThreads.count, 1)
         XCTAssertFalse(TaskChatTranscriptPresentation.showsEmptyPlaceholder(
             timelineEmpty: chat.combinedTimeline.isEmpty, threadCount: chat.childThreads.count
+        ))
+        XCTAssertFalse(TaskChatTranscriptPresentation.threadsOpen(
+            userExpanded: false, focusedThread: false
         ))
         assertRendered(chat.environmentObject(model))
     }

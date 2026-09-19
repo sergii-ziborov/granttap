@@ -73,8 +73,6 @@ extension AppModel {
             let sourceRelay = relayForSession(id)
             sourceRelay?.sendSubscription(sessionId: id, active: true)
             sourceRelay?.requestSessionEvents(sessionId: id)
-            let session = knownSession(for: id, preferredAgent: nil)
-            prefetchThreadEvents(id, threads: session?.childThreads ?? [])
         }
     }
 

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Agent conversations are part of the chat. Hiding them until the root
-/// timeline has a row made Cursor chats look empty until someone sent a line.
+/// The section can be present while the root timeline is empty. It must stay
+/// folded: opening every conversation dumped GrantTap's own chat under 22 runs.
 enum TaskChatTranscriptPresentation {
     static func showsEmptyPlaceholder(timelineEmpty: Bool, threadCount: Int) -> Bool {
         timelineEmpty && threadCount == 0
@@ -11,8 +11,8 @@ enum TaskChatTranscriptPresentation {
         threadCount > 0
     }
 
-    static func threadsOpen(userExpanded: Bool, timelineEmpty: Bool, focusedThread: Bool) -> Bool {
-        userExpanded || timelineEmpty || focusedThread
+    static func threadsOpen(userExpanded: Bool, focusedThread: Bool) -> Bool {
+        userExpanded || focusedThread
     }
 }
 

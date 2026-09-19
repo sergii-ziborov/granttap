@@ -9,8 +9,8 @@ struct TaskChatView: View {
     @State var focusHonoured = false
     /// Briefly marks the entry a history row was tapped from.
     @State var highlightedEntryId: String?
-    /// Open so a chat whose work lives in agent conversations is not blank.
-    @State var agentThreadsExpanded = true
+    /// Folded like a run of CLI calls. Opening every conversation broke GrantTap.
+    @State var agentThreadsExpanded = false
     @State var draft = ""
     @FocusState var chatFocused: Bool
     @State var attachments: [AttachmentDraft] = []
@@ -42,7 +42,7 @@ struct TaskChatView: View {
         initialAttachmentError: String? = nil,
         initialLoadTimedOut: Bool = false,
         initialShowCapabilities: Bool = false,
-        initialAgentThreadsExpanded: Bool = true,
+        initialAgentThreadsExpanded: Bool = false,
         dictator: Dictator? = nil
     ) {
         self.session = session
@@ -176,17 +176,8 @@ struct TaskChatView: View {
         }
         .onAppear {
             loadTimedOut = activitySnapshotKnown && entries.isEmpty && childThreads.isEmpty
-            if TaskChatTranscriptPresentation.showsAgentConversations(threadCount: childThreads.count),
-               TaskChatTranscriptPresentation.threadsOpen(
-                userExpanded: agentThreadsExpanded,
-                timelineEmpty: combinedTimeline.isEmpty,
-                focusedThread: false
-               ) {
-                agentThreadsExpanded = true
-            }
             model.subscribeSession(chatSessionId, active: true,
                                    source: "phone-chat:\(chatSessionId)")
-            model.prefetchThreadEvents(chatSessionId, threads: currentSession.childThreads ?? [])
             Task { @MainActor in
                 await focusComposerForDebugCapture()
                 try? await Task.sleep(nanoseconds: 4_000_000_000)

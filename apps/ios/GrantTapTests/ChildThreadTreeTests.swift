@@ -167,6 +167,14 @@ final class ChildThreadTreeTests: XCTestCase {
         XCTAssertEqual(tied.map(\.thread.threadId), ["new-start", "a", "b"])
     }
 
+    func testRowsHideCursorTaskToolClones() {
+        let rows = ChildThreadTree.rows(rootId: "root", threads: [
+            thread("listed-child", parent: "root", depth: 1, startedAt: 1),
+            thread("task-3ef3af57-1111-4111-8111-1234567890ab", parent: "root", depth: 1, startedAt: 2),
+        ])
+        XCTAssertEqual(rows.map(\.thread.threadId), ["listed-child"])
+    }
+
     private func thread(
         _ id: String,
         parent: String,
