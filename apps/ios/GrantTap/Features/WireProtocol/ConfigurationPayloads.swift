@@ -24,6 +24,7 @@ struct TaskCreate: Codable {
     let operationId: String
     let text: String
     let cwd: String
+    var projectId: String? = nil
     var agent: String? = nil
     var model: String? = nil
     var instanceEpoch: String? = nil
@@ -107,14 +108,15 @@ enum Payloads {
                         sessionId: String?, requestId: String?,
                         attachments: [UserAttachment] = [], attachmentRefs: [UserAttachmentRef] = [],
                         preferredMcp: String? = nil,
-                        skill: String? = nil, model: String? = nil,
+                        skill: String? = nil, projectId: String? = nil,
+                        model: String? = nil,
                         permissionMode: String? = nil,
                         effort: String? = nil) -> UserMessage {
         UserMessage(type: "user.message", messageId: messageId, text: text, agent: agent,
                     cwd: cwd, requestId: requestId, sessionId: sessionId,
                     attachments: attachments.isEmpty ? nil : attachments,
                     attachmentRefs: attachmentRefs.isEmpty ? nil : attachmentRefs,
-                    preferredMcp: preferredMcp, skill: skill,
+                    preferredMcp: preferredMcp, skill: skill, projectId: projectId,
                     model: model, permissionMode: permissionMode, effort: effort,
                     createdAt: Date().timeIntervalSince1970 * 1000)
     }

@@ -25,13 +25,10 @@ struct ProjectWriteToAgentsSheet: View {
             enabledProviders: enabled
         )
         _provider = State(initialValue: initial)
-        let folders = model.workspaceFolders(for: initial)
-        let root = snapshot.project.repositoryRoot ?? ""
-        if folders.contains(root) {
-            _workspace = State(initialValue: root)
-        } else {
-            _workspace = State(initialValue: folders.first ?? root)
-        }
+        let folders = ProjectWorkspacePresentation.folders(
+            snapshot: snapshot, advertised: model.workspaceFolders(for: initial)
+        )
+        _workspace = State(initialValue: folders.first ?? "")
         let names = Set(ProjectManagePresentation.endpointIds(snapshot))
         let match = model.connectionRegistry.connections.first { connection in
             names.contains(connection.id)
@@ -45,8 +42,21 @@ struct ProjectWriteToAgentsSheet: View {
         }
     }
 
+    var projectFolders: [String] {
+        ProjectWorkspacePresentation.folders(
+            snapshot: snapshot, advertised: model.workspaceFolders(for: provider)
+        )
+    }
+
     var computers: [TaskComposerComputerOption] {
-        model.connectionRegistry.connections.map { connection in
+        let names = Set(ProjectManagePresentation.endpointIds(snapshot))
+        let linked = model.connectionRegistry.connections.filter { connection in
+            names.isEmpty
+                || names.contains(connection.id)
+                || names.contains(connection.displayName)
+                || names.contains(connection.lastMachineName)
+        }
+        return linked.map { connection in
             TaskComposerComputerOption(
                 id: connection.id,
                 name: TaskComposerRoutePresentation.computerName(
@@ -107,7 +117,12 @@ struct ProjectWriteToAgentsSheet: View {
                     AttachmentMenuButton(attachments: $attachments)
                     Spacer(minLength: 0)
                 }
-                if let availability {
+                if projectFolders.isEmpty {
+                    Text(L("This Project has no folder on the selected computer."))
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .foregroundStyle(Theme.riskHigh)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if let availability {
                     Text(availability.message)
                         .font(.system(size: 10.5, weight: .semibold))
                         .foregroundStyle(availability.blocksSending ? Theme.riskHigh : Theme.riskMed)
@@ -118,7 +133,7 @@ struct ProjectWriteToAgentsSheet: View {
                     computerId: $computerId,
                     workspace: $workspace,
                     computers: computers,
-                    workspaces: model.workspaceFolders(for: provider),
+                    workspaces: projectFolders,
                     enabledProviders: model.agentMeshPreferences.enabledProviders,
                     pinnedEndpointId: snapshot.execution?.mode == .pinned
                         ? snapshot.execution?.targetEndpointId : nil
@@ -148,6 +163,7 @@ struct ProjectWriteToAgentsSheet: View {
     var canSend: Bool {
         (!text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !attachments.isEmpty)
             && availability?.blocksSending != true
+            && projectFolders.contains(workspace)
     }
 
     func send() {
@@ -167,7 +183,8 @@ struct ProjectWriteToAgentsSheet: View {
             cwd: workspace.isEmpty ? nil : workspace,
             attachments: attachments.map(\.payload),
             attachmentRefs: model.attachmentRefs(for: attachments, room: selectedConnection?.id),
-            roomId: selectedConnection?.id
+            roomId: selectedConnection?.id,
+            projectId: snapshot.projectId
         )
         dismiss()
     }

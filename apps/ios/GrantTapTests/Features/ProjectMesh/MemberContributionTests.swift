@@ -121,6 +121,7 @@ final class MemberContributionTests: XCTestCase {
         XCTAssertNil(forwarded.cwd)
         XCTAssertNil(forwarded.skill)
         XCTAssertNil(forwarded.preferredMcp)
+        XCTAssertNil(forwarded.projectId)
         XCTAssertEqual(model.memberForwardedMessages["m-1"], link.id)
     }
 }

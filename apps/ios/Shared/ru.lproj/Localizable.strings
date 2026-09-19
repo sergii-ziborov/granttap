@@ -1550,6 +1550,9 @@
 "Starts a chat in this Project" = "Начинает чат в этом Project";
 "Starts a new chat in this Project's repository. It is one task, not a broadcast to the chats already running." = "Начинает новый чат в репозитории этого Project. Это одна задача, не рассылка в уже идущие чаты.";
 "This allows a skill or MCP already on a linked computer. Governance still decides what may run." = "Это разрешает навык или MCP, уже стоящий на связанном компьютере. Governance по-прежнему решает, что можно запускать.";
+"Adds this name to the Project catalog. It does not change machine-wide permissions. Governance still decides what may run." = "Добавляет это имя в каталог Project. Машинные разрешения не меняются. Governance по-прежнему решает, что можно запускать.";
+"Requested" = "Запрошен";
+"This Project has no folder on the selected computer." = "У этого Project нет папки на выбранном компьютере.";
 "On this Project's computers" = "На компьютерах этого Project";
 "Repo lens" = "Repo lens";
 "No repositories reported" = "Репозитории не приходили";

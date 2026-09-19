@@ -98,7 +98,9 @@ extension AppModel {
                           sessionId: wire.sessionId, requestId: wire.requestId,
                           attachments: wire.attachments ?? [], attachmentRefs: wire.attachmentRefs ?? [],
                           preferredMcp: wire.preferredMcp,
-                          skill: wire.skill) { [weak self] error in
+                          skill: wire.skill, projectId: wire.projectId,
+                          model: wire.model, permissionMode: wire.permissionMode,
+                          effort: wire.effort) { [weak self] error in
             Task { @MainActor in
                 if let error {
                     self?.append("outbox.fail id=\(id.prefix(8)) \(error.localizedDescription)")

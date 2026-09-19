@@ -36,7 +36,8 @@ extension RelayClient {
                      sessionId: String?, requestId: String?,
                      attachments: [UserAttachment] = [], attachmentRefs: [UserAttachmentRef] = [],
                      preferredMcp: String? = nil,
-                     skill: String? = nil, model: String? = nil,
+                     skill: String? = nil, projectId: String? = nil,
+                     model: String? = nil,
                      permissionMode: String? = nil,
                      effort: String? = nil,
                      completion: ((Error?) -> Void)? = nil) {
@@ -47,6 +48,7 @@ extension RelayClient {
                 operationId: messageId,
                 text: text,
                 cwd: cwd,
+                projectId: projectId,
                 agent: agent,
                 model: model,
                 instanceEpoch: lastInstanceEpoch,
@@ -61,7 +63,7 @@ extension RelayClient {
                                        sessionId: sessionId, requestId: requestId,
                                        attachments: attachments, attachmentRefs: attachmentRefs,
                                        preferredMcp: preferredMcp,
-                                       skill: skill, model: model,
+                                       skill: skill, projectId: projectId, model: model,
                                        permissionMode: permissionMode, effort: effort)
         // Always device-box user.message. Session-sealed chat broke delivery when
         // the Mac monitor lacked the task key (no unwrap → no delivery.receipt →

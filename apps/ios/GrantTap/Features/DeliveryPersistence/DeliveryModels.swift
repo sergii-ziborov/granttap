@@ -14,6 +14,8 @@ struct OutgoingDelivery: Codable, Identifiable {
     /// Authenticated relay room selected when the message was created.
     /// Optional only so pre-room-pinning persisted rows can migrate safely.
     var roomId: String? = nil
+    /// Project this new chat was opened from. Follow-ups and home compose omit it.
+    var projectId: String? = nil
     var attachments: [UserAttachment]
     /// Attachments that went ahead of this message; sent by id while they
     /// stand, sent inline again when the computer says one never came.

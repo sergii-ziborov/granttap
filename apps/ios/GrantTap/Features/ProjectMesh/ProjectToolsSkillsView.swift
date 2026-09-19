@@ -103,7 +103,7 @@ struct ProjectToolsSkillsView: View {
     }
 }
 
-/// Allow a skill or MCP already on a linked computer, and keep it on this list.
+/// Keep a skill or MCP name on this Project list. It does not change machine-wide allow lists.
 struct ProjectToolsSkillsAddSheet: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
@@ -145,7 +145,7 @@ struct ProjectToolsSkillsAddSheet: View {
                         .disableAutocorrection(true)
                         .accessibilityIdentifier("project.tools.add.name")
                 } footer: {
-                    Text(L("This allows a skill or MCP already on a linked computer. Governance still decides what may run."))
+                    Text(L("Adds this name to the Project catalog. It does not change machine-wide permissions. Governance still decides what may run."))
                 }
                 if !suggestions.isEmpty {
                     Section(L("On this Project's computers")) {
@@ -153,7 +153,7 @@ struct ProjectToolsSkillsAddSheet: View {
                             Button {
                                 model.addProjectTool(
                                     projectId: snapshot.projectId, kind: item.kind,
-                                    name: item.name, snapshot: snapshot
+                                    name: item.name
                                 )
                                 dismiss()
                             } label: {
@@ -186,7 +186,7 @@ struct ProjectToolsSkillsAddSheet: View {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         model.addProjectTool(
-            projectId: snapshot.projectId, kind: kind, name: trimmed, snapshot: snapshot
+            projectId: snapshot.projectId, kind: kind, name: trimmed
         )
         dismiss()
     }

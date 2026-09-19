@@ -60,6 +60,7 @@ extension AppModel {
                      attachments: [UserAttachment] = [], attachmentRefs: [UserAttachmentRef] = [],
                      preferredMcp: String? = nil,
                      skill: String? = nil, roomId: String? = nil,
+                     projectId: String? = nil,
                      overrides: TurnOverrides = .unchanged) {
         // Reclaim only terminal/expired rows before evaluating admission.
         // Active lifecycles are protected by DeliveryPersistence.admit.
@@ -131,6 +132,10 @@ extension AppModel {
         if let routedRoom, let stubId {
             rememberSessionSourceRoom(routedRoom, sessionId: stubId)
         }
+        if let stubId, let projectId, !mcpReply,
+           let index = sessions.firstIndex(where: { $0.sessionId == stubId }) {
+            sessions[index].projectId = projectId
+        }
         let candidate = OutgoingDelivery(
             id: messageId, text: text,
             // Persist the canonical provider for retries and existing-session
@@ -140,6 +145,7 @@ extension AppModel {
             cwd: mcpReply ? nil : (isNewTask ? cwd : nil),
             sessionId: mcpReply ? resolvedIncoming : stubId,
             requestId: correlatedId, roomId: routedRoom,
+            projectId: mcpReply ? nil : projectId,
             attachments: attachments,
             // Only what went ahead to this very room can be named there.
             attachmentRefs: attachmentRefs.isEmpty ? nil : attachmentRefs,

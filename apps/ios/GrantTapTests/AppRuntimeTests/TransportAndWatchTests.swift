@@ -136,6 +136,33 @@ extension AppRuntimeTests {
     }
 
     @MainActor
+    func testNewProjectChatWireCarriesProjectId() {
+        let delivery = OutgoingDelivery(
+            id: "project-new-1",
+            text: "Ship the pin",
+            agent: "cursor",
+            cwd: "/repo",
+            sessionId: nil,
+            requestId: nil,
+            roomId: "room-a",
+            projectId: "project-a",
+            attachments: [],
+            preferredMcp: nil,
+            skill: nil,
+            createdAt: 3,
+            updatedAt: 3,
+            attempts: 0,
+            state: .queued,
+            error: nil,
+            nextRetryAt: nil
+        )
+        let payload = AppModel().wireUserMessage(for: delivery)
+        XCTAssertEqual(payload.projectId, "project-a")
+        XCTAssertEqual(payload.cwd, "/repo")
+        XCTAssertNil(payload.sessionId)
+    }
+
+    @MainActor
     func testPermissionFollowUpIsAnOrdinaryProviderMessage() throws {
         let action = try XCTUnwrap(WatchAction.permissionFollowUp(
             "Use the safer command instead",

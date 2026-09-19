@@ -130,6 +130,7 @@ struct UserMessage: Codable {
     var attachmentRefs: [UserAttachmentRef]?
     var preferredMcp: String?
     var skill: String?
+    var projectId: String? = nil
     /// Model for this turn; nil keeps whatever the chat already uses.
     var model: String?
     /// Provider permission mode for this turn; nil keeps the chat's own.

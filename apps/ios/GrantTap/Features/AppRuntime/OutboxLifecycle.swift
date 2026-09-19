@@ -281,6 +281,7 @@ extension AppModel {
             attachmentRefs: delivery.attachmentRefs ?? [],
             preferredMcp: delivery.preferredMcp,
             skill: delivery.skill,
+            projectId: delivery.projectId,
             model: delivery.model,
             permissionMode: delivery.permissionMode,
             effort: delivery.effort

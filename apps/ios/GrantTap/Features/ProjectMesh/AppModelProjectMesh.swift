@@ -303,13 +303,12 @@ extension AppModel {
     func addProjectTool(
         projectId: String,
         kind: ProjectToolsSkillsPresentation.Kind,
-        name: String,
-        snapshot: ProjectMeshSnapshot
+        name: String
     ) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         let item = ProjectToolsSkillsPresentation.Item(
-            kind: kind, name: trimmed, state: "available"
+            kind: kind, name: trimmed, state: "requested"
         )
         var items = projectAddedTools[projectId] ?? []
         if !items.contains(where: {
@@ -318,27 +317,6 @@ extension AppModel {
             items.append(item)
             projectAddedTools[projectId] = items
         }
-        let room = projectToolRoom(for: snapshot)
-        switch kind {
-        case .skill:
-            if let room { setGlobalSkillAllowed(trimmed, allowed: true, roomId: room) }
-            else { setGlobalSkillAllowed(trimmed, allowed: true) }
-        case .mcp:
-            if let room { setGlobalMcpAllowed(trimmed, allowed: true, roomId: room) }
-            else { setGlobalMcpAllowed(trimmed, allowed: true) }
-        }
         objectWillChange.send()
-    }
-
-    private func projectToolRoom(for snapshot: ProjectMeshSnapshot) -> String? {
-        let names = Set(ProjectManagePresentation.endpointIds(snapshot))
-        if let match = connectionRegistry.connections.first(where: {
-            names.contains($0.id)
-                || names.contains($0.displayName)
-                || names.contains($0.lastMachineName)
-        }) {
-            return match.id
-        }
-        return connectionRegistry.preferred?.id
     }
 }

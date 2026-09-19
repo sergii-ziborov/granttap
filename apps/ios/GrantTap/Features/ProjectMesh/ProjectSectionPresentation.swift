@@ -217,12 +217,13 @@ enum ProjectToolsSkillsPresentation {
         }
     }
 
-    static let states = ["installed", "available", "used", "unknown"]
+    static let states = ["installed", "available", "requested", "used", "unknown"]
 
     static func stateLabel(_ state: String) -> String {
         switch normalizedState(state) {
         case "installed": return L("Installed")
         case "available": return L("Available")
+        case "requested": return L("Requested")
         case "used": return L("Used")
         default: return L("Unknown")
         }
@@ -562,5 +563,37 @@ enum ProjectRepoLensPresentation {
             nodes: nodes.values.sorted { $0.title == $1.title ? $0.id < $1.id : $0.title < $1.title },
             edges: edges.sorted { $0.id < $1.id }
         )
+    }
+}
+
+/// Folders this Project already named. Another repo on the same computer is not a candidate.
+enum ProjectWorkspacePresentation {
+    static func ownedFolders(_ snapshot: ProjectMeshSnapshot) -> [String] {
+        var folders: Set<String> = []
+        if let root = snapshot.project.repositoryRoot?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !root.isEmpty {
+            folders.insert(root)
+        }
+        for binding in snapshot.bindings ?? [] {
+            if let hint = binding.localPathHint?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !hint.isEmpty {
+                folders.insert(hint)
+            }
+        }
+        return folders.sorted()
+    }
+
+    static func folders(snapshot: ProjectMeshSnapshot, advertised: [String]) -> [String] {
+        let owned = Set(ownedFolders(snapshot))
+        return advertised.filter { owned.contains($0) }
+    }
+}
+
+/// Host models for the pinned endpoint only. Another computer's catalog is not a stand-in.
+enum ProjectExecutionPresentation {
+    static func catalog(snapshot: ProjectMeshSnapshot, targetId: String) -> EndpointModelCatalog? {
+        let wanted = targetId.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !wanted.isEmpty else { return nil }
+        return snapshot.modelCatalog?.first { $0.endpointId == wanted }
     }
 }

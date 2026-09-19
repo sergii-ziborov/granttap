@@ -24,8 +24,7 @@ struct ProjectExecutionView: View {
     }
 
     var catalog: EndpointModelCatalog? {
-        snapshot.modelCatalog?.first { $0.endpointId == targetId }
-            ?? snapshot.modelCatalog?.first
+        ProjectExecutionPresentation.catalog(snapshot: snapshot, targetId: targetId)
     }
 
     var body: some View {
@@ -61,16 +60,14 @@ struct ProjectExecutionView: View {
             } footer: {
                 Text(statusDetail)
             }
-            if let catalog {
-                Section(L("Host models")) {
-                    if catalog.models.isEmpty {
-                        Text(L(catalog.reason ?? "Catalog not reported"))
-                            .font(.caption).foregroundStyle(Theme.muted)
-                    } else {
-                        ForEach(catalog.models) { item in
-                            Text(item.label ?? item.modelId)
-                        }
+            Section(L("Host models")) {
+                if let catalog, !catalog.models.isEmpty {
+                    ForEach(catalog.models) { item in
+                        Text(item.label ?? item.modelId)
                     }
+                } else {
+                    Text(L(catalog?.reason ?? "Catalog not reported"))
+                        .font(.caption).foregroundStyle(Theme.muted)
                 }
             }
         }

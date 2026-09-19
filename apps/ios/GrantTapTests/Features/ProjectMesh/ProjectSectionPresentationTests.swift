@@ -289,27 +289,83 @@ final class ProjectSectionPresentationTests: XCTestCase {
     func testAddedToolsAppearOnTheProjectCatalog() {
         let model = AppModel()
         let snapshot = emptySnapshot()
+        let other = emptySnapshot(projectId: "other")
+        model.globalMcpDisabled = ["github"]
+        model.globalSkillsDisabled = ["release-check"]
         XCTAssertTrue(ProjectToolsSkillsPresentation.catalog(snapshot: snapshot).isEmpty)
-        model.addProjectTool(
-            projectId: snapshot.projectId, kind: .skill, name: "release-check", snapshot: snapshot
-        )
-        model.addProjectTool(
-            projectId: snapshot.projectId, kind: .mcp, name: "github", snapshot: snapshot
-        )
+        model.addProjectTool(projectId: snapshot.projectId, kind: .skill, name: "release-check")
+        model.addProjectTool(projectId: snapshot.projectId, kind: .mcp, name: "github")
         let catalog = ProjectToolsSkillsPresentation.catalog(
             snapshot: snapshot, added: model.addedToolItems(for: snapshot.projectId)
         )
         XCTAssertEqual(catalog.skills.map(\.name), ["release-check"])
         XCTAssertEqual(catalog.servers.map(\.name), ["github"])
+        XCTAssertEqual(catalog.items(kind: .skill, state: "requested").map(\.name), ["release-check"])
+        XCTAssertEqual(catalog.items(kind: .mcp, state: "requested").map(\.name), ["github"])
+        XCTAssertEqual(ProjectToolsSkillsPresentation.stateLabel("requested"), L("Requested"))
+        XCTAssertEqual(model.addedToolItems(for: other.projectId), [])
+        XCTAssertEqual(model.globalMcpDisabled, ["github"])
+        XCTAssertEqual(model.globalSkillsDisabled, ["release-check"])
         ProjectGovernanceViewFixtures.render(ProjectToolsSkillsAddSheet(snapshot: snapshot, model: model))
         ProjectGovernanceViewFixtures.render(ProjectRepoLensGraphView(graph: .init(nodes: [], edges: [])))
     }
 
-    private func emptySnapshot() -> ProjectMeshSnapshot {
+    func testHostModelsUseOnlyTheExactEndpointCatalog() {
+        var snapshot = emptySnapshot()
+        snapshot.modelCatalog = [
+            EndpointModelCatalog(
+                endpointId: "other-host", observedAt: now,
+                models: [
+                    AdvertisedModel(
+                        modelId: "opus", provider: "claude", endpointId: "other-host",
+                        source: "observed", observedAt: now
+                    )
+                ]
+            ),
+            EndpointModelCatalog(
+                endpointId: "mac-host", observedAt: now,
+                models: [
+                    AdvertisedModel(
+                        modelId: "sonnet", provider: "claude", endpointId: "mac-host",
+                        source: "observed", observedAt: now
+                    )
+                ]
+            )
+        ]
+        XCTAssertEqual(
+            ProjectExecutionPresentation.catalog(snapshot: snapshot, targetId: "mac-host")?
+                .models.map(\.modelId),
+            ["sonnet"]
+        )
+        XCTAssertNil(ProjectExecutionPresentation.catalog(snapshot: snapshot, targetId: "missing-host"))
+    }
+
+    func testProjectNewChatKeepsOnlyThisProjectsFolders() {
+        var snapshot = emptySnapshot()
+        snapshot.bindings = [
+            .init(bindingId: "b", projectId: snapshot.projectId, endpointId: "Mac",
+                  repositoryId: snapshot.project.canonicalRepositoryId, displayName: "granttap",
+                  localPathHint: "/repo", available: true)
+        ]
+        XCTAssertEqual(
+            ProjectWorkspacePresentation.folders(
+                snapshot: snapshot, advertised: ["/repo", "/other"]
+            ),
+            ["/repo"]
+        )
+        XCTAssertEqual(
+            ProjectWorkspacePresentation.folders(
+                snapshot: snapshot, advertised: ["/other"]
+            ),
+            []
+        )
+    }
+
+    private func emptySnapshot(projectId: String = "project") -> ProjectMeshSnapshot {
         ProjectMeshSnapshot(
-            type: "mesh.snapshot", sessionId: "project", projectId: "project",
+            type: "mesh.snapshot", sessionId: projectId, projectId: projectId,
             project: .init(
-                projectId: "project", name: "GrantTap", repositoryRoot: "/repo",
+                projectId: projectId, name: "GrantTap", repositoryRoot: "/repo",
                 canonicalRepositoryId: "github.com/example/granttap", createdAt: now
             ),
             tasks: [], executions: [], claims: [], dependencies: [], events: [],
