@@ -116,7 +116,7 @@ struct ProjectMeshView: View {
         .sheet(isPresented: $showReport) {
             ReportExportSheet(report: model.report(for: .project(snapshot)))
         }
-        .sheet(isPresented: $showWriteToAgents) {
+        .fullScreenCover(isPresented: $showWriteToAgents) {
             ProjectWriteToAgentsSheet(snapshot: snapshot, model: model)
         }
     }

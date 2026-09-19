@@ -1,3 +1,4 @@
+import PencilKit
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -12,6 +13,7 @@ final class AttachmentCoverageTests: XCTestCase {
         )
         XCTAssertFalse(small.isImage)
         XCTAssertEqual(small.payload.name, "notes.txt")
+        XCTAssertEqual(AttachmentDraft.maxCount, 10)
         XCTAssertTrue(AttachmentDraft.canAppend(small, to: []))
         XCTAssertEqual(AttachmentDraft.totalBytes([small]), 5)
         XCTAssertNoThrow(try AttachmentDraft.validateTotal([small]))
@@ -131,9 +133,11 @@ final class AttachmentCoverageTests: XCTestCase {
         button.cancelPhotoLibrary()
         button.completeCamera(image)
         button.cancelCamera()
+        button.completeSketch(image)
+        button.cancelSketch()
         XCTAssertEqual(selectedMcp, "github")
         XCTAssertEqual(selectedSkill, "review")
-        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.count, 3)
 
         assertRendered(AttachmentMenuButton(
             attachments: attachments, showPhotoLibrary: true
@@ -142,8 +146,14 @@ final class AttachmentCoverageTests: XCTestCase {
             attachments: attachments, showCamera: true
         ))
         assertRendered(AttachmentMenuButton(
+            attachments: attachments, showSketch: true
+        ))
+        assertRendered(AttachmentMenuButton(
             attachments: attachments, errorText: "Fixture error"
         ))
+        assertRendered(SketchAttachmentScreen(onComplete: { _ in }, onCancel: {}))
+        let canvas = PKCanvasView(frame: CGRect(x: 0, y: 0, width: 200, height: 300))
+        XCTAssertGreaterThan(SketchAttachment.flattenedImage(from: canvas).size.width, 0)
     }
 
     func testCameraPickerCoordinatorReturnsImageFallbackAndCancel() {

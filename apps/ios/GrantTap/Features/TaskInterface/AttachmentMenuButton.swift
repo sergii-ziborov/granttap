@@ -11,6 +11,7 @@ struct AttachmentMenuButton: View {
     var selectedSkill: Binding<String?>? = nil
     @State private var showPhotoLibrary = false
     @State private var showCamera = false
+    @State private var showSketch = false
     @State private var showFileImporter = false
     @State private var errorText: String?
 
@@ -22,6 +23,7 @@ struct AttachmentMenuButton: View {
         selectedSkill: Binding<String?>? = nil,
         showPhotoLibrary: Bool = false,
         showCamera: Bool = false,
+        showSketch: Bool = false,
         showFileImporter: Bool = false,
         errorText: String? = nil
     ) {
@@ -32,13 +34,14 @@ struct AttachmentMenuButton: View {
         self.selectedSkill = selectedSkill
         _showPhotoLibrary = State(initialValue: showPhotoLibrary)
         _showCamera = State(initialValue: showCamera)
+        _showSketch = State(initialValue: showSketch)
         _showFileImporter = State(initialValue: showFileImporter)
         _errorText = State(initialValue: errorText)
     }
 
     var body: some View {
         Menu {
-            Section(L("Attachments · maximum 5")) {
+            Section(String(format: L("Attachments · maximum %d"), AttachmentDraft.maxCount)) {
                 Button { showPhotoLibrary = true } label: {
                     Label(photoLibraryLabel, systemImage: "photo.on.rectangle")
                 }
@@ -47,6 +50,10 @@ struct AttachmentMenuButton: View {
                     Label(L("Camera"), systemImage: "camera")
                 }
                 .disabled(atAttachmentLimit || !cameraAvailable)
+                Button { showSketch = true } label: {
+                    Label(L("Draw a sketch"), systemImage: "pencil.and.outline")
+                }
+                .disabled(atAttachmentLimit)
                 Button { showFileImporter = true } label: {
                     Label(L("Choose Files"), systemImage: "folder")
                 }
@@ -114,6 +121,12 @@ struct AttachmentMenuButton: View {
             )
             .ignoresSafeArea()
         }
+        .fullScreenCover(isPresented: $showSketch) {
+            SketchAttachmentScreen(
+                onComplete: completeSketch,
+                onCancel: cancelSketch
+            )
+        }
         .fileImporter(isPresented: $showFileImporter,
                       allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
             importFiles(result)
@@ -163,10 +176,17 @@ struct AttachmentMenuButton: View {
 
     func completeCamera(_ image: UIImage) {
         showCamera = false
-        addCameraImage(image)
+        addPreparedImage(image, name: "Camera-\(attachments.count + 1).jpg")
     }
 
     func cancelCamera() { showCamera = false }
+
+    func completeSketch(_ image: UIImage) {
+        showSketch = false
+        addPreparedImage(image, name: "Sketch-\(attachments.count + 1).jpg")
+    }
+
+    func cancelSketch() { showSketch = false }
 
     func addLibraryImages(_ images: [UIImage]) {
         var projectedBytes = AttachmentDraft.totalBytes(attachments)
@@ -186,16 +206,23 @@ struct AttachmentMenuButton: View {
     }
 
     func addCameraImage(_ image: UIImage) {
+        addPreparedImage(image, name: "Camera-\(attachments.count + 1).jpg")
+    }
+
+    func addPreparedImage(_ image: UIImage, name: String) {
         guard attachments.count < AttachmentDraft.maxCount else {
-            errorText = L("The image could not be prepared or the five-file limit was reached.")
+            errorText = String(
+                format: L("The image could not be prepared or the %d-file limit was reached."),
+                AttachmentDraft.maxCount
+            )
             return
         }
         guard let data = image.jpegData(compressionQuality: 0.78),
-              let draft = AttachmentDraft.image(
-                data: data,
-                name: "Camera-\(attachments.count + 1).jpg"
-              ) else {
-            errorText = L("The image could not be prepared or the five-file limit was reached.")
+              let draft = AttachmentDraft.image(data: data, name: name) else {
+            errorText = String(
+                format: L("The image could not be prepared or the %d-file limit was reached."),
+                AttachmentDraft.maxCount
+            )
             return
         }
         guard AttachmentDraft.canAppend(draft, to: attachments) else {

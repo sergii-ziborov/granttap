@@ -7,6 +7,20 @@ extension TaskChatView {
     /// expression the type-checker refused to finish.
     @ViewBuilder
     func timelineRow(_ row: ChatTimelineRow) -> some View {
+        rowBody(row)
+            .id(row.id)
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(
+                        key: ChatRowFrameKey.self,
+                        value: [row.id: geo.frame(in: .named("chat-scroll"))]
+                    )
+                }
+            )
+    }
+
+    @ViewBuilder
+    func rowBody(_ row: ChatTimelineRow) -> some View {
         switch row {
         case .item(.activity(let entry)):
             ActivityRow(entry: entry, accent: accent, compact: false,
@@ -34,7 +48,6 @@ extension TaskChatView {
             // The same inset as every other row: a run that sat six points
             // further left made everything after it look indented.
             .padding(.horizontal, 6)
-            .id(run.id)
         }
     }
 

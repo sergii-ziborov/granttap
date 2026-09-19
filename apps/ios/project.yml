@@ -50,6 +50,7 @@ targets:
       - package: TweetNacl
       - target: GrantTapWatch   # creates the standard Embed Watch Content phase
       - sdk: WebKit.framework
+      - sdk: PencilKit.framework
     # A real Info.plist (not generated) because ATS needs a nested dictionary:
     # a self-hosted relay may sit on the local network over plain http/ws.
     info:
@@ -99,7 +100,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap
         PRODUCT_NAME: GrantTap
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "105"
+        CURRENT_PROJECT_VERSION: "106"
         SWIFT_VERSION: "5.9"
         # Universal phone/tablet binary. iPad uses the same encrypted relay and
         # a stack-style navigation flow so split-view never opens a blank pane.
@@ -162,7 +163,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.watchkitapp
         PRODUCT_NAME: GrantTapWatch
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "105"
+        CURRENT_PROJECT_VERSION: "106"
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: XMS5ZC28UJ

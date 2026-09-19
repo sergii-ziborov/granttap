@@ -173,7 +173,7 @@ struct ContentView: View {
         .sheet(isPresented: $showConnectionDetail) {
             ConnectionDetailSheet().environmentObject(model)
         }
-        .sheet(isPresented: $showNewTask) { newTaskSheet }
+        .fullScreenCover(isPresented: $showNewTask) { newTaskSheet }
         .sheet(item: $openedTaskRoute) { route in
             TaskRouteView(route: route, model: model) { session in open(session) }
         }

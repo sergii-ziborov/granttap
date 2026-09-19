@@ -24,6 +24,8 @@ struct TaskChatView: View {
     @State var showHandoff = false
     @State var showReport = false
     @State var replyRequestId: String?
+    @State var rowFrames: [String: CGRect] = [:]
+    @State var scrollViewportHeight: CGFloat = 0
     @StateObject var dictator: Dictator
 
     var model: AppModel { modelOverride ?? environmentModel }
@@ -100,111 +102,26 @@ struct TaskChatView: View {
         VStack(spacing: 0) {
             taskStatusStrip
             ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 14) {
-                        if combinedTimeline.isEmpty {
-                            if !model.connected {
-                                Text(L("Waiting for Mac connection to load messages…"))
-                                    .foregroundStyle(Theme.muted)
-                            } else if loadTimedOut || activitySnapshotKnown {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text(L("No messages loaded for this chat yet."))
-                                        .foregroundStyle(Theme.muted)
-                                    Button(L("Retry")) {
-                                        loadTimedOut = false
-                                        model.clearEmptyActivitySnapshot(sessionId: chatSessionId)
-                                        model.subscribeSession(chatSessionId, active: true,
-                                                               source: "phone-chat:\(chatSessionId)")
-                                        Task { @MainActor in
-                                            try? await Task.sleep(nanoseconds: 4_000_000_000)
-                                            if entries.isEmpty { loadTimedOut = true }
-                                        }
-                                    }
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(accent)
+                ZStack(alignment: .bottomTrailing) {
+                    ZStack(alignment: .top) {
+                        chatScroll(proxy)
+                        if let pinned = pinnedUserLine {
+                            ChatStickyUserBar(text: pinned.text, accent: accent) {
+                                highlightedEntryId = pinned.entryId
+                                withAnimation(.easeOut(duration: 0.22)) {
+                                    proxy.scrollTo(pinned.scrollId, anchor: .top)
                                 }
-                            } else {
-                                HStack(spacing: 8) {
-                                    ProgressView().controlSize(.small)
-                                    Text(L("Opening the encrypted chat…"))
-                                        .foregroundStyle(Theme.muted)
-                                }
-                            }
-                        } else {
-                            ForEach(ChatActivityGrouping.rows(combinedTimeline)) { row in
-                                timelineRow(row)
-                            }
-                            if !childThreads.isEmpty {
-                                // Folded like a run of CLI calls: one line says how
-                                // many conversations there are, and opens to them.
-                                // A conversation holding the entry someone tapped
-                                // in history opens itself, or the tap would land
-                                // on a closed summary of what it named.
-                                let threadsOpen = agentThreadsExpanded || childThreads.contains { row in
-                                    entries.contains {
-                                        $0.childThreadId == row.thread.threadId
-                                            && ($0.id == focusEntryId || $0.id == highlightedEntryId)
-                                    }
-                                }
-                                Button {
-                                    agentThreadsExpanded.toggle()
-                                    // The fold sits at the foot of the chat, so what it
-                                    // opens lands below the screen: bring the section up
-                                    // once it exists, or opening looks like nothing happened.
-                                    if agentThreadsExpanded {
-                                        DispatchQueue.main.async {
-                                            withAnimation(.easeOut(duration: 0.25)) {
-                                                proxy.scrollTo("agent-threads", anchor: .top)
-                                            }
-                                        }
-                                    }
-                                } label: {
-                                    HStack(spacing: 7) {
-                                        Image(systemName: "point.3.connected.trianglepath.dotted")
-                                        Text(String(format: L("Agent conversations · %d"), childThreads.count))
-                                        Spacer()
-                                        Image(systemName: threadsOpen ? "chevron.up" : "chevron.down")
-                                            .font(.system(size: 9, weight: .bold))
-                                    }
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundStyle(threadsOpen ? accent : Theme.muted)
-                                    .padding(.top, rootEntries.isEmpty ? 0 : 6)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                .id("agent-threads")
-                                .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
-
-                                if threadsOpen {
-                                    ForEach(childThreads) { row in
-                                        AgentThreadTranscript(
-                                            row: row,
-                                            entries: entries.filter {
-                                                $0.childThreadId == row.thread.threadId
-                                            },
-                                            accent: accent,
-                                            servers: currentSession.mcpServers ?? [],
-                                            onExpand: {
-                                                model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
-                                            }
-                                        )
-                                        .padding(.leading, Self.threadIndent(row.visualDepth))
-                                        .id("thread:\(row.thread.threadId)")
-                                    }
+                                Task { @MainActor in
+                                    try? await Task.sleep(nanoseconds: 2_400_000_000)
+                                    withAnimation(.easeInOut(duration: 0.35)) { highlightedEntryId = nil }
                                 }
                             }
                         }
-                        // No status card here: the mark now lives on the
-                        // message bubble, so repeating the text below the chat
-                        // showed every in-flight message twice.
-                        DeliveryStatusList(
-                            deliveries: model.orphanDeliveries(for: chatSessionId)
-                        )
                     }
-                    .padding(16)
+                    if showJumpToLatest {
+                        ChatJumpToLatestButton { scrollToBottom(proxy) }
+                    }
                 }
-                .onAppear { settleScroll(proxy) }
-                .onChange(of: entries.count) { _ in settleScroll(proxy) }
             }
 
             // Compact strip above composer — never full ApprovalCards (half-screen gap).

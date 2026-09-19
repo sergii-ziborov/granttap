@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 import UIKit
 
 struct AttachmentDraft: Identifiable {
-    static let maxCount = 5
+    static let maxCount = 10
     static let maxBytes = 6_000_000
     /// The relay protocol allows 16M base64 characters for encoded
     /// attachments. 11MB raw leaves room for base64 expansion, JSON metadata,

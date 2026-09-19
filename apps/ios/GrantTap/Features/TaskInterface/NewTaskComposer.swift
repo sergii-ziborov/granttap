@@ -12,11 +12,11 @@ extension ContentView {
                     .foregroundStyle(Theme.muted)
                     .padding(.horizontal, 16)
                     .padding(.top, 18)
-                Spacer()
                 if selectedComposeSession == nil {
                     newTaskComposer
                 } else {
                     composeBar
+                    Spacer(minLength: 0)
                 }
             }
             .background(Theme.bg)
@@ -64,7 +64,7 @@ extension ContentView {
                     TextEditor(text: $messageText)
                         .font(.system(size: 17))
                         .foregroundStyle(Theme.ink)
-                        .frame(minHeight: 120, maxHeight: 260)
+                        .frame(minHeight: 180, maxHeight: .infinity)
                         .focused($composeFocused)
                         .modifier(ClearTextEditorBackground())
                         .onChange(of: dictator.transcript) { t in
@@ -72,6 +72,7 @@ extension ContentView {
                         }
                         .accessibilityIdentifier("compose.task-text")
                 }
+                .frame(maxHeight: .infinity, alignment: .top)
                 HStack(spacing: 8) {
                     AttachmentMenuButton(attachments: $attachments)
                     ComposerModelPill(agent: activeComposeAgent, model: newTaskModelBinding,
@@ -97,6 +98,7 @@ extension ContentView {
                 }
             }
             .padding(14)
+            .frame(maxHeight: .infinity, alignment: .top)
             .background(RoundedRectangle(cornerRadius: 22).fill(Theme.raised))
             .overlay(RoundedRectangle(cornerRadius: 22).stroke(Theme.line, lineWidth: 1))
 
@@ -126,6 +128,7 @@ extension ContentView {
         .padding(.horizontal, 16)
         .padding(.top, 10)
         .padding(.bottom, 6)
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(Theme.bg)
     }
 

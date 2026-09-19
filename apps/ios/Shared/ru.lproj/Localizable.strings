@@ -30,6 +30,13 @@
 "Could not attach file" = "Не удалось прикрепить файл";
 "Unknown attachment error." = "Неизвестная ошибка вложения.";
 "The image could not be prepared or the five-file limit was reached." = "Не удалось подготовить изображение или достигнут лимит в пять файлов.";
+"The image could not be prepared or the %d-file limit was reached." = "Не удалось подготовить изображение или достигнут лимит в %d файлов.";
+"Attachment" = "Вложение";
+"Draw a sketch" = "Нарисовать набросок";
+"Sketch" = "Набросок";
+"Use sketch" = "Отправить набросок";
+"Jump to this message" = "К этому сообщению";
+"Jump to latest" = "К последнему сообщению";
 "Listening… tap the red button to stop" = "Слушаю… нажмите красную кнопку, чтобы остановить";
 "Stop listening" = "Остановить прослушивание";
 "Start dictation" = "Начать диктовку";
@@ -78,6 +85,7 @@
 "No configured MCP servers" = "Нет настроенных MCP-серверов";
 "Task context and MCP controls" = "Контекст задачи и управление MCP";
 "Attachments · maximum 5" = "Вложения · максимум 5";
+"Attachments · maximum %d" = "Вложения · максимум %d";
 "Photo Library · select up to %d" = "Медиатека · можно выбрать до %d";
 "Choose Files" = "Выбрать файлы";
 "Automatic" = "Автоматически";

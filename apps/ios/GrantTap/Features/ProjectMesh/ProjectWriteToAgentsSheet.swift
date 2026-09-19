@@ -11,6 +11,9 @@ struct ProjectWriteToAgentsSheet: View {
     @State private var provider: String
     @State private var computerId: String?
     @State private var workspace: String
+    @State private var attachments: [AttachmentDraft] = []
+    @State private var attachmentError: String?
+    @FocusState private var focused: Bool
 
     init(snapshot: ProjectMeshSnapshot, model: AppModel) {
         self.snapshot = snapshot
@@ -73,40 +76,62 @@ struct ProjectWriteToAgentsSheet: View {
 
     var body: some View {
         CompatNavigationStack {
-            List {
-                Section {
+            VStack(alignment: .leading, spacing: 12) {
+                ZStack(alignment: .topLeading) {
+                    if text.isEmpty {
+                        Text(L("Describe a new task…"))
+                            .font(.system(size: 17))
+                            .foregroundStyle(Theme.muted)
+                            .padding(.top, 8)
+                            .padding(.leading, 5)
+                            .allowsHitTesting(false)
+                    }
                     TextEditor(text: $text)
                         .font(.system(size: 17))
-                        .frame(minHeight: 120)
+                        .foregroundStyle(Theme.ink)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .focused($focused)
+                        .modifier(ClearTextEditorBackground())
                         .accessibilityIdentifier("project.new-chat.text")
-                } header: {
-                    Text(L("New chat"))
-                } footer: {
-                    Text(L("Starts a new chat in this Project's repository. It is one task, not a broadcast to the chats already running."))
                 }
-                Section {
-                    TaskComposerRoutePicker(
-                        provider: $provider,
-                        computerId: $computerId,
-                        workspace: $workspace,
-                        computers: computers,
-                        workspaces: model.workspaceFolders(for: provider),
-                        enabledProviders: model.agentMeshPreferences.enabledProviders,
-                        pinnedEndpointId: snapshot.execution?.mode == .pinned
-                            ? snapshot.execution?.targetEndpointId : nil
-                    )
-                } header: {
-                    Text(L("Route"))
+                if let attachmentError {
+                    Text(attachmentError)
+                        .font(.system(size: 11.5, weight: .semibold))
+                        .foregroundStyle(Theme.riskHigh)
+                }
+                AttachmentThumbnails(attachments: $attachments)
+                    .onChange(of: attachments.map(\.id)) { _ in
+                        model.preuploadAttachments(attachments, room: selectedConnection?.id)
+                    }
+                HStack(spacing: 8) {
+                    AttachmentMenuButton(attachments: $attachments)
+                    Spacer(minLength: 0)
                 }
                 if let availability {
-                    Section {
-                        Text(availability.message)
-                            .font(.caption)
-                            .foregroundStyle(availability.blocksSending ? Theme.riskHigh : Theme.riskMed)
-                    }
+                    Text(availability.message)
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .foregroundStyle(availability.blocksSending ? Theme.riskHigh : Theme.riskMed)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                TaskComposerRoutePicker(
+                    provider: $provider,
+                    computerId: $computerId,
+                    workspace: $workspace,
+                    computers: computers,
+                    workspaces: model.workspaceFolders(for: provider),
+                    enabledProviders: model.agentMeshPreferences.enabledProviders,
+                    pinnedEndpointId: snapshot.execution?.mode == .pinned
+                        ? snapshot.execution?.targetEndpointId : nil
+                )
+                Text(L("Starts a new chat in this Project's repository. It is one task, not a broadcast to the chats already running."))
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(Theme.muted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(16)
+            .background(Theme.bg)
             .navigationTitle(L("New chat"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L("Cancel")) { dismiss() }
@@ -121,18 +146,27 @@ struct ProjectWriteToAgentsSheet: View {
     }
 
     var canSend: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        (!text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !attachments.isEmpty)
             && availability?.blocksSending != true
     }
 
     func send() {
         let message = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !message.isEmpty, canSend else { return }
+        guard canSend else { return }
+        do {
+            try AttachmentDraft.validateTotal(attachments)
+            attachmentError = nil
+        } catch {
+            attachmentError = error.localizedDescription
+            return
+        }
         savedProvider = provider
         model.sendMessage(
             message,
             agent: provider,
             cwd: workspace.isEmpty ? nil : workspace,
+            attachments: attachments.map(\.payload),
+            attachmentRefs: model.attachmentRefs(for: attachments, room: selectedConnection?.id),
             roomId: selectedConnection?.id
         )
         dismiss()

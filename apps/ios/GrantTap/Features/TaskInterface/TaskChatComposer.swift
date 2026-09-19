@@ -46,6 +46,144 @@ extension TaskChatView {
         }
     }
 
+    var timelineRows: [ChatTimelineRow] {
+        ChatActivityGrouping.rows(combinedTimeline)
+    }
+
+    var pinnedUserLine: ChatScrollChrome.UserLine? {
+        ChatScrollChrome.pinned(
+            users: ChatScrollChrome.userLines(combinedTimeline),
+            minYById: rowFrames.mapValues(\.minY),
+            visibleIds: ChatScrollChrome.visibleIds(rowFrames, viewportHeight: scrollViewportHeight),
+            orderedIds: timelineRows.map(\.id),
+            top: 36
+        )
+    }
+
+    var showJumpToLatest: Bool {
+        guard let last = timelineRows.last else { return false }
+        return ChatScrollChrome.showJumpToLatest(
+            lastMaxY: rowFrames[last.id]?.maxY,
+            viewportHeight: scrollViewportHeight
+        )
+    }
+
+    func chatScroll(_ proxy: ScrollViewProxy) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                if combinedTimeline.isEmpty {
+                    if !model.connected {
+                        Text(L("Waiting for Mac connection to load messages…"))
+                            .foregroundStyle(Theme.muted)
+                    } else if loadTimedOut || activitySnapshotKnown {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(L("No messages loaded for this chat yet."))
+                                .foregroundStyle(Theme.muted)
+                            Button(L("Retry")) {
+                                loadTimedOut = false
+                                model.clearEmptyActivitySnapshot(sessionId: chatSessionId)
+                                model.subscribeSession(chatSessionId, active: true,
+                                                       source: "phone-chat:\(chatSessionId)")
+                                Task { @MainActor in
+                                    try? await Task.sleep(nanoseconds: 4_000_000_000)
+                                    if entries.isEmpty { loadTimedOut = true }
+                                }
+                            }
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(accent)
+                        }
+                    } else {
+                        HStack(spacing: 8) {
+                            ProgressView().controlSize(.small)
+                            Text(L("Opening the encrypted chat…"))
+                                .foregroundStyle(Theme.muted)
+                        }
+                    }
+                } else {
+                    ForEach(timelineRows) { row in
+                        timelineRow(row)
+                    }
+                    if !childThreads.isEmpty {
+                        // Folded like a run of CLI calls: one line says how
+                        // many conversations there are, and opens to them.
+                        // A conversation holding the entry someone tapped
+                        // in history opens itself, or the tap would land
+                        // on a closed summary of what it named.
+                        let threadsOpen = agentThreadsExpanded || childThreads.contains { row in
+                            entries.contains {
+                                $0.childThreadId == row.thread.threadId
+                                    && ($0.id == focusEntryId || $0.id == highlightedEntryId)
+                            }
+                        }
+                        Button {
+                            agentThreadsExpanded.toggle()
+                            // The fold sits at the foot of the chat, so what it
+                            // opens lands below the screen: bring the section up
+                            // once it exists, or opening looks like nothing happened.
+                            if agentThreadsExpanded {
+                                DispatchQueue.main.async {
+                                    withAnimation(.easeOut(duration: 0.25)) {
+                                        proxy.scrollTo("agent-threads", anchor: .top)
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 7) {
+                                Image(systemName: "point.3.connected.trianglepath.dotted")
+                                Text(String(format: L("Agent conversations · %d"), childThreads.count))
+                                Spacer()
+                                Image(systemName: threadsOpen ? "chevron.up" : "chevron.down")
+                                    .font(.system(size: 9, weight: .bold))
+                            }
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(threadsOpen ? accent : Theme.muted)
+                            .padding(.top, rootEntries.isEmpty ? 0 : 6)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .id("agent-threads")
+                        .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
+
+                        if threadsOpen {
+                            ForEach(childThreads) { row in
+                                AgentThreadTranscript(
+                                    row: row,
+                                    entries: entries.filter {
+                                        $0.childThreadId == row.thread.threadId
+                                    },
+                                    accent: accent,
+                                    servers: currentSession.mcpServers ?? [],
+                                    onExpand: {
+                                        model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
+                                    }
+                                )
+                                .padding(.leading, Self.threadIndent(row.visualDepth))
+                                .id("thread:\(row.thread.threadId)")
+                            }
+                        }
+                    }
+                }
+                // No status card here: the mark now lives on the
+                // message bubble, so repeating the text below the chat
+                // showed every in-flight message twice.
+                DeliveryStatusList(
+                    deliveries: model.orphanDeliveries(for: chatSessionId)
+                )
+            }
+            .padding(16)
+        }
+        .coordinateSpace(name: "chat-scroll")
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: ChatViewportHeightKey.self, value: geo.size.height)
+            }
+        )
+        .onPreferenceChange(ChatRowFrameKey.self) { rowFrames = $0 }
+        .onPreferenceChange(ChatViewportHeightKey.self) { scrollViewportHeight = $0 }
+        .onAppear { settleScroll(proxy) }
+        .onChange(of: entries.count) { _ in settleScroll(proxy) }
+    }
+
     var composer: some View {
         VStack(alignment: .leading, spacing: 7) {
             if let availability = chatSendAvailability {
