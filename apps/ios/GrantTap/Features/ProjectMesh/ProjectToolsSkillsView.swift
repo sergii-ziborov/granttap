@@ -5,12 +5,14 @@ import SwiftUI
 struct ProjectToolsSkillsView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
+    @State private var showAdd = false
 
     var catalog: ProjectToolsSkillsPresentation.Catalog {
         ProjectToolsSkillsPresentation.catalog(
             snapshot: snapshot,
             sessions: model.sessions + model.allSessionHistory,
-            usage: CapabilityUsageStore.shared.events
+            usage: CapabilityUsageStore.shared.events,
+            added: model.addedToolItems(for: snapshot.projectId)
         )
     }
 
@@ -32,6 +34,20 @@ struct ProjectToolsSkillsView: View {
             }
         }
         .navigationTitle(L("Tools & Skills"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAdd = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel(L("Add"))
+                .accessibilityIdentifier("project.tools.add")
+            }
+        }
+        .sheet(isPresented: $showAdd) {
+            ProjectToolsSkillsAddSheet(snapshot: snapshot, model: model)
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             Text(L("Skill text does not grant permissions. Governance decides what may run."))
                 .font(.caption2).foregroundStyle(Theme.muted)
@@ -84,5 +100,94 @@ struct ProjectToolsSkillsView: View {
         }
         .padding(.vertical, 2)
         .accessibilityIdentifier("project.tools.\(item.kind.rawValue).\(item.name)")
+    }
+}
+
+/// Allow a skill or MCP already on a linked computer, and keep it on this list.
+struct ProjectToolsSkillsAddSheet: View {
+    let snapshot: ProjectMeshSnapshot
+    @ObservedObject var model: AppModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var kind: ProjectToolsSkillsPresentation.Kind = .skill
+    @State private var name = ""
+
+    var catalog: ProjectToolsSkillsPresentation.Catalog {
+        ProjectToolsSkillsPresentation.catalog(
+            snapshot: snapshot,
+            sessions: model.sessions + model.allSessionHistory,
+            usage: CapabilityUsageStore.shared.events,
+            added: model.addedToolItems(for: snapshot.projectId)
+        )
+    }
+
+    var suggestions: [ProjectToolsSkillsPresentation.Item] {
+        ProjectToolsSkillsPresentation.suggestions(
+            snapshot: snapshot,
+            sessions: model.sessions + model.allSessionHistory,
+            catalog: catalog
+        )
+    }
+
+    var canAdd: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        CompatNavigationStack {
+            List {
+                Section {
+                    Picker(L("Kind"), selection: $kind) {
+                        Text(L("Skill")).tag(ProjectToolsSkillsPresentation.Kind.skill)
+                        Text(L("MCP server")).tag(ProjectToolsSkillsPresentation.Kind.mcp)
+                    }
+                    TextField(L("Name"), text: $name)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .accessibilityIdentifier("project.tools.add.name")
+                } footer: {
+                    Text(L("This allows a skill or MCP already on a linked computer. Governance still decides what may run."))
+                }
+                if !suggestions.isEmpty {
+                    Section(L("On this Project's computers")) {
+                        ForEach(suggestions) { item in
+                            Button {
+                                model.addProjectTool(
+                                    projectId: snapshot.projectId, kind: item.kind,
+                                    name: item.name, snapshot: snapshot
+                                )
+                                dismiss()
+                            } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(item.name).foregroundStyle(Theme.ink)
+                                    Text(item.kind == .skill ? L("Skill") : L("MCP server"))
+                                        .font(.caption).foregroundStyle(Theme.muted)
+                                }
+                            }
+                            .accessibilityIdentifier("project.tools.add.suggest.\(item.name)")
+                        }
+                    }
+                }
+            }
+            .navigationTitle(L("Add"))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L("Cancel")) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L("Add")) { addTyped() }
+                        .disabled(!canAdd)
+                        .accessibilityIdentifier("project.tools.add.confirm")
+                }
+            }
+        }
+    }
+
+    private func addTyped() {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        model.addProjectTool(
+            projectId: snapshot.projectId, kind: kind, name: trimmed, snapshot: snapshot
+        )
+        dismiss()
     }
 }

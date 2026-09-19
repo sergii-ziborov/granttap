@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Compact write path that reuses TaskComposer routing and TaskDelivery.
-/// It is not a second chat product.
+/// Starts one new chat in this Project's repository.
+/// It reuses TaskComposer routing and TaskDelivery; it is not a second product.
 struct ProjectWriteToAgentsSheet: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
@@ -11,7 +11,6 @@ struct ProjectWriteToAgentsSheet: View {
     @State private var provider: String
     @State private var computerId: String?
     @State private var workspace: String
-    @State private var confirmSend = false
 
     init(snapshot: ProjectMeshSnapshot, model: AppModel) {
         self.snapshot = snapshot
@@ -79,11 +78,11 @@ struct ProjectWriteToAgentsSheet: View {
                     TextEditor(text: $text)
                         .font(.system(size: 17))
                         .frame(minHeight: 120)
-                        .accessibilityIdentifier("project.write-to-agents.text")
+                        .accessibilityIdentifier("project.new-chat.text")
                 } header: {
-                    Text(L("Write to agents"))
+                    Text(L("New chat"))
                 } footer: {
-                    Text("\(ProjectOverviewPresentation.writeDetail(snapshot)). \(L("Uses the existing task delivery path. Shared skills stay on the Project list and are not attached to this message."))")
+                    Text(L("Starts a new chat in this Project's repository. It is one task, not a broadcast to the chats already running."))
                 }
                 Section {
                     TaskComposerRoutePicker(
@@ -107,34 +106,18 @@ struct ProjectWriteToAgentsSheet: View {
                     }
                 }
             }
-            .navigationTitle(L("Write to agents"))
+            .navigationTitle(L("New chat"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L("Cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L("Send")) { confirmSend = true }
+                    Button(L("Send")) { send() }
                         .disabled(!canSend)
-                        .accessibilityIdentifier("project.write-to-agents.send")
+                        .accessibilityIdentifier("project.new-chat.send")
                 }
             }
-            .confirmationDialog(
-                L("Send to the people this change touches?"),
-                isPresented: $confirmSend,
-                titleVisibility: .visible
-            ) {
-                Button(L("Send")) { send() }
-                Button(L("Cancel"), role: .cancel) {}
-            } message: {
-                Text(affectedSummary)
-            }
         }
-    }
-
-    var affectedSummary: String {
-        let owners = Set(snapshot.executions.map(\.sessionId))
-        if owners.isEmpty { return L("No running tasks are marked as affected.") }
-        return String(format: L("%d tasks would receive this. Confirm before it is sent."), owners.count)
     }
 
     var canSend: Bool {

@@ -134,7 +134,7 @@ final class ProjectSectionPresentationTests: XCTestCase {
         XCTAssertEqual(ProjectManagePresentation.workingSummary(snapshot), "0 tasks · 0 executors")
         XCTAssertEqual(
             ProjectManagePresentation.healthSummary(snapshot),
-            "\(ProjectManagePresentation.meshSummary(snapshot)) · \(L("Usage not yet observed"))"
+            "\(ProjectManagePresentation.meshSummary(snapshot)) · \(ProjectRepoLensPresentation.graph(snapshot).rowDetail)"
         )
         snapshot.tasks = [
             ProjectMeshTask(
@@ -251,8 +251,58 @@ final class ProjectSectionPresentationTests: XCTestCase {
         )
         XCTAssertEqual(
             ProjectManagePresentation.executionSummary(snapshot, governance: nil),
-            "\(L("Waiting for host")) · ost-1"
+            "\(L("Waiting for host")) · r-host-1"
         )
+    }
+
+    func testRepoLensGraphShowsTheProjectAndItsStatedEdges() {
+        var snapshot = emptySnapshot()
+        let empty = ProjectRepoLensPresentation.graph(snapshot)
+        XCTAssertEqual(empty.nodes.map(\.id), ["github.com/example/granttap"])
+        XCTAssertTrue(empty.edges.isEmpty)
+        XCTAssertEqual(empty.rowDetail, "1 repository")
+        XCTAssertEqual(ProjectOverviewPresentation.newChatDetail(snapshot), "GrantTap")
+
+        snapshot.bindings = [
+            .init(bindingId: "b", projectId: "project", endpointId: "Mac",
+                  repositoryId: "github.com/example/granttap", displayName: "granttap-mcp",
+                  available: true),
+            .init(bindingId: "site", projectId: "project", endpointId: "Mac",
+                  repositoryId: "github.com/example/granttap-site", displayName: "granttap-site",
+                  available: true),
+        ]
+        snapshot.peers = [
+            ProjectIntegrationPeer(
+                projectId: "project", repositoryId: "github.com/example/granttap",
+                peer: "granttap-site", via: "api", relation: "calls", updatedAt: now
+            )
+        ]
+        let graph = ProjectRepoLensPresentation.graph(snapshot)
+        XCTAssertEqual(Set(graph.nodes.map(\.title)), ["granttap-mcp", "granttap-site"])
+        XCTAssertEqual(graph.edges.count, 1)
+        XCTAssertEqual(graph.edges.first?.from, "github.com/example/granttap")
+        XCTAssertEqual(graph.edges.first?.to, "github.com/example/granttap-site")
+        XCTAssertTrue(graph.rowDetail.contains("2 repositories"))
+        XCTAssertTrue(graph.rowDetail.contains("1 edge"))
+    }
+
+    func testAddedToolsAppearOnTheProjectCatalog() {
+        let model = AppModel()
+        let snapshot = emptySnapshot()
+        XCTAssertTrue(ProjectToolsSkillsPresentation.catalog(snapshot: snapshot).isEmpty)
+        model.addProjectTool(
+            projectId: snapshot.projectId, kind: .skill, name: "release-check", snapshot: snapshot
+        )
+        model.addProjectTool(
+            projectId: snapshot.projectId, kind: .mcp, name: "github", snapshot: snapshot
+        )
+        let catalog = ProjectToolsSkillsPresentation.catalog(
+            snapshot: snapshot, added: model.addedToolItems(for: snapshot.projectId)
+        )
+        XCTAssertEqual(catalog.skills.map(\.name), ["release-check"])
+        XCTAssertEqual(catalog.servers.map(\.name), ["github"])
+        ProjectGovernanceViewFixtures.render(ProjectToolsSkillsAddSheet(snapshot: snapshot, model: model))
+        ProjectGovernanceViewFixtures.render(ProjectRepoLensGraphView(graph: .init(nodes: [], edges: [])))
     }
 
     private func emptySnapshot() -> ProjectMeshSnapshot {

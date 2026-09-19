@@ -295,4 +295,50 @@ extension AppModel {
     static func handoffRoute(provider: String, computer: String) -> String {
         "\(provider.lowercased())\u{1f}\(computer)"
     }
+
+    func addedToolItems(for projectId: String) -> [ProjectToolsSkillsPresentation.Item] {
+        projectAddedTools[projectId] ?? []
+    }
+
+    func addProjectTool(
+        projectId: String,
+        kind: ProjectToolsSkillsPresentation.Kind,
+        name: String,
+        snapshot: ProjectMeshSnapshot
+    ) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let item = ProjectToolsSkillsPresentation.Item(
+            kind: kind, name: trimmed, state: "available"
+        )
+        var items = projectAddedTools[projectId] ?? []
+        if !items.contains(where: {
+            $0.kind == kind && $0.name.caseInsensitiveCompare(trimmed) == .orderedSame
+        }) {
+            items.append(item)
+            projectAddedTools[projectId] = items
+        }
+        let room = projectToolRoom(for: snapshot)
+        switch kind {
+        case .skill:
+            if let room { setGlobalSkillAllowed(trimmed, allowed: true, roomId: room) }
+            else { setGlobalSkillAllowed(trimmed, allowed: true) }
+        case .mcp:
+            if let room { setGlobalMcpAllowed(trimmed, allowed: true, roomId: room) }
+            else { setGlobalMcpAllowed(trimmed, allowed: true) }
+        }
+        objectWillChange.send()
+    }
+
+    private func projectToolRoom(for snapshot: ProjectMeshSnapshot) -> String? {
+        let names = Set(ProjectManagePresentation.endpointIds(snapshot))
+        if let match = connectionRegistry.connections.first(where: {
+            names.contains($0.id)
+                || names.contains($0.displayName)
+                || names.contains($0.lastMachineName)
+        }) {
+            return match.id
+        }
+        return connectionRegistry.preferred?.id
+    }
 }

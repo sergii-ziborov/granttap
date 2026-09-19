@@ -154,7 +154,7 @@ enum ProjectKnowledgePresentation {
 /// chats already reported. Missing usage is unknown — never "proven unused".
 /// Listing a skill does not grant permission.
 enum ProjectToolsSkillsPresentation {
-    enum Kind: String, Equatable {
+    enum Kind: String, Equatable, Hashable {
         case skill
         case mcp
     }
@@ -239,7 +239,8 @@ enum ProjectToolsSkillsPresentation {
     static func catalog(
         snapshot: ProjectMeshSnapshot,
         sessions: [SessionInfo] = [],
-        usage: [CapabilityUsageEvent] = []
+        usage: [CapabilityUsageEvent] = [],
+        added: [Item] = []
     ) -> Catalog {
         let sessionIds = ProjectUsageStats.sessionIds(snapshot)
         let projectSessions = sessions.filter {
@@ -285,12 +286,57 @@ enum ProjectToolsSkillsPresentation {
             serversByName[name] = Item(kind: .mcp, name: name, state: "used")
         }
 
+        for item in added {
+            switch item.kind {
+            case .skill:
+                if !skills.contains(where: { $0.name.caseInsensitiveCompare(item.name) == .orderedSame }) {
+                    skills.append(item)
+                }
+            case .mcp:
+                if serversByName[item.name] == nil { serversByName[item.name] = item }
+            }
+        }
+
         return Catalog(
             skills: skills.sorted { $0.name < $1.name },
             servers: serversByName.values.sorted { $0.name < $1.name },
             incomplete: snapshot.incomplete == true,
             usedNames: usedSkills.union(usedServers)
         )
+    }
+
+    /// Names this Project's chats already know, but the catalog has not listed.
+    static func suggestions(
+        snapshot: ProjectMeshSnapshot,
+        sessions: [SessionInfo],
+        catalog: Catalog
+    ) -> [Item] {
+        let knownSkills = Set(catalog.skills.map { $0.name.lowercased() })
+        let knownServers = Set(catalog.servers.map { $0.name.lowercased() })
+        let sessionIds = ProjectUsageStats.sessionIds(snapshot)
+        let projectSessions = sessions.filter {
+            $0.projectId == snapshot.projectId || sessionIds.contains($0.sessionId)
+        }
+        var items: [String: Item] = [:]
+        for session in projectSessions {
+            for skill in session.skills ?? [] where !knownSkills.contains(skill.name.lowercased()) {
+                items["skill:\(skill.name.lowercased())"] = Item(
+                    kind: .skill, name: skill.name, state: "available",
+                    description: skill.description
+                )
+            }
+            for server in session.mcpServers ?? [] where !knownServers.contains(server.name.lowercased()) {
+                items["mcp:\(server.name.lowercased())"] = Item(
+                    kind: .mcp, name: server.name, state: "available",
+                    version: server.version, source: server.metadataSource,
+                    description: server.title
+                )
+            }
+        }
+        return items.values.sorted {
+            $0.kind.rawValue == $1.kind.rawValue
+                ? $0.name < $1.name : $0.kind.rawValue < $1.kind.rawValue
+        }
     }
 
     /// Usage evidence, when present. Absence is unknown — never unused.
@@ -341,6 +387,11 @@ enum ProjectOverviewPresentation {
 
     static func writeDetail(_ snapshot: ProjectMeshSnapshot) -> String {
         LPlural(recipientCount(snapshot), one: "%d recipient", many: "%d recipients")
+    }
+
+    static func newChatDetail(_ snapshot: ProjectMeshSnapshot) -> String {
+        let name = snapshot.project.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? L("Starts a chat in this Project") : name
     }
 
     static func workFields(
@@ -418,5 +469,98 @@ enum TaskContextPresentation {
         if issued { return L("Issued via MCP") }
         if offered { return L("Offered to agent") }
         return L("Not yet offered")
+    }
+}
+
+/// Repositories and the edges WEAVATRIX.md states between them.
+enum ProjectRepoLensPresentation {
+    struct Node: Equatable, Identifiable {
+        let id: String
+        let title: String
+        let kind: String
+        var working: Bool = false
+    }
+
+    struct Edge: Equatable, Identifiable {
+        let id: String
+        let from: String
+        let to: String
+        let label: String
+    }
+
+    struct Graph: Equatable {
+        var nodes: [Node]
+        var edges: [Edge]
+
+        var isEmpty: Bool { nodes.isEmpty }
+        var rowDetail: String {
+            if nodes.isEmpty { return L("No repositories reported") }
+            let repos = nodes.filter { $0.kind == "repository" }.count
+            if edges.isEmpty {
+                return LPlural(repos, one: "%d repository", many: "%d repositories")
+            }
+            return "\(LPlural(repos, one: "%d repository", many: "%d repositories")) · \(LPlural(edges.count, one: "%d edge", many: "%d edges"))"
+        }
+    }
+
+    static func graph(_ snapshot: ProjectMeshSnapshot) -> Graph {
+        var nodes: [String: Node] = [:]
+        func addRepository(_ id: String, title: String? = nil, working: Bool = false) {
+            let key = id.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !key.isEmpty else { return }
+            let name = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let shown = (name?.isEmpty == false ? name! : ProjectOtherSide.displayName(of: key, in: snapshot))
+            let previous = nodes[key]
+            nodes[key] = Node(
+                id: key, title: shown, kind: "repository",
+                working: (previous?.working ?? false) || working
+            )
+        }
+
+        addRepository(
+            snapshot.project.canonicalRepositoryId,
+            title: snapshot.project.name
+        )
+        for binding in snapshot.bindings ?? [] {
+            addRepository(binding.repositoryId, title: binding.displayName)
+        }
+        let liveRepos = Set(snapshot.executions.filter { $0.endedAt == nil }.compactMap {
+            ProjectOtherSide.repository(of: $0, in: snapshot)
+        })
+        for id in liveRepos { addRepository(id, working: true) }
+
+        var edges: [Edge] = []
+        for peer in snapshot.peers ?? [] {
+            addRepository(peer.repositoryId)
+            let toId = "peer:\(peer.peer)"
+            if nodes[peer.peer] == nil && nodes[toId] == nil {
+                let bound = (snapshot.bindings ?? []).first {
+                    ProjectOtherSide.repositoryNames($0).contains(peer.peer.lowercased())
+                }
+                if let bound {
+                    addRepository(bound.repositoryId, title: bound.displayName)
+                } else {
+                    nodes[toId] = Node(id: toId, title: peer.peer, kind: "peer")
+                }
+            }
+            let to = nodes[peer.peer]?.id
+                ?? (snapshot.bindings ?? []).first {
+                    ProjectOtherSide.repositoryNames($0).contains(peer.peer.lowercased())
+                }?.repositoryId
+                ?? toId
+            let edge = Edge(
+                id: peer.id,
+                from: peer.repositoryId,
+                to: to,
+                label: [peer.via, ProjectOtherSide.phrase(relation: peer.relation, through: peer.through)]
+                    .filter { !$0.isEmpty }.joined(separator: " · ")
+            )
+            if edge.from != edge.to { edges.append(edge) }
+        }
+
+        return Graph(
+            nodes: nodes.values.sorted { $0.title == $1.title ? $0.id < $1.id : $0.title < $1.title },
+            edges: edges.sorted { $0.id < $1.id }
+        )
     }
 }

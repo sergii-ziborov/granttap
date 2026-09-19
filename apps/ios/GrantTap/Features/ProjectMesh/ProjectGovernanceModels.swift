@@ -136,9 +136,10 @@ enum ProjectManagePresentation {
         _ snapshot: ProjectMeshSnapshot, usageEvents: [CapabilityUsageEvent] = []
     ) -> String {
         let mesh = meshSummary(snapshot)
+        let lens = ProjectRepoLensPresentation.graph(snapshot).rowDetail
         let events = ProjectUsageStats.events(usageEvents, snapshot: snapshot)
-        guard !events.isEmpty else { return "\(mesh) · \(L("Usage not yet observed"))" }
-        return "\(mesh) · \(String(format: L(events.count == 1 ? "%d call" : "%d calls"), events.count))"
+        guard !events.isEmpty else { return "\(mesh) · \(lens)" }
+        return "\(mesh) · \(lens) · \(String(format: L(events.count == 1 ? "%d call" : "%d calls"), events.count))"
     }
 
     /// Working section detail: open tasks and executors still alive.

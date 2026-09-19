@@ -21,7 +21,8 @@ struct ProjectDestinationRows: View {
         ProjectToolsSkillsPresentation.catalog(
             snapshot: snapshot,
             sessions: model.sessions + model.allSessionHistory,
-            usage: CapabilityUsageStore.shared.events
+            usage: CapabilityUsageStore.shared.events,
+            added: model.addedToolItems(for: snapshot.projectId)
         ).rowDetail
     }
 

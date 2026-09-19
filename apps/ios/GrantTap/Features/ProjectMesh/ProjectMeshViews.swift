@@ -25,13 +25,16 @@ struct ProjectMeshView: View {
                     showWriteToAgents = true
                 } label: {
                     ProjectDestinationLabel(
-                        title: L("Write to agents"),
-                        detail: ProjectOverviewPresentation.writeDetail(snapshot),
-                        icon: "square.and.pencil"
+                        title: L("New chat"),
+                        detail: ProjectOverviewPresentation.newChatDetail(snapshot),
+                        icon: "plus.message"
                     )
                 }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier("project.write-to-agents")
+                .accessibilityIdentifier("project.new-chat")
+            }
+            Section(L("Management")) {
+                ProjectDestinationRows(snapshot: snapshot, model: model)
             }
             Section(L("Needs You")) {
                 if attentionItems.isEmpty {
@@ -84,14 +87,20 @@ struct ProjectMeshView: View {
             } footer: {
                 Text(L("Bounded snapshot. Activity in the last hour is not a live chat."))
             }
-            Section(L("Management")) {
-                ProjectDestinationRows(snapshot: snapshot, model: model)
-            }
             ProjectRepositoriesSection(snapshot: snapshot, model: model, onOpenSession: onOpenSession)
         }
         .navigationTitle(model.projectDisplayName(snapshot))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showWriteToAgents = true
+                } label: {
+                    Image(systemName: "plus.message")
+                }
+                .accessibilityLabel(L("New chat"))
+                .accessibilityIdentifier("project.new-chat.toolbar")
+            }
+            ToolbarItem(placement: .automatic) {
                 Button {
                     showReport = true
                 } label: {

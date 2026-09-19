@@ -68,6 +68,8 @@ final class AppModel: ObservableObject {
     /// Short status under the Sessions header after pull-to-refresh / tap refresh.
     @Published var refreshHint: String?
     @Published var meshSnapshots: [String: ProjectMeshSnapshot] = restoredMesh.snapshots
+    /// Skills and MCP names added from Tools & Skills until the next catalog says so.
+    @Published var projectAddedTools: [String: [ProjectToolsSkillsPresentation.Item]] = [:]
     /// Bounded, in-memory projection of Engine history. No plaintext journal is
     /// written to the phone; opening a Task requests it under the Project key.
     @Published var invocationHistoryByTask: [String: [ProjectInvocationRecord]] = [:]

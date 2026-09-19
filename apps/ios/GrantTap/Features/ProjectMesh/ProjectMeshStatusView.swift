@@ -16,8 +16,23 @@ struct ProjectMeshStatusView: View {
         (snapshot.peers ?? []).sorted { $0.id < $1.id }
     }
 
+    var repoLens: ProjectRepoLensPresentation.Graph {
+        ProjectRepoLensPresentation.graph(snapshot)
+    }
+
     var body: some View {
         List {
+            Section {
+                ProjectRepoLensGraphView(graph: repoLens)
+                if repoLens.edges.isEmpty && repoLens.nodes.count <= 1 {
+                    Text(L("Commit a WEAVATRIX.md in a bound repository to draw the other side of this repo."))
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
+            } header: {
+                Text(L("Repo lens"))
+            } footer: {
+                Text(repoLens.rowDetail)
+            }
             Section(L("Mesh")) {
                 CompatLabeledContent(
                     L("Mode"), value: ProjectManagePresentation.meshSummary(snapshot)
@@ -38,17 +53,20 @@ struct ProjectMeshStatusView: View {
                     ForEach(bindings) { binding in ProjectBindingRow(binding: binding, model: model) }
                 }
             }
-            if !peers.isEmpty {
-                Section {
+            Section {
+                if peers.isEmpty {
+                    Text(L("No integration edges reported yet."))
+                        .font(.caption).foregroundStyle(Theme.muted)
+                } else {
                     ForEach(peers) { peer in ProjectIntegrationPeerRow(peer: peer, snapshot: snapshot) }
-                } header: {
-                    Text(L("Integration map"))
-                } footer: {
-                    Text(L("From WEAVATRIX.md in each bound repository. Only stated edges are shown."))
                 }
+            } header: {
+                Text(L("Integration map"))
+            } footer: {
+                Text(L("From WEAVATRIX.md in each bound repository. Only stated edges are shown."))
             }
         }
-        .navigationTitle(L("Mesh status"))
+        .navigationTitle(L("Health / Graph"))
         .transientToast($toast)
     }
 
@@ -136,7 +154,8 @@ struct ProjectMeshStatusView: View {
         let catalog = ProjectToolsSkillsPresentation.catalog(
             snapshot: snapshot,
             sessions: model.sessions + model.allSessionHistory,
-            usage: events
+            usage: events,
+            added: model.addedToolItems(for: snapshot.projectId)
         )
         Section {
             if catalog.skills.isEmpty && catalog.servers.isEmpty {
@@ -256,5 +275,65 @@ struct ProjectIntegrationPeerRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+/// Repositories as nodes, WEAVATRIX edges as lines. One repo still draws.
+struct ProjectRepoLensGraphView: View {
+    let graph: ProjectRepoLensPresentation.Graph
+
+    var body: some View {
+        GeometryReader { geometry in
+            let positions = layout(in: geometry.size)
+            ZStack {
+                ForEach(graph.edges) { edge in
+                    if let from = positions[edge.from], let to = positions[edge.to] {
+                        Path { path in
+                            path.move(to: from)
+                            path.addLine(to: to)
+                        }
+                        .stroke(Theme.line, lineWidth: 1.5)
+                    }
+                }
+                ForEach(graph.nodes) { node in
+                    if let point = positions[node.id] {
+                        Text(node.title)
+                            .font(.caption2.weight(.semibold))
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule().fill(node.working ? Theme.ok.opacity(0.18) : Theme.raised)
+                            )
+                            .overlay(
+                                Capsule().stroke(node.working ? Theme.ok : Theme.line, lineWidth: 1)
+                            )
+                            .position(point)
+                    }
+                }
+            }
+        }
+        .frame(minHeight: graph.nodes.count <= 1 ? 88 : 200)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("project.repo-lens")
+        .accessibilityLabel(graph.rowDetail)
+    }
+
+    private func layout(in size: CGSize) -> [String: CGPoint] {
+        let ids = graph.nodes.map(\.id)
+        guard !ids.isEmpty else { return [:] }
+        let center = CGPoint(x: max(size.width, 1) / 2, y: max(size.height, 1) / 2)
+        if ids.count == 1 { return [ids[0]: center] }
+        let radius = min(size.width, size.height) * 0.34
+        var points: [String: CGPoint] = [:]
+        for (index, id) in ids.enumerated() {
+            let angle = (Double(index) / Double(ids.count)) * Double.pi * 2 - Double.pi / 2
+            points[id] = CGPoint(
+                x: center.x + CGFloat(cos(angle)) * radius,
+                y: center.y + CGFloat(sin(angle)) * radius
+            )
+        }
+        return points
     }
 }
