@@ -218,7 +218,7 @@ struct PairingSheet: View {
                 case .success(let pairing):
                     // Keys must be complete before we claim Linked — camera beep ≠ connected.
                     guard Pairing.isValid(pairing) else {
-                        error = L("Pairing keys were incomplete. Ask the agent for a fresh QR — other links were not changed.")
+                        error = L("Pairing keys were incomplete. Scan a new QR from granttap.com/connect — other links were not changed.")
                         return
                     }
                     admit(pairing)
@@ -246,12 +246,12 @@ struct PairingSheet: View {
             connect(link)
         } else if let p = Pairing.fromURI(text) ?? Pairing.fromJSON(text) {
             guard Pairing.isValid(p) else {
-                error = L("Pairing keys were incomplete. Ask the agent for a fresh QR — other links were not changed.")
+                error = L("Pairing keys were incomplete. Scan a new QR from granttap.com/connect — other links were not changed.")
                 return
             }
             admit(p)
         } else {
-            error = L("This does not look like a GrantTap pairing. Ask the agent to connect GrantTap and scan the QR shown in the chat.")
+            error = L("This does not look like a GrantTap pairing. Scan the QR from granttap.com/connect.")
         }
     }
 

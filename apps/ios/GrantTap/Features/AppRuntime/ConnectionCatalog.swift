@@ -45,6 +45,7 @@ extension AppModel {
         // able to claim liveness further into the future than it really is.
         runtime.lastHeartbeatAt = Date().timeIntervalSince1970 * 1_000
         roomRuntime[room] = runtime
+        append("link \(String(room.prefix(8)))… Mac heartbeat")
         let machine = beat.machine.trimmingCharacters(in: .whitespacesAndNewlines)
         if room == connectionRegistry.preferredId, !machine.isEmpty, machineName.isEmpty {
             machineName = machine

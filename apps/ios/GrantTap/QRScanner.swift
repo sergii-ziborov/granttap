@@ -17,8 +17,7 @@ struct SystemQRScannerCameraAuthorization: QRScannerCameraAuthorizing {
 }
 
 /// Camera QR scanner used for one-time machine pairing.
-/// The MCP `connect` tool returns the pairing QR in the agent chat; pointing the
-/// phone at it is the whole setup — no terminal or copied JSON required.
+/// Authenticate opens granttap.com/connect; the QR lives there, not in chat.
 
 struct QRScanView: View {
     let onCode: (String) -> Void

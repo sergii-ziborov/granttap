@@ -96,6 +96,11 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     /// Machine → phone: who is making this computer work right now.
     var onMachineLoad: ((MachineLoad) -> Void)?
     var onConnectionChange: ((Bool) -> Void)?
+    /// HTTP 401 / connect failure before the socket is up. Surface in Link log.
+    var onSocketFailure: ((String) -> Void)?
+    var lastSocketURL: URL?
+    /// After a 401 on `/ws` (or `/`), immediately try the other live path.
+    var socketPathOverride: String?
 
     /// Which side of the room this client is. A phone paired with a computer
     /// is the phone; a phone that invited another phone speaks to it as the
@@ -117,22 +122,9 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     }
 
     func openSocket() {
-        // Room in the URL — the Cloudflare relay routes to a Durable Object
-        // before the upgrade; the Node dev relay ignores the parameter.
-        // Empty path → /ws so vault HTML on GET `/` cannot steal the upgrade
-        // (HTTP 200 Unlock page → phone never receives sessions.status).
         guard wantsConnection,
-              var comps = URLComponents(string: pairing.relayUrl) else { return }
-        let path = comps.path
-        if path.isEmpty || path == "/" {
-            comps.path = "/ws"
-        }
-        var items = comps.queryItems ?? []
-        if !items.contains(where: { $0.name == "room" }) {
-            items.append(URLQueryItem(name: "room", value: pairing.room))
-        }
-        comps.queryItems = items
-        guard let url = comps.url else { return }
+              let url = Self.socketURL(for: pairing, pathOverride: socketPathOverride) else { return }
+        lastSocketURL = url
         interruptSocketForReplacement()
         var request = URLRequest(url: url)
         if let pushAuth = pairing.pushAuth, !pushAuth.isEmpty {
@@ -142,6 +134,26 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         task = t
         t.resume()
         receiveLoop(t)
+    }
+
+    /// Live Hetzner Node + nginx upgrade `/` (same URL as the Mac helper).
+    /// `/ws` is only for the retired Cloudflare worker. Forcing `/ws` on
+    /// relay.granttap.com 401/444s the iPhone, so hello never reaches MCP.
+    static func socketURL(for pairing: Pairing, pathOverride: String? = nil) -> URL? {
+        guard var comps = URLComponents(string: pairing.relayUrl) else { return nil }
+        let host = (comps.host ?? "").lowercased()
+        let path = comps.path
+        if let pathOverride, !pathOverride.isEmpty {
+            comps.path = pathOverride
+        } else if path.isEmpty || path == "/" {
+            comps.path = host.hasSuffix(".workers.dev") ? "/ws" : "/"
+        }
+        var items = comps.queryItems ?? []
+        if !items.contains(where: { $0.name == "room" }) {
+            items.append(URLQueryItem(name: "room", value: pairing.room))
+        }
+        comps.queryItems = items
+        return comps.url
     }
 
     func disconnect() {
@@ -221,6 +233,36 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
             self.task = nil
             self.onConnectionChange?(false)
             self.scheduleReconnect()
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        DispatchQueue.main.async {
+            guard let socket = task as? URLSessionWebSocketTask, self.task === socket else { return }
+            self.task = nil
+            let path = task.originalRequest?.url?.path ?? "/"
+            let status = (task.response as? HTTPURLResponse)?.statusCode
+            let cancelled = (error as NSError?)?.domain == NSURLErrorDomain
+                && (error as NSError?)?.code == NSURLErrorCancelled
+            if cancelled { return }
+            let failedBeforeOpen = status.map { $0 >= 400 } ?? (error != nil)
+            if failedBeforeOpen {
+                let next = path == "/ws" ? "/" : "/ws"
+                if self.socketPathOverride != next {
+                    self.socketPathOverride = next
+                    let seen = path.isEmpty ? "/" : path
+                    self.onSocketFailure?(
+                        "HTTP \(status.map(String.init) ?? "drop") \(seen) → retry \(next)"
+                    )
+                    if self.wantsConnection { self.openSocket() }
+                    return
+                }
+                self.onSocketFailure?("HTTP \(status.map(String.init) ?? "drop") \(path.isEmpty ? "/" : path)")
+            }
+            if self.wantsConnection {
+                self.onConnectionChange?(false)
+                self.scheduleReconnect()
+            }
         }
     }
 }

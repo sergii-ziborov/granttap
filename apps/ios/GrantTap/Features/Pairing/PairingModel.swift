@@ -19,9 +19,9 @@ enum PairingError: Error {
     var message: String {
         switch self {
         case .badCode:
-            return L("Code did not match. Ask the agent to connect GrantTap and generate another QR.")
+            return L("Code did not match. Authenticate again and scan the new QR on granttap.com/connect.")
         case .codeExpiredOrUsed:
-            return L("This QR code expired or was already used. Ask the agent for a new QR code.")
+            return L("This QR expired or was already used. Authenticate again and scan the new QR on granttap.com/connect.")
         case .unreachable:
             return L("Relay is unavailable. Check its address and try again.")
         case .relayError(let status):

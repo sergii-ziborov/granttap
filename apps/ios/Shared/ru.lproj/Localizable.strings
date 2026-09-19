@@ -2,7 +2,7 @@
 "Offline" = "офлайн";
 "Device not paired" = "Устройство не подключено";
 "Connect GrantTap to your computer" = "Подключите GrantTap к компьютеру";
-"Ask the agent to connect GrantTap, then scan the one-time QR shown in the chat. Tasks and requests will appear here and on Apple Watch." = "Попросите агента подключить GrantTap, затем отсканируйте одноразовый QR-код из чата. Задачи и запросы появятся здесь и на Apple Watch.";
+"Authenticate in the coding app, then scan the QR on granttap.com/connect. Tasks and requests will appear here and on Apple Watch." = "Запустите Authenticate в coding app и отсканируйте QR на granttap.com/connect. Задачи и запросы появятся здесь и на Apple Watch.";
 "Run `granttap-mcp connect` to print a QR and one-time code. Agent requests will then appear here and on Apple Watch." = "Запустите `granttap-mcp connect` — команда покажет QR и одноразовый код. После этого запросы агента будут приходить сюда и на Apple Watch.";
 "Connect" = "Подключить";
 "Ask on iPhone" = "Спрашивать с телефона";
@@ -50,8 +50,8 @@
 "Starting…" = "Запускаю…";
 "Could not pair" = "Не удалось подключиться";
 "Unknown pairing error." = "Неизвестная ошибка подключения.";
-"Code did not match. Ask the agent to connect GrantTap and generate another QR." = "Код не подошёл. Попросите агента подключить GrantTap и создать новый QR-код.";
-"This does not look like a GrantTap pairing. Ask the agent to connect GrantTap and scan the QR shown in the chat." = "Это не похоже на подключение GrantTap. Попросите агента подключить GrantTap и отсканируйте QR-код из чата.";
+"Code did not match. Authenticate again and scan the new QR on granttap.com/connect." = "Код не подошёл. Запустите Authenticate снова и отсканируйте новый QR на granttap.com/connect.";
+"This does not look like a GrantTap pairing. Scan the QR from granttap.com/connect." = "Это не похоже на подключение GrantTap. Отсканируйте QR с granttap.com/connect.";
 "Sessions" = "Сессии";
 "Sessions · %@" = "Сессии · %@";
 "Last %dh · %@" = "За %d ч · %@";
@@ -154,7 +154,7 @@
 "Cancel" = "Отмена";
 "Fastest method" = "Быстрый способ";
 "Scan QR" = "Сканировать QR";
-"Ask the agent to connect GrantTap, then scan the one-time QR shown in the chat." = "Попросите агента подключить GrantTap, затем отсканируйте одноразовый QR-код из чата.";
+"Authenticate in the coding app, then scan the QR on granttap.com/connect." = "Запустите Authenticate в coding app и отсканируйте QR на granttap.com/connect.";
 "`granttap-mcp connect` prints a QR in the terminal." = "`granttap-mcp connect` печатает QR в терминале.";
 "One-time code" = "Одноразовый код";
 "Use this when the camera is unavailable, including Simulator." = "Используйте код, если камера недоступна, в том числе в Simulator.";
@@ -213,7 +213,7 @@
 "The watch displays synchronized state and sends decisions through the paired iPhone. A live network decision requires the companion connection." = "Часы показывают синхронизированное состояние и отправляют решения через спаренный iPhone. Для сетевого решения требуется связь с телефоном.";
 "Forget paired computer" = "Забыть спаренный компьютер";
 "Removes the pairing keys and local session state from this iPhone. Run granttap-mcp connect to pair again." = "Удаляет ключи пейринга и локальное состояние сессий с iPhone. Для повторного подключения запустите granttap-mcp connect.";
-"Removes the pairing keys and local task state from this iPhone. Ask the agent to connect GrantTap to pair again." = "Удаляет ключи подключения и локальное состояние задач с iPhone. Для повторного подключения попросите агента подключить GrantTap.";
+"Removes the pairing keys and local task state from this iPhone. Authenticate again and scan the QR on granttap.com/connect." = "Удаляет ключи подключения и локальное состояние задач с iPhone. Для повторного подключения запустите Authenticate и отсканируйте QR на granttap.com/connect.";
 "Forget paired computer?" = "Забыть спаренный компьютер?";
 "Forget pairing" = "Удалить пейринг";
 "This removes GrantTap pairing keys and local session state from this iPhone." = "Ключи GrantTap и локальное состояние сессий будут удалены с этого iPhone.";
@@ -269,7 +269,7 @@
 "risk: medium" = "риск: средний";
 "risk: low" = "риск: низкий";
 "Code did not match. Generate another with: granttap-mcp connect" = "Код не подошёл. Создайте новый командой: granttap-mcp connect";
-"This QR code expired or was already used. Ask the agent for a new QR code." = "Этот QR-код истёк или уже был использован. Попросите агента создать новый QR-код.";
+"This QR expired or was already used. Authenticate again and scan the new QR on granttap.com/connect." = "Этот QR истёк или уже использован. Запустите Authenticate снова и отсканируйте новый QR на granttap.com/connect.";
 "Relay is unavailable. Check its address and try again." = "Relay недоступен. Проверьте адрес и повторите.";
 "Relay returned error %d." = "Relay вернул ошибку %d.";
 "RISK" = "РИСК";
@@ -458,6 +458,9 @@
 "The relay only receives opaque ciphertext." = "Relay получает только непрозрачный шифротекст.";
 /* Connection Settings — multi Mac/PC */
 "Connection" = "Соединение";
+"Link log" = "Лог связи";
+"No link events yet. Scan or Reconnect, then this list shows the room, socket, hello, and heartbeat." = "Пока нет событий. Скан или Reconnect — здесь будут комната, сокет, hello и heartbeat.";
+"Same room on Reconnect is expected. Offline means this iPhone has no socket, or the Mac has not published a heartbeat." = "Та же комната на Reconnect — норма. Offline значит нет сокета у iPhone или Mac не шлёт heartbeat.";
 "Connections" = "Подключения";
 "Live" = "В сети";
 "Mac offline" = "Компьютер офлайн";

@@ -41,6 +41,7 @@ extension AppModel {
             candidate: candidate,
             phoneHasLivePeer: phoneHasLivePeer
         ), let existing else {
+            append("scan adopted room \(String(candidate.room.prefix(8)))… (same room is Reconnect)")
             return addConnection(candidate, mode: .add, prefer: true)
         }
         let sent: Bool

@@ -11,7 +11,7 @@ extension AppRuntimeTests {
             }
             XCTAssertEqual(
                 error.message,
-                "This QR code expired or was already used. Ask the agent for a new QR code."
+                "This QR expired or was already used. Authenticate again and scan the new QR on granttap.com/connect."
             )
         }
 

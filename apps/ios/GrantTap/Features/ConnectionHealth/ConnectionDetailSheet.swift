@@ -16,6 +16,7 @@ struct ConnectionDetailSheet: View {
                         computerSection(connection)
                         toolsSection(connection)
                     }
+                    linkLogSection
                 }
             }
             .navigationTitle(L("Connection"))
@@ -54,6 +55,26 @@ struct ConnectionDetailSheet: View {
             Text(L("This link"))
         } footer: {
             Text(snap.detail)
+        }
+    }
+
+    private var linkLogSection: some View {
+        Section {
+            if model.log.isEmpty {
+                Text(L("No link events yet. Scan or Reconnect, then this list shows the room, socket, hello, and heartbeat."))
+                    .foregroundStyle(Theme.muted)
+            } else {
+                ForEach(Array(model.log.prefix(20).enumerated()), id: \.offset) { _, line in
+                    Text(line)
+                        .font(Theme.mono(12, .regular))
+                        .foregroundStyle(Theme.ink)
+                        .textSelection(.enabled)
+                }
+            }
+        } header: {
+            Text(L("Link log"))
+        } footer: {
+            Text(L("Same room on Reconnect is expected. Offline means this iPhone has no socket, or the Mac has not published a heartbeat."))
         }
     }
 

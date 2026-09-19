@@ -84,7 +84,12 @@ extension AppModel {
             self?.receive(result)
         }
         relaysByRoom[room] = client
+        client.onSocketFailure = { [weak self] message in
+            self?.append("link \(String(room.prefix(8)))… \(message)")
+        }
         client.connect()
+        let path = client.lastSocketURL?.path
+        append("link \(String(room.prefix(8)))… socket opening \(path?.isEmpty == true || path == nil ? "/" : path!)")
     }
 
     private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
@@ -122,10 +127,12 @@ extension AppModel {
             if !rt.socketUp { rt.socketUpSince = Date().timeIntervalSince1970 * 1000 }
             rt.socketUp = true
             roomRuntime[room] = rt
+            append("link \(String(room.prefix(8)))… socket up · hello sent")
         } else {
             var rt = roomRuntime[room] ?? RoomRuntime()
             rt.socketUp = false
             roomRuntime[room] = rt
+            append("link \(String(room.prefix(8)))… socket down")
         }
 
         let isPreferred = room == connectionRegistry.preferredId
