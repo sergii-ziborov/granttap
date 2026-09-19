@@ -71,7 +71,9 @@ extension TaskChatView {
     func chatScroll(_ proxy: ScrollViewProxy) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
-                if combinedTimeline.isEmpty {
+                if TaskChatTranscriptPresentation.showsEmptyPlaceholder(
+                    timelineEmpty: combinedTimeline.isEmpty, threadCount: childThreads.count
+                ) {
                     if !model.connected {
                         Text(L("Waiting for Mac connection to load messages…"))
                             .foregroundStyle(Theme.muted)
@@ -84,9 +86,12 @@ extension TaskChatView {
                                 model.clearEmptyActivitySnapshot(sessionId: chatSessionId)
                                 model.subscribeSession(chatSessionId, active: true,
                                                        source: "phone-chat:\(chatSessionId)")
+                                model.prefetchThreadEvents(
+                                    chatSessionId, threads: currentSession.childThreads ?? []
+                                )
                                 Task { @MainActor in
                                     try? await Task.sleep(nanoseconds: 4_000_000_000)
-                                    if entries.isEmpty { loadTimedOut = true }
+                                    if entries.isEmpty && childThreads.isEmpty { loadTimedOut = true }
                                 }
                             }
                             .font(.system(size: 13, weight: .semibold))
@@ -103,63 +108,63 @@ extension TaskChatView {
                     ForEach(timelineRows) { row in
                         timelineRow(row)
                     }
-                    if !childThreads.isEmpty {
-                        // Folded like a run of CLI calls: one line says how
-                        // many conversations there are, and opens to them.
-                        // A conversation holding the entry someone tapped
-                        // in history opens itself, or the tap would land
-                        // on a closed summary of what it named.
-                        let threadsOpen = agentThreadsExpanded || childThreads.contains { row in
-                            entries.contains {
-                                $0.childThreadId == row.thread.threadId
-                                    && ($0.id == focusEntryId || $0.id == highlightedEntryId)
-                            }
+                }
+                if TaskChatTranscriptPresentation.showsAgentConversations(
+                    threadCount: childThreads.count
+                ) {
+                    let focusedThread = childThreads.contains { row in
+                        entries.contains {
+                            $0.childThreadId == row.thread.threadId
+                                && ($0.id == focusEntryId || $0.id == highlightedEntryId)
                         }
-                        Button {
-                            agentThreadsExpanded.toggle()
-                            // The fold sits at the foot of the chat, so what it
-                            // opens lands below the screen: bring the section up
-                            // once it exists, or opening looks like nothing happened.
-                            if agentThreadsExpanded {
-                                DispatchQueue.main.async {
-                                    withAnimation(.easeOut(duration: 0.25)) {
-                                        proxy.scrollTo("agent-threads", anchor: .top)
-                                    }
+                    }
+                    let threadsOpen = TaskChatTranscriptPresentation.threadsOpen(
+                        userExpanded: agentThreadsExpanded,
+                        timelineEmpty: combinedTimeline.isEmpty,
+                        focusedThread: focusedThread
+                    )
+                    Button {
+                        agentThreadsExpanded.toggle()
+                        if agentThreadsExpanded {
+                            DispatchQueue.main.async {
+                                withAnimation(.easeOut(duration: 0.25)) {
+                                    proxy.scrollTo("agent-threads", anchor: .top)
                                 }
                             }
-                        } label: {
-                            HStack(spacing: 7) {
-                                Image(systemName: "point.3.connected.trianglepath.dotted")
-                                Text(String(format: L("Agent conversations · %d"), childThreads.count))
-                                Spacer()
-                                Image(systemName: threadsOpen ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 9, weight: .bold))
-                            }
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(threadsOpen ? accent : Theme.muted)
-                            .padding(.top, rootEntries.isEmpty ? 0 : 6)
-                            .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
-                        .id("agent-threads")
-                        .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
+                    } label: {
+                        HStack(spacing: 7) {
+                            Image(systemName: "point.3.connected.trianglepath.dotted")
+                            Text(String(format: L("Agent conversations · %d"), childThreads.count))
+                            Spacer()
+                            Image(systemName: threadsOpen ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 9, weight: .bold))
+                        }
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(threadsOpen ? accent : Theme.muted)
+                        .padding(.top, rootEntries.isEmpty ? 0 : 6)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .id("agent-threads")
+                    .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
 
-                        if threadsOpen {
-                            ForEach(childThreads) { row in
-                                AgentThreadTranscript(
-                                    row: row,
-                                    entries: entries.filter {
-                                        $0.childThreadId == row.thread.threadId
-                                    },
-                                    accent: accent,
-                                    servers: currentSession.mcpServers ?? [],
-                                    onExpand: {
-                                        model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
-                                    }
-                                )
-                                .padding(.leading, Self.threadIndent(row.visualDepth))
-                                .id("thread:\(row.thread.threadId)")
-                            }
+                    if threadsOpen {
+                        ForEach(childThreads) { row in
+                            AgentThreadTranscript(
+                                row: row,
+                                entries: entries.filter {
+                                    $0.childThreadId == row.thread.threadId
+                                },
+                                accent: accent,
+                                servers: currentSession.mcpServers ?? [],
+                                expanded: true,
+                                onExpand: {
+                                    model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
+                                }
+                            )
+                            .padding(.leading, Self.threadIndent(row.visualDepth))
+                            .id("thread:\(row.thread.threadId)")
                         }
                     }
                 }

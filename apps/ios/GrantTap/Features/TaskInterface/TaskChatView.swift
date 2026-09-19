@@ -9,8 +9,8 @@ struct TaskChatView: View {
     @State var focusHonoured = false
     /// Briefly marks the entry a history row was tapped from.
     @State var highlightedEntryId: String?
-    /// The agent conversations start folded, the way a run of CLI calls does.
-    @State var agentThreadsExpanded = false
+    /// Open so a chat whose work lives in agent conversations is not blank.
+    @State var agentThreadsExpanded = true
     @State var draft = ""
     @FocusState var chatFocused: Bool
     @State var attachments: [AttachmentDraft] = []
@@ -42,7 +42,7 @@ struct TaskChatView: View {
         initialAttachmentError: String? = nil,
         initialLoadTimedOut: Bool = false,
         initialShowCapabilities: Bool = false,
-        initialAgentThreadsExpanded: Bool = false,
+        initialAgentThreadsExpanded: Bool = true,
         dictator: Dictator? = nil
     ) {
         self.session = session
@@ -175,20 +175,29 @@ struct TaskChatView: View {
             }
         }
         .onAppear {
-            loadTimedOut = activitySnapshotKnown && entries.isEmpty
+            loadTimedOut = activitySnapshotKnown && entries.isEmpty && childThreads.isEmpty
+            if TaskChatTranscriptPresentation.showsAgentConversations(threadCount: childThreads.count),
+               TaskChatTranscriptPresentation.threadsOpen(
+                userExpanded: agentThreadsExpanded,
+                timelineEmpty: combinedTimeline.isEmpty,
+                focusedThread: false
+               ) {
+                agentThreadsExpanded = true
+            }
             model.subscribeSession(chatSessionId, active: true,
                                    source: "phone-chat:\(chatSessionId)")
+            model.prefetchThreadEvents(chatSessionId, threads: currentSession.childThreads ?? [])
             Task { @MainActor in
                 await focusComposerForDebugCapture()
                 try? await Task.sleep(nanoseconds: 4_000_000_000)
-                if entries.isEmpty { loadTimedOut = true }
+                if entries.isEmpty && childThreads.isEmpty { loadTimedOut = true }
             }
         }
         .onChange(of: entries.count) { count in
             if count > 0 { loadTimedOut = false }
         }
         .onChange(of: activitySnapshotKnown) { known in
-            if known, entries.isEmpty { loadTimedOut = true }
+            if known, entries.isEmpty, childThreads.isEmpty { loadTimedOut = true }
         }
         .onDisappear {
             model.subscribeSession(chatSessionId, active: false,

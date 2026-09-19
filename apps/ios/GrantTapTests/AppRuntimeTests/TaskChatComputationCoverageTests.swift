@@ -220,6 +220,42 @@ extension AppRuntimeTests {
         ).environmentObject(model))
     }
 
+    @MainActor
+    func testAgentConversationsStayVisibleWhenTheRootTimelineIsEmpty() {
+        XCTAssertFalse(TaskChatTranscriptPresentation.showsEmptyPlaceholder(
+            timelineEmpty: true, threadCount: 1
+        ))
+        XCTAssertTrue(TaskChatTranscriptPresentation.showsEmptyPlaceholder(
+            timelineEmpty: true, threadCount: 0
+        ))
+        XCTAssertTrue(TaskChatTranscriptPresentation.showsAgentConversations(threadCount: 2))
+        XCTAssertTrue(TaskChatTranscriptPresentation.threadsOpen(
+            userExpanded: false, timelineEmpty: true, focusedThread: false
+        ))
+        XCTAssertTrue(TaskChatTranscriptPresentation.threadsOpen(
+            userExpanded: true, timelineEmpty: false, focusedThread: false
+        ))
+        let model = AppModel()
+        let session = chatCoverageSession(id: "threads-only")
+        model.sessions = [session]
+        model.activities[session.sessionId] = SessionActivity(
+            sessionId: session.sessionId, agent: session.agent, state: "working",
+            entries: [
+                ActivityEntry(
+                    id: "child", kind: "message", text: "Agent work", createdAt: 2,
+                    childThreadId: "child-thread"
+                ),
+            ], generatedAt: 2
+        )
+        let chat = TaskChatView(session: session, modelOverride: model)
+        XCTAssertTrue(chat.combinedTimeline.isEmpty)
+        XCTAssertEqual(chat.childThreads.count, 1)
+        XCTAssertFalse(TaskChatTranscriptPresentation.showsEmptyPlaceholder(
+            timelineEmpty: chat.combinedTimeline.isEmpty, threadCount: chat.childThreads.count
+        ))
+        assertRendered(chat.environmentObject(model))
+    }
+
     private func chatCoverageSession(id: String) -> SessionInfo {
         SessionInfo(
             sessionId: id, agent: "codex", title: "Coverage chat", cwd: "/repo",

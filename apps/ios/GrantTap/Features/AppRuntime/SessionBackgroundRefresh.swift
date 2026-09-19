@@ -54,6 +54,14 @@ extension AppModel {
         relayForSession(id)?.requestSessionEvents(sessionId: id, threadId: threadId)
     }
 
+    /// Ask for every known agent conversation now, not after the first send.
+    func prefetchThreadEvents(_ sessionId: String, threads: [ChildThreadInfo],
+                              now: Double = Date().timeIntervalSince1970 * 1_000) {
+        for thread in threads.prefix(8) {
+            requestThreadEvents(sessionId, threadId: thread.threadId, now: now)
+        }
+    }
+
     /// Pull transcripts for Now chats without opening them. Opening used to
     /// be the first subscribe, so inactive cards sat on "No messages loaded".
     func prefetchTranscripts(_ sessionIds: [String]) {
@@ -65,6 +73,8 @@ extension AppModel {
             let sourceRelay = relayForSession(id)
             sourceRelay?.sendSubscription(sessionId: id, active: true)
             sourceRelay?.requestSessionEvents(sessionId: id)
+            let session = knownSession(for: id, preferredAgent: nil)
+            prefetchThreadEvents(id, threads: session?.childThreads ?? [])
         }
     }
 

@@ -1,5 +1,21 @@
 import Foundation
 
+/// Agent conversations are part of the chat. Hiding them until the root
+/// timeline has a row made Cursor chats look empty until someone sent a line.
+enum TaskChatTranscriptPresentation {
+    static func showsEmptyPlaceholder(timelineEmpty: Bool, threadCount: Int) -> Bool {
+        timelineEmpty && threadCount == 0
+    }
+
+    static func showsAgentConversations(threadCount: Int) -> Bool {
+        threadCount > 0
+    }
+
+    static func threadsOpen(userExpanded: Bool, timelineEmpty: Bool, focusedThread: Bool) -> Bool {
+        userExpanded || timelineEmpty || focusedThread
+    }
+}
+
 extension TaskChatView {
     var childThreads: [ChildThreadDisplayRow] {
         ChildThreadTree.rows(

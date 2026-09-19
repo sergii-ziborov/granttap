@@ -55,7 +55,7 @@ final class SwiftUIJourneyCoverageTests: XCTestCase {
             },
             minimumBytes: 20_000
         )
-        // Folded by default; opened, the agent conversations render in full.
+        // Open by default; a collapsed pass still has to render the section.
         assertRendered(
             NavigationView {
                 TaskChatView(session: session, initialAgentThreadsExpanded: true).environmentObject(model)
