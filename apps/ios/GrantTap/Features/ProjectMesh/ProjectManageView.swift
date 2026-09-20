@@ -92,6 +92,30 @@ struct ProjectDestinationRows: View {
             )
         }
         NavigationLink {
+            ProjectRestrictionsView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Restrictions"),
+                detail: ProjectRestrictionsPresentation.summary(
+                    snapshot, governance: model.projectGovernance[snapshot.projectId]
+                ),
+                icon: "ruler"
+            )
+        }
+        .accessibilityIdentifier("project.restrictions")
+        NavigationLink {
+            ProjectEnvironmentView(snapshot: snapshot, model: model)
+        } label: {
+            ProjectDestinationLabel(
+                title: L("Environment"),
+                detail: ProjectEnvironmentPresentation.summary(
+                    snapshot, governance: model.projectGovernance[snapshot.projectId]
+                ),
+                icon: "key"
+            )
+        }
+        .accessibilityIdentifier("project.environment")
+        NavigationLink {
             ProjectMembersView(snapshot: snapshot, model: model)
         } label: {
             ProjectDestinationLabel(

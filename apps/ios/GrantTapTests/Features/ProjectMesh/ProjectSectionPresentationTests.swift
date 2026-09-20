@@ -239,6 +239,49 @@ final class ProjectSectionPresentationTests: XCTestCase {
         XCTAssertNotEqual(snapshot.project.name, snapshot.execution?.targetEndpointId)
     }
 
+    func testRestrictionAndEnvironmentSummariesFollowSnapshotThenPolicy() {
+        var snapshot = emptySnapshot()
+        XCTAssertEqual(
+            ProjectRestrictionsPresentation.summary(snapshot, governance: nil),
+            L("No restrictions")
+        )
+        XCTAssertEqual(
+            ProjectEnvironmentPresentation.summary(snapshot, governance: nil),
+            L("No variables")
+        )
+        snapshot.restrictions = ProjectRestrictionSet(
+            projectId: "project", revision: 1, scope: .projectAndRepo,
+            rules: [
+                ProjectRestrictionRule(ruleId: "max-file-lines", kind: .maxFileLines, limit: 500)
+            ]
+        )
+        snapshot.environment = ProjectEnvironment(
+            projectId: "project", revision: 1, shareNonSecretsWithRepo: true,
+            variables: [
+                ProjectEnvVar(key: "PUBLIC_URL", value: "https://example.test", secret: false),
+                ProjectEnvVar(key: "API_TOKEN", secret: true),
+            ]
+        )
+        XCTAssertEqual(
+            ProjectRestrictionsPresentation.summary(snapshot, governance: nil),
+            "\(String(format: L("%d rule"), 1)) · \(L("Project and repository"))"
+        )
+        XCTAssertTrue(ProjectEnvironmentPresentation.summary(snapshot, governance: nil)
+            .contains(L("shared with the repository")))
+        XCTAssertTrue(ProjectEnvironmentPresentation.isValidKey("PUBLIC_URL"))
+        XCTAssertFalse(ProjectEnvironmentPresentation.isValidKey("public-url"))
+        let merged = ProjectEnvironmentLogic.mergingSecrets(
+            current: ProjectEnvironment(
+                projectId: "project", revision: 1,
+                variables: [ProjectEnvVar(key: "API_TOKEN", value: "kept", secret: true)]
+            ),
+            incoming: snapshot.environment
+        )
+        XCTAssertEqual(merged?.variables.first { $0.key == "API_TOKEN" }?.value, "kept")
+        _ = ProjectRestrictionsView(snapshot: snapshot, model: AppModel()).body
+        _ = ProjectEnvironmentView(snapshot: snapshot, model: AppModel()).body
+    }
+
     func testExecutionSummaryDistinguishesPinnedPendingFromDistributed() {
         var snapshot = emptySnapshot()
         XCTAssertEqual(

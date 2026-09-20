@@ -190,12 +190,22 @@ final class ProjectMeshTests: XCTestCase {
                 endpointId: "Mac.lan-empty", observedAt: now, models: [], reason: "not_reported"
             ),
         ]
+        current.restrictions = ProjectRestrictionSet(
+            projectId: "project", revision: 2, scope: .project,
+            rules: [ProjectRestrictionRule(ruleId: "max-file-lines", kind: .maxFileLines, limit: 500)]
+        )
+        current.environment = ProjectEnvironment(
+            projectId: "project", revision: 2,
+            variables: [ProjectEnvVar(key: "PUBLIC_URL", value: "https://example.test", secret: false)]
+        )
         let encoded = try JSONEncoder().encode(current)
         XCTAssertNil(ProjectMeshWireValidator.snapshotRejectReason(encoded),
                      ProjectMeshWireValidator.snapshotRejectReason(encoded) ?? "")
         XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(encoded))
         let decoded = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: encoded)
         XCTAssertEqual(decoded.execution?.targetEndpointId, "Mac.lan")
+        XCTAssertEqual(decoded.restrictions?.rules.first?.limit, 500)
+        XCTAssertEqual(decoded.environment?.variables.map(\.key), ["PUBLIC_URL"])
         XCTAssertEqual(decoded.modelCatalog?.map(\.reason), [nil, "not_reported"])
 
         var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])

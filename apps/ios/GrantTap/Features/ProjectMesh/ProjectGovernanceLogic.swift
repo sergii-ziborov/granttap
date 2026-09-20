@@ -107,7 +107,17 @@ enum ProjectGovernanceLogic {
         }.sorted { $0.ruleId < $1.ruleId }
         return ProjectPolicy(
             projectId: projectId, revision: revision, enforcement: enforcement, rules: rules,
-            execution: current?.execution
+            execution: current?.execution,
+            restrictions: current?.restrictions.map {
+                var next = $0
+                next.revision = min($0.revision, revision)
+                return next
+            },
+            environment: current?.environment.map {
+                var next = $0
+                next.revision = min($0.revision, revision)
+                return next
+            }
         )
     }
 

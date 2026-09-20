@@ -242,6 +242,8 @@ struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     var skills: [SharedSkill]? = nil
     var incomplete: Bool? = nil
     var execution: ProjectExecutionPolicy? = nil
+    var restrictions: ProjectRestrictionSet? = nil
+    var environment: ProjectEnvironment? = nil
     var modelCatalog: [EndpointModelCatalog]? = nil
     var tasks: [ProjectMeshTask]
     var executions: [ExecutionSessionLink]

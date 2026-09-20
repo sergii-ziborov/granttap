@@ -27,9 +27,16 @@ extension ProjectGovernanceWireValidator {
     }
 
     private static func validPolicyShape(_ value: [String: Any]) -> Bool {
-        guard exact(value, ["projectId", "revision", "enforcement", "rules"]),
-              let rules = value["rules"] as? [[String: Any]] else { return false }
-        return rules.allSatisfy(validRuleShape)
+        let required: Set<String> = ["projectId", "revision", "enforcement", "rules"]
+        let optional: Set<String> = ["execution", "restrictions", "environment"]
+        guard required.isSubset(of: Set(value.keys)),
+              Set(value.keys).isSubset(of: required.union(optional)),
+              let rules = value["rules"] as? [[String: Any]],
+              rules.allSatisfy(validRuleShape) else { return false }
+        if value["restrictions"] != nil, !(value["restrictions"] is [String: Any]) { return false }
+        if value["environment"] != nil, !(value["environment"] is [String: Any]) { return false }
+        if value["execution"] != nil, !(value["execution"] is [String: Any]) { return false }
+        return true
     }
 
     private static func validRuleShape(_ value: [String: Any]) -> Bool {

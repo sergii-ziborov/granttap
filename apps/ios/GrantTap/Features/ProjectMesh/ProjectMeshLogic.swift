@@ -65,6 +65,16 @@ enum ProjectMeshLogic {
                            prefer: preferredSkill)
         merged.skills = skills.isEmpty ? nil : skills.sorted { $0.name < $1.name }
         merged.events = compactEvents(current.events + incoming.events, nowMs: nowMs)
+        if incoming.restrictions == nil { merged.restrictions = current.restrictions }
+        if incoming.environment == nil {
+            merged.environment = ProjectEnvironmentLogic.mergingSecrets(
+                current: current.environment, incoming: incoming.environment
+            ) ?? current.environment
+        } else {
+            merged.environment = ProjectEnvironmentLogic.mergingSecrets(
+                current: current.environment, incoming: incoming.environment
+            )
+        }
         return withoutNestedCursorComposers(rejoinSplitChats(merged))
     }
 

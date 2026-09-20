@@ -43,7 +43,8 @@ enum ProjectMeshWireValidator {
 
     static let snapshotKeys: Set<String> = [
         "type", "sessionId", "projectId", "project", "tasks", "executions",
-        "bindings", "peers", "skills", "incomplete", "execution", "modelCatalog",
+        "bindings", "peers", "skills", "incomplete", "execution", "restrictions",
+        "environment", "modelCatalog",
         "claims", "dependencies", "events", "generatedAt",
     ]
 
@@ -71,6 +72,8 @@ enum ProjectMeshWireValidator {
         if !validSkills(value["skills"]) { return "mesh snapshot skills rejected" }
         if !validIncomplete(value["incomplete"]) { return "mesh snapshot incomplete rejected" }
         if !validExecution(value["execution"]) { return "mesh snapshot execution rejected" }
+        if !validRestrictions(value["restrictions"]) { return "mesh snapshot restrictions rejected" }
+        if !validEnvironment(value["environment"]) { return "mesh snapshot environment rejected" }
         if !validModelCatalog(value["modelCatalog"]) { return "mesh snapshot modelCatalog rejected" }
         guard let tasks = value["tasks"] as? [Any], tasks.count <= 64 else {
             return "mesh snapshot tasks rejected"
@@ -205,6 +208,76 @@ enum ProjectMeshWireValidator {
            !grants.contains(boundedString(status, max: 16) ?? "") { return false }
         if let behavior = execution["offlineBehavior"],
            !offline.contains(boundedString(behavior, max: 32) ?? "") { return false }
+        return true
+    }
+
+    private static func validRestrictions(_ value: Any?) -> Bool {
+        guard value != nil else { return true }
+        guard let object = value as? [String: Any] else { return false }
+        let allowed: Set<String> = [
+            "projectId", "revision", "scope", "repositoryId", "rules", "source",
+        ]
+        let scopes: Set<String> = ["project", "project_and_repo", "sync_from_repo"]
+        let kinds: Set<String> = [
+            "max_file_lines", "max_function_lines", "max_file_bytes", "custom",
+        ]
+        let effects: Set<String> = ["ask", "deny"]
+        guard Set(object.keys).isSubset(of: allowed),
+              boundedString(object["projectId"], max: 128) != nil,
+              integer(object["revision"]).map({ $0 > 0 }) == true,
+              let scope = object["scope"] as? String, scopes.contains(scope),
+              let rules = object["rules"] as? [[String: Any]], rules.count <= 32
+        else { return false }
+        if object["repositoryId"] != nil,
+           boundedString(object["repositoryId"], max: 512) == nil { return false }
+        if object["source"] != nil,
+           !["phone", "repo"].contains(boundedString(object["source"], max: 16) ?? "") {
+            return false
+        }
+        for rule in rules {
+            let ruleKeys: Set<String> = ["ruleId", "kind", "limit", "name", "paths", "effect"]
+            guard Set(rule.keys).isSubset(of: ruleKeys),
+                  boundedString(rule["ruleId"], max: 128) != nil,
+                  let kind = rule["kind"] as? String, kinds.contains(kind)
+            else { return false }
+            if rule["effect"] != nil,
+               !effects.contains(boundedString(rule["effect"], max: 8) ?? "") { return false }
+            if kind != "custom", integer(rule["limit"]).map({ $0 > 0 }) != true { return false }
+            if kind == "custom", boundedString(rule["name"], max: 160) == nil { return false }
+            if let paths = rule["paths"] {
+                guard let list = paths as? [Any], list.count <= 16,
+                      list.allSatisfy({ boundedString($0, max: 256) != nil }) else { return false }
+            }
+        }
+        return true
+    }
+
+    private static func validEnvironment(_ value: Any?) -> Bool {
+        guard value != nil else { return true }
+        guard let object = value as? [String: Any] else { return false }
+        let allowed: Set<String> = [
+            "projectId", "revision", "shareNonSecretsWithRepo", "variables",
+        ]
+        guard Set(object.keys).isSubset(of: allowed),
+              boundedString(object["projectId"], max: 128) != nil,
+              integer(object["revision"]).map({ $0 > 0 }) == true,
+              let variables = object["variables"] as? [[String: Any]], variables.count <= 64
+        else { return false }
+        if object["shareNonSecretsWithRepo"] != nil,
+           !(object["shareNonSecretsWithRepo"] is Bool) { return false }
+        var keys = Set<String>()
+        for item in variables {
+            let itemKeys: Set<String> = ["key", "value", "secret"]
+            guard Set(item.keys).isSubset(of: itemKeys),
+                  let key = boundedString(item["key"], max: 128),
+                  keys.insert(key).inserted,
+                  item["secret"] is Bool
+            else { return false }
+            if item["value"] != nil, boundedString(item["value"], max: 4_096) == nil { return false }
+            if key.range(of: "^[A-Z][A-Z0-9_]{0,127}$", options: .regularExpression) == nil {
+                return false
+            }
+        }
         return true
     }
 

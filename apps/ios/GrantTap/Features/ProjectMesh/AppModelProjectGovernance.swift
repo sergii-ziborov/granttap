@@ -5,10 +5,20 @@ extension AppModel {
         guard agentMeshPreferences.meshEnabled,
               ProjectGovernanceWireValidator.validStatus(status) else { return }
         rememberProjectRoom(room, projectId: status.projectId)
+        let existing = projectGovernance[status.projectId]
         guard let merged = ProjectGovernanceLogic.merged(
-            current: projectGovernance[status.projectId], status: status
+            current: existing, status: status
         ) else { return }
-        projectGovernance[status.projectId] = merged
+        if var policy = merged.policy, let incoming = status.policy.environment {
+            policy.environment = ProjectEnvironmentLogic.mergingSecrets(
+                current: existing?.policy?.environment, incoming: incoming
+            )
+            var next = merged
+            next.policy = policy
+            projectGovernance[status.projectId] = next
+        } else {
+            projectGovernance[status.projectId] = merged
+        }
         if let pending = pendingProjectPolicyRevisions[status.projectId],
            status.policy.revision >= pending {
             pendingProjectPolicyRevisions.removeValue(forKey: status.projectId)
@@ -172,6 +182,71 @@ extension AppModel {
             projectPolicyErrors[projectId] = L("Policy update could not be delivered.")
             return false
         }
+        projectPolicyErrors.removeValue(forKey: projectId)
+        projectPolicyOutbox = projectPolicyOutbox.filter {
+            $0.projectId != projectId || $0.revision > policy.revision
+        } + ProjectPolicyOutboxLogic.entries(
+            for: request, rooms: rooms, at: Date().timeIntervalSince1970 * 1_000
+        )
+        ProjectPolicyOutboxStore.save(projectPolicyOutbox)
+        deliveredProjectPolicyRevisions[projectId] = policy.revision
+        flushProjectPolicyOutbox()
+        return true
+    }
+
+    @discardableResult
+    func applyProjectRestrictions(projectId: String, restrictions: ProjectRestrictionSet) -> Bool {
+        mutateProjectPolicy(projectId: projectId) { policy in
+            var next = restrictions
+            next.projectId = projectId
+            next.revision = policy.revision
+            policy.restrictions = next
+        }
+    }
+
+    @discardableResult
+    func applyProjectEnvironment(projectId: String, environment: ProjectEnvironment) -> Bool {
+        mutateProjectPolicy(projectId: projectId) { policy in
+            var next = environment
+            next.projectId = projectId
+            next.revision = policy.revision
+            policy.environment = next
+        }
+    }
+
+    @discardableResult
+    private func mutateProjectPolicy(
+        projectId: String, mutate: (inout ProjectPolicy) -> Void
+    ) -> Bool {
+        guard agentMeshPreferences.meshEnabled, let current = projectGovernance[projectId] else {
+            projectPolicyErrors[projectId] = L("Refresh Project policy before editing.")
+            return false
+        }
+        let rooms = computerRooms(for: projectId)
+        guard !rooms.isEmpty else {
+            projectPolicyErrors[projectId] = L("No linked Project computer is ready to receive policy.")
+            return false
+        }
+        var policy = current.policy ?? ProjectPolicy(
+            projectId: projectId, revision: 1, enforcement: current.enforcement, rules: []
+        )
+        policy.revision += current.policy == nil ? 0 : 1
+        if current.policy == nil { policy.revision = 1 }
+        mutate(&policy)
+        let request = ProjectPolicySet(
+            type: "project.policy.set", sessionId: projectId, projectId: projectId,
+            expectedRevision: current.policy?.revision ?? 0, policy: policy,
+            requestId: UUID().uuidString.lowercased(),
+            createdAt: Date().timeIntervalSince1970 * 1_000
+        )
+        guard ProjectGovernanceWireValidator.validSet(request) else {
+            projectPolicyErrors[projectId] = L("Policy update could not be delivered.")
+            return false
+        }
+        var next = current
+        next.policy = policy
+        projectGovernance[projectId] = next
+        ProjectGovernancePersistence.save(projectGovernance)
         projectPolicyErrors.removeValue(forKey: projectId)
         projectPolicyOutbox = projectPolicyOutbox.filter {
             $0.projectId != projectId || $0.revision > policy.revision

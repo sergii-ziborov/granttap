@@ -91,12 +91,65 @@ struct ProjectExecutionPolicy: Codable, Equatable {
     var offlineBehavior: ExecutionOfflineBehavior = .reject
 }
 
+enum ProjectRestrictionKind: String, Codable, CaseIterable, Identifiable {
+    case maxFileLines = "max_file_lines"
+    case maxFunctionLines = "max_function_lines"
+    case maxFileBytes = "max_file_bytes"
+    case custom
+    var id: String { rawValue }
+}
+
+enum ProjectRestrictionScope: String, Codable, CaseIterable {
+    case project
+    case projectAndRepo = "project_and_repo"
+    case syncFromRepo = "sync_from_repo"
+}
+
+enum ProjectRestrictionEffect: String, Codable, CaseIterable {
+    case ask, deny
+}
+
+struct ProjectRestrictionRule: Codable, Equatable, Identifiable {
+    var ruleId: String
+    var kind: ProjectRestrictionKind
+    var limit: Int? = nil
+    var name: String? = nil
+    var paths: [String]? = nil
+    var effect: ProjectRestrictionEffect = .deny
+    var id: String { ruleId }
+}
+
+struct ProjectRestrictionSet: Codable, Equatable {
+    var projectId: String
+    var revision: Int
+    var scope: ProjectRestrictionScope
+    var repositoryId: String? = nil
+    var rules: [ProjectRestrictionRule]
+    var source: String = "phone"
+}
+
+struct ProjectEnvVar: Codable, Equatable, Identifiable {
+    var key: String
+    var value: String? = nil
+    var secret: Bool
+    var id: String { key }
+}
+
+struct ProjectEnvironment: Codable, Equatable {
+    var projectId: String
+    var revision: Int
+    var shareNonSecretsWithRepo: Bool = false
+    var variables: [ProjectEnvVar]
+}
+
 struct ProjectPolicy: Codable, Equatable {
     let projectId: String
     var revision: Int
     var enforcement: ProjectEnforcementMode
     var rules: [ProjectPolicyRule]
     var execution: ProjectExecutionPolicy? = nil
+    var restrictions: ProjectRestrictionSet? = nil
+    var environment: ProjectEnvironment? = nil
 }
 
 struct ProjectCapabilityCoverage: Codable, Equatable {
