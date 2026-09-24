@@ -6,6 +6,15 @@ Apple Watch. The app is a free download; its encrypted relay and background
 delivery are offered through an in-app subscription. Source visibility does not
 change those service terms.
 
+This public tree is a source snapshot, not the current TestFlight release tree.
+The actively maintained Apple app is built from a separate internal repository.
+For current Project Mesh behavior and screenshots, see the
+[product site](https://granttap.com/project-mesh); the companion
+[MCP runtime](https://github.com/sergii-ziborov/granttap-mcp),
+[Engine](https://github.com/sergii-ziborov/granttap-engine), and
+[relay](https://github.com/sergii-ziborov/granttap-relay) document their own
+protocol and release status. Screenshots below describe this source snapshot.
+
 The Apple app is **not MIT-licensed**. Its existing [license](LICENSE) applies to
 this source and artwork. The companion [MCP runtime](https://github.com/sergii-ziborov/granttap-mcp),
 [relay](https://github.com/sergii-ziborov/granttap-relay), and
