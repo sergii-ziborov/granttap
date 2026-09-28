@@ -12,6 +12,13 @@ struct ChatMessageQueueBar: View {
     var body: some View {
         if !rows.isEmpty {
             VStack(spacing: 0) {
+                if expanded {
+                    ScrollView {
+                        VStack(spacing: 0) { ForEach(rows) { row in messageRow(row) } }
+                    }
+                    .frame(height: min(CGFloat(rows.count) * 60, 180))
+                    .accessibilityIdentifier("chat.queue.rows")
+                }
                 Button { expanded.toggle() } label: {
                     HStack {
                         Image(systemName: "text.line.first.and.arrowtriangle.forward")
@@ -26,13 +33,6 @@ struct ChatMessageQueueBar: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("chat.queue")
-                if expanded {
-                    ScrollView {
-                        VStack(spacing: 0) { ForEach(rows) { row in messageRow(row) } }
-                    }
-                    .frame(height: min(CGFloat(rows.count) * 60, 180))
-                    .accessibilityIdentifier("chat.queue.rows")
-                }
             }
             .background(Theme.surface)
             .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .top)

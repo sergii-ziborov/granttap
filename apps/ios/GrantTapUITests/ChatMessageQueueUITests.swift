@@ -36,10 +36,14 @@ final class ChatMessageQueueUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Queued follow-up 3"].exists)
         XCTAssertTrue(app.staticTexts["Next queued message"].exists)
         XCTAssertTrue(app.buttons["chat.attachment.local-user-queue-1.Queue.txt"].exists)
-        app.buttons["chat.queue"].tap()
+        let toggle = app.buttons["chat.queue"]
+        let toggleY = toggle.frame.midY
+        toggle.tap()
         XCTAssertFalse(app.buttons["chat.queue.send.queue-3"].exists)
-        app.buttons["chat.queue"].tap()
+        XCTAssertEqual(toggle.frame.midY, toggleY, accuracy: 1)
+        toggle.tap()
         XCTAssertTrue(app.buttons["chat.queue.send.queue-3"].waitForExistence(timeout: 5))
+        XCTAssertEqual(toggle.frame.midY, toggleY, accuracy: 1)
         XCTAssertTrue(app.buttons["chat.queue.send.queue-3"].isHittable)
     }
 }

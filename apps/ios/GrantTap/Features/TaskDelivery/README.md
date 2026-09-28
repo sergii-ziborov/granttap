@@ -10,6 +10,8 @@ Waiting messages stay above the composer rather than in the transcript. They
 keep their text, attachment bytes, provider, Task, session and computer route
 across app restarts. Admission remains bounded by the existing 32 active-message
 and encoded-byte limits; an over-capacity request leaves the draft intact.
+The collapse control stays immediately above the composer in both states, so
+changing the visible queue height does not move the control under the pointer.
 
 `ChatMessageQueuePolicy.swift` releases the oldest waiting follow-up only after
 GrantTap receives an idle/finished observation for that execution. Paused,

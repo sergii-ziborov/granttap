@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "4c00e535fb9755ea2a56ee5cd2d14a582b1bce38",
+  "sourceCommit": "7f1789f5330e9ba3195153245fbb66d421af30cc",
   "files": [
     {
       "path": "apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg",
@@ -1716,7 +1716,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/README.md",
-      "sha256": "c9042f818c2ac21dbf4542d26e76af85cd392af169b618c35c281bcad7663254"
+      "sha256": "d8dff1ff33d5d9cacc069a2d49a797b5efbb1a633381b921d031bf8cb2aa23b5"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskDeliveryQueue.swift",
@@ -1856,7 +1856,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatMessageQueueBar.swift",
-      "sha256": "1adae323f3465a2f1d5da01bd93676b14174ca1af7eb8f6306d27e6449957330"
+      "sha256": "28b3208b41cb5daa573808a8fc21e8e8d55c5093006192b9d6ae84feb63e2ca1"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatMessageQueueFixture.swift",
@@ -2928,7 +2928,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ChatMessageQueueUITests.swift",
-      "sha256": "a7d740169a7beeb4aec6f14f174bc4145e19f3621e0f80f26e49c181a43f230c"
+      "sha256": "d2f8f3cdd027345beffddde6c214efbb87dcca0a11b8ab4a4cb34f1d50281479"
     },
     {
       "path": "apps/ios/GrantTapUITests/MacPageNavigationUITests.swift",
