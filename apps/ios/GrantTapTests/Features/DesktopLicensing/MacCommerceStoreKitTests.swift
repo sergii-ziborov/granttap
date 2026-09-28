@@ -27,12 +27,17 @@ final class MacCommerceStoreKitTests: XCTestCase {
         await store.purchase()
         XCTAssertNil(store.lastError)
         XCTAssertEqual(store.license, .purchased)
-        let reopened = DesktopLicenseStore(evaluationAllowed: false, observe: false)
+        let reopened = DesktopLicenseStore(evaluationAllowed: false, observe: true)
         await reopened.start()
         XCTAssertEqual(reopened.license, .purchased)
         let transaction = try XCTUnwrap(session.allTransactions().first)
         try session.refundTransaction(identifier: transaction.identifier)
-        await reopened.refresh()
+        // StoreKit delivers revocation through Transaction.updates asynchronously.
+        // Exercise the production observer instead of reading the old cached receipt.
+        let deadline = Date().addingTimeInterval(5)
+        while reopened.license != .notPurchased && Date() < deadline {
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
         XCTAssertEqual(reopened.license, .notPurchased)
     }
 

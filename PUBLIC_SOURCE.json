@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "7f1789f5330e9ba3195153245fbb66d421af30cc",
+  "sourceCommit": "b73d278a4bd3b3880fcf32eb8a0870d70160204a",
   "files": [
     {
       "path": "apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg",
@@ -2388,7 +2388,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DesktopLicensing/MacCommerceStoreKitTests.swift",
-      "sha256": "5812c8569367f8df6cac37b6dc246e548e6d692a33ead1d4b75c07e927153682"
+      "sha256": "d3f8b993ed5b5ead52efb2d833ec11bd058f5995c29068082747d02e6f8509f2"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DeviceNetwork/EndpointDirectoryTests.swift",
@@ -3108,7 +3108,7 @@
     },
     {
       "path": "apps/macos/AppStore/README.md",
-      "sha256": "1a5da809684f78d59bb722052a815e675e748ecc320e85948c67c105ac9ebf92"
+      "sha256": "adb4ebde3a3a4a7730d6b61b9a27fcd1675e78fbbea1c08682003204bd30cc61"
     },
     {
       "path": "apps/macos/build-app.sh",

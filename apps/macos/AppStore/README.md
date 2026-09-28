@@ -41,3 +41,10 @@ for the separate `GrantTapCommerceTests` integration target. Its launch price is
 GrantTap and GrantTap Local schemes use normal live services. Receipt-policy
 tests run in the regular gate; StoreKit service tests require the Commerce
 scheme, then Apple's sandbox/TestFlight for the signed Mac release.
+
+If local StoreKit tests return `SKInternalErrorDomain Code=3` or no products,
+check the selected simulator runtime before changing receipt policy. Apple tracks
+a configuration synchronization issue in [this developer forum thread](https://developer.apple.com/forums/thread/826971).
+Use a working runtime for local service tests and still verify the signed Mac
+release in Apple's sandbox. Refund tests wait for the asynchronous StoreKit
+revocation event and exercise the app's transaction observer.
