@@ -27,7 +27,7 @@ struct AgentsMeshSettingsSection: View {
                     Text(grokBotStatus).font(.caption).foregroundStyle(Theme.muted)
                 }
             }
-            Toggle("Project Mesh", isOn: meshBinding)
+            Toggle(L("Mesh"), isOn: meshBinding)
         }
         .confirmationDialog(
             providerToDisable.map { "Disable \(AgentIdentity.displayName($0))?" }
@@ -89,7 +89,7 @@ struct GrokBotSettingsView: View {
                 Section(L("Connection")) {
                     CompatLabeledContent("Status", value: connection.endpoint.status == "active"
                                          ? "Active" : "Connecting")
-                    CompatLabeledContent("Allowed projects", value: "\(connection.credential.projectIds.count)")
+                    CompatLabeledContent("Allowed Mesh spaces", value: "\(connection.credential.projectIds.count)")
                 }
                 Section {
                     ForEach(connection.actors) { actor in
@@ -108,11 +108,11 @@ struct GrokBotSettingsView: View {
                     Button(L("Add Grok Bot")) { showInvite = true }
                         .disabled(!model.agentMeshPreferences.meshEnabled || model.meshSnapshots.isEmpty)
                 } footer: {
-                    Text(L("Creates a one-time encrypted invite scoped only to Projects you select. The MCP model cannot create invites or expand access."))
+                    Text(L("Creates a one-time encrypted invite scoped only to chats you select. The MCP model cannot create invites or expand access."))
                 }
             }
         }
-        .navigationTitle("Grok Bot")
+        .pageNavigationTitle("Grok Bot")
         .sheet(isPresented: $showInvite) { GrokBotInviteView(model: model) }
         .confirmationDialog("Revoke Grok Bot connection?", isPresented: $confirmRevoke,
                             titleVisibility: .visible) {
@@ -158,7 +158,7 @@ struct GrokBotInviteView: View {
     var body: some View {
         CompatNavigationStack {
             List {
-                Section(L("Allowed projects")) {
+                Section(L("Allowed Mesh spaces")) {
                     ForEach(projects) { snapshot in
                         Toggle(snapshot.project.name, isOn: projectBinding(snapshot.projectId))
                     }

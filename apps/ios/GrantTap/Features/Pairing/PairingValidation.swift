@@ -132,6 +132,7 @@ extension Pairing {
     }
 
     static func isValid(_ pairing: Pairing) -> Bool {
+        if let directory = pairing.directoryUrl, !isAllowedSocketRelay(directory) { return false }
         guard pairing.role == "phone",
               isAllowedSocketRelay(pairing.relayUrl),
               (16...64).contains(pairing.room.count),
@@ -142,9 +143,6 @@ extension Pairing {
               isValidKey(pairing.myPublicKey),
               isValidKey(pairing.mySecretKey),
               isValidKey(pairing.peerPublicKey) else { return false }
-        if let extras = pairing.extraPeerPublicKeys {
-            guard extras.count <= 16, extras.allSatisfy(isValidKey) else { return false }
-        }
         if let pushAuth = pairing.pushAuth {
             return pushAuth.count == 64 && pushAuth == pushAuth.lowercased()
                 && pushAuth.allSatisfy({ $0.isHexDigit })

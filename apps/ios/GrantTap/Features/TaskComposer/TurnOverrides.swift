@@ -118,15 +118,12 @@ struct TurnOverrides: Equatable {
     }
 
     /// Only send what the provider can actually act on.
-    ///
-    /// `advertised` is the host catalog. Passing it, even empty, means aliases
-    /// are labels only and must not become a route id.
-    func wire(for agent: String, advertised: [String]? = nil) -> (model: String?, permissionMode: String?, effort: String?) {
-        let models = advertised ?? TurnModel.supported(by: agent).map(\.rawValue)
+    func wire(for agent: String) -> (model: String?, permissionMode: String?, effort: String?) {
+        let models = TurnModel.supported(by: agent)
         let modes = TurnPermissionMode.supported(by: agent)
         let efforts = TurnEffort.supported(by: agent)
         return (
-            model.flatMap { models.contains($0.rawValue) ? $0.rawValue : nil },
+            model.flatMap { models.contains($0) ? $0.rawValue : nil },
             permissionMode.flatMap { modes.contains($0) ? $0.wireValue : nil },
             effort.flatMap { efforts.contains($0) ? $0.rawValue : nil }
         )

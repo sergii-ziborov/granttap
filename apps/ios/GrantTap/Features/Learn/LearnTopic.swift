@@ -39,7 +39,7 @@ enum LearnChapter: Identifiable, Equatable {
         switch self {
         case .start: return "Getting started"
         case .work: return "Working with an agent"
-        case .project: return "Projects and people"
+        case .project: return "Mesh and people"
         case .cost: return "What it costs"
         case .trust: return "What leaves your devices"
         }

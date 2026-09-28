@@ -26,7 +26,7 @@ enum TaskRoutePresentation {
                                 route: ChatComputerRoute?) -> String {
         var values: [String] = []
         if let project = project?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !project.isEmpty, project != "No project" {
+           !project.isEmpty, project != L("No repository") {
             values.append(project)
         }
         values.append(AgentIdentity.displayName(agent))

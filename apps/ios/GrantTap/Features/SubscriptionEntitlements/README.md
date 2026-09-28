@@ -7,7 +7,9 @@ chat text, agent credentials, pairing keys, or provider tokens.
 `SubscriptionProduct.swift` defines stable product identifiers and seat limits.
 `SubscriptionEntitlement.swift` reduces verified StoreKit state into the small
 policy state consumed by remote infrastructure. `SubscriptionStore.swift` is
-the StoreKit boundary. `SubscriptionView.swift` renders localized StoreKit
+the StoreKit boundary. `SubscriptionStoreEvidence.swift` uses verified cached
+transactions when product discovery is unavailable; successfully reported
+status, including revocation and billing retry, takes precedence over that cache. `SubscriptionView.swift` renders localized StoreKit
 prices and links to the public Terms and Privacy pages.
 
 Tests live in

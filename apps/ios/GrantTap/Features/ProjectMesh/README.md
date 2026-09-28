@@ -16,20 +16,47 @@ device-protected persistence, explicit cross-computer routing, handoff receipt
 verification, the compact Project view, Project management projections, and
 curated task timeline rows.
 
-Project management remains additive under the existing Project view. Governance,
-Members / Computers, and Mesh status reuse the native list language and never
-add a top-level dashboard. Governance becomes editable only after a linked
-endpoint reports the full canonical engine policy. The phone preserves custom
+The shared Mesh list groups Projects by reported repository identities from
+their canonical repository, scoped bindings, and their own Task executions.
+Historical executions retain those links. Shared non-canonical repositories
+also connect groups, while names, paths, and shared computers do not. Weavatrix
+relations with positive evidence produce Solution groups; repository membership
+alone produces linked groups. Every member retains its Project identity,
+navigation destination, Tasks, and access scope on Mac and iPad.
+
+A local parent workspace without confirmed Git identity does not connect its
+observed repositories into one linked group. `ProjectTaskRepositoryGroups`
+recomputes its Task sections on every snapshot: a confirmed owner repository
+wins, otherwise a single observed repository is used. Conflicting or multiple
+repositories remain in a distinct section, and Tasks without Git evidence stay
+under workspace Tasks. Git bindings and native worktree observations also
+recognize repositories without a remote or first commit. Names, prompt text,
+and parent-directory matches never assign a repository. These sections change
+presentation, not persisted Project membership or permissions.
+
+Project management remains under the existing Project view. Governance,
+Members / Computers, Graph, and Health are Project destinations. Graph is a
+full-screen SceneKit view: repository towers are connected only by the bounded
+WEAVATRIX edges reported in the Project snapshot. Health lists load and
+repository bindings, and opens its observed code map as full-screen code
+towers. A missing Engine report is shown as unavailable. Governance supports
+authoring the first policy at revision zero. Auto-accept opens a separate Action
+rules editor that preserves the Mesh's confirmed enforcement mode. The client preserves custom
 rules, sends one next-revision policy under each computer's Project key, and
 keeps showing the last confirmed state until the engine publishes its status.
 Coverage uses the exact states enforced, observed, unsupported, and unknown, so
 a provider without a deterministic hook is never presented as protected.
+The Mac applies policy and auto-accept through the installed local MCP runtime;
+known remote computers still receive the scoped policy through their relay rooms.
+Skill and MCP detail views match observed calls to the exact Mesh executions and
+computers. Installation and missing resource reports do not count as usage.
 
 Only bounded policy, member, binding, and status projections belong on iPhone.
 The protected Project Governance cache is separate from the hot Mesh snapshot,
 keeps at most 64 Projects, and never becomes the Project database.
 Binding rows deliberately omit `localPathHint`; absolute paths and the full
-Project graph or memory remain on their endpoint computers.
+endpoint graph or memory remain on their endpoint computers. The phone renders
+only the repository-level edges already present in its encrypted snapshot.
 
 Mesh traffic is task- or project-key encrypted. The phone grants a scope key to
 another linked computer only for an explicit destination. A handoff started in

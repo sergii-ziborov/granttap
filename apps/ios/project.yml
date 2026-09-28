@@ -3,12 +3,12 @@
 #   brew install xcodegen
 #   cd apps/ios && xcodegen generate && open GrantTap.xcodeproj
 #
-# Capabilities are deliberately narrow and mirror Apple documentation:
-# Push Notifications, Background Modes → Remote notifications, and Time
-# Sensitive Notifications. There is no Critical Alerts, VoIP, background audio,
-# location, App Groups, or other unrelated entitlement.
+# Mac sandbox grants network and user-selected files; the phone uses remote
+# notifications and Time Sensitive alerts. No unrelated background capability.
 
 name: GrantTap
+include:
+  - commerce-project.yml
 options:
   bundleIdPrefix: com.ziborov
   # Keep generated projects and schemes stable when opened by the App Store
@@ -49,8 +49,13 @@ targets:
     dependencies:
       - package: TweetNacl
       - target: GrantTapWatch   # creates the standard Embed Watch Content phase
-      - sdk: WebKit.framework
-      - sdk: PencilKit.framework
+        platformFilter: iOS    # watch companion is not embedded in Mac Catalyst
+    postBuildScripts:
+      - name: Embed Mac graph resources
+        path: ../macos/embed-graph-resources.sh
+        inputFiles: ["$(SRCROOT)/../macos/GraphWeb"]
+        outputFiles: ["$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/RepoLensGraph"]
+        basedOnDependencyAnalysis: false
     # A real Info.plist (not generated) because ATS needs a nested dictionary:
     # a self-hosted relay may sit on the local network over plain http/ws.
     info:
@@ -81,6 +86,7 @@ targets:
         # France excluded from availability, Apple requires no documentation,
         # so this encryption is exempt for the first release.
         ITSAppUsesNonExemptEncryption: false
+        GrantTapMacLicenseDistribution: app-store-unlock
         LSApplicationCategoryType: public.app-category.developer-tools
         NSHumanReadableCopyright: "© 2026 Serhii Ziborov. All rights reserved."
         CFBundleURLTypes:
@@ -100,8 +106,16 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap
         PRODUCT_NAME: GrantTap
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "112"
+        CURRENT_PROJECT_VERSION: "132"
         SWIFT_VERSION: "5.9"
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator macosx"
+        SUPPORTS_MACCATALYST: YES
+        "ENABLE_APP_SANDBOX[sdk=macosx*]": YES
+        "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": YES
+        "ENABLE_OUTGOING_NETWORK_CONNECTIONS[sdk=macosx*]": YES
+        "ENABLE_USER_SELECTED_FILES[sdk=macosx*]": readwrite
+        "ENABLE_AUDIO_INPUT[sdk=macosx*]": YES
+        "ENABLE_CAMERA[sdk=macosx*]": YES
         # Universal phone/tablet binary. iPad uses the same encrypted relay and
         # a stack-style navigation flow so split-view never opens a blank pane.
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -127,7 +141,6 @@ targets:
           CODE_SIGN_IDENTITY: Apple Development
         Release:
           APS_ENVIRONMENT: production
-          CODE_SIGN_IDENTITY: Apple Distribution
 
   # Modern single-target watchOS companion. Xcode 14+ combines the former
   # WatchKit app and extension into this one target. The iOS target embeds it
@@ -163,7 +176,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.watchkitapp
         PRODUCT_NAME: GrantTapWatch
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "112"
+        CURRENT_PROJECT_VERSION: "132"
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: XMS5ZC28UJ
@@ -176,8 +189,6 @@ targets:
           CODE_SIGN_IDENTITY: Apple Development
         LocalTest:
           CODE_SIGN_IDENTITY: Apple Development
-        Release:
-          CODE_SIGN_IDENTITY: Apple Distribution
 
   GrantTapTests:
     type: bundle.unit-test
@@ -186,6 +197,8 @@ targets:
       - path: GrantTapTests
         excludes:
           - "**/README.md"
+          - Features/DesktopLicensing/MacCommerceStoreKitTests.swift
+          - Features/DesktopLicensing/MacCommerce.storekit
     dependencies:
       - target: GrantTap
     settings:

@@ -1,0 +1,188 @@
+import SwiftUI
+import TweetNacl
+import XCTest
+@testable import GrantTap
+
+/// The screens, drawn to disk.
+///
+/// A simulator nobody can tap still runs tests, so the screens that matter
+/// are rendered here into PNG files for a person to look at — at the size of
+/// an iPhone 16 Pro Max, which is what the store and the website show — only
+/// when `GRANTTAP_SNAPSHOT_DIR` names where to put them. Otherwise snapshots
+/// are saved in the test app's temporary directory for simulator inspection.
+@MainActor
+final class DesignSnapshotTests: XCTestCase {
+    private let now = Date().timeIntervalSince1970 * 1_000
+
+    override func setUp() {
+        super.setUp()
+        ProjectMeshPersistence.clear()
+    }
+
+    override func tearDown() {
+        MemberLinkStore.remove()
+        CompanyAccountStore.remove()
+        ProjectMeshPersistence.clear()
+        super.tearDown()
+    }
+
+    private func pairing(role: String, room: String, name: String, hub: Bool? = nil) throws -> Pairing {
+        let me = try NaclBox.keyPair()
+        let peer = try NaclBox.keyPair()
+        return Pairing(relayUrl: "wss://relay.granttap.app", room: room, role: role, deviceName: name, senderId: "s",
+                       myPublicKey: me.publicKey.base64EncodedString(), mySecretKey: me.secretKey.base64EncodedString(),
+                       peerPublicKey: peer.publicKey.base64EncodedString(), hub: hub)
+    }
+
+    /// The demo phone, plus a Project shared with it by someone else and a
+    /// person it shares its own Project with.
+    private func demoModel() throws -> (AppModel, ownProject: String, sharedProject: String, link: MemberLink) {
+        let model = AppModel()
+        model.startDemo()
+        model.agentMeshPreferences.meshEnabled = true
+        let ownProject = try XCTUnwrap(model.meshSnapshots.keys.sorted().first)
+        let hubRoom = String(repeating: "c", count: 32)
+        let theirPhone = try pairing(role: "phone", room: hubRoom, name: "Olga's iPhone · Payments", hub: true)
+        model.connectionRegistry = ConnectionRegistryLogic.upsert(model.connectionRegistry, pairing: theirPhone, mode: .add, prefer: false)
+        let sharedProject = "shared-payments"
+        model.meshSnapshots[sharedProject] = ProjectMeshSnapshot(
+            type: "mesh.snapshot", sessionId: sharedProject, projectId: sharedProject,
+            project: ProjectMeshProject(projectId: sharedProject, name: "Payments", repositoryRoot: "/repo/payments",
+                                        canonicalRepositoryId: "github.com/example/payments", createdAt: now - 86_400_000),
+            tasks: [ProjectMeshTask(taskId: "pay-1", projectId: sharedProject, title: "Refund webhooks", goal: "Handle refund webhooks",
+                                    state: "working", ownerSessionId: "olga-chat", createdAt: now - 3_600_000, updatedAt: now - 60_000)],
+            executions: [ExecutionSessionLink(taskId: "pay-1", sessionId: "olga-chat", provider: "codex", computerId: "Olga's Mac",
+                                              workspace: "/repo/payments", startedAt: now - 3_600_000)],
+            claims: [], dependencies: [], events: [], generatedAt: now
+        )
+        model.meshProjectSourceRooms[sharedProject] = [hubRoom]
+        let linkRoom = String(repeating: "d", count: 32)
+        model.companyAccounts = [
+            CompanyAccount(id: "olga", name: "Olga", repositoryAccess: .all),
+            CompanyAccount(id: "maya", name: "Maya", repositoryAccess: .selected([model.meshSnapshots[ownProject]!.project.canonicalRepositoryId]))
+        ]
+        let link = MemberLink(
+            id: linkRoom, projectId: ownProject, name: "Olga", role: .member, rules: .preset(.member),
+            companyAccountId: "olga",
+            createdAt: now - 600_000, inviteExpiresAt: now + 300_000, joinedAt: now - 500_000, lastSeenAt: now - 30_000,
+            hubPairing: try pairing(role: "machine", room: linkRoom, name: "Hub")
+        )
+        model.memberLinks = [link]
+        model.memberLinkConnected.insert(link.id)
+        return (model, ownProject, sharedProject, link)
+    }
+
+    func testTheChangedScreensRenderAndAreKeptForALook() throws {
+        let (model, ownProject, sharedProject, link) = try demoModel()
+        let directory = ProcessInfo.processInfo.environment["GRANTTAP_SNAPSHOT_DIR"]
+            ?? FileManager.default.temporaryDirectory.appendingPathComponent("GrantTapScreenshots").path
+        let own = try XCTUnwrap(model.meshSnapshots[ownProject])
+        let shared = try XCTUnwrap(model.meshSnapshots[sharedProject])
+        let task = try XCTUnwrap(own.tasks.first { task in own.claims.contains { $0.taskId == task.taskId } } ?? own.tasks.first)
+        let runtimeKey = AppModel.invocationTaskKey(ownProject, task.taskId)
+        let runtimeCall = ProjectInvocationEvent(
+            event_id: "demo-request", invocation_id: "demo-call", project_id: ownProject,
+            task_id: task.taskId, execution_id: "demo-execution", provider: "claude",
+            native_call_id: "demo-native-call", session_id: task.ownerSessionId,
+            tool_name: "Edit", phase: "requested", source: "transcript",
+            occurred_at: now - 120_000, repository_id: own.project.canonicalRepositoryId,
+            worktree: nil, resource: "packages/pairing/src/handshake.ts", revision: nil,
+            content_hash: nil, capability_artifact_hash: nil, policy_revision: nil,
+            policy_rule_id: nil
+        )
+        let runtimeResult = ProjectInvocationEvent(
+            event_id: "demo-result", invocation_id: "demo-call", project_id: ownProject,
+            task_id: task.taskId, execution_id: "demo-execution", provider: "claude",
+            native_call_id: "demo-native-call", session_id: task.ownerSessionId,
+            tool_name: "Edit", phase: "reported_success", source: "transcript",
+            occurred_at: now - 119_000, repository_id: own.project.canonicalRepositoryId,
+            worktree: nil, resource: "packages/pairing/src/handshake.ts", revision: nil,
+            content_hash: nil, capability_artifact_hash: nil, policy_revision: nil,
+            policy_rule_id: nil
+        )
+        model.invocationHistoryByTask[runtimeKey] = [
+            .init(room: "demo", sequence: 1, event: runtimeCall),
+            .init(room: "demo", sequence: 2, event: runtimeResult),
+        ]
+        model.invocationAvailabilityByTask[runtimeKey] = "ready"
+        let session = try XCTUnwrap(model.sessions.first { $0.projectId == ownProject } ?? model.sessions.first)
+        let open: (SessionInfo) -> Void = { _ in }
+        let architecture = ProjectRepositoryGraph(
+            projectId: ownProject, repositoryId: own.project.canonicalRepositoryId,
+            revision: "snapshot-revision", weavatrixVersion: "2.17.4", analysisStatus: "COMPLETE",
+            nodes: [
+                .init(id: "app", kind: "workspace", label: "GrantTap"),
+                .init(id: "engine", kind: "package", label: "Engine"),
+                .init(id: "ios", kind: "component", label: "iPhone App"),
+                .init(id: "watch", kind: "component", label: "Watch"),
+            ], relations: [
+                .init(source: "app", target: "engine", relation: "owns", evidenceCount: 2),
+                .init(source: "ios", target: "engine", relation: "uses", evidenceCount: 3),
+                .init(source: "watch", target: "ios", relation: "depends_on", evidenceCount: 1),
+            ], totalNodes: 4, totalRelations: 3, truncated: false
+        )
+        let screens: [(String, AnyView)] = [
+            ("iphone-projects-shared", AnyView(NavigationView { ProjectsTabView(model: model) }.environmentObject(model))),
+            ("iphone-join-project", AnyView(PairingSheet(purpose: .joinProject).environmentObject(model))),
+            ("iphone-project-mesh", AnyView(NavigationView { ProjectMeshView(snapshot: own, model: model, onOpenSession: open) }.environmentObject(model))),
+            ("iphone-members", AnyView(NavigationView { ProjectMembersView(snapshot: own, model: model) }.environmentObject(model))),
+            ("iphone-company-accounts", AnyView(NavigationView { CompanyAccountsView(model: model) }.environmentObject(model))),
+            ("iphone-company-repositories", AnyView(NavigationView {
+                CompanyAccountDetailView(account: model.companyAccounts[1], model: model)
+            }.environmentObject(model))),
+            ("iphone-company-device-invite", AnyView(MemberInviteSheet(
+                projectId: "", model: model, initialAccountId: "olga"
+            ).environmentObject(model))),
+            ("iphone-members-shared", AnyView(NavigationView { ProjectMembersView(snapshot: shared, model: model) }.environmentObject(model))),
+            ("iphone-invite", AnyView(MemberInviteSheet(projectId: ownProject, model: model).environmentObject(model))),
+            ("iphone-member-detail", AnyView(NavigationView { MemberLinkDetailView(linkId: link.id, model: model) }.environmentObject(model))),
+            ("iphone-architecture-fullscreen", AnyView(ProjectArchitectureFullScreen(
+                report: architecture, repositoryName: "granttap"
+            ))),
+            ("iphone-restrictions", AnyView(NavigationView {
+                ProjectRestrictionsView(snapshot: own, model: model)
+            }.environmentObject(model))),
+            ("iphone-auto-accept-rules", AnyView(NavigationView {
+                ProjectAutoAcceptView(snapshot: own, model: model)
+            }.environmentObject(model))),
+            ("iphone-task-route", AnyView(TaskRouteView(route: TaskRoute(projectId: ownProject, taskId: task.taskId), model: model, onOpenSession: open).environmentObject(model))),
+            ("iphone-governance", AnyView(NavigationView { ProjectGovernanceView(project: own.project, model: model) }.environmentObject(model))),
+            ("iphone-handoff", AnyView(TaskHandoffSheet(session: session, model: model).environmentObject(model))),
+            ("iphone-report", AnyView(ReportExportSheet(report: model.report(for: .task(own, task))).environmentObject(model))),
+        ]
+        for (name, screen) in screens {
+            let image = Self.render(screen)
+            XCTAssertGreaterThan(image.pngData()?.count ?? 0, 8_000, name)
+            try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
+            try XCTUnwrap(image.pngData()).write(to: URL(fileURLWithPath: directory).appendingPathComponent("\(name).png"))
+        }
+        let compactGraph = Self.render(ProjectArchitectureFullScreen(
+            report: architecture, repositoryName: "granttap"
+        ), size: CGSize(width: 375, height: 812))
+        XCTAssertGreaterThan(compactGraph.pngData()?.count ?? 0, 8_000)
+        try XCTUnwrap(compactGraph.pngData()).write(to: URL(fileURLWithPath: directory)
+            .appendingPathComponent("iphone-architecture-compact.png"))
+    }
+
+    /// A screen as an iPhone 16 Pro Max would show it: laid out in a key
+    /// window in light style and drawn through the layer, which is what makes
+    /// SwiftUI paint into the image, at three pixels per point.
+    static func render<Content: View>(_ view: Content, size: CGSize = CGSize(width: 440, height: 956)) -> UIImage {
+        let host = UIHostingController(rootView: view)
+        let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+        window.overrideUserInterfaceStyle = .light
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        host.view.setNeedsLayout()
+        host.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.6))
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            window.layer.render(in: context.cgContext)
+        }
+        window.isHidden = true
+        window.rootViewController = nil
+        return image
+    }
+}

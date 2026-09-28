@@ -2,9 +2,102 @@ import Foundation
 
 enum AppModelDemoMeshFixtures {
     static let projectId = "granttap-project-demo"
+    static let linkedProjectId = "granttap-runtime-demo"
     static let releaseTaskId = "granttap-release-task-demo"
     static let pairingTaskId = "granttap-pairing-task-demo"
     static let previousClaudeSessionId = "granttap-claude-handoff-demo"
+
+    #if DEBUG
+    static func linkedSnapshot(at now: Double) -> ProjectMeshSnapshot {
+        ProjectMeshSnapshot(
+            type: "mesh.snapshot", sessionId: linkedProjectId, projectId: linkedProjectId,
+            project: .init(projectId: linkedProjectId, name: "GrantTap MCP",
+                           repositoryRoot: "/Users/reviewer/granttap-mcp",
+                           canonicalRepositoryId: "github.com/sergii-ziborov/granttap-mcp",
+                           createdAt: now - 3_600_000),
+            tasks: [], executions: [], claims: [], dependencies: [], events: [], generatedAt: now
+        )
+    }
+    #endif
+
+    static func architectureGraph() -> ProjectRepositoryGraph {
+        let nodes: [ProjectRepositoryGraph.Node] = [
+            .init(id: "app", kind: "workspace", label: "GrantTap"),
+            .init(id: "ios", kind: "package", label: "iPhone App"),
+            .init(id: "watch", kind: "package", label: "Watch"),
+            .init(id: "engine", kind: "component", label: "Engine"),
+            .init(id: "relay", kind: "component", label: "Relay"),
+        ]
+        let relations: [ProjectRepositoryGraph.Relation] = [
+            .init(source: "app", target: "ios", relation: "owns", evidenceCount: 1),
+            .init(source: "app", target: "watch", relation: "owns", evidenceCount: 1),
+            .init(source: "ios", target: "engine", relation: "uses", evidenceCount: 2),
+            .init(source: "watch", target: "relay", relation: "uses", evidenceCount: 1),
+        ]
+        var report = ProjectRepositoryGraph(
+            projectId: projectId, repositoryId: "github.com/sergii-ziborov/granttap",
+            revision: "demo-revision", weavatrixVersion: "2.17.4", analysisStatus: "COMPLETE",
+            nodes: nodes, relations: relations, totalNodes: nodes.count,
+            totalRelations: relations.count, truncated: false
+        )
+        let files: [ProjectCodeMap.File] = [
+            .init(path: "apps/ios/GrantTap/ContentView.swift", language: "swift", lineCount: 420,
+                  symbols: [.init(id: "content", label: "ContentView", kind: "struct",
+                                  startLine: 12, lineCount: 160)]),
+            .init(path: "apps/ios/GrantTap/ProjectView.swift", language: "swift", lineCount: 275,
+                  symbols: [.init(id: "project", label: "ProjectView", kind: "struct",
+                                  startLine: 9, lineCount: 140)]),
+            .init(path: "apps/ios/GrantTap/HealthView.swift", language: "swift", lineCount: 180,
+                  symbols: [.init(id: "health", label: "HealthView", kind: "struct",
+                                  startLine: 7, lineCount: 90)]),
+            .init(path: "apps/watch/WatchHome.swift", language: "swift", lineCount: 155,
+                  symbols: [.init(id: "watch-home", label: "WatchHome", kind: "struct",
+                                  startLine: 5, lineCount: 90)]),
+            .init(path: "runtime/engine/project.rs", language: "rust", lineCount: 380,
+                  symbols: [.init(id: "project-runtime", label: "ProjectRuntime", kind: "struct",
+                                  startLine: 20, lineCount: 130)]),
+            .init(path: "runtime/engine/graph.rs", language: "rust", lineCount: 315,
+                  symbols: [.init(id: "graph-runtime", label: "analyze", kind: "function",
+                                  startLine: 14, lineCount: 120)]),
+            .init(path: "runtime/bridge/mesh.ts", language: "typescript", lineCount: 240,
+                  symbols: [.init(id: "mesh-runtime", label: "publishSnapshot", kind: "function",
+                                  startLine: 17, lineCount: 85)]),
+            .init(path: "runtime/bridge/policy.ts", language: "typescript", lineCount: 190,
+                  symbols: [.init(id: "policy-runtime", label: "effectiveAction", kind: "function",
+                                  startLine: 11, lineCount: 65)]),
+            .init(path: "README.md", language: "markdown", lineCount: 96, symbols: []),
+        ]
+        report.codeMap = ProjectCodeMap(files: files,
+            externals: [.init(id: "ext:relay", label: "Relay service", kind: "service")], roads: [
+            .init(source: files[0].path, target: files[6].path, relation: "calls"),
+            .init(source: files[1].path, target: files[4].path, relation: "calls"),
+            .init(source: files[2].path, target: files[5].path, relation: "calls"),
+            .init(source: files[4].path, target: files[5].path, relation: "imports"),
+            .init(source: files[6].path, target: files[7].path, relation: "imports"),
+            .init(source: files[2].path, target: "ext:relay", relation: "consumes"),
+        ], totalFiles: files.count, totalExternals: 1, truncated: false)
+        return report
+    }
+
+    #if DEBUG
+    static func largeArchitectureGraph() -> ProjectRepositoryGraph {
+        var report = architectureGraph()
+        report.analysisStatus = "INCOMPLETE"
+        let files = (0..<650).map { index in
+            ProjectCodeMap.File(
+                path: "apps/ios/GrantTap/Features/Area\(index / 25)/Source\(index).swift",
+                language: "swift", lineCount: 20 + index, symbols: []
+            )
+        }
+        let roads = (0..<75).map { index in
+            ProjectCodeMap.Road(source: files[index].path, target: files[index + 1].path,
+                                relation: "imports")
+        }
+        report.codeMap = ProjectCodeMap(files: files, roads: roads, totalFiles: 653,
+                                        truncated: true)
+        return report
+    }
+    #endif
 
     static func snapshot(at now: Double) -> ProjectMeshSnapshot {
         let capsule = TaskCapsule(
@@ -36,29 +129,17 @@ enum AppModelDemoMeshFixtures {
             bindings: [
                 .init(
                     bindingId: "demo-ios-binding", projectId: projectId,
-                    endpointId: "MacBook", repositoryId: "granttap",
+                    endpointId: "MacBook",
+                    repositoryId: "github.com/sergii-ziborov/granttap",
                     displayName: "GrantTap iPhone", available: true,
                     revision: String(repeating: "b", count: 40)
                 ),
                 .init(
                     bindingId: "demo-runtime-binding", projectId: projectId,
-                    endpointId: "Workstation", repositoryId: "granttap-mcp",
+                    endpointId: "Workstation",
+                    repositoryId: "github.com/sergii-ziborov/granttap-mcp",
                     displayName: "GrantTap MCP", available: true,
                     revision: String(repeating: "d", count: 40)
-                ),
-            ],
-            skills: [
-                SharedSkill(
-                    name: "release-check",
-                    description: "Run the repository release checklist",
-                    version: "1.0",
-                    digest: String(repeating: "a", count: 64),
-                    source: "repo", state: "installed"
-                ),
-                SharedSkill(
-                    name: "ios-qa",
-                    description: "Verify the iPhone and Apple Watch apps",
-                    version: "1.1", source: "repo", state: "available"
                 ),
             ],
             tasks: [

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'">
+  <title>Mesh graph</title>
+  <link rel="stylesheet" href="scene.css">
+  <style>
+    html,body,#graph{width:100%;height:100%;margin:0;overflow:hidden;background:#060a10}
+    #empty{display:grid;position:absolute;inset:0;place-items:center;color:#a2b7c7;font:15px -apple-system,sans-serif}
+  </style>
+  <script type="importmap">
+    {"imports":{"three":"./three/three.module.js","three/addons/controls/OrbitControls.js":"./three/addons/controls/OrbitControls.js","three/addons/renderers/CSS2DRenderer.js":"./three/addons/renderers/CSS2DRenderer.js"}}
+  </script>
+  <script>
+    window.graphFailure = () => {
+      const message = document.getElementById('empty');
+      if (message) {
+        message.textContent = 'The graph could not be displayed. Reopen this Mesh and try again.';
+        message.style.display = 'grid';
+      }
+    };
+    window.addEventListener('error', window.graphFailure);
+    window.setMeshReports = encoded => {
+      try { window.meshReports = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), c => c.charCodeAt(0)))); }
+      catch { window.graphFailure(); return; }
+      window.mountMeshGraph?.();
+      setTimeout(() => { if (!window.mountMeshGraph) window.graphFailure(); }, 10000);
+    };
+  </script>
+</head>
+<body>
+  <div id="graph"></div>
+  <div id="empty">Loading Mesh graph…</div>
+  <script type="module" src="./mesh-graph.js"></script>
+</body>
+</html>

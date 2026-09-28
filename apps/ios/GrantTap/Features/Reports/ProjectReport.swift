@@ -193,7 +193,7 @@ enum ReportBuilder {
         switch scope {
         case .project(let snapshot):
             let computers = ProjectManagePresentation.endpointIds(snapshot).map(computerName)
-            return [L("Project report"), computers.isEmpty ? nil : computers.joined(separator: ", ")]
+            return [L("Chat report"), computers.isEmpty ? nil : computers.joined(separator: ", ")]
                 .compactMap { $0 }.joined(separator: " · ")
         case .task(let snapshot, _):
             return "\(L("Task report")) · \(projectName(snapshot))"

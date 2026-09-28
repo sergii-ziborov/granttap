@@ -23,6 +23,10 @@ struct LearnView: View {
 
     var body: some View {
         List {
+            #if targetEnvironment(macCatalyst)
+            TextField(L("Search"), text: $search)
+                .accessibilityIdentifier("learn.search")
+            #endif
             Section {
                 Text(L("GrantTap is the yes, the no, the answer, and the next message — for coding agents that run on your own computers. These pages say how each part of that works, and what it deliberately does not do."))
                     .font(.system(size: 14))
@@ -45,8 +49,10 @@ struct LearnView: View {
                 CompatEmptyState(title: "Nothing here matches that", systemImage: "magnifyingglass")
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .searchable(text: $search, prompt: Text(L("Search")))
-        .navigationTitle(L("Learn"))
+        #endif
+        .pageNavigationTitle(L("Learn"))
     }
 
     private func row(_ topic: LearnTopic) -> some View {
@@ -86,7 +92,7 @@ struct LearnTopicView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(Theme.bg)
-        .navigationTitle(L(topic.title))
+        .pageNavigationTitle(L(topic.title))
         .navigationBarTitleDisplayMode(.inline)
     }
 

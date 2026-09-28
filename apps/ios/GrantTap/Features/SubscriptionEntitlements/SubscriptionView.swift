@@ -50,7 +50,7 @@ struct SubscriptionView: View {
             }
 
         }
-        .navigationTitle(L("Subscription"))
+        .pageNavigationTitle(L("Subscription"))
         .task { await store.start() }
         .overlay {
             if store.purchaseInProgress { ProgressView().controlSize(.large) }

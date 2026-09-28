@@ -13,15 +13,20 @@ extension TaskRouteView {
                 Text(runtimeEmptyMessage)
                     .font(.caption).foregroundStyle(Theme.muted)
             }
-            ForEach(Array(records.suffix(20).reversed())) { row in
+            ForEach(Array(records.reversed())) { row in
                 runtimeRow(row)
             }
             if model.hasOlderInvocations(projectId: route.projectId, taskId: route.taskId) {
-                Button(L("Show older activity")) {
-                    model.requestInvocationHistory(
-                        projectId: route.projectId, taskId: route.taskId, older: true
-                    )
-                }
+                ProgressView(L("Loading older activity…"))
+                    .font(.caption)
+                    .onAppear {
+                        model.requestInvocationHistory(
+                            projectId: route.projectId, taskId: route.taskId, older: true
+                        )
+                    }
+                    .id(model.olderInvocationPageKey(
+                        projectId: route.projectId, taskId: route.taskId
+                    ))
             }
         } header: {
             HStack {
@@ -42,7 +47,7 @@ extension TaskRouteView {
     private var runtimeEmptyMessage: String {
         switch model.invocationAvailabilityByTask[runtimeKey] {
         case "unavailable": return L("Runtime history is unavailable on this computer.")
-        case "offline": return L("Connect a project computer to load runtime history.")
+        case "offline": return L("Connect a computer to load runtime history.")
         case "ready": return L("No observed tool calls for this task yet.")
         default: return L("Loading runtime activity…")
         }
@@ -88,7 +93,7 @@ extension TaskRouteView {
                     .font(.caption2).foregroundStyle(Theme.muted)
             }
             if event.phase == "denied", let rule = event.policy_rule_id {
-                Text(String(format: L("Project rule: %@"), rule))
+                Text(String(format: L("Mesh rule: %@"), rule))
                     .font(.caption2).foregroundStyle(Theme.muted)
             }
             if chatAvailable {

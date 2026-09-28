@@ -1,0 +1,38 @@
+{
+  "identifier" : "E55DA0F7-102F-4E1D-90F7-574AC86EF15E",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "39.99",
+      "familyShareable" : false,
+      "internalID" : "mac-license",
+      "localizations" : [
+        { "description" : "Permanent Mac license, including personal self-hosting.", "displayName" : "GrantTap Mac License", "locale" : "en_US" }
+      ],
+      "productID" : "com.ziborov.granttap.mac.license",
+      "referenceName" : "GrantTap Mac License",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : { "_failTransactionsEnabled" : false, "_locale" : "en_US", "_storefront" : "USA" },
+  "subscriptionGroups" : [
+    {
+      "id" : "personal",
+      "localizations" : [],
+      "name" : "Personal",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [], "codeOffers" : [], "displayPrice" : "1.99", "familyShareable" : false,
+          "groupNumber" : 1, "internalID" : "personal-one", "introductoryOffer" : null,
+          "localizations" : [
+            { "description" : "Managed relay for one computer.", "displayName" : "Personal 1", "locale" : "en_US" }
+          ],
+          "productID" : "com.ziborov.granttap.personal.solo.monthly",
+          "recurringSubscriptionPeriod" : "P1M", "referenceName" : "Personal 1",
+          "subscriptionGroupID" : "personal", "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : { "major" : 3, "minor" : 0 }
+}

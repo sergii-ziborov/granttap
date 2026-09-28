@@ -15,3 +15,7 @@ implementation detail.
 Decoder compatibility and malformed-wire behavior are covered in
 `GrantTapTests/SessionCatalogTests.swift` and `GrantTapTests/AppRuntimeTests.swift`.
 Run the shared `GrantTap` scheme to compile the iPhone, Watch, and XCTest targets.
+
+`Session/ProviderHooks.swift` mirrors optional native hook metadata and scoped
+review requests/results. Older computer catalogs decode without these fields;
+configuration alone does not imply native trust, enabling, or confirmed usage.

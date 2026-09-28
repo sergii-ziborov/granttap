@@ -30,7 +30,7 @@ struct WorkspacePickerSheet: View {
                 }
                 Section {
                     if matches.isEmpty {
-                        Text(L("No project matches this search."))
+                        Text(L("No folder matches this search."))
                             .foregroundStyle(Theme.muted)
                     } else {
                         ForEach(matches, id: \.self) { path in
@@ -43,8 +43,8 @@ struct WorkspacePickerSheet: View {
                     Text(String(format: L("%d of %d folders"), matches.count, workspaces.count))
                 }
             }
-            .searchable(text: $query, prompt: Text(L("Search projects")))
-            .navigationTitle(L("Project"))
+            .searchable(text: $query, prompt: Text(L("Search folders")))
+            .navigationTitle(L("Agent folders"))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L("Done")) { dismiss() }
@@ -62,7 +62,7 @@ struct WorkspacePickerSheet: View {
                 Image(systemName: path == nil ? "square.dashed" : "folder.fill")
                     .foregroundStyle(Theme.muted)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(path.map(Self.name) ?? L("No project"))
+                    Text(path.map(Self.name) ?? L("No folder selected"))
                         .foregroundStyle(Theme.ink)
                     if let parent = path.flatMap(Self.parent) {
                         Text(parent).font(.caption).foregroundStyle(Theme.muted)

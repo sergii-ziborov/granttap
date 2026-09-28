@@ -1,0 +1,150 @@
+import SwiftUI
+
+struct SettingsView: View {
+    @EnvironmentObject private var environmentModel: AppModel
+    var modelOverride: AppModel?
+    var localComputer: String?
+    var localPaired: Bool?
+    var localRelayStatus: String?
+    var localPhoneReachability: String?
+    var onExitDemo: () -> Void
+    var model: AppModel { modelOverride ?? environmentModel }
+    @AppStorage(AppLocale.storageKey) private var language = "en"
+    @State private var showForgetConfirmation = false
+    @State private var showPairing = false
+    @State private var showControllerInvite = false
+
+    private let links = GrantTapLinks.all
+
+    init(modelOverride: AppModel? = nil, localComputer: String? = nil,
+         localPaired: Bool? = nil, localRelayStatus: String? = nil,
+         localPhoneReachability: String? = nil,
+         onExitDemo: @escaping () -> Void = {}) {
+        self.modelOverride = modelOverride
+        self.localComputer = localComputer
+        self.localPaired = localPaired
+        self.localRelayStatus = localRelayStatus
+        self.localPhoneReachability = localPhoneReachability
+        self.onExitDemo = onExitDemo
+    }
+
+    var body: some View {
+        List {
+            #if targetEnvironment(macCatalyst)
+            MacLocalMCPSettingsSection(
+                computer: localComputer, paired: localPaired,
+                relayStatus: localRelayStatus,
+                phoneReachability: localPhoneReachability
+            )
+            #else
+            SettingsConnectionSection(
+                onPair: { showPairing = true },
+                onInviteController: { showControllerInvite = true },
+                onForgetAll: { showForgetConfirmation = true },
+                localComputer: localComputer
+            )
+            #endif
+
+            AgentsMeshSettingsSection(model: model)
+
+            Section(L("Company")) {
+                NavigationLink {
+                    CompanyAccountsView(model: model)
+                } label: {
+                    Label(L("Company accounts & repositories"), systemImage: "person.2.badge.key")
+                }
+                .accessibilityIdentifier("settings.company-accounts")
+            }
+
+            SettingsSecuritySection()
+
+            Section(L("Subscription")) {
+                #if targetEnvironment(macCatalyst)
+                NavigationLink {
+                    DesktopLicenseView()
+                } label: {
+                    Label(L("Mac license"), systemImage: "checkmark.seal")
+                }
+                .accessibilityIdentifier("settings.mac-license")
+                #endif
+                NavigationLink {
+                    SubscriptionView()
+                } label: {
+                    Label(L("Manage subscription"), systemImage: "creditcard")
+                }
+            }
+
+            helpSection
+
+            Section {
+                NavigationLink {
+                    TroubleshootingView().environmentObject(model)
+                } label: {
+                    Label(L("Troubleshooting"), systemImage: "wrench.and.screwdriver")
+                }
+            }
+
+            if model.demoMode {
+                Section {
+                    Button(L("Exit Demo"), role: .destructive) {
+                        model.stopDemo()
+                        onExitDemo()
+                    }
+                } footer: {
+                    Text(L("Demo uses sample data and never executes a command."))
+                }
+            }
+        }
+        .pageNavigationTitle(L("Settings"), showsBack: false)
+        .accessibilityIdentifier("settings.page")
+        #if targetEnvironment(macCatalyst)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .sheet(isPresented: $showPairing) { PairingSheet().environmentObject(model) }
+        .sheet(isPresented: $showControllerInvite) {
+            ControllerNetworkInviteSheet().environmentObject(model)
+        }
+        .confirmationDialog(L("Unlink all computers?"),
+                            isPresented: $showForgetConfirmation,
+                            titleVisibility: .visible) {
+            Button(L("Unlink all"), role: .destructive) { model.forgetPairing() }
+            Button(L("Cancel"), role: .cancel) {}
+        } message: {
+            Text(L("This removes every linked computer and local session state from this iPhone."))
+        }
+    }
+
+    private var helpSection: some View {
+    Section(L("Help & About")) {
+        // How the whole thing works, in the app rather than only
+        // on the website.
+        NavigationLink {
+            LearnView()
+        } label: {
+            Label(L("Learn"), systemImage: "book")
+        }
+        .accessibilityIdentifier("settings.open-learn")
+        Picker(L("Language"), selection: $language) {
+            Text(L("English")).tag("en")
+            Text(L("Русский")).tag("ru")
+        }
+        NavigationLink {
+            AboutGrantTapView()
+        } label: {
+            Label(L("About GrantTap"), systemImage: "info.circle")
+        }
+        ForEach(Array(links.enumerated()), id: \.offset) { _, item in
+            if let url = URL(string: item.1) {
+                Link(destination: url) {
+                    HStack {
+                        Text(L(item.0))
+                        Spacer()
+                        Image(systemName: "arrow.up.right").foregroundStyle(Theme.muted)
+                    }
+                }
+            }
+        }
+        CompatLabeledContent(L("Version"), value: AppVersion.display)
+    }
+    }
+}

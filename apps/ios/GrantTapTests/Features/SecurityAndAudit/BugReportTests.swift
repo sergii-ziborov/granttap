@@ -19,7 +19,7 @@ final class BugReportTests: XCTestCase {
         XCTAssertTrue(text.contains("GrantTap 1.0.0 (54)"))
         XCTAssertTrue(text.contains("Linked computers: 2"))
         XCTAssertTrue(text.contains("Live tasks: 3"))
-        XCTAssertTrue(text.contains("Projects reporting policy: 1"))
+        XCTAssertTrue(text.contains("Mesh spaces reporting policy: 1"))
     }
 
     func testTheReportCarriesNothingSecret() {

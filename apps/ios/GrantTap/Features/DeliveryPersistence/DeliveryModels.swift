@@ -14,20 +14,19 @@ struct OutgoingDelivery: Codable, Identifiable {
     /// Authenticated relay room selected when the message was created.
     /// Optional only so pre-room-pinning persisted rows can migrate safely.
     var roomId: String? = nil
-    /// Project this new chat was opened from. Follow-ups and home compose omit it.
-    var projectId: String? = nil
     var attachments: [UserAttachment]
     /// Attachments that went ahead of this message; sent by id while they
     /// stand, sent inline again when the computer says one never came.
     var attachmentRefs: [UserAttachmentRef]? = nil
     let preferredMcp: String?
     let skill: String?
+    var projectId: String? = nil
     /// Chosen for this turn; nil keeps whatever the chat already uses. Optional
     /// so rows persisted before the choice existed still decode.
     var model: String? = nil
     var permissionMode: String? = nil
     var effort: String? = nil
-    let createdAt: Double
+    var createdAt: Double
     var updatedAt: Double
     var attempts: Int
     var state: DeliveryState
@@ -50,6 +49,9 @@ struct OutgoingDelivery: Codable, Identifiable {
     /// originating new task reports its provider-native session id. Persist this
     /// so relaunch/reconnect never turns that follow-up into a second new task.
     var awaitingSessionRemap: Bool? = nil
+    /// Present only for an explicit follow-up queue. Waiting rows have never
+    /// been submitted to the provider; cancellation is therefore local and exact.
+    var chatQueue: ChatMessageQueueContext? = nil
 }
 
 enum DeliveryOutboxPolicy {

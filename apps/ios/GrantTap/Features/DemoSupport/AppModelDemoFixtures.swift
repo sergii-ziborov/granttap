@@ -10,6 +10,25 @@ enum AppModelDemoFixtures {
         let delivery: OutgoingDelivery
     }
 
+    #if DEBUG
+    static func scrollActivity(at now: Double) -> SessionActivity {
+        let explanation = String(repeating: "A completed step with enough detail to scroll through.\n", count: 35)
+        return SessionActivity(
+            sessionId: codexSessionId, agent: "codex", state: "waiting", entries: [
+                ActivityEntry(id: "scroll-first", kind: "user", text: "First question", createdAt: now - 60_000),
+                ActivityEntry(id: "scroll-first-answer", kind: "message", text: explanation,
+                              createdAt: now - 50_000),
+                ActivityEntry(id: "scroll-second", kind: "user", text: "Second question", createdAt: now - 40_000),
+                ActivityEntry(id: "scroll-second-answer", kind: "message", text: explanation,
+                              createdAt: now - 30_000),
+                ActivityEntry(id: "scroll-third", kind: "user", text: "Third question", createdAt: now - 20_000),
+                ActivityEntry(id: "scroll-third-answer", kind: "message", text: explanation,
+                              createdAt: now - 10_000),
+            ], generatedAt: now
+        )
+    }
+    #endif
+
     /// A real local-delivery shape for screenshot and preview regression checks.
     /// The bytes are generated locally and never contain user data.
     static func chatCapture(at now: Double) -> ChatCapture {

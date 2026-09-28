@@ -32,15 +32,14 @@ extension SessionCatalogTests {
             tokensLastTurn: maximumWireInteger
         )
 
-        SessionCatalogCache.save(
+        SessionCatalogCache.save(.init(
             sessions: [session],
             history: [],
             machine: "Mac",
             tokensRecent: maximumWireInteger,
             tokenWindowHours: maximumWireInteger,
-            generatedAt: 3,
-            storageDirectory: storage
-        )
+            generatedAt: 3
+        ), storageDirectory: storage)
         let snapshot = try XCTUnwrap(
             SessionCatalogCache.load(storageDirectory: storage)
         )
@@ -285,4 +284,13 @@ extension SessionCatalogTests {
         XCTAssertNil(minimal.childThreads)
     }
 
+    func testLastMessageTimeSurvivesWireRoundTripWithoutChangingActivityTime() throws {
+        let json = #"{"sessionId":"chat","agent":"codex","state":"idle","startedAt":500,"lastActivityAt":2000,"lastMessageAt":1000,"tokensSession":0,"tokensLastTurn":0}"#
+        let session = try JSONDecoder().decode(SessionInfo.self, from: Data(json.utf8))
+        XCTAssertEqual(session.lastMessageAt, 1000)
+        XCTAssertEqual(session.lastActivityAt, 2000)
+        let restored = try JSONDecoder().decode(SessionInfo.self, from: JSONEncoder().encode(session))
+        XCTAssertEqual(restored.lastMessageAt, 1000)
+        XCTAssertEqual(restored.lastActivityAt, 2000)
+    }
 }

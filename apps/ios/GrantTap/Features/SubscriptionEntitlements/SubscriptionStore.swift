@@ -7,6 +7,7 @@ final class SubscriptionStore: ObservableObject {
     static let shared = SubscriptionStore()
 
     typealias ProductLoader = () async throws -> [Product]
+    typealias SnapshotLoader = ([Product]) async throws -> [SubscriptionStatusSnapshot]
     typealias StoreSync = () async throws -> Void
     typealias ManageSubscriptions = (UIWindowScene) async throws -> Void
 
@@ -33,6 +34,7 @@ final class SubscriptionStore: ObservableObject {
 
     private var observer: Task<Void, Never>?
     private let productLoader: ProductLoader
+    private let snapshotLoader: SnapshotLoader
     private let storeSync: StoreSync
     private let manageSubscriptions: ManageSubscriptions
 
@@ -44,6 +46,7 @@ final class SubscriptionStore: ObservableObject {
         productLoader: @escaping ProductLoader = {
             try await Product.products(for: SubscriptionProduct.allCases.map(\.rawValue))
         },
+        snapshotLoader: @escaping SnapshotLoader = { await SubscriptionStoreEvidence.load($0) },
         storeSync: @escaping StoreSync = { try await AppStore.sync() },
         manageSubscriptions: @escaping ManageSubscriptions = {
             try await AppStore.showManageSubscriptions(in: $0)
@@ -53,6 +56,7 @@ final class SubscriptionStore: ObservableObject {
         self.availability = availability
         self.lastError = lastError
         self.productLoader = productLoader
+        self.snapshotLoader = snapshotLoader
         self.storeSync = storeSync
         self.manageSubscriptions = manageSubscriptions
         if startObserving {
@@ -87,19 +91,12 @@ final class SubscriptionStore: ObservableObject {
     }
 
     func refresh() async {
-        var snapshots: [SubscriptionStatusSnapshot] = []
-        for product in products {
-            guard let localProduct = SubscriptionProduct(rawValue: product.id),
-                  let subscription = product.subscription else { continue }
-            do {
-                for status in try await subscription.status {
-                    snapshots.append(Self.snapshot(status, product: localProduct))
-                }
-            } catch {
-                lastError = error.localizedDescription
-            }
+        do {
+            entitlement = SubscriptionEntitlement.reduce(try await snapshotLoader(products), now: Date())
+        } catch {
+            entitlement = .unavailable
+            lastError = error.localizedDescription
         }
-        entitlement = SubscriptionEntitlement.reduce(snapshots, now: Date())
     }
 
     func purchase(_ product: Product) async {
@@ -165,7 +162,7 @@ final class SubscriptionStore: ObservableObject {
 
     func clearError() { lastError = nil }
 
-    private static func snapshot(
+    static func snapshot(
         _ status: Product.SubscriptionInfo.Status,
         product: SubscriptionProduct
     ) -> SubscriptionStatusSnapshot {

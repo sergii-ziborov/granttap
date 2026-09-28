@@ -26,7 +26,7 @@ extension AppModel {
             persistMeshState()
         }
         sendGrokBotPolicy()
-        AuditStore.shared.record("mesh", detail: enabled ? "Project Mesh enabled" : "Project Mesh disabled")
+        AuditStore.shared.record("mesh", detail: enabled ? "Mesh enabled" : "Mesh disabled")
     }
 
     func providerDisableRequiresConfirmation(_ provider: String) -> Bool {

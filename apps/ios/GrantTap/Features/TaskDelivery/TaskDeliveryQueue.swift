@@ -5,8 +5,10 @@ enum TaskDeliveryQueue {
 
     static func oldestFirst(_ deliveries: [OutgoingDelivery]) -> [OutgoingDelivery] {
         deliveries.sorted {
-            if $0.createdAt == $1.createdAt { return $0.id < $1.id }
-            return $0.createdAt < $1.createdAt
+            let first = $0.chatQueue?.queuedAt ?? $0.createdAt
+            let second = $1.chatQueue?.queuedAt ?? $1.createdAt
+            if first == second { return $0.id < $1.id }
+            return first < second
         }
     }
 

@@ -1,17 +1,54 @@
-GrantTap Proprietary License
+GrantTap Commercial Source License 1.0
+Effective September 28, 2026
 
 Copyright (c) 2026 Serhii Ziborov. All rights reserved.
 
-The GrantTap iPhone and Apple Watch application, desktop product,
-artwork, and source code in this repository are proprietary. No
-permission is granted to copy, modify, distribute, sublicense, sell, publish,
-or create derivative works from them except with prior written permission from
-the copyright holder.
+This license covers the first-party source code, documentation, and original
+assets distributed with it in this repository (the "Software"). It is a
+source-available commercial license, not an open-source license. Third-party
+components and materials retain their own licenses and notices.
 
-Public supporting projects are licensed separately in their own repositories:
+1. Evaluation grant. You may access, copy, build, run, and privately modify the
+Software solely to evaluate, test, and audit it for your own use. This grant
+does not permit production use, providing a service to others, or distributing
+the Software or a modified version. Keep copyright and license notices in
+every evaluation copy.
 
-- granttap-mcp — MIT License
-- granttap-relay — MIT License
-- granttap-site — MIT License
+2. Commercial use. Production use and distribution require a separate written
+commercial agreement or an applicable end-user license issued by the copyright
+holder. An App Store purchase is governed by the applicable App Store license;
+the directly distributed macOS app has its own Desktop end-user license. A
+purchase or subscription does not license this source code unless its written
+terms expressly say so.
 
-Third-party components remain subject to their respective licenses.
+A purchased Mac app is additionally governed by apps/macos/DESKTOP_EULA.md.
+The app license includes the personal/internal own-relay grant described there;
+this does not grant redistribution of first-party app source or binaries.
+
+3. Restrictions. Except where applicable law expressly permits otherwise, you
+may not publish, sell, sublicense, redistribute, or make the Software available
+to third parties; use it to operate a hosted service; remove legal notices; or
+circumvent a license or security control. No trademark rights are granted.
+
+4. Ownership and data. The copyright holder retains all rights in the Software
+not expressly granted here. You retain your rights in your own projects, code,
+prompts, records, and other data processed with the Software. This license
+does not grant access to any Project, device, account, or third-party service.
+
+5. Duration. The evaluation grant lasts until you stop using the Software or
+materially breach these terms. On termination, stop using and distributing any
+evaluation copies. A separate paid end-user license controls the duration of
+paid use and is not cancelled merely because this source license changes.
+
+6. Warranty and liability. To the maximum extent permitted by applicable law,
+evaluation copies are provided "as is", without warranties of any kind. The
+copyright holder is not liable for indirect or consequential loss arising from
+evaluation use. This section does not limit non-waivable consumer rights or
+liability that applicable law does not allow to be limited.
+
+7. Earlier licenses. A copy validly received under a different license remains
+subject to that license. This version does not withdraw permissions previously
+granted for those copies. In particular, granttap-mcp remains separately
+licensed under MIT in its own repository.
+
+For a commercial source license, contact sergii.ziborov@gmail.com.

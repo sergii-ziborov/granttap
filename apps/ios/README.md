@@ -1,7 +1,7 @@
-# GrantTap for iPhone, iPad, and Apple Watch
+# Shared GrantTap client for Mac, iPhone, iPad, and Apple Watch
 
 Subscription purchase, restore, management, verified entitlement reduction,
-and the future local-network boundary are documented in
+and direct/self-hosted connection modes are documented in
 [`../../docs/subscriptions.md`](../../docs/subscriptions.md). Storefront prices
 come from StoreKit; the app does not hardcode a purchase price.
 
@@ -32,23 +32,29 @@ the same audio and preserves time-aligned English technology names in Russian
 speech. Apple Watch uses the system dictation UI, whose locale the app cannot
 change programmatically, then locally normalizes common English technology names.
 
-The source is public under the separate GrantTap commercial source license. The
-App Store distribution remains a separate, subscription-backed product.
+The source is public under the separate [GrantTap Commercial Source
+License](../../LICENSE), which permits private evaluation and audit but does
+not grant production or redistribution rights. The App Store distribution
+uses a one-time Mac license with optional Personal for hosted services; phone
+Personal remains optional for direct/self-hosted connections. See the
+[Mac build and store instructions](../macos/README.md). The standalone GrantTap MCP
+uses MIT; the relay, website, and Apple-client source do not.
 
-## Project Mesh and Agents & Mesh
+## Mesh and Agents & Mesh
 
-**Project Mesh** keeps one Task identity while execution moves between agents or
-computers. The Task screen shows the project, its stable Task, current execution
+**Mesh** connects chats, Tasks, people, computers, and several repositories in
+one coordination scope. A Task keeps one identity while execution moves between
+agents or computers. The Task screen shows its Mesh chat, current execution
 owners, expiring resource claims, and a curated event timeline. A handoff sends a
 bounded encrypted Task Capsule—goal, git state, changed files, tests,
 dependencies, claims, remaining work, explicit decisions—and never transcripts or
 hidden reasoning. The destination works in its own branch or worktree, and the
 accepted handoff is verified against a SHA-256 receipt over the exact capsule.
 
-The Task's Runtime section asks each linked Project computer for a bounded page
+The Task's Runtime section asks each linked Mesh computer for a bounded page
 of Engine-owned Invocation evidence. It shows tool requests, reported results,
 denials, and source gaps separately; it never calls a requested edit a verified
-file change. Pages are encrypted with the Project key and kept only in memory on
+file change. Pages are encrypted with the Mesh key and kept only in memory on
 the phone. The section says when a computer's Engine is unavailable.
 
 Technical agent-to-agent questions and advisory conflicts stay inside the mesh.
@@ -65,15 +71,15 @@ carries committed facts and that work would otherwise stay behind while the Task
 appeared to continue elsewhere.
 
 **Settings → Agents & Mesh** owns the per-agent runtime gates for Claude Code,
-Codex, Cursor, and Grok Build plus the Project Mesh switch. Disabling an agent
+Codex, Cursor, and Grok Build plus the Mesh switch. Disabling an agent
 stops new GrantTap monitoring without uninstalling it or deleting local task,
 history, and usage records; pending decisions stay pending.
 
 **Grok Bot** is a scoped persistent-agent endpoint, not a coding-agent
-integration. The phone issues a one-time encrypted invite limited to the Projects
+integration. The phone issues a one-time encrypted invite limited to the Mesh chats
 you select, the invite is redeemed only by the trusted `granttap mesh connect`
 CLI, and the resulting MCP server exposes only task-scoped Mesh operations.
-Invite creation, actor enablement, Project scope, and revocation stay in the app
+Invite creation, actor enablement, Mesh scope, and revocation stay in the app
 and the CLI, never in a model-callable tool.
 
 ## What happens when you reply from the phone
@@ -102,15 +108,6 @@ really did go away is still caught.
 
 Heartbeat state is runtime-only and never persisted — after a relaunch the app
 must see a real packet before it will call a computer Live again.
-
-Pairing join is Live-only. An empty phone adopts the room from
-`granttap.com/connect`. A phone that is already Live keeps its room. Website
-“seen” or Connected is the mailbox claim, not Live.
-
-**Project → Execution** can pin new tasks to one confirmed host. The composer
-locks that computer; models are the host catalog, not a typed alias. Member
-invites can grant create-task, Project executor, host model, and execution
-management. Those flags default off on old links.
 
 ## Product and trust links
 
@@ -268,14 +265,14 @@ use a paid team App ID with Push enabled, or the Debug/Release schemes.
 - No advertising, cross-app tracking, or analytics SDK is present.
 - `PrivacyInfo.xcprivacy` is included for both targets.
 
-## Apple review materials
+## Store and public resources
 
-- [App Store metadata](AppStore/APP_STORE_METADATA.md)
-- [Review notes](AppStore/APP_REVIEW_NOTES.md)
-- [App Privacy answers](AppStore/APP_PRIVACY_ANSWERS.md)
-- [Submission checklist](AppStore/SUBMISSION_CHECKLIST.md)
-- [Localized screenshots](AppStore/Screenshots/README.md)
+- [Mac App Store preparation](../macos/AppStore/README.md)
+- [Purchase and connection modes](../../docs/subscriptions.md)
+- [Localized product screenshots](AppStore/Screenshots/README.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
+- [Support](https://granttap.com/support), [Terms](https://granttap.com/terms),
+  and [Privacy](https://granttap.com/privacy)
 
 ## Architecture note
 

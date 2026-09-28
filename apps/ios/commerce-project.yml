@@ -1,0 +1,31 @@
+# Isolated StoreKit service integration; ordinary receipt-policy tests stay in GrantTapTests.
+targets:
+  GrantTapCommerceTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: GrantTapTests/Features/DesktopLicensing/MacCommerceStoreKitTests.swift
+      - path: GrantTapTests/Features/DesktopLicensing/MacCommerce.storekit
+        buildPhase: resources
+    dependencies:
+      - target: GrantTap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.commerce-tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  GrantTap Commerce:
+    build:
+      targets:
+        GrantTap: all
+    run:
+      config: Debug
+      storeKitConfiguration: GrantTapTests/Features/DesktopLicensing/MacCommerce.storekit
+    test:
+      config: Debug
+      environmentVariables:
+        GRANTTAP_TEST_LANGUAGE: en
+        GRANTTAP_STOREKIT_TESTS: "1"
+      targets:
+        - GrantTapCommerceTests

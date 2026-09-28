@@ -2,9 +2,9 @@
 
 Parent index: [`AGENTS.md`](../../../../../AGENTS.md)
 
-[`TaskComposerRouteModel.swift`](TaskComposerRouteModel.swift) owns the bounded
+[`TaskComposerRouteModel.swift`](Routes/TaskComposerRouteModel.swift) owns the bounded
 provider/computer/workspace labels and honest computer availability tone.
-[`TaskComposerRoutePicker.swift`](TaskComposerRoutePicker.swift) renders the
+[`TaskComposerRoutePicker.swift`](Routes/TaskComposerRoutePicker.swift) renders the
 three equal compact menus in the existing bottom composer row.
 
 Provider art is mapped in

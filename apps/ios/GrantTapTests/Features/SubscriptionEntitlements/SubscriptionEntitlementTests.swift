@@ -59,6 +59,7 @@ final class SubscriptionEntitlementTests: XCTestCase {
         let store = SubscriptionStore(
             startObserving: false,
             productLoader: { [] },
+            snapshotLoader: { _ in [] },
             storeSync: { syncCount += 1 }
         )
         await store.start()
@@ -72,6 +73,7 @@ final class SubscriptionEntitlementTests: XCTestCase {
         let failed = SubscriptionStore(
             startObserving: false,
             productLoader: { throw SubscriptionFixtureError.offline },
+            snapshotLoader: { _ in [] },
             storeSync: { throw SubscriptionFixtureError.offline }
         )
         await failed.loadProducts()
@@ -115,7 +117,9 @@ final class SubscriptionEntitlementTests: XCTestCase {
 
     @MainActor
     func testPersonalOfferRendersAndMissingStorefrontProductFailsClosed() async {
-        let store = SubscriptionStore(startObserving: false)
+        let store = SubscriptionStore(
+            startObserving: false, productLoader: { [] }, snapshotLoader: { _ in [] }
+        )
         let offer = SubscriptionOffer(
             id: SubscriptionProduct.personal.rawValue,
             displayName: "GrantTap Personal",

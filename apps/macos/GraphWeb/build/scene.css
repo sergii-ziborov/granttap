@@ -1,0 +1,496 @@
+/* Cyberboard — scoped port of mockups/cyberboard.html <style> (lines 8-89).
+   Every selector lives under .cb-root so the view stays inside its container.
+   No position:fixed anywhere — all HUD panels are position:absolute. */
+
+/* host element emitted into .rel-graph-wrap (position:relative) by relations.js */
+.cyberboard-canvas{position:absolute;inset:0}
+.rel-cb-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  color:#5b7a8c;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.06em;padding:24px}
+.rel-cb-empty b{color:var(--accent)}
+/* The app.css flex rule sets the graph wrap flex:1 + min-height:0 — which resolves to 0px height until a manual
+   window resize forces layout (canvas 0-tall → blank until resize). Give the cyberboard wrap a DEFINITE
+   viewport-based height (resolves immediately, no reflow needed). Loads after app.css → wins. */
+.repos-tab-body:has(> .rel-cb-wrap),
+.repos-tab-body:has(> .rel-cb-boot){display:flex;flex-direction:column;overflow:hidden;padding:0}
+.repos-tab-body:has(> .rel-cb-wrap) > .rel-cb-wrap,
+.repos-tab-body:has(> .rel-cb-boot) > .rel-cb-boot{flex:1 1 auto;height:auto;min-height:0}
+.rel-cb-wrap{position:relative;min-height:0}
+.rel-loader.rel-cb-loader{padding:0;background:transparent;backdrop-filter:none;color:inherit;gap:0}
+.rel-loader.rel-cb-loader .rel-cb-boot{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
+.cb-root{
+  /* derive the 3D-view palette from the active THEME (the scene mesh colours are read from these
+     tokens in cb-core via getComputedStyle). --good/--warn/--bad are inherited from the theme
+     (not redefined → no var cycle). */
+  --bg:var(--cb-bg,#060a10); --grid:var(--cb-grid,#103043); --cyan:var(--cb-edge-inherit,var(--accent,#28e0ff));
+  --amber:var(--cb-edge-call,var(--warn,#ffb454)); --violet:var(--cb-edge-import,var(--accent-2,#b06bff));
+  --ink:var(--cb-ink,#bfe9ff); --dim:var(--cb-dim,#5b7a8c);
+  position:relative; width:100%; height:100%; overflow:hidden;
+  background:var(--bg);
+  font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono","Consolas",monospace;
+  color:var(--ink);
+}
+.cb-root *{box-sizing:border-box;margin:0;padding:0}
+.cb-app{position:absolute;inset:0}
+.cb-app canvas, .cb-root canvas{display:block}
+/* CSS2DRenderer's own domElement is appended into .cb-app — it must not eat pointer events */
+.cb-app > div{pointer-events:none}
+.cb-root .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);
+  text-shadow:0 0 6px rgba(40,224,255,.6);white-space:nowrap;transform:translate(-50%,-50%)}
+.cb-root .lbl.module{font-size:12px;color:var(--ink);text-shadow:0 0 8px color-mix(in srgb,var(--cyan) 45%,transparent)}
+.cb-root .lbl.ring{color:#dff;font-size:10px;background:rgba(6,12,20,.55);padding:2px 6px;
+  border:1px solid rgba(40,224,255,.25);border-radius:2px}
+.cb-root .lbl.callout{transform:translate(0,-50%);color:#cfe;font-size:10px;letter-spacing:.06em;
+  background:rgba(6,12,20,.62);padding:2px 8px;border:1px solid rgba(40,224,255,.25);border-radius:2px;
+  overflow:hidden;text-overflow:ellipsis}
+/* clickable method callouts (elevation view) → open the source panel */
+.cb-root .lbl.callout.method-pick,
+.cb-root .lbl.callout.item-pick{position:relative;z-index:5!important;pointer-events:auto;cursor:pointer;touch-action:none;
+  transition:border-color .12s,background .12s}
+.cb-root .lbl.callout.method-pick::before,
+.cb-root .lbl.callout.item-pick::before{content:"";position:absolute;inset:-6px}
+.cb-root .lbl.callout.method-pick:hover,
+.cb-root .lbl.callout.item-pick:hover{border-color:rgba(40,224,255,.7);background:rgba(40,224,255,.12)}
+.cb-root .lbl.callout.method-pick.active,
+.cb-root .lbl.callout.item-pick.active{border-color:var(--accent);background:rgba(40,224,255,.22);box-shadow:0 0 10px rgba(40,224,255,.4)}
+/* ▲/▼ "N more" paging tabs when a file has more methods than fit (scroll the window) */
+.cb-root .lbl.callout.elev-more{color:#ffd479;font-weight:600;letter-spacing:.1em;border-color:rgba(255,180,84,.45);
+  background:rgba(20,14,4,.7)}
+.cb-root .lbl.callout.elev-more:hover{border-color:rgba(255,180,84,.9);background:rgba(255,180,84,.14)}
+.cb-root .lbl.filename{color:var(--ink);font-size:13px;letter-spacing:.12em;text-shadow:0 0 8px color-mix(in srgb,var(--cyan) 55%,transparent)}
+.cb-root .lbl.pathstep{color:#dff;font-size:10px;letter-spacing:.08em;background:rgba(6,12,20,.72);
+  padding:1px 6px;border:1px solid rgba(40,224,255,.3);border-radius:2px}
+.cb-root .lbl.pathstep i{color:var(--amber);font-style:normal;margin-right:4px}
+.cb-root .lbl.edgepick{color:#fff;font-size:10px;letter-spacing:.08em;background:rgba(6,12,20,.84);
+  padding:2px 7px;border:1px solid rgba(255,180,84,.62);border-radius:2px;
+  text-shadow:0 0 7px rgba(255,180,84,.45);box-shadow:0 0 10px rgba(255,180,84,.16)}
+.cb-root .lbl.edgepick.edgepick-click{pointer-events:auto;cursor:pointer}
+.cb-root .lbl.edgepick.edgepick-click:hover{color:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 16px color-mix(in srgb,var(--accent) 42%,transparent)}
+.cb-root .lbl.neighbor{color:#fff;font-size:10px;letter-spacing:.08em;background:rgba(6,12,20,.72);
+  padding:1px 6px;border:1px solid rgba(255,255,255,.3);border-radius:2px;text-shadow:0 0 6px rgba(40,224,255,.5)}
+.cb-root .lbl.ext{color:var(--ink);font-size:11px;letter-spacing:.2em;text-shadow:0 0 8px color-mix(in srgb,var(--cyan) 35%,transparent)}
+.cb-root .lbl.tag{font-size:9px;letter-spacing:.16em;padding:1px 5px;border-radius:2px;background:rgba(6,12,20,.7);transition:opacity .15s}
+.cb-root .lbl.tag.entry{color:#2fe6a0;border:1px solid rgba(47,230,160,.5)}
+.cb-root .lbl.tag.dead{color:#ff3b5c;border:1px solid rgba(255,59,92,.5)}
+.cb-root .lbl.tag.tag-pick{pointer-events:auto;cursor:pointer}
+.cb-root .lbl.tag.tag-pick:hover{filter:brightness(1.3);box-shadow:0 0 14px color-mix(in srgb,currentColor 35%,transparent)}
+/* docs are prose, not code: a muted, clearly-neutral name tag on agent-instruction files (README/CLAUDE/AGENTS/…).
+   No warning glyph — a violet dot (matches the DOCS·AGENT legend row) so it never reads as the ⚠ DEAD marker. */
+.cb-root .lbl.tag.doc{color:#9fb0c6;border:1px solid rgba(159,176,198,.4);text-transform:none;letter-spacing:.05em}
+.cb-root .lbl.tag.doc .doc-dot{color:var(--cb-agent,#c38bff);text-shadow:0 0 6px color-mix(in srgb,var(--cb-agent,#c38bff) 55%,transparent)}
+/* elevated AI-agent node (Claude Code / Codex) — the docs feed UP into it */
+.cb-root .lbl.agent{color:#d7b3ff;font-size:11px;letter-spacing:.24em;text-align:center;
+  text-shadow:0 0 12px color-mix(in srgb,var(--cb-agent,#c38bff) 62%,transparent)}
+.cb-root .lbl.agent span{display:block;margin-top:3px;color:var(--dim);font-size:8px;letter-spacing:.1em;text-transform:none}
+/* HUD */
+.cb-root .scan{position:absolute;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,20,30,.18) 2px 3px);
+  mix-blend-mode:overlay}
+.cb-root .vignette{position:absolute;inset:0;pointer-events:none;z-index:49;
+  background:radial-gradient(120% 120% at 50% 40%,rgba(0,0,0,0) 55%,rgba(0,0,0,.65) 100%)}
+.cb-root .frame{position:absolute;inset:14px;pointer-events:none;z-index:60}
+.cb-root .frame i{position:absolute;width:26px;height:26px;border:1px solid rgba(40,224,255,.5)}
+.cb-root .frame i.tl{top:0;left:0;border-right:0;border-bottom:0}
+.cb-root .frame i.tr{top:0;right:0;border-left:0;border-bottom:0}
+.cb-root .frame i.bl{bottom:0;left:0;border-right:0;border-top:0}
+.cb-root .frame i.br{bottom:0;right:0;border-left:0;border-top:0}
+.cb-root .hud{position:absolute;z-index:61;font-size:11px;letter-spacing:.08em}
+.cb-root .title{top:24px;left:30px}
+.cb-root .title b{color:var(--ink);font-size:15px;letter-spacing:.34em;text-shadow:0 0 10px color-mix(in srgb,var(--cyan) 55%,transparent)}
+.cb-root .title span{display:block;color:var(--dim);margin-top:4px;font-size:10px;letter-spacing:.22em}
+.cb-root .panel{border:1px solid rgba(40,224,255,.22);background:rgba(6,12,20,.55);
+  backdrop-filter:blur(2px);padding:10px 12px}
+.cb-root .legend{bottom:24px;left:30px;line-height:1.9}
+.cb-root .legend .row{display:flex;align-items:center;gap:8px}
+.cb-root .legend .sw{width:14px;height:3px;border-radius:2px;box-shadow:0 0 6px currentColor}
+.cb-root .legend .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 6px currentColor}
+.cb-root .legend h4{color:var(--cyan);font-size:9px;letter-spacing:.24em;margin:6px 0 4px}
+.cb-root .legend .cb-legend-toggle{display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  pointer-events:auto;color:var(--cyan);font:inherit;font-size:9px;letter-spacing:.24em;padding:0 0 2px}
+.cb-root .legend .cb-caret{float:right;transition:transform .15s}
+.cb-root .legend.collapsed .cb-caret{transform:rotate(-90deg)}
+.cb-root .legend.collapsed .cb-legend-body{display:none}
+.cb-root .settings{top:96px;left:30px;width:178px;pointer-events:auto}
+.cb-root .settings h4{color:var(--cyan);font-size:9px;letter-spacing:.24em;margin:0 0 8px}
+.cb-root .settings .ctl{display:flex;align-items:center;gap:8px}
+.cb-root .settings input[type=range]{flex:1;accent-color:var(--cyan);cursor:pointer}
+.cb-root .settings .val{color:var(--ink);font-size:11px;min-width:26px;text-align:right}
+.cb-root .settings .hint{color:var(--dim);font-size:9px;letter-spacing:.1em;margin-top:6px}
+/* clickable legend rows — toggle trace types and marker rings on/off */
+.cb-root .legend .edge-toggle,
+.cb-root .legend .marker-toggle,
+.cb-root .legend .docs-toggle,
+.cb-root .legend .merge-toggle{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  background:none;border:0;padding:0;margin:0;cursor:pointer;pointer-events:auto;color:inherit;font:inherit;
+  line-height:inherit;letter-spacing:inherit;transition:opacity .12s,filter .12s}
+.cb-root .legend .edge-toggle:not(.on),
+.cb-root .legend .marker-toggle:not(.on),
+.cb-root .legend .docs-toggle:not(.on),
+.cb-root .legend .merge-toggle:not(.on){opacity:.3;text-decoration:line-through}
+.cb-root .legend .edge-toggle:hover,
+.cb-root .legend .marker-toggle:hover,
+.cb-root .legend .docs-toggle:hover,
+.cb-root .legend .merge-toggle:hover{filter:brightness(1.3)}
+.cb-root .legend .merge-toggle{margin-top:8px;color:var(--ink)}
+.cb-root .legend .merge-sw{width:18px;height:3px;border-radius:2px;background:var(--cyan);color:var(--cyan);
+  box-shadow:0 -4px 0 color-mix(in srgb,var(--cyan) 70%,transparent),0 0 6px currentColor,0 4px 0 color-mix(in srgb,var(--cyan) 70%,transparent)}
+.cb-root .legend .cb-legend-hint{color:var(--dim);font-size:8px;letter-spacing:.06em;font-weight:400;margin-left:6px;text-transform:none}
+/* trace-gap control relocated into the legend */
+.cb-root .legend .ctl{display:flex;align-items:center;gap:8px;pointer-events:auto;margin-top:3px}
+.cb-root .legend input[type=range]{flex:1;accent-color:var(--cyan);cursor:pointer;pointer-events:auto;min-width:0}
+.cb-root .legend .val{color:var(--ink);font-size:11px;min-width:26px;text-align:right}
+.cb-root .legend .hint{color:var(--dim);font-size:9px;letter-spacing:.1em;margin-top:4px}
+/* ENTRY/DEAD tags a touch smaller than module names → clearer hierarchy when zoomed out */
+.cb-root .lbl.tag{font-size:8px;padding:1px 4px}
+
+/* ---- Relations pre-cyberboard "boot" screen (no-graph / building / reading) — matches the 3D aesthetic ---- */
+.rel-cb-boot{position:relative;overflow:hidden;min-height:0;border-radius:10px;
+  background:var(--cb-bg,#060a10);display:flex;align-items:center;justify-content:center;
+  font-family:"SFMono-Regular",ui-monospace,"Cascadia Mono",Consolas,monospace}
+.rel-cb-boot-grid{position:absolute;inset:0;opacity:.55;
+  background-image:linear-gradient(var(--cb-grid,#103043) 1px,transparent 1px),linear-gradient(90deg,var(--cb-grid,#103043) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%,#000 0%,#000 38%,transparent 80%);
+  mask-image:radial-gradient(circle at 50% 45%,#000 0%,#000 38%,transparent 80%)}
+.rel-cb-boot-scan{position:absolute;left:0;right:0;top:-150px;height:150px;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,transparent,rgba(40,224,255,.10) 50%,transparent)}
+.rel-cb-boot.is-loading .rel-cb-boot-scan{opacity:1;animation:rel-cb-scan 2.6s linear infinite}
+@keyframes rel-cb-scan{from{top:-150px}to{top:100%}}
+.rel-cb-boot-core{position:relative;z-index:1;text-align:center;padding:0 24px}
+.rel-cb-boot-title{color:var(--accent);font-size:15px;font-weight:600;letter-spacing:.34em;text-shadow:0 0 14px color-mix(in srgb,var(--accent) 55%,transparent)}
+.rel-cb-boot.is-loading .rel-cb-boot-title{animation:rel-cb-pulse 1.5s ease-in-out infinite}
+@keyframes rel-cb-pulse{0%,100%{opacity:1}50%{opacity:.42}}
+.rel-cb-boot-sub{color:var(--cb-dim,var(--muted,#5b7a8c));font-size:11px;letter-spacing:.12em;margin-top:11px}
+.rel-cb-boot-btn{margin-top:22px;pointer-events:auto;cursor:pointer;background:color-mix(in srgb,var(--accent) 10%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);color:var(--cb-ink,var(--ink));font:inherit;font-size:12px;font-weight:600;letter-spacing:.2em;
+  padding:9px 22px;border-radius:4px;transition:background .15s,border-color .15s,box-shadow .15s}
+.rel-cb-boot-btn:hover{background:color-mix(in srgb,var(--accent) 22%,var(--panel));border-color:var(--accent);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+.cb-root .help{bottom:24px;right:30px;text-align:right;color:var(--dim);line-height:1.9}
+.cb-root .help kbd{color:var(--ink);border:1px solid rgba(40,224,255,.25);padding:0 5px;border-radius:2px}
+.cb-root .views{top:24px;right:30px;display:flex;gap:8px}
+.cb-root .views button{pointer-events:auto;cursor:pointer;font:inherit;font-size:10px;letter-spacing:.18em;
+  color:var(--ink);background:rgba(6,12,20,.6);border:1px solid rgba(40,224,255,.3);
+  padding:6px 12px;border-radius:2px;text-transform:uppercase}
+.cb-root .views button:hover{border-color:var(--cyan);color:#fff;box-shadow:0 0 10px rgba(40,224,255,.35)}
+.cb-root .elev-scroll{top:104px;right:10px;bottom:104px;width:28px;opacity:0;pointer-events:none;
+  transform:translateX(8px);transition:opacity .16s ease,transform .16s ease;touch-action:none}
+.cb-root .elev-scroll.on{opacity:1;pointer-events:auto;transform:none}
+.cb-root .elev-scroll-track{position:absolute;top:0;bottom:0;left:11px;width:6px;border-radius:999px;
+  background:linear-gradient(180deg,rgba(40,224,255,.06),rgba(40,224,255,.18),rgba(40,224,255,.06));
+  border:1px solid rgba(40,224,255,.16);box-shadow:0 0 18px rgba(40,224,255,.12),inset 0 0 8px rgba(0,0,0,.45)}
+.cb-root .elev-scroll-track::before,.cb-root .elev-scroll-track::after{content:"";position:absolute;left:-3px;width:12px;height:1px;
+  background:rgba(255,212,121,.5);box-shadow:0 0 7px rgba(255,212,121,.45)}
+.cb-root .elev-scroll-track::before{top:0}
+.cb-root .elev-scroll-track::after{bottom:0}
+.cb-root .elev-scroll-thumb{position:absolute;left:-4px;top:var(--elev-thumb-top,0);width:14px;
+  height:var(--elev-thumb-height,30%);min-height:28px;border-radius:999px;
+  background:linear-gradient(180deg,rgba(125,249,255,.95),rgba(40,224,255,.45));
+  border:1px solid rgba(190,255,255,.7);box-shadow:0 0 12px rgba(40,224,255,.55),inset 0 0 8px rgba(255,255,255,.16)}
+/* target dossier */
+.cb-root .dossier{top:84px;right:30px;width:248px;opacity:0;transform:translateX(12px);
+  transition:.25s ease;pointer-events:none}
+.cb-root .dossier.on{opacity:1;transform:none}
+.cb-root .dossier .tag{color:var(--bad);font-size:9px;letter-spacing:.32em;margin-bottom:6px}
+.cb-root .dossier .name{color:#fff;font-size:13px;letter-spacing:.04em;word-break:break-all;margin-bottom:2px}
+.cb-root .dossier .mod{color:var(--dim);font-size:10px;letter-spacing:.16em;margin-bottom:10px}
+.cb-root .dossier .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.cb-root .dossier .grid div span{color:var(--dim);display:block;font-size:9px;letter-spacing:.16em}
+.cb-root .dossier .grid div b{color:var(--ink);font-size:14px;font-weight:600}
+.cb-root .dossier .hbar{margin-top:10px;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+.cb-root .dossier .hbar i{display:block;height:100%}
+.cb-root .boot{position:absolute;inset:0;z-index:80;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;color:var(--cyan);letter-spacing:.4em;
+  font-size:12px;transition:opacity .6s ease}
+.cb-root .boot.gone{opacity:0;pointer-events:none}
+
+/* ===== method source panel (floats over the LEFT of the cyberboard) ===== */
+.rel-method-panel{position:absolute;top:72px;left:14px;bottom:14px;width:62%;min-width:560px;max-width:1200px;z-index:75;
+  display:flex;flex-direction:column;border:1px solid rgba(40,224,255,.35);border-radius:8px;overflow:hidden;
+  background:rgba(6,12,22,.80);box-shadow:0 10px 44px rgba(0,0,0,.55),0 0 0 1px rgba(40,224,255,.08);
+  backdrop-filter:blur(5px);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.rel-method-panel .rmp-head{display:flex;align-items:flex-start;gap:10px;padding:8px 44px 8px 12px;
+  border-bottom:1px solid rgba(40,224,255,.18);background:rgba(40,224,255,.06)}
+.rel-method-panel .rmp-title{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.rel-method-panel .rmp-fn{color:#7df9ff;font-size:13px;font-weight:600;letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 8px rgba(40,224,255,.4)}
+.rel-method-panel .rmp-file{color:#5b7a8c;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-method-panel .rmp-close{position:absolute;top:8px;right:9px;z-index:2;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;border:1px solid rgba(40,224,255,.3);
+  background:rgba(6,12,20,.8);color:#9fd;border-radius:4px;cursor:pointer;font-size:12px;line-height:1}
+.rel-method-panel .rmp-close:hover{background:rgba(255,59,92,.2);border-color:rgba(255,59,92,.5);color:#ff8da0}
+/* method-health badge (ⓘ → "how this is scored" popover) + dead method markers */
+.rel-method-panel .rmp-health{align-self:center;pointer-events:auto;cursor:pointer;background:rgba(6,12,20,.55);
+  border:1px solid currentColor;border-radius:3px;font:inherit;font-size:10px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;white-space:nowrap;opacity:.92}
+.rel-method-panel .rmp-health:hover{opacity:1;filter:brightness(1.18)}
+.rel-method-panel .rmp-health-link{box-shadow:0 0 0 1px color-mix(in srgb,currentColor 40%,transparent) inset}
+.rel-method-panel .rmp-health-link:hover{background:color-mix(in srgb,currentColor 16%,rgba(6,12,20,.55))}
+.rel-method-panel .rmp-health[hidden]{display:none}
+.rel-method-panel.health-open .rmp-head > .rmp-health[data-rmp-health],
+.rel-method-panel .rmp-head:has(.rmp-health-info:not([hidden])) > .rmp-health[data-rmp-health]{display:none!important}
+/* the expanded health card drops to a full-width row DIRECTLY UNDER the title/path (not squeezed beside it),
+   so we stop wasting the left column. The collapsed badge still sits inline next to the title. */
+.rel-method-panel .rmp-head{flex-wrap:wrap}
+/* the expanded health card can be TALL (drivers + full metric grid + tests) — bound it to the panel
+   height and give it its OWN scroll so the whole explainer is reachable (it lives in the head, which
+   is otherwise non-scrollable, so long cards were clipped at the panel's bottom) */
+.rel-method-panel .rmp-head > .rmp-health-info{flex:1 1 100%;margin-top:9px;border-radius:5px;
+  border-top:1px solid rgba(40,224,255,.16);max-height:calc(100vh - 170px);overflow-y:auto;overscroll-behavior:contain}
+.rel-method-panel .rmp-health-info{padding:11px 14px;border-bottom:1px solid rgba(40,224,255,.18);
+  border-left:3px solid var(--rmp-health-color,rgba(40,224,255,.38));
+  background:linear-gradient(90deg,color-mix(in srgb,var(--rmp-health-color,rgba(40,224,255,.38)) 5%,rgba(6,12,22,.74)),rgba(6,12,22,.62));
+  color:#9fb6c6;font-size:11px;line-height:1.55}
+.rel-method-panel .rmp-health-info.band-critical,
+.rel-method-panel .rmp-health-info.band-dead{
+  box-shadow:inset 3px 0 0 var(--rmp-health-color)}
+.rel-method-panel .rmp-health-alert{display:flex;align-items:center;gap:9px;margin:0 0 10px;padding:7px 8px;
+  border:1px solid color-mix(in srgb,var(--rmp-health-color) 42%,transparent);border-radius:4px;
+  background:color-mix(in srgb,var(--rmp-health-color) 11%,rgba(2,8,14,.72))}
+.rel-method-panel .rmp-health-dot{width:8px;height:8px;border-radius:50%;background:var(--rmp-health-color);
+  box-shadow:0 0 12px var(--rmp-health-color);flex:0 0 auto}
+.rel-method-panel .rmp-health-alert-copy{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.rel-method-panel .rmp-health-alert-copy b{color:var(--rmp-health-color);font-size:12px;letter-spacing:.12em}
+.rel-method-panel .rmp-health-alert-copy em{color:#9fb6c6;font-size:10px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-method-panel .rmp-health-collapse{width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border:1px solid color-mix(in srgb,var(--rmp-health-color) 38%,transparent);border-radius:3px;
+  background:rgba(2,8,14,.5);color:var(--rmp-health-color);font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.rel-method-panel .rmp-health-collapse:hover{background:color-mix(in srgb,var(--rmp-health-color) 18%,rgba(2,8,14,.65))}
+.rel-method-panel .rmp-health-info p{margin:0 0 8px}
+.rel-method-panel .rmp-health-info b{color:#cfeeff}
+.rel-method-panel .rmp-health-drivers{margin:8px 0 10px;padding:8px 9px;border:1px solid rgba(40,224,255,.14);
+  border-radius:4px;background:rgba(2,8,14,.28)}
+.rel-method-panel .rmp-health-drivers span{display:block;margin-bottom:5px;color:#5b7a8c;font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.rel-method-panel .rmp-health-drivers ul{margin:0;padding-left:16px;color:#cfeeff}
+.rel-method-panel .rmp-health-drivers li{margin:2px 0}
+.rel-method-panel .rmp-health-drivers em{color:#7895a6;font-style:normal}
+.rel-method-panel .rmp-health-drivers.critical{border-color:rgba(255,106,61,.34);background:rgba(255,106,61,.08)}
+.rel-method-panel .rmp-health-drivers.critical span{color:#ff8a5c}
+.rel-method-panel .rmp-health-drivers.warning{border-color:rgba(255,207,77,.32);background:rgba(255,207,77,.06)}
+.rel-method-panel .rmp-health-drivers.warning span{color:#ffcf4d}
+.rel-method-panel .rmp-health-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
+.rel-method-panel .rmp-health-metric{border:1px solid rgba(40,224,255,.14);background:rgba(2,8,14,.34);border-radius:4px;padding:6px 7px;min-width:0}
+.rel-method-panel .rmp-health-metric span{display:block;color:#5b7a8c;font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.rel-method-panel .rmp-health-metric b{display:block;margin-top:2px;color:#cfeeff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-method-panel .rmp-health-metric em{display:block;margin-top:2px;color:#7895a6;font-size:9px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-method-panel .rmp-health-metric.sev-critical{border-color:rgba(255,106,61,.44);background:rgba(255,106,61,.08)}
+.rel-method-panel .rmp-health-metric.sev-critical span,
+.rel-method-panel .rmp-health-metric.sev-critical b{color:#ff8a5c}
+/* inside a DEAD card the critical-severity tiles/drivers stay the DEAD pink-red, so the card is one hue */
+.rel-method-panel .rmp-health-info.band-dead .rmp-health-metric.sev-critical{border-color:rgba(255,27,77,.44);background:rgba(255,27,77,.08)}
+.rel-method-panel .rmp-health-info.band-dead .rmp-health-metric.sev-critical span,
+.rel-method-panel .rmp-health-info.band-dead .rmp-health-metric.sev-critical b{color:#ff5470}
+.rel-method-panel .rmp-health-info.band-dead .rmp-health-drivers.critical{border-color:rgba(255,27,77,.34);background:rgba(255,27,77,.07)}
+.rel-method-panel .rmp-health-info.band-dead .rmp-health-drivers.critical span{color:#ff5470}
+.rel-method-panel .rmp-health-metric.sev-warning{border-color:rgba(255,207,77,.38);background:rgba(255,207,77,.06)}
+.rel-method-panel .rmp-health-metric.sev-warning span,
+.rel-method-panel .rmp-health-metric.sev-warning b{color:#ffcf4d}
+.rel-method-panel .rmp-health-metric.sev-ok{border-color:rgba(47,230,160,.18)}
+.rel-method-panel .rmp-health-metric.sev-info{opacity:.82}
+.rel-method-panel .rmp-health-bands{list-style:none;margin:0 0 8px;padding:0}
+.rel-method-panel .rmp-health-bands li{margin:3px 0}
+.rel-method-panel .rmp-navbtn.dead{color:#ff5470;border-color:rgba(255,84,112,.45)}
+/* DEAD method callouts in the elevation column */
+.cb-root .lbl.callout.callout-dead{border-color:rgba(255,27,77,.6);background:rgba(28,4,12,.74)}
+.rel-method-panel .rmp-nav{display:flex;gap:5px;flex-wrap:nowrap;align-items:center;padding:7px 10px 8px;
+  border-bottom:1px solid rgba(40,224,255,.12);flex:0 0 auto;overflow-x:auto;overflow-y:hidden;
+  scrollbar-color:color-mix(in srgb,var(--accent) 35%,transparent) rgba(6,12,20,.45);scrollbar-width:thin}
+.rel-method-panel .rmp-nav::-webkit-scrollbar{height:8px}
+.rel-method-panel .rmp-nav::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 32%,transparent);border-radius:4px}
+.rel-method-panel .rmp-nav::-webkit-scrollbar-track{background:rgba(6,12,20,.45)}
+.rel-method-panel .rmp-navbtn{font:inherit;font-size:10px;color:#7fa6b8;background:rgba(6,12,20,.7);
+  border:1px solid rgba(40,224,255,.2);border-radius:3px;padding:2px 7px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+.rel-method-panel .rmp-navbtn:hover{color:#cfe;border-color:rgba(40,224,255,.45)}
+.rel-method-panel .rmp-navbtn.active{color:#04121a;background:var(--accent);border-color:var(--accent);font-weight:600}
+.rel-method-panel .rmp-body{flex:1 1 auto;min-height:0;overflow:auto;padding:3px 0}
+.rel-method-panel .rmp-loading,.rel-method-panel .rmp-err{padding:14px;color:#5b7a8c;font-size:12px}
+.rel-method-panel .rmp-err{color:#ff8da0}
+.rel-method-panel .rmp-src{border-collapse:collapse;width:100%;font-size:12px;line-height:1.55}
+.rel-method-panel .rmp-ln{user-select:none;text-align:right;color:#33586a;padding:0 10px 0 12px;
+  white-space:nowrap;vertical-align:top;border-right:1px solid rgba(40,224,255,.08)}
+.rel-method-panel .rmp-code{color:#cfe3ee;padding:0 12px;white-space:pre;width:100%}
+.rel-method-panel .rmp-code .t-kw{color:#ff7ad9}
+.rel-method-panel .rmp-code .t-str{color:#7CFFB0}
+.rel-method-panel .rmp-code .t-num{color:#ffd166}
+.rel-method-panel .rmp-code .t-cmt{color:#5b7a8c;font-style:italic}
+.rel-info-panel{width:min(600px,46%);min-width:440px}
+.rel-info-panel .rii-body{padding:12px;overflow:auto}
+.rel-info-panel .rii-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.rel-info-panel .rii-metric{border:1px solid rgba(40,224,255,.18);border-radius:5px;background:rgba(2,8,14,.36);padding:9px;min-width:0}
+.rel-info-panel .rii-metric span{display:block;color:#5b7a8c;font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.rel-info-panel .rii-metric b{display:block;margin-top:4px;color:#dff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-info-panel .rii-metric em{display:block;margin-top:3px;color:#7fa6b8;font-size:10px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-info-panel .rii-note{margin-top:12px;color:#8aa9ba;font-size:11px;line-height:1.55;border-top:1px solid rgba(40,224,255,.12);padding-top:10px}
+.rel-info-panel .rii-section{margin-top:12px;border-top:1px solid rgba(40,224,255,.12);padding-top:10px}
+.rel-info-panel .rii-section h4{margin:0 0 7px;color:var(--accent);font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.rel-info-panel .rii-chiprow{display:flex;flex-wrap:wrap;gap:6px;min-height:22px}
+.rel-info-panel .rii-chip{max-width:190px;padding:4px 7px;border:1px solid rgba(40,224,255,.20);border-radius:4px;
+  background:rgba(2,8,14,.34);color:#bfe9ff;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-info-panel .rii-empty{color:#5b7a8c;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.rel-info-panel .rii-note-inline{margin-top:0;border-top:0;padding-top:0;color:#b7d6e6}
+.rel-edge-panel .rii-flow{display:flex;flex-direction:column;gap:6px}
+.rel-edge-panel .rii-hop{display:flex;align-items:center;gap:7px;min-width:0;padding:5px 7px;
+  border:1px solid rgba(40,224,255,.16);border-radius:4px;background:rgba(2,8,14,.34);
+  color:#cfeeff;font-size:10px;letter-spacing:.04em}
+.rel-edge-panel .rii-hop i{flex:0 0 auto;min-width:22px;color:var(--accent);font-style:normal;font-weight:700}
+.rel-edge-panel .rii-hop.edge i{min-width:42px;color:var(--warn)}
+
+/* Light themes: edge/info panels should read as clean inspector cards, not a dark modal pasted onto a pale map. */
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel{
+  background:rgba(255,255,255,.94);color:var(--ink);
+  border-color:color-mix(in srgb,var(--accent) 28%,#c8d8ea);
+  box-shadow:0 18px 52px rgba(53,84,135,.18),0 0 0 1px rgba(255,255,255,.75);
+  backdrop-filter:blur(8px) saturate(1.08)}
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel .rmp-head,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel .rmp-head{
+  background:linear-gradient(90deg,rgba(255,255,255,.98),color-mix(in srgb,var(--accent) 8%,#fff));
+  border-bottom-color:color-mix(in srgb,var(--accent) 18%,#d8e4f0)}
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel .rmp-fn,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel .rmp-fn{
+  color:color-mix(in srgb,var(--accent) 72%,#143458);text-shadow:none}
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel .rmp-file,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel .rmp-file{
+  color:var(--muted)}
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel .rmp-close,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel .rmp-close{
+  background:#fff;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 28%,#c8d8ea);
+  box-shadow:0 6px 16px rgba(53,84,135,.10)}
+html[data-theme="cisco-light"] .rel-method-panel.rel-info-panel .rmp-health,
+html[data-theme="github-light"] .rel-method-panel.rel-info-panel .rmp-health{
+  background:color-mix(in srgb,var(--accent) 8%,#fff)}
+html[data-theme="cisco-light"] .rel-info-panel .rii-metric,
+html[data-theme="github-light"] .rel-info-panel .rii-metric,
+html[data-theme="cisco-light"] .rel-info-panel .rii-chip,
+html[data-theme="github-light"] .rel-info-panel .rii-chip,
+html[data-theme="cisco-light"] .rel-edge-panel .rii-hop,
+html[data-theme="github-light"] .rel-edge-panel .rii-hop{
+  background:rgba(248,251,255,.88);border-color:color-mix(in srgb,var(--accent) 16%,#d8e4f0);
+  color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.65)}
+html[data-theme="cisco-light"] .rel-info-panel .rii-metric span,
+html[data-theme="github-light"] .rel-info-panel .rii-metric span,
+html[data-theme="cisco-light"] .rel-info-panel .rii-empty,
+html[data-theme="github-light"] .rel-info-panel .rii-empty{
+  color:var(--muted)}
+html[data-theme="cisco-light"] .rel-info-panel .rii-metric b,
+html[data-theme="github-light"] .rel-info-panel .rii-metric b,
+html[data-theme="cisco-light"] .rel-info-panel .rii-metric em,
+html[data-theme="github-light"] .rel-info-panel .rii-metric em,
+html[data-theme="cisco-light"] .rel-info-panel .rii-note,
+html[data-theme="github-light"] .rel-info-panel .rii-note,
+html[data-theme="cisco-light"] .rel-info-panel .rii-note-inline,
+html[data-theme="github-light"] .rel-info-panel .rii-note-inline{
+  color:var(--ink)}
+html[data-theme="cisco-light"] .rel-info-panel .rii-section,
+html[data-theme="github-light"] .rel-info-panel .rii-section,
+html[data-theme="cisco-light"] .rel-info-panel .rii-note,
+html[data-theme="github-light"] .rel-info-panel .rii-note{
+  border-top-color:color-mix(in srgb,var(--accent) 14%,#d8e4f0)}
+html[data-theme="cisco-light"] .rel-edge-panel .rii-hop i,
+html[data-theme="github-light"] .rel-edge-panel .rii-hop i{
+  color:color-mix(in srgb,var(--accent) 80%,#143458)}
+
+/* ===== Relations Filters/Folders dropdowns: theme-driven and floated above the 3D labels ===== */
+.rel-cb-controls .rel-folder-menu{z-index:130;width:248px;
+  background:color-mix(in srgb,var(--panel) 97%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:5px;
+  box-shadow:var(--rl-shadow-pop),0 0 0 1px color-mix(in srgb,var(--accent) 8%,transparent);backdrop-filter:blur(4px)}
+.rel-cb-controls .rel-opt{color:var(--ink);border-radius:3px}
+.rel-cb-controls .rel-opt:hover{background:color-mix(in srgb,var(--accent) 13%,var(--panel))}
+.rel-cb-controls .rel-opt-name{color:var(--ink)}
+.rel-cb-controls .rel-opt input[type="checkbox"]{accent-color:var(--accent)}
+.rel-cb-controls .rel-opt-all{border-bottom:1px solid color-mix(in srgb,var(--accent) 16%,transparent);margin-bottom:4px;padding-bottom:6px}
+.rel-cb-controls .rel-folder-note{color:var(--muted);font-size:10px}
+.rel-cb-controls .rel-sel-chip{color:var(--accent)}
+.rel-cb-controls .rel-folder-menu::-webkit-scrollbar{width:8px}
+.rel-cb-controls .rel-folder-menu::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 25%,transparent);border-radius:4px}
+.rel-health-settings{position:relative;display:inline-flex}
+.rel-health-settings:not(.open) .rel-health-menu{display:none}
+.rel-cb-controls .rel-health-btn{width:auto;min-width:0;padding:0 9px;white-space:nowrap;letter-spacing:.12em}
+.rel-health-menu{position:absolute;top:calc(100% + 4px);left:0;z-index:135;width:420px;max-width:min(420px,calc(100vw - 80px));padding:12px;
+  background:color-mix(in srgb,var(--panel) 97%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:5px;
+  box-shadow:var(--rl-shadow-pop),0 0 0 1px color-mix(in srgb,var(--accent) 8%,transparent);backdrop-filter:blur(4px)}
+.rel-health-title{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+.rel-health-scale{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px;color:var(--muted);font-size:10px;text-transform:uppercase}
+.rel-health-scale span{display:inline-flex;align-items:center;gap:5px;padding:3px 5px;border:1px solid transparent;border-radius:3px}
+.rel-health-scale span.active{color:var(--rel-health-color);border-color:color-mix(in srgb,var(--rel-health-color) 46%,transparent);
+  background:color-mix(in srgb,var(--rel-health-color) 12%,var(--panel));box-shadow:0 0 14px color-mix(in srgb,var(--rel-health-color) 18%,transparent)}
+.rel-health-scale i{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor}
+.rel-health-current{margin:0 0 9px;padding:8px 9px;border:1px solid color-mix(in srgb,var(--rel-health-color) 46%,transparent);border-radius:4px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--rel-health-color) 13%,var(--panel)),color-mix(in srgb,var(--panel) 88%,transparent));
+  box-shadow:inset 3px 0 0 var(--rel-health-color),0 0 16px color-mix(in srgb,var(--rel-health-color) 12%,transparent)}
+.rel-health-current span{display:block;color:var(--muted);font-size:8px;letter-spacing:.14em;text-transform:uppercase}
+.rel-health-current b{display:block;margin-top:2px;color:var(--rel-health-color);font-size:12px;letter-spacing:.1em}
+.rel-health-current em{display:block;margin-top:2px;color:var(--muted);font-size:10px;font-style:normal;line-height:1.35}
+.rel-health-tabbar{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 9px}
+.rel-health-tab{height:24px;padding:0 7px;border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);border-radius:3px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);color:var(--muted);font:inherit;font-size:9px;font-weight:700;
+  letter-spacing:.08em;cursor:pointer}
+.rel-health-tab:hover{border-color:color-mix(in srgb,var(--accent) 48%,transparent);color:var(--ink)}
+.rel-health-tab.active{background:var(--accent);border-color:var(--accent);color:var(--panel);box-shadow:0 0 14px color-mix(in srgb,var(--accent) 35%,transparent)}
+.rel-health-tabbody{min-height:82px}
+.rel-health-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rel-health-field{display:grid;grid-template-columns:1fr 64px;align-items:center;gap:8px;margin-top:7px;
+  color:var(--ink);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.rel-health-field input{width:64px;height:26px;padding:2px 6px;background:color-mix(in srgb,var(--panel) 85%,#000);
+  border:1px solid color-mix(in srgb,var(--accent) 36%,transparent);border-radius:3px;color:var(--ink);
+  font:inherit;font-size:11px;text-align:right;-moz-appearance:textfield}
+.rel-health-field input::-webkit-outer-spin-button,
+.rel-health-field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.rel-health-field input:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent)}
+.rel-health-metrics{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.rel-health-metrics span{border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);border-radius:3px;
+  background:color-mix(in srgb,var(--panel) 72%,transparent);padding:3px 6px;color:var(--ink);font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+.rel-health-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.rel-health-stat{border:1px solid color-mix(in srgb,var(--accent) 16%,transparent);border-radius:4px;
+  background:color-mix(in srgb,var(--panel) 74%,transparent);padding:7px;min-width:0}
+.rel-health-stat span{display:block;color:var(--muted);font-size:8px;letter-spacing:.12em;text-transform:uppercase}
+.rel-health-stat b{display:block;margin-top:3px;color:var(--ink);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-health-stat em{display:block;margin-top:2px;color:var(--muted);font-size:9px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-health-note{margin-top:9px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--accent) 16%,transparent);
+  color:var(--muted);font-size:10px;line-height:1.45;letter-spacing:.04em}
+
+/* ===== the TARGET LOCKED dossier is redundant with the coupling rings (same coupling/LOC/methods/coverage/health) → hide ===== */
+.cb-root .dossier{display:none!important}
+
+/* ===== Cyberboard help modal — dark cyberpunk (matches the view, replaces the old light modal) ===== */
+.cb-help-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:rgba(2,6,12,.72);backdrop-filter:blur(3px)}
+.cb-help-modal{width:min(680px,92vw);max-height:86vh;display:flex;flex-direction:column;overflow:hidden;
+  background:linear-gradient(180deg,rgba(10,18,28,.98),rgba(6,11,18,.98));
+  border:1px solid rgba(40,224,255,.35);border-radius:10px;
+  box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(40,224,255,.08),inset 0 0 60px rgba(40,224,255,.04);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#bfe9ff}
+.cb-help-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;
+  border-bottom:1px solid rgba(40,224,255,.18);background:rgba(40,224,255,.05)}
+
+.cb-help-head h3{margin:0;font-size:14px;letter-spacing:.2em;color:#7df9ff;text-shadow:0 0 10px rgba(40,224,255,.5)}
+.cb-help-close{flex:0 0 auto;width:28px;height:28px;border:1px solid rgba(40,224,255,.3);background:rgba(6,12,20,.8);
+  color:#9fd;border-radius:5px;cursor:pointer;font-size:13px;line-height:1}
+.cb-help-close:hover{background:rgba(255,59,92,.2);border-color:rgba(255,59,92,.5);color:#ff8da0}
+.cb-help-body{overflow-y:auto;padding:4px 20px 18px}
+.cb-help-body section{padding:11px 0;border-bottom:1px solid rgba(40,224,255,.08)}
+.cb-help-body section:last-child{border-bottom:0}
+.cb-help-body h4{margin:0 0 8px;font-size:11px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase}
+.cb-help-body h4 .cb-hk{color:#5b7a8c;font-weight:400;letter-spacing:.08em;margin-left:8px;text-transform:none}
+.cb-help-body ul{margin:0;padding-left:18px}
+.cb-help-body li{margin:4px 0;font-size:12.5px;line-height:1.5;color:#a8d0e3}
+.cb-help-body b{color:#e8f6ff;font-weight:600}
+.cb-help-body p{margin:8px 0 0;font-size:12px;line-height:1.55;color:#7fa6b8}
+.cb-help-legend{list-style:none;padding-left:2px!important}
+.cb-help-legend li{display:flex;align-items:center;gap:9px}
+.cb-help-legend .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.cb-help-legend .ln{width:18px;height:3px;border-radius:2px;flex:0 0 auto}
+.cb-help-legend .ring{width:13px;height:13px;border-radius:50%;border:2px solid;flex:0 0 auto;background:transparent}
+.cb-help-body::-webkit-scrollbar{width:9px}
+.cb-help-body::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 25%,transparent);border-radius:4px}
+
+/* Cisco theme is intentionally light: white ops-console panels over a pale network map. */
+html[data-theme="cisco-light"] .rel-cb-boot{
+  background:#f8fbff;color:#075b8f;box-shadow:inset 0 0 0 1px rgba(120,168,220,.24)}
+html[data-theme="cisco-light"] .rel-cb-boot-grid{
+  opacity:.85;background-image:linear-gradient(#d9e8fb 1px,transparent 1px),linear-gradient(90deg,#d9e8fb 1px,transparent 1px)}
+html[data-theme="cisco-light"] .rel-cb-boot-sub{color:#66768f}
+html[data-theme="cisco-light"] .rel-cb-boot-btn{
+  background:#fff;border-color:#94d2ec;color:#075b8f;box-shadow:0 10px 30px rgba(53,84,135,.14)}

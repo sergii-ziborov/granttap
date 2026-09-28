@@ -1,0 +1,175 @@
+import SwiftUI
+import PhotosUI
+import UniformTypeIdentifiers
+import UIKit
+
+extension TaskChatView {
+    /// Nested agent conversations indent, but only so far: past four levels the
+    /// text column becomes unreadable on a phone.
+    static func threadIndent(_ visualDepth: Int) -> CGFloat {
+        CGFloat(max(0, min(visualDepth - 1, 4))) * 16
+    }
+
+    /// Reads and writes this chat's own choice, so it survives closing the screen.
+    var chatModelBinding: Binding<TurnModel?> {
+        Binding(
+            get: { model.turnOverrides.chatOverrides(chatSessionId).model },
+            set: { picked in
+                var current = model.turnOverrides.chatOverrides(chatSessionId)
+                current.model = picked
+                model.turnOverrides.setChatOverrides(current, for: chatSessionId)
+            }
+        )
+    }
+
+    var chatPermissionBinding: Binding<TurnPermissionMode?> {
+        Binding(
+            get: { model.turnOverrides.chatOverrides(chatSessionId).permissionMode },
+            set: { picked in
+                var current = model.turnOverrides.chatOverrides(chatSessionId)
+                current.permissionMode = picked
+                model.turnOverrides.setChatOverrides(current, for: chatSessionId)
+            }
+        )
+    }
+
+    func toggleCapability(_ row: ChatCapabilityRow) {
+        switch row.kind {
+        case .mcp:
+            model.setSessionMcpAllowed(chatSessionId, serverName: row.name,
+                                       allowed: row.allowed == false)
+        case .skill:
+            model.setSessionSkillAllowed(chatSessionId, skillName: row.name,
+                                         allowed: row.allowed == false)
+        case .cli:
+            model.setSessionShellAllowed(chatSessionId, allowed: row.allowed == false)
+        }
+    }
+
+    var composer: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            #if targetEnvironment(macCatalyst)
+            if let localSendError {
+                Text(localSendError)
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .foregroundStyle(Theme.riskHigh)
+            }
+            if localSending { ProgressView(L("Sending to this Task…")) }
+            #endif
+            if let availability = chatSendAvailability {
+                Text(availability.message)
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(availability.blocksSending ? Theme.riskHigh : Theme.riskMed)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let attachmentError {
+                Text(attachmentError)
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .foregroundStyle(Theme.riskHigh)
+            }
+            MessageRoutingStrip(selectedMcp: $selectedMcp, selectedSkill: $selectedSkill)
+            if dictator.isRecording || dictator.isStarting {
+                ListeningStatus(isStarting: dictator.isStarting, language: dictator.detectedLanguage)
+            }
+            if let error = dictator.errorText {
+                Text(error).font(.system(size: 11.5)).foregroundStyle(Theme.riskHigh)
+            }
+            // What was attached, what is being written, and how the turn will
+            // run: one block, in that order.
+            ComposerBlock {
+                AttachmentThumbnails(attachments: $attachments)
+                ComposerField(
+                    placeholder: dictator.isRecording ? L("Listening…")
+                        : (replyRequestId == nil ? L("Message this chat…") : L("Reply…")),
+                    text: $draft, focus: $chatFocused, onSubmit: send
+                )
+                .onChange(of: dictator.transcript) { transcript in
+                    if dictator.isRecording { draft = transcript }
+                }
+                HStack(spacing: 8) {
+                    AttachmentMenuButton(attachments: $attachments,
+                                         mcpServers: currentSession.mcpServers ?? [],
+                                         skills: currentSession.skills ?? [],
+                                         selectedMcp: $selectedMcp,
+                                         selectedSkill: $selectedSkill)
+                    ComposerModelPill(agent: currentSession.agent, model: chatModelBinding,
+                                      current: currentSession.model)
+                    Spacer(minLength: 4)
+                    ListeningMicButton(isRecording: dictator.isRecording,
+                                       isStarting: dictator.isStarting,
+                                       tint: accent,
+                                       action: toggleDictation)
+                    let action = ComposerAction.resolve(
+                        text: draft, attachments: attachments.count, isFocused: chatFocused
+                    )
+                    if action.isVisible {
+                        if action == .send && replyRequestId == nil {
+                            ComposerQueueButton(add: queueDraft, sendNow: sendImmediately)
+                        }
+                        ComposerSendButton(
+                            action: action, tint: accent,
+                            glyphInk: Theme.glyphInk(for: currentSession.agent),
+                            blocked: (!queuesNewMessages && chatSendAvailability?.blocksSending == true)
+                                || localSending,
+                            send: send,
+                            dismissKeyboard: { chatFocused = false }
+                        )
+                        .accessibilityLabel(queuesNewMessages && replyRequestId == nil
+                            ? L("Add to queue") : (action == .send ? L("Send") : L("Close keyboard")))
+                        .accessibilityIdentifier("composer.send")
+                    }
+                }
+            }
+        }
+        // A picked attachment starts travelling at once, so the message that
+        // follows has only to name it.
+        .onChange(of: attachments.map(\.id)) { _ in
+            model.preuploadAttachments(attachments, room: model.sourceRoom(forSessionId: chatSessionId))
+        }
+        .background(currentSession.agent.lowercased().contains("claude")
+                    ? Theme.claudeCanvas.opacity(0.97) : Theme.surface.opacity(0.97))
+        .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .top)
+    }
+
+    /// Land on the entry the chat was opened for, once.
+    ///
+    /// The transcript keeps arriving after the view appears, so the focused
+    /// entry may not exist yet on the first pass; the attempt repeats until it
+    /// does. Afterwards the chat follows new activity as it always did, or the
+    /// user would be dragged back to an old call by every incoming line.
+    func settleScroll(_ proxy: ScrollViewProxy) {
+        guard let focusEntryId, !focusHonoured else {
+            scrollToBottom(proxy)
+            return
+        }
+        guard let entry = entries.first(where: { $0.id == focusEntryId }) else { return }
+        focusHonoured = true
+        let target = ChatScrollTarget.forEntry(entry)
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.2)) {
+                proxy.scrollTo(target, anchor: .center)
+                highlightedEntryId = focusEntryId
+            }
+        }
+        // The mark is a pointer, not a selection: it fades once it has been seen,
+        // leaving the transcript reading as it normally does.
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 2_600_000_000)
+            withAnimation(.easeInOut(duration: 0.4)) { highlightedEntryId = nil }
+        }
+    }
+
+    func scrollToBottom(_ proxy: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.2)) {
+                proxy.scrollTo("chat-bottom", anchor: .bottom)
+            }
+        }
+    }
+
+    func toggleDictation() {
+        if dictator.isRecording { draft = dictator.stop() }
+        else { dictator.start() }
+    }
+
+}
