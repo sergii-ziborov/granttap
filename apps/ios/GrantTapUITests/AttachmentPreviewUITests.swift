@@ -14,10 +14,11 @@ final class AttachmentPreviewUITests: XCTestCase {
         capture(app, name: "Ten sent attachments and draft attachments")
         XCTAssertEqual(first.frame.midY, second.frame.midY, accuracy: 1)
         XCTAssertGreaterThan(second.frame.minX, first.frame.maxX)
-        let sentStrip = app.scrollViews["chat.row.local-user-demo-photo-delivery"]
+        let sentStrip = app.scrollViews["chat.attachments.local-user-demo-photo-delivery"]
         let last = app.buttons["chat.attachment.local-user-demo-photo-delivery.File-10.txt"]
-        XCTAssertFalse(last.isHittable)
-        for _ in 0..<10 where !last.isHittable { sentStrip.swipeLeft() }
+        XCTAssertFalse(visible(last, inside: sentStrip))
+        for _ in 0..<10 where !visible(last, inside: sentStrip) { sentStrip.swipeLeft() }
+        XCTAssertTrue(visible(last, inside: sentStrip))
         XCTAssertTrue(last.isHittable)
         last.tap()
         let text = app.textViews["attachment.preview.text"]
@@ -30,8 +31,9 @@ final class AttachmentPreviewUITests: XCTestCase {
         XCTAssertGreaterThan(draftSecond.frame.minX, draftFirst.frame.maxX)
         let draftLast = app.buttons["attachment.preview.File-10.txt"]
         let draftStrip = app.scrollViews["composer.attachments"]
-        XCTAssertFalse(draftLast.isHittable)
-        for _ in 0..<4 where !draftLast.isHittable { draftStrip.swipeLeft() }
+        XCTAssertFalse(visible(draftLast, inside: draftStrip))
+        for _ in 0..<4 where !visible(draftLast, inside: draftStrip) { draftStrip.swipeLeft() }
+        XCTAssertTrue(visible(draftLast, inside: draftStrip))
         XCTAssertTrue(draftLast.isHittable)
         draftLast.tap()
         XCTAssertTrue(text.waitForExistence(timeout: 5))
@@ -56,7 +58,7 @@ final class AttachmentPreviewUITests: XCTestCase {
         app.buttons["attachment.preview.Fixture.pdf"].tap()
         let closePDF = app.buttons["QLOverlayDoneButtonAccessibilityIdentifier"]
         XCTAssertTrue(closePDF.waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["PDF attachment fixture"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["PDF attachment fixture"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.textViews["attachment.preview.text"].exists)
         capture(app, name: "PDF attachment preview")
         closePDF.tap()
@@ -73,5 +75,11 @@ final class AttachmentPreviewUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func visible(_ element: XCUIElement, inside strip: XCUIElement) -> Bool {
+        let frame = element.frame
+        guard frame.width > 0, frame.height > 0, !frame.isInfinite, !frame.isNull else { return false }
+        return strip.frame.insetBy(dx: -1, dy: -1).contains(frame)
     }
 }

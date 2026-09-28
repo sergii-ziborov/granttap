@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "f48c1bab7c4de53dc365c80b2cae125926ef9217",
+  "sourceCommit": "6db4c379b8702c31451c10263ae7cab27bd88ff9",
   "files": [
     {
       "path": "apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg",
@@ -2948,7 +2948,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/AttachmentPreviewUITests.swift",
-      "sha256": "0dfb52ade47b9c4997c6e3db4f91e850f3ac90865172d9ac7216cd28b834db7a"
+      "sha256": "6be7583ee8e56c932a704909b8444ecba12a3e70a41ccd68bddcd9183c3137a1"
     },
     {
       "path": "apps/ios/GrantTapUITests/ChatMessageQueueUITests.swift",
