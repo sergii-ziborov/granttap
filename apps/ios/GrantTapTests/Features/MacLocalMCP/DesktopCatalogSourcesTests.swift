@@ -33,6 +33,31 @@ final class DesktopCatalogSourcesTests: XCTestCase {
         XCTAssertFalse(DesktopCatalogSources.matches(wrong, projectId: "p", execution: execution))
     }
 
+    func testFreshLocalObservationReplacesStaleRelayProjectForTheSameComputer() {
+        var remote = session("same", computer: "local", project: "dev")
+        remote.lastActivityAt = 1
+        remote.state = "finished"
+        var local = session("same", computer: "local", project: "repository-mesh")
+        local.state = "working"
+        let rows = DesktopCatalogSources.sessions(local: [local], current: [remote],
+                                                  remoteSessionIds: ["same"])
+        XCTAssertEqual(rows, [local])
+        XCTAssertEqual(rows.first?.projectId, "repository-mesh")
+        XCTAssertEqual(rows.first?.state, "working")
+    }
+
+    func testOlderOrDifferentProviderLocalObservationCannotReplaceRelayState() {
+        let remote = session("same", computer: "local", project: "reported")
+        var local = session("same", computer: "local", project: "stale")
+        local.lastActivityAt = 1
+        XCTAssertEqual(DesktopCatalogSources.sessions(local: [local], current: [remote],
+                                                      remoteSessionIds: ["same"]), [remote])
+        local = session("same", computer: "local", project: "stale", agent: "claude")
+        local.lastActivityAt = 3
+        XCTAssertEqual(DesktopCatalogSources.sessions(local: [local], current: [remote],
+                                                      remoteSessionIds: ["same"]), [remote])
+    }
+
     func testLocalRefreshKeepsRemoteMeshAndDropsRemovedLocalMesh() {
         let remote = snapshot("remote")
         let fresh = snapshot("fresh")

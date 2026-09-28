@@ -75,3 +75,7 @@ symlinks, capped scans, expired reviews and modified cache trees block cleanup.
 
 The separate runtime supports the normal SweepLoom CLI locations or
 `GRANTTAP_SWEEPLOOM_PATH`. No scanning or cleanup runs automatically at app launch.
+
+Fresh local observations replace older relay copies only for the same native
+session, provider and computer. A different computer or provider keeps its
+separate routing, and an older local observation cannot overwrite newer state.

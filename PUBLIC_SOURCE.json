@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "a1e16fd4fe347ec1665f3473bb34f692dce2e9bb",
+  "sourceCommit": "f48c1bab7c4de53dc365c80b2cae125926ef9217",
   "files": [
     {
       "path": "apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg",
@@ -148,11 +148,11 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap.xcscheme",
-      "sha256": "f094087c65b73903ea6100ffd14dee5be59ddd0b408bcfcddad4bff90dbddd7a"
+      "sha256": "95865c4c3c76bf7775fc4860109d28243eb59416e8038b34359d26434576af44"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTapWatch.xcscheme",
-      "sha256": "2ed698dc426a72ca4a42ec3eea6ac4fdf227b5b99f9386bacb21b581479f2ce0"
+      "sha256": "4d7d8a4cc7ad92b9be4c3b920ac5864526677672549a0d069c6699159cf3ee85"
     },
     {
       "path": "apps/ios/GrantTap/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
@@ -796,7 +796,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/DesktopCatalogSources.swift",
-      "sha256": "cb6f878a7fd79e1b1551ff3f4a64f46221b84f4bad5fee7b48d70f1ac06c0927"
+      "sha256": "c58875b12eb3e7960512b0331450cb1806c4e519691813ebe4a2c77ce25385ff"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacCatalogRouting.swift",
@@ -892,7 +892,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/README.md",
-      "sha256": "1c9b7bf15172b8b3b0941820af55e1123de2fc35134ae443c6ac03ab7f973d3d"
+      "sha256": "bcd64eb1166ed593a5abe26296a79bbe950325e3c48b28defd28bc53fa8ea317"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacNativeAccess/MacNativeAccess.swift",
@@ -2428,7 +2428,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/MacLocalMCP/DesktopCatalogSourcesTests.swift",
-      "sha256": "3777170c9cb497bf8fc704cf33aff5925c178e98c1b7f0f953162dd21d0c5f8a"
+      "sha256": "78380805335e775260979b1079a476351eacb854d7ba19a858cf10d808a70f06"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/MacLocalMCP/MacCommandMetricsTests.swift",
@@ -3088,7 +3088,7 @@
     },
     {
       "path": "apps/ios/project.yml",
-      "sha256": "985d8af875a752523225ec8225074a4738d695c15254c37df9fc2569d8af3c8f"
+      "sha256": "83ed291275e876aec2aed6390fd5cb0df9d100539604f0584f9a8c066f415117"
     },
     {
       "path": "apps/ios/README.md",

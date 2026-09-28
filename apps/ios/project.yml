@@ -248,6 +248,7 @@ schemes:
       config: Debug
     test:
       config: Debug
+      debugEnabled: false
       environmentVariables:
         GRANTTAP_TEST_LANGUAGE: en
       targets:
@@ -279,6 +280,7 @@ schemes:
       config: Debug
     test:
       config: Debug
+      debugEnabled: false
       environmentVariables:
         GRANTTAP_TEST_LANGUAGE: en
       targets:

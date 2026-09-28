@@ -5,7 +5,15 @@ import Foundation
 enum DesktopCatalogSources {
     static func sessions(local: [SessionInfo], current: [SessionInfo],
                          remoteSessionIds: Set<String>) -> [SessionInfo] {
-        let remote = current.filter { remoteSessionIds.contains($0.sessionId) }
+        let remote = current.filter { remoteSessionIds.contains($0.sessionId) }.map { report in
+            guard let computer = report.computerId, !computer.isEmpty,
+                  let observed = local.filter({
+                      $0.sessionId == report.sessionId && $0.agent == report.agent
+                          && $0.computerId == computer
+                  }).max(by: { $0.lastActivityAt < $1.lastActivityAt }),
+                  observed.lastActivityAt >= report.lastActivityAt else { return report }
+            return observed
+        }
         let remoteIds = Set(remote.map(\.sessionId))
         return remote + local.filter { !remoteIds.contains($0.sessionId) }
     }
