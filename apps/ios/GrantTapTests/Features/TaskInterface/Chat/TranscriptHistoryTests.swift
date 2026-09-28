@@ -24,7 +24,8 @@ final class TranscriptHistoryTests: XCTestCase {
         let model = AppModel()
         model.activities["s"] = updated
         model.releaseTranscriptHistory(sessionId: "s")
-        XCTAssertEqual(model.activities["s"]?.entries.count, 300)
+        XCTAssertEqual(model.activities["s"]?.entries.count, 312)
+        XCTAssertEqual(model.activities["s"]?.entries.first?.id, "row-38")
         XCTAssertNil(model.activities["s"]?.history)
     }
 
@@ -116,6 +117,19 @@ final class TranscriptHistoryTests: XCTestCase {
             return nil
         }
         XCTAssertEqual(ids, entries.map(\.id))
+    }
+
+    func testClaudeNativeIdentityMigratesLegacyRowsOneForOne() {
+        let old = (0..<2).map { ActivityEntry(id: "s:100:\($0)", kind: "user", text: "Continue", createdAt: 100) }
+        let native = (0..<2).map { ActivityEntry(id: "s:message:" + String(repeating: String($0), count: 24) + ":0",
+            kind: "user", text: "Continue", createdAt: 100) }
+        let pending = ActivityEntry(id: "local-user-pending", kind: "user", text: "Continue", createdAt: 100)
+        let existing = SessionActivity(sessionId: "s", agent: "claude", state: "idle", entries: old + [pending], generatedAt: 100)
+        let page = SessionActivity(sessionId: "s", agent: "claude", state: "idle", entries: native, generatedAt: 101,
+            history: .init(hasMore: false))
+        let merged = AppModel.mergeActivity(existing: existing, incoming: page)
+        XCTAssertEqual(merged.entries.map(\.id), [pending.id] + native.map(\.id))
+        XCTAssertEqual(AppModel.mergeActivity(existing: merged, incoming: page).entries, merged.entries)
     }
 
     private func render<Content: View>(_ content: Content) {

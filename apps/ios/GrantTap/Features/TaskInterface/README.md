@@ -21,11 +21,18 @@ decoding and serialises reads; failed files remain retryable. Compact task
 previews retain text. Tests live in `GrantTapTests/Features/TaskInterface/Chat`
 and `GrantTapUITests/MessageImageUITests.swift`.
 
-Codex chat history uses native backward pages through `ChatHistoryPaging`.
-The top of the transcript loads older messages and keeps a retryable explicit
-button. Stable entry ids and the older cursor survive live snapshots; loaded
-pages are held while reading and released on leaving the chat. Disk caches
-remain bounded. `ChatFileChanges` renders the computer's completed-reply file
+The existing chat status strip names its Project/Mesh and opens that Project.
+Messages and grouped runs show the provider’s date and local time.
+Codex and Claude chat history use native backward pages through `ChatHistoryPaging`.
+The persistent previous-request control preloads at least two root user requests,
+including attachment-only requests. Each jump prepares the next older request;
+long tool runs cannot hide the question above them. Top-edge paging also works,
+and the explicit history button recovers failed or stalled loads without a retry loop.
+Stable entry ids and older cursors survive live snapshots. iPhone keeps a bounded
+recent window extended through two complete request boundaries. Mac retains every
+fetched page in a per-chat protected archive across launches until the user clears
+it in Settings → This Mac → Chat history & cache. Clearing the cache also clears
+its durable files, while preserving provider history and device connections. `ChatFileChanges` renders the computer's completed-reply file
 summary, added/removed counts, expandable file list and redacted diff previews.
 The summary includes edits outside the visible page; it describes recorded
 successful edits rather than the final Git tree. Full bounded tool call/result

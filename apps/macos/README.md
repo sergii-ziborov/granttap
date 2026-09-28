@@ -72,3 +72,20 @@ MCP source revision containing `desktop/native-access` (0.8.25 source or later).
 The source release is available on GitHub; an npm tag is a separate publication.
 The `embed-graph-resources.sh` Xcode phase includes graph assets before signing,
 so App Store archives contain the same graph as local Mac builds.
+
+## Chat history and storage
+
+The chat status strip shows its Project/Mesh. Messages display dates and local
+times. The fixed user-message strip jumps to the latest request, then prepares
+older requests as you navigate. Native Codex and Claude history loads
+backward automatically, including across long runs of commands. A failed load
+shows a retry; normal browsing does not require a “Show earlier” button.
+
+Every fetched Mac page is kept in a protected per-chat archive. Settings →
+This Mac → Chat history & cache shows its size and can clear this local copy
+without changing device connections or provider-owned conversation files.
+The nested Provider storage page can inspect Codex, Claude and Cursor storage
+using the optional separately installed SweepLoom CLI. Only selected temporary
+caches or logs are eligible for confirmed moves to Trash; provider history,
+credentials, configuration and databases are inspect-only. Running providers
+and changed caches require a fresh review.

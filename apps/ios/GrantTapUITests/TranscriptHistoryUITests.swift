@@ -80,3 +80,36 @@ final class TranscriptHistoryUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Approximate share of agent processes"].exists)
     }
 }
+
+
+extension TranscriptHistoryUITests {
+    func testPreviousRequestNavigationPreloadsAndAdvancesWithoutManualPaging() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
+            "GRANTTAP_TEST_TRANSCRIPT_HISTORY": "1", "GRANTTAP_TEST_REQUEST_NAVIGATION": "1",
+            "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        let previous = app.buttons["chat.latest-user-message"]
+        XCTAssertTrue(previous.waitForExistence(timeout: 15))
+        XCTAssertTrue(waitForLabel(previous, contains: "Latest user request"))
+        XCTAssertTrue(app.buttons["chat.project"].exists)
+        XCTAssertTrue(app.staticTexts["chat.time.history-final"].exists)
+        previous.tap()
+        XCTAssertTrue(app.staticTexts["chat.row.request-0"].isHittable)
+        XCTAssertTrue(app.staticTexts["chat.time.request-0"].exists)
+        XCTAssertTrue(waitForLabel(previous, contains: "Previous user request"))
+        previous.tap()
+        XCTAssertTrue(app.staticTexts["chat.row.request-1"].isHittable)
+        XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
+        XCTAssertFalse(app.buttons["chat.history.more"].exists)
+        previous.tap()
+        XCTAssertTrue(app.staticTexts["chat.row.request-2"].isHittable)
+        XCTAssertTrue(waitForLabel(previous, contains: "First user message"))
+    }
+
+    private func waitForLabel(_ element: XCUIElement, contains text: String) -> Bool {
+        XCTWaiter.wait(for: [XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label CONTAINS %@", text), object: element)], timeout: 10) == .completed
+    }
+}

@@ -26,3 +26,12 @@ GrantTap, its iPhone app, and its Apple Watch app are independent products.
 Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude
 and Claude Code are trademarks of Anthropic. OpenAI and Codex are trademarks
 of OpenAI. GrantTap is not affiliated with or endorsed by those companies.
+
+## Optional external SweepLoom CLI
+
+The Mac provider-storage inspector can use a separately installed
+[SweepLoom CLI](https://github.com/Weavatrix/sweeploom), licensed under MPL-2.0.
+It requests storage and process metadata through SweepLoom’s MCP interface.
+SweepLoom code and its executable are not bundled in the Apple application;
+its installation retains the upstream license. GrantTap’s confirmed cache
+cleanup moves selected temporary files to the Mac Trash.

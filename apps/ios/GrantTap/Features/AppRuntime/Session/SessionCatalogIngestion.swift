@@ -53,6 +53,7 @@ extension AppModel {
     /// Settings → Clear local chat cache (does not affect Mac sessions).
     func clearLocalSessionCache() {
         SessionCatalogCache.clear()
+        SessionActivityPersistence.clear()
         sessions = []
         sessionHistory = []
         activities = [:]

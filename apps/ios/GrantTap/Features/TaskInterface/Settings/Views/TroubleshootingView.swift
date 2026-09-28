@@ -3,7 +3,6 @@ import SwiftUI
 struct TroubleshootingView: View {
     @EnvironmentObject private var model: AppModel
     @ObservedObject var push: PushRegistrationManager
-    @State private var confirmClearCache = false
     @State private var showPairing = false
 
     init(push: PushRegistrationManager? = nil) {
@@ -38,21 +37,17 @@ struct TroubleshootingView: View {
                 } label: {
                     Label(L("Report a problem"), systemImage: "ladybug")
                 }
-                Button(L("Clear local chat cache"), role: .destructive) {
-                    confirmClearCache = true
+                NavigationLink {
+                    ChatCacheView().environmentObject(model)
+                } label: {
+                    Label(L("Chat history & cache"), systemImage: "externaldrive")
                 }
+                .accessibilityIdentifier("settings.chat-cache")
             }
         }
         .pageNavigationTitle(L("Troubleshooting"))
         .sheet(isPresented: $showPairing) { PairingSheet().environmentObject(model) }
-        .confirmationDialog(L("Clear local chat cache?"),
-                            isPresented: $confirmClearCache,
-                            titleVisibility: .visible) {
-            Button(L("Clear cache"), role: .destructive) { model.clearLocalSessionCache() }
-            Button(L("Cancel"), role: .cancel) {}
-        } message: {
-            Text(L("Mac tasks are unchanged and will reappear on the next update."))
-        }
+
     }
 
     func readiness(_ provider: String, status: String) -> some View {

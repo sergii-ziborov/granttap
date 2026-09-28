@@ -161,6 +161,7 @@ extension TaskChatView {
 
     func scrollToBottom(_ proxy: ScrollViewProxy) {
         DispatchQueue.main.async {
+            guard userMessageAnchor == nil else { return }
             withAnimation(.easeOut(duration: 0.2)) {
                 proxy.scrollTo("chat-bottom", anchor: .bottom)
             }

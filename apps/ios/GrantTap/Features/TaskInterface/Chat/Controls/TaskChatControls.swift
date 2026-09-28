@@ -76,8 +76,17 @@ extension TaskChatView {
                 .compactMap { $0 }.joined(separator: " · "))
                 .font(.system(size: 11, weight: .semibold))
                 .lineLimit(1)
-            if let route = model.chatComputerRoute(forSessionId: chatSessionId) {
-                Text("· \(route.computerName)").lineLimit(1)
+            if let projectId = meshProjectId {
+                Button { openMesh() } label: {
+                    Label(model.projectDisplayName(id: projectId) ?? currentSession.projectGroupTitle,
+                          systemImage: "point.3.connected.trianglepath.dotted")
+                        .lineLimit(1)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("chat.project")
+            } else {
+                Text(currentSession.projectGroupTitle).lineLimit(1)
+                    .accessibilityIdentifier("chat.project")
             }
             if currentSession.isPaused {
                 Text(controlPending ? L("Pausing…") : L("Paused"))

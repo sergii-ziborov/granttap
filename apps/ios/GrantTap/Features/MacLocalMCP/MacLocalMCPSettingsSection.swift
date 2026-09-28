@@ -30,6 +30,12 @@ struct MacLocalMCPSettingsSection: View {
                 }
                 .accessibilityIdentifier("settings.computer-activity")
                 NavigationLink {
+                    ChatCacheView().environmentObject(model)
+                } label: {
+                    Label(L("Chat history & cache"), systemImage: "externaldrive")
+                }
+                .accessibilityIdentifier("settings.chat-cache")
+                NavigationLink {
                     MacProviderHooksView(reader: reader)
                 } label: {
                     Label(L("Codex hooks"), systemImage: "checkmark.shield")

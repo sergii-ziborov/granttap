@@ -54,9 +54,7 @@ extension TaskChatView {
     private var chatTranscript: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                if let latest = latestUserEntry {
-                    latestUserMessageButton(latest, proxy: proxy)
-                }
+                latestUserMessageButton(proxy)
                 GeometryReader { viewport in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 14) {
@@ -101,6 +99,8 @@ extension TaskChatView {
                     .overlay(alignment: .bottomTrailing) {
                         if !chatIsAtBottom && !visibleTimeline.isEmpty {
                             Button {
+                                userMessageAnchor = nil
+                                pendingUserJump = false
                                 withAnimation(.easeOut(duration: 0.2)) {
                                     proxy.scrollTo("chat-bottom", anchor: .bottom)
                                 }
@@ -119,10 +119,19 @@ extension TaskChatView {
                     }
                 }
             }
-            .onAppear { settleScroll(proxy) }
-            .onChange(of: transcriptHistory) { _ in historyArrived(proxy) }
+            .onAppear {
+                historyReadingActive = true
+                settleScroll(proxy)
+                ensurePreviousRequest(proxy)
+            }
+            .onDisappear { historyReadingActive = false }
+            .onChange(of: transcriptHistory) { _ in
+                historyArrived(proxy)
+                ensurePreviousRequest(proxy)
+            }
             .onChange(of: entries.count) { _ in
                 if chatIsAtBottom { settleScroll(proxy) }
+                ensurePreviousRequest(proxy)
             }
         }
     }
@@ -237,6 +246,7 @@ extension TaskChatView {
         }
         #endif
         model.clearEmptyActivitySnapshot(sessionId: chatSessionId)
+        model.relayForSession(chatSessionId)?.requestSessionEvents(sessionId: chatSessionId, history: true)
         model.subscribeSession(
             chatSessionId, active: true, source: "phone-chat:\(chatSessionId)"
         )

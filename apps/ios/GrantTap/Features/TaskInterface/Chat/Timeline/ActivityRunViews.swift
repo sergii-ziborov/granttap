@@ -49,6 +49,7 @@ struct ActivityRunRow: View {
                     .font(.system(size: 10.5))
                     .foregroundStyle(Theme.muted)
                     .lineLimit(1)
+                    if let entry = run.entries.first { TranscriptTimestamp(entry: entry) }
                 }
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.right")

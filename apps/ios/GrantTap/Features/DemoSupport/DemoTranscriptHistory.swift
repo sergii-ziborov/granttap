@@ -25,17 +25,38 @@ enum DemoTranscriptHistory {
             callText: "Expanded call first line\n" + String(repeating: "Readable source line\n", count: 80) + "Expanded call last line",
             resultText: "Saved the changes", fileChanges: files))
         entries.append(ActivityEntry(id: "history-final", kind: "final", text: "History review finished", createdAt: now))
+        if requestNavigationEnabled { entries.removeAll { $0.id.hasPrefix("history-") && Int($0.id.dropFirst(8)) != nil } }
         return SessionActivity(sessionId: AppModelDemoFixtures.codexSessionId, agent: "codex", state: "idle",
-            entries: entries, generatedAt: now, history: .init(cursor: "demo-earlier", hasMore: true))
+            entries: entries, generatedAt: now,
+            history: .init(cursor: requestNavigationEnabled ? "requests-latest" : "demo-earlier", hasMore: true))
     }
 
     static func load(cursor: String, sessionId: String, model: AppModel) -> Bool {
-        guard enabled, model.demoMode, cursor == "demo-earlier" else { return false }
+        guard enabled, model.demoMode else { return false }
+        if requestNavigationEnabled { return loadRequestPage(cursor, sessionId: sessionId, model: model) }
+        guard cursor == "demo-earlier" else { return false }
         let time = model.activities[sessionId]?.entries.first?.createdAt ?? 1000
         let entries = messages(in: 0..<20, prefix: "Earlier", baseTime: time - 100)
         model.applyActivity(SessionActivity(sessionId: sessionId, agent: "codex", state: "idle", entries: entries,
             generatedAt: Date().timeIntervalSince1970 * 1000,
             history: .init(hasMore: false, requestedCursor: cursor)))
+        return true
+    }
+
+    private static var requestNavigationEnabled: Bool {
+        ProcessInfo.processInfo.environment["GRANTTAP_TEST_REQUEST_NAVIGATION"] == "1"
+    }
+
+    private static func loadRequestPage(_ cursor: String, sessionId: String, model: AppModel) -> Bool {
+        let pages = ["requests-latest", "requests-previous", "requests-first"]
+        guard let index = pages.firstIndex(of: cursor) else { return false }
+        let at = (model.activities[sessionId]?.entries.first?.createdAt ?? 1000) - 50
+        let name = ["Latest user request", "Previous user request", "First user request"][index]
+        let entry = ActivityEntry(id: "request-\(index)", kind: "user", text: name, createdAt: at)
+        let more = index + 1 < pages.count
+        model.applyActivity(SessionActivity(sessionId: sessionId, agent: "codex", state: "idle",
+            entries: [entry], generatedAt: Date().timeIntervalSince1970 * 1000,
+            history: .init(cursor: more ? pages[index + 1] : nil, hasMore: more, requestedCursor: cursor)))
         return true
     }
 

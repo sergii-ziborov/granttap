@@ -28,3 +28,13 @@ final class ChatPinnedUserMessageTests: XCTestCase {
         XCTAssertEqual(ChatPinnedUserMessage.topVisibleRow(frames, viewportHeight: 100), "reading")
     }
 }
+
+
+extension ChatPinnedUserMessageTests {
+    func testAttachmentOnlyRequestIsNavigable() {
+        let attachment = ActivityEntry(id: "attachment", kind: "user", text: "", createdAt: 1,
+            attachments: ["document.pdf"])
+        let rows = ChatActivityGrouping.rows([.activity(attachment)])
+        XCTAssertEqual(ChatPinnedUserMessage.entry(in: rows, topRowId: nil)?.id, "attachment")
+    }
+}

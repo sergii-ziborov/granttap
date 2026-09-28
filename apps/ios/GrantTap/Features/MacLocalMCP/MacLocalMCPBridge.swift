@@ -24,6 +24,7 @@ struct MacLocalMCPBridge {
                               : operation == "desktop.task_send"
                               || operation == "desktop.task_create"
                                 || operation == "desktop.own_relay" ? 250
+                              : operation == "desktop.provider_storage" ? 120
                               : operation == "desktop.policy_set" ? 60
                               : operation == "desktop.policy_status"
                                 || operation == "desktop.controller_enrollment"

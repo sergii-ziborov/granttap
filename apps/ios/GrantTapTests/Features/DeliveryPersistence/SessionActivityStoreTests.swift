@@ -91,3 +91,28 @@ extension SessionActivityStoreTests {
         XCTAssertEqual(merged.entries.first?.id, "entry-40")
     }
 }
+
+
+extension SessionActivityStoreTests {
+    func testLongTurnRetainsBothPreviousUserRequestsOnDisk() {
+        let older = ActivityEntry(id: "older-request", kind: "user", text: "Earlier", createdAt: 0)
+        let latest = ActivityEntry(id: "latest-request", kind: "user", text: "Latest", createdAt: 1)
+        let reply = (2..<650).map(entry)
+        let transcript = SessionActivity(sessionId: "long-turn", agent: "codex", state: "working",
+            entries: [older, latest] + reply, generatedAt: 650,
+            history: .init(cursor: "native-cursor", hasMore: true))
+        SessionActivityPersistence.save([transcript.sessionId: transcript])
+        let restored = SessionActivityPersistence.load()[transcript.sessionId]
+        XCTAssertEqual(restored?.entries.first?.id, "older-request")
+        XCTAssertEqual(restored?.entries.count, 650)
+        XCTAssertEqual(restored?.history?.cursor, "native-cursor")
+    }
+
+    @MainActor
+    func testClearingChatCacheActuallyRemovesDurableTranscript() {
+        SessionActivityPersistence.save(["cached": activity("cached", entries: 3, generatedAt: 1)])
+        let model = AppModel()
+        model.clearLocalSessionCache()
+        XCTAssertTrue(SessionActivityPersistence.load().isEmpty)
+    }
+}

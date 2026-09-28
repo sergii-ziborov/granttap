@@ -122,6 +122,7 @@ enum MacLocalProjection {
         model.activities[session.sessionId] = model.activities[session.sessionId].map {
             AppModel.mergeActivity(existing: $0, incoming: incoming)
         } ?? incoming
+        SessionActivityPersistence.save(model.activities)
     }
 
     private static func executionIsOpen(_ session: SessionInfo,

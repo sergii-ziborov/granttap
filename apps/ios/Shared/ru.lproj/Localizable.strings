@@ -2159,3 +2159,65 @@
 "Connection mode & own relay" = "Режим подключения и свой relay";
 "One-time Mac license. Personal is optional for hosted delivery; direct or own-relay operation requires no subscription." = "Разовая лицензия Mac. Personal необязательна и оплачивает облачную доставку; прямое подключение и свой relay работают без подписки.";
 "Purchase or restore Mac license" = "Купить или восстановить лицензию Mac";
+
+"Previous user message" = "Предыдущее ваше сообщение";
+
+"Retry loading previous user message" = "Повторить загрузку вашего предыдущего сообщения";
+
+"Loading previous user message…" = "Загружаем ваше предыдущее сообщение…";
+
+"No user messages yet" = "Ваших сообщений пока нет";
+
+"First user message" = "Первое ваше сообщение";
+
+"Load earlier history" = "Загрузить более раннюю историю";
+
+"GrantTap chat history" = "История чатов GrantTap";
+
+"Saved on this device" = "Сохранено на этом устройстве";
+
+"Fetched history stays on this Mac until cleared. iPhone keeps at least the two latest user requests. Clearing this copy does not delete provider conversations or device connections." = "Загруженная история сохраняется на Mac до очистки. iPhone сохраняет как минимум два ваших последних запроса. Очистка этой копии не удаляет чаты провайдеров и подключения устройств.";
+
+"Only GrantTap’s saved copy is cleared. Provider history and linked devices remain available." = "Удаляется только сохранённая копия GrantTap. История провайдеров и подключённые устройства остаются доступны.";
+
+"Chat history & cache" = "История чатов и кэш";
+
+"Codex, Claude & Cursor storage" = "Хранилища Codex, Claude и Cursor";
+
+"Provider storage" = "Хранилища провайдеров";
+
+"SweepLoom inspects storage without reading chat contents. Select temporary caches or logs to move to the Mac Trash. Conversations, credentials and databases stay in place." = "SweepLoom проверяет хранилища без чтения содержимого чатов. Выберите временный кэш или журналы для перемещения в корзину Mac. Чаты, данные доступа и базы данных останутся на месте.";
+
+"Install SweepLoom" = "Установить SweepLoom";
+
+"Install the SweepLoom CLI on this Mac, then refresh." = "Установите CLI SweepLoom на этом Mac и обновите список.";
+
+"Close this provider before clearing its cache." = "Закройте этот провайдер перед очисткой его кэша.";
+
+"Select cache" = "Выбрать кэш";
+
+"Inspect only" = "Только просмотр";
+
+"Storage scan is incomplete. Cleanup is unavailable." = "Проверка хранилища неполная. Очистка недоступна.";
+
+"Move selected caches to Trash" = "Переместить выбранный кэш в корзину";
+
+"Move selected caches to Trash?" = "Переместить выбранный кэш в корзину?";
+
+"Move to Trash" = "Переместить в корзину";
+
+"The runtime checks that these caches are unchanged and the provider is closed. They remain recoverable in the Mac Trash." = "Перед перемещением проверяется, что кэш не изменился и провайдер закрыт. Данные можно восстановить из корзины Mac.";
+
+"Storage inspection failed. Refresh to try again." = "Не удалось проверить хранилище. Обновите список для повтора.";
+
+"Moved %d caches to Trash." = "В корзину перемещено: %d.";
+
+"Cache changed or the provider is running. Refresh and review the selection again." = "Кэш изменился или провайдер работает. Обновите список и проверьте выбор заново.";
+
+"Cache" = "Кэш";
+
+"Secret" = "Данные доступа";
+
+"Other" = "Другое";
+
+"SQLite" = "SQLite";

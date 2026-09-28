@@ -52,13 +52,13 @@ extension AppModel {
             return existing
         }
         var byId: [String: ActivityEntry] = [:]
-        var existingOrder: [String: Int] = [:]
         var incomingOrder: [String: Int] = [:]
-        for (index, entry) in existing.entries.enumerated() {
-            byId[entry.id] = entry
-            existingOrder[entry.id] = index
-        }
+        for entry in existing.entries { byId[entry.id] = entry }
         for (index, entry) in incoming.entries.enumerated() {
+            if incoming.agent == "claude", byId[entry.id] == nil,
+               let old = existing.entries.first(where: {
+                   byId[$0.id] != nil && Self.isLegacyClaudeAlias($0, of: entry, sessionId: incoming.sessionId)
+               }) { byId.removeValue(forKey: old.id) }
             if incoming.agent == "codex", incoming.history != nil {
                 for old in existing.entries where Self.isLegacyCodexAlias(old, of: entry, sessionId: incoming.sessionId) {
                     byId.removeValue(forKey: old.id)
@@ -95,17 +95,20 @@ extension AppModel {
             sessionId: incoming.sessionId,
             agent: incoming.agent.isEmpty ? existing.agent : incoming.agent,
             state: state,
-            // The computer sends a short window each time, but merging them
-            // accumulates, and a long-running chat has no natural end. Keep the
-            // newest window in memory as well as on disk, cut from the front so
-            // the part being read always survives.
-            entries: incoming.history == nil && existing.history == nil
-                && merged.count > SessionActivityPersistence.maxEntriesPerSession
-                ? Array(merged.suffix(SessionActivityPersistence.maxEntriesPerSession))
-                : merged,
+            // Preserve pages while reading; phone persistence trims only at request boundaries.
+            entries: retainedActivityEntries(merged, hasHistory: incoming.history != nil || existing.history != nil),
             generatedAt: generatedAt,
             history: isOlderPage || existing.history == nil ? incoming.history : existing.history
         )
+    }
+
+    private static func retainedActivityEntries(_ entries: [ActivityEntry], hasHistory: Bool) -> [ActivityEntry] {
+        #if targetEnvironment(macCatalyst)
+        return entries
+        #else
+        return hasHistory ? entries : TranscriptRequestBoundary.retainedEntries(
+            entries, limit: SessionActivityPersistence.maxEntriesPerSession)
+        #endif
     }
 
     /// Old window-relative ids and native ids can describe the same visible block.
@@ -124,12 +127,24 @@ extension AppModel {
         return ordinal % 100 == block
     }
 
-    /// Loaded older pages are held while reading; closing the chat releases them.
+    /// Consume one legacy alias per native UUID; two identical requests stay two requests.
+    private static func isLegacyClaudeAlias(_ old: ActivityEntry, of native: ActivityEntry, sessionId: String) -> Bool {
+        guard old.createdAt == native.createdAt, old.text == native.text, old.kind == native.kind,
+              old.childThreadId == native.childThreadId else { return false }
+        let prefix = sessionId + ":"
+        let nativePrefix = (native.childThreadId ?? sessionId) + ":message:"
+        guard old.id.hasPrefix(prefix), native.id.hasPrefix(nativePrefix) else { return false }
+        let legacy = old.id.dropFirst(prefix.count).split(separator: ":")
+        let current = native.id.dropFirst(nativePrefix.count).split(separator: ":")
+        return legacy.count == 2 && Double(legacy[0]) != nil && Int(legacy[1]) != nil
+            && current.count == 2 && current[0].count == 24 && current[0].allSatisfy(\.isHexDigit)
+            && Int(current[1]) != nil
+    }
+
+    /// Retain complete request boundaries on phones and every fetched page on Mac.
     func releaseTranscriptHistory(sessionId: String) {
-        guard let activity = activities[sessionId], activity.history != nil else { return }
-        activities[sessionId] = SessionActivity(type: activity.type, sessionId: sessionId,
-            agent: activity.agent, state: activity.state,
-            entries: Array(activity.entries.suffix(SessionActivityPersistence.maxEntriesPerSession)),
-            generatedAt: activity.generatedAt)
+        guard let activity = activities[sessionId] else { return }
+        activities[sessionId] = SessionActivityPersistence.trimmed(activity)
+        SessionActivityPersistence.save(activities)
     }
 }

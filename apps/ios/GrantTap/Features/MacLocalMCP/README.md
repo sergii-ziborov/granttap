@@ -62,3 +62,16 @@ sends and creation. Only the small path/name/MIME manifest travels over the
 same-user socket. The MCP validates and reads the batch and passes it through
 the existing provider attachment pipeline. Copies are removed after the request
 or any error. Source picker files and unrelated directories are untouched.
+
+## Provider storage
+
+`MacProviderStorageView` uses `desktop.provider_storage` on the authenticated
+same-user desktop channel. The runtime inspects Codex, Claude and Cursor metadata
+through the separately installed SweepLoom CLI. The app does not bundle SweepLoom
+or execute a second machine runtime. A human selects at most 16 regenerable cache
+or log entries and confirms moving them to the Mac Trash. Provider conversations,
+secrets, databases, rules and skills remain inspect-only. Running providers,
+symlinks, capped scans, expired reviews and modified cache trees block cleanup.
+
+The separate runtime supports the normal SweepLoom CLI locations or
+`GRANTTAP_SWEEPLOOM_PATH`. No scanning or cleanup runs automatically at app launch.

@@ -31,7 +31,7 @@ enum ChatPinnedUserMessage {
 
     private static func userEntry(_ row: ChatTimelineRow) -> ActivityEntry? {
         guard case .item(.activity(let entry)) = row,
-              entry.kind == "user", !entry.text.isEmpty else { return nil }
+              TranscriptRequestBoundary.isRequest(entry) else { return nil }
         return entry
     }
 }

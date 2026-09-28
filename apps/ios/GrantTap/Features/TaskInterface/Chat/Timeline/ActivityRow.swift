@@ -77,8 +77,10 @@ struct ActivityRow: View {
             VStack(alignment: .leading, spacing: 7) {
                 if !entry.text.isEmpty {
                     MessageImageContentView(entry: entry, compact: false)
+                        .accessibilityIdentifier("chat.row.\(entry.id)")
                 }
                 attachments
+                TranscriptTimestamp(entry: entry)
                 if let tick = model.deliveryTick(forEntryId: entry.id) {
                     DeliveryTicksView(
                         tick: tick,
@@ -95,7 +97,6 @@ struct ActivityRow: View {
                 RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Theme.line, lineWidth: 1)
             )
         }
-        .accessibilityIdentifier("chat.row.\(entry.id)")
         .fullScreenCover(item: $previewImage) { preview in
             ImagePreviewScreen(image: preview.image) { previewImage = nil }
         }
@@ -161,6 +162,7 @@ struct ActivityRow: View {
                     )
                 }
                 attachments
+                TranscriptTimestamp(entry: entry)
             }
             Spacer(minLength: 0)
         }
