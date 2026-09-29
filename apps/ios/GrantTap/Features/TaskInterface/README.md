@@ -32,6 +32,9 @@ The latest-message action shares the pinned request strip, outside the scrolling
 surface, so it cannot intercept transcript pans. Its space stays reserved while
 hidden so the first jump to the newest message survives layout. Paging measures the content
 container rather than a lazy header that may disappear from the view hierarchy.
+Loaded rows use measured heights: lazy row estimates could repeatedly undo an
+upward pan and stop older-page loading. Native cursors and scroll anchors still
+preserve the reader's position when another history page arrives.
 Stable entry ids and older cursors survive live snapshots. iPhone keeps a bounded
 recent window extended through two complete request boundaries. Mac retains every
 fetched page in a per-chat protected archive across launches until the user clears

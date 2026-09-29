@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "df21224fee5f05c6d4bbf0816c460d76bf9da39b",
+  "sourceCommit": "38a251c43c7a46fa2ef4d959d6322431101a88fa",
   "files": [
     {
       "path": ".gitignore",
@@ -2008,7 +2008,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatScreen.swift",
-      "sha256": "c1bd5a5df34ce8af1f16e9a915e1a13cab0ef88ceb1d5080ada64cad63ff60bf"
+      "sha256": "a5c2ad20b80dcc24187c9c79ece74e5dd486a954d9b292a7d80a2ab6dd94c466"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatTranscriptRows.swift",
@@ -2064,7 +2064,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/README.md",
-      "sha256": "8be137713d08d94fa1752fce6140066f29c2c944632d112eaec7f90342d6cb55"
+      "sha256": "b7503048bc3ecedbf001ff79903204e97680e800ef7f22b9f6064af020b66295"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Session/Views/PairingPurpose.swift",

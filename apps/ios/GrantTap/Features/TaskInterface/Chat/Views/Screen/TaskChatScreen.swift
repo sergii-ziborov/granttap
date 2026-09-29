@@ -64,7 +64,9 @@ extension TaskChatView {
                 .background(Theme.surface)
                 GeometryReader { viewport in
                     ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 14) {
+                        // Measured heights prevent lazy row estimates from
+                        // repeatedly undoing an upward transcript pan.
+                        VStack(alignment: .leading, spacing: 14) {
                             olderMessagesHeader(proxy)
                             transcriptRows(proxy)
                             DeliveryStatusList(
