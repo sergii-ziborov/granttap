@@ -25,7 +25,9 @@ extension TaskChatView {
             Task {
                 defer { localSending = false }
                 do {
-                    let result = try await reader.send(text, to: currentSession, attachments: attachments)
+                    let options = model.turnOverrides.resolved(sessionId: chatSessionId, agent: currentSession.agent)
+                    let result = try await reader.send(text, to: currentSession, attachments: attachments,
+                        model: options.wire(for: currentSession.agent).model)
                     if result.accepted {
                         draft = ""
                         attachments = []

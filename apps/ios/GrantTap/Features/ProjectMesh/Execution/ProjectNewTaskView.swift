@@ -106,12 +106,26 @@ struct ProjectNewTaskView: View {
             Picker(L("Workspace"), selection: $bindingId) {
                 ForEach(bindings, id: \.bindingId) { Text($0.displayName).tag($0.bindingId) }
             }
+            modelPicker
+            if let routeProblem {
+                Text(routeProblem).font(.caption).foregroundStyle(.orange)
+            }
+        }
+    }
+
+    @ViewBuilder private var modelPicker: some View {
+        if ["codex", "claude"].contains(provider) {
+            HStack {
+                Text(L("Model"))
+                Spacer()
+                ComposerModelPill(agent: provider,
+                    model: Binding(get: { TurnModel(rawValue: modelId) }, set: { modelId = $0?.rawValue ?? "" }),
+                    catalog: .resolve(agent: provider, endpointId: endpointId, catalogs: snapshot.modelCatalog ?? []))
+            }
+        } else {
             Picker(L("Model"), selection: $modelId) {
                 Text(L("Automatic")).tag("")
                 ForEach(models) { Text($0.label ?? $0.modelId).tag($0.modelId) }
-            }
-            if let routeProblem {
-                Text(routeProblem).font(.caption).foregroundStyle(.orange)
             }
         }
     }

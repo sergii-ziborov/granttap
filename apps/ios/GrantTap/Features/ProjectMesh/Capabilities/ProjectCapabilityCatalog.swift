@@ -17,6 +17,8 @@ struct ProjectAdvertisedModel: Codable, Equatable, Identifiable {
     let endpointId: String
     let source: String
     var label: String? = nil
+    var description: String? = nil
+    var priority: Int? = nil
     let observedAt: Double
     var id: String { "\(endpointId):\(provider):\(modelId)" }
 }

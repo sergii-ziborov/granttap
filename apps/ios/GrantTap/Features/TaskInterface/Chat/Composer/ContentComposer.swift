@@ -102,7 +102,12 @@ extension ContentView {
                 HStack(spacing: 8) {
                     AttachmentMenuButton(attachments: $attachments)
                     ComposerModelPill(agent: activeComposeAgent, model: newTaskModelBinding,
-                                      current: selectedComposeSession?.model)
+                                      current: selectedComposeSession?.model,
+                                      catalog: model.turnModelCatalog(agent: activeComposeAgent,
+                                          session: selectedComposeSession, roomId: selectedNewTaskConnection?.id),
+                                      fallback: selectedComposeSession == nil ? nil
+                                          : model.turnOverrides.agentDefaults(for: activeComposeAgent).model?.id,
+                                      hasConversation: selectedComposeSession != nil)
                     Spacer(minLength: 4)
                     ListeningMicButton(isRecording: dictator.isRecording,
                                        isStarting: dictator.isStarting,

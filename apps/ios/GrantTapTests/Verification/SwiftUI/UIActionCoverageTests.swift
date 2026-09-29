@@ -103,9 +103,7 @@ final class UIActionCoverageTests: XCTestCase {
             sessionId: session.sessionId, agent: session.agent, model: model
         )
         assertRendered(overrides.environmentObject(model))
-        XCTAssertEqual(TurnModel.supported(by: session.agent).map(\.id), [
-            "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5",
-        ])
+        XCTAssertTrue(TurnModel.supported(by: session.agent).isEmpty)
         var picked = model.turnOverrides.chatOverrides(session.sessionId)
         picked.model = .gpt56Terra
         model.turnOverrides.setChatOverrides(picked, for: session.sessionId)

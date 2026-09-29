@@ -93,7 +93,10 @@ extension TaskChatView {
                                          selectedMcp: $selectedMcp,
                                          selectedSkill: $selectedSkill)
                     ComposerModelPill(agent: currentSession.agent, model: chatModelBinding,
-                                      current: currentSession.model)
+                                      current: currentSession.model,
+                                      catalog: model.turnModelCatalog(agent: currentSession.agent, session: currentSession),
+                                      fallback: model.turnOverrides.agentDefaults(for: currentSession.agent).model?.id,
+                                      hasConversation: true)
                     Spacer(minLength: 4)
                     ListeningMicButton(isRecording: dictator.isRecording,
                                        isStarting: dictator.isStarting,

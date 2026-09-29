@@ -111,52 +111,6 @@ struct ComposerField: View {
     }
 }
 
-/// The pill that says which model the next turn will use, and changes it.
-struct ComposerModelPill: View {
-    let agent: String
-    @Binding var model: TurnModel?
-    /// What the chat is answering with when nothing was picked here — the
-    /// model the computer reported, not the name of the agent that runs it.
-    var current: String? = nil
-
-    private var title: String {
-        if let model { return model.label }
-        if let current, !current.isEmpty {
-            return TurnModel(rawValue: current)?.label ?? current
-        }
-        return AgentIdentity.displayName(agent)
-    }
-
-    var body: some View {
-        let options = TurnModel.supported(by: agent)
-        Menu {
-            Button {
-                model = nil
-            } label: {
-                Label(L("Whatever the chat uses"), systemImage: model == nil ? "checkmark" : "circle")
-            }
-            ForEach(options) { option in
-                Button {
-                    model = option
-                } label: {
-                    Label(option.label, systemImage: model == option ? "checkmark" : "circle")
-                }
-            }
-        } label: {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(model == nil ? Theme.muted : Theme.ink)
-                .lineLimit(1)
-                .padding(.horizontal, 13)
-                .frame(height: 34)
-                .background(Theme.raised, in: Capsule())
-                .overlay(Capsule().stroke(Theme.line, lineWidth: 1))
-        }
-        .disabled(options.isEmpty)
-        .accessibilityIdentifier("composer.model")
-    }
-}
-
 /// Send, or put the keyboard away: one control, always in the same corner.
 struct ComposerSendButton: View {
     let action: ComposerAction

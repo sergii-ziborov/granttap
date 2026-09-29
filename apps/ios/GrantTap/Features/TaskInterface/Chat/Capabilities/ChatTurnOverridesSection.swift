@@ -10,18 +10,21 @@ struct ChatTurnOverridesSection: View {
     let agent: String
     @ObservedObject var model: AppModel
 
-    private var models: [TurnModel] { TurnModel.supported(by: agent) }
+    private var supportsModel: Bool { ["codex", "claude"].contains(AgentIdentity.normalize(agent)) }
     private var efforts: [TurnEffort] { TurnEffort.supported(by: agent) }
 
     var body: some View {
-        if !models.isEmpty || !efforts.isEmpty {
+        if supportsModel || !efforts.isEmpty {
             Section {
-                if !models.isEmpty {
-                    Picker(L("Model"), selection: modelBinding) {
-                        Text(L("Keep current model")).tag(TurnModel?.none)
-                        ForEach(models) { choice in
-                            Text(choice.label).tag(TurnModel?.some(choice))
-                        }
+                if supportsModel {
+                    HStack {
+                        Text(L("Model"))
+                        Spacer()
+                        ComposerModelPill(agent: agent, model: modelBinding,
+                            current: session?.model,
+                            catalog: model.turnModelCatalog(agent: agent, session: session),
+                            fallback: model.turnOverrides.agentDefaults(for: agent).model?.id,
+                            hasConversation: true)
                     }
                 }
                 if !efforts.isEmpty {
@@ -40,6 +43,8 @@ struct ChatTurnOverridesSection: View {
             }
         }
     }
+
+    private var session: SessionInfo? { model.knownSession(for: sessionId, preferredAgent: agent) }
 
     var modelBinding: Binding<TurnModel?> {
         Binding(

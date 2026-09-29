@@ -2221,3 +2221,27 @@
 "Other" = "Другое";
 
 "SQLite" = "SQLite";
+
+/* Provider model picker and context transfer */
+"Latest Opus alias · complex reasoning tasks." = "Актуальный Opus · сложные задачи с рассуждениями.";
+"Latest Sonnet alias · everyday coding tasks." = "Актуальный Sonnet · повседневная разработка.";
+"Latest Haiku alias · fast, efficient simple tasks." = "Актуальный Haiku · простые задачи, быстро и экономно.";
+"Fable alias · hardest and longest-running tasks. May require usage credits." = "Fable · самые сложные и длительные задачи. Может потребовать оплачиваемые кредиты.";
+"The installed provider resolves this alias." = "Конкретную версию выбирает установленный провайдер.";
+"Available in the provider's model catalog." = "Доступна в каталоге моделей провайдера.";
+"Current models have not been reported by this computer. Open the provider to refresh its model catalog." = "Компьютер ещё не сообщил актуальные модели. Откройте провайдер, чтобы обновить его каталог.";
+"Provider catalog updated" = "Каталог провайдера обновлён";
+"Availability, limits and billing depend on your provider account." = "Доступность, лимиты и оплата зависят от вашего аккаунта у провайдера.";
+"Applies to the next message sent from GrantTap." = "Применяется к следующему сообщению из GrantTap.";
+"Switch model?" = "Сменить модель?";
+"Switch model" = "Сменить модель";
+"On your next message, the conversation context will be reloaded for the selected model. The provider may summarize context to fit its limits. Chat history and permissions are preserved." = "При следующем сообщении контекст разговора будет перезагружен для выбранной модели. Провайдер может сократить контекст под её лимиты. История чата и разрешения сохранятся.";
+"Frontier intelligence for the most demanding work." = "Наиболее сильная модель для самых сложных задач.";
+"Workhorse model for coding and everyday work." = "Универсальная модель для разработки и повседневной работы.";
+"Fast and affordable model for easier tasks." = "Быстрая и экономная модель для более простых задач.";
+"Older coding model for complex work." = "Предыдущее поколение для сложной разработки.";
+"Older balanced model for straightforward work." = "Предыдущее поколение: сбалансированная модель для понятных задач.";
+"Older fast and efficient model." = "Предыдущее поколение: быстрая и экономная модель.";
+"Latest frontier agentic coding model for broad defensive cybersecurity work." = "Современная сильная модель для разработки и задач защиты в кибербезопасности.";
+"Legacy coding model." = "Модель предыдущего поколения для разработки.";
+"Use provider default" = "По умолчанию у провайдера";

@@ -3,41 +3,8 @@ import Foundation
 /// What a chat should answer with, when the user wants something other than the
 /// chat's own defaults.
 ///
-/// Both are deliberately optional and default to "unchanged": a turn that picks
-/// nothing must reach the computer exactly as it always did. The values become
-/// command-line arguments, so the list of what may be chosen lives here rather
-/// than being assembled from free text at the call site.
-enum TurnModel: String, CaseIterable, Identifiable {
-    case opus, sonnet, haiku, fable
-    case gpt56Sol = "gpt-5.6-sol"
-    case gpt56Terra = "gpt-5.6-terra"
-    case gpt56Luna = "gpt-5.6-luna"
-    case gpt55 = "gpt-5.5"
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .opus: return "Opus"
-        case .sonnet: return "Sonnet"
-        case .haiku: return "Haiku"
-        case .fable: return "Fable"
-        case .gpt56Sol: return "GPT-5.6 Sol"
-        case .gpt56Terra: return "GPT-5.6 Terra"
-        case .gpt56Luna: return "GPT-5.6 Luna"
-        case .gpt55: return "GPT-5.5"
-        }
-    }
-
-    /// Providers that accept a model alias for a headless turn.
-    static func supported(by agent: String) -> [TurnModel] {
-        switch AgentIdentity.normalize(agent) {
-        case "claude": return [.opus, .sonnet, .haiku, .fable]
-        case "codex": return [.gpt56Sol, .gpt56Terra, .gpt56Luna, .gpt55]
-        default: return []
-        }
-    }
-}
+/// Unset fields retain the provider's current choices. Model identity and the
+/// endpoint's live picker catalog are owned by TaskComposer/Models.
 
 enum TurnPermissionMode: String, CaseIterable, Identifiable {
     case `default`, acceptEdits, bypassPermissions, plan
@@ -119,11 +86,10 @@ struct TurnOverrides: Equatable {
 
     /// Only send what the provider can actually act on.
     func wire(for agent: String) -> (model: String?, permissionMode: String?, effort: String?) {
-        let models = TurnModel.supported(by: agent)
         let modes = TurnPermissionMode.supported(by: agent)
         let efforts = TurnEffort.supported(by: agent)
         return (
-            model.flatMap { models.contains($0) ? $0.rawValue : nil },
+            model.flatMap { $0.accepted(by: agent) ? $0.rawValue : nil },
             permissionMode.flatMap { modes.contains($0) ? $0.wireValue : nil },
             effort.flatMap { efforts.contains($0) ? $0.rawValue : nil }
         )

@@ -44,6 +44,7 @@ extension AppModel {
             meshSnapshots[mesh.projectId] = mesh
             meshSnapshots[linked.projectId] = linked
         }
+        TurnModelPickerFixture.apply(to: self, at: now)
         #endif
         projectGovernance = [mesh.projectId: AppModelDemoMeshFixtures.governance(at: now)]
         pendingProjectPolicyRevisions = [:]

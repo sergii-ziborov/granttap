@@ -5,6 +5,18 @@ import XCTest
 /// the rules for what may be chosen — and what silently must not be sent — are
 /// worth pinning down.
 final class TurnOverridesTests: XCTestCase {
+    func testProviderModelsAreNotFrozenToAnOldGeneration() {
+        for id in ["gpt-6-sol", "gpt-6-astra", "gpt-6-luna", "future-coding-model"] {
+            let choice = TurnModel(rawValue: id)
+            XCTAssertNotNil(choice)
+            XCTAssertEqual(TurnOverrides(model: choice).wire(for: "codex").model, id)
+            XCTAssertNil(TurnOverrides(model: choice).wire(for: "claude").model)
+        }
+        for id in ["", "--model", "a\nb", "a b", String(repeating: "a", count: 161)] {
+            XCTAssertNil(TurnModel(rawValue: id))
+        }
+    }
+
     func testATurnThatChoosesNothingCarriesNothing() {
         let wire = TurnOverrides.unchanged.wire(for: "claude")
         XCTAssertNil(wire.model)
@@ -105,7 +117,7 @@ final class TurnOverridesTests: XCTestCase {
         )
         XCTAssertEqual(
             TurnModel.supported(by: "codex").map(\.id),
-            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5"]
+            [], "Codex choices come from this computer's provider catalog"
         )
         XCTAssertTrue(TurnModel.allCases.allSatisfy { !$0.label.isEmpty })
 
