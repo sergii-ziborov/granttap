@@ -62,16 +62,17 @@ final class TurnModelCatalogTests: XCTestCase {
 
     func testNewModelChoiceSurvivesRelaunchAndTheQueuedMessageKeepsIt() {
         let defaults = UserDefaults(suiteName: "model-choice-\(UUID())")!
+        let sessionId = "model-choice-\(UUID())"
         let store = TurnOverrideStore(defaults: defaults)
-        store.setChatOverrides(TurnOverrides(model: TurnModel(rawValue: "future-coding-model")), for: "chat")
+        store.setChatOverrides(TurnOverrides(model: TurnModel(rawValue: "future-coding-model")), for: sessionId)
         let reopened = TurnOverrideStore(defaults: defaults)
-        XCTAssertEqual(reopened.chatOverrides("chat").model?.rawValue, "future-coding-model")
+        XCTAssertEqual(reopened.chatOverrides(sessionId).model?.rawValue, "future-coding-model")
         let app = AppModel()
         app.demoMode = true
-        let session = SessionInfo(sessionId: "chat", agent: "codex", model: "gpt-6-sol",
+        let session = SessionInfo(sessionId: sessionId, agent: "codex", model: "gpt-6-sol",
             state: "working", startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0)
-        XCTAssertTrue(app.queueChatMessage("Continue", to: session, overrides: reopened.chatOverrides("chat")))
-        XCTAssertEqual(app.deliveries.last?.model, "future-coding-model")
+        XCTAssertTrue(app.queueChatMessage("Continue", to: session, overrides: reopened.chatOverrides(sessionId)))
+        XCTAssertEqual(app.chatQueuedMessages(for: session).first?.model, "future-coding-model")
     }
 
     func testCatalogDetailsDecodeAndOldWireModelsStillDecode() throws {
