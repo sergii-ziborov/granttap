@@ -47,6 +47,7 @@ enum ProjectInsightReports {
         result.modelCatalog = fresh.modelCatalog ?? previous.modelCatalog
         result.backbone = fresh.backbone ?? previous.backbone
         result.repositoryGraphs = fresh.repositoryGraphs ?? previous.repositoryGraphs
+        result.repositoryDetails = fresh.repositoryDetails ?? previous.repositoryDetails
         result.cortex = fresh.cortex ?? previous.cortex
         result.knowledge = fresh.knowledge ?? previous.knowledge
         result.supersededKnowledgeRecordIds = fresh.supersededKnowledgeRecordIds

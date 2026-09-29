@@ -20,6 +20,7 @@ struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     var modelCatalog: [ProjectEndpointModelCatalog]? = nil
     var backbone: ProjectBackbone? = nil
     var repositoryGraphs: [ProjectRepositoryGraph]? = nil
+    var repositoryDetails: [ProjectRepositoryDetails]? = nil
     var cortex: [ProjectCortexIntegration]? = nil
     var knowledge: [ProjectKnowledgeRecord]? = nil
     var supersededKnowledgeRecordIds: [String]? = nil

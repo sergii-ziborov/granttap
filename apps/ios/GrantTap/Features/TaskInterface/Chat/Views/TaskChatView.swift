@@ -22,6 +22,7 @@ struct TaskChatView: View {
     @State var selectedSkill: String?
     @State private var retainedTimeline: RetainedChatContent<CombinedTaskTimelineItem>?
     @State var chatIsAtBottom = true
+    @State var transcriptFitsViewport = false
     @State var localActivityLoading = false
     @State var localActivityError = false
     @State var localSending = false

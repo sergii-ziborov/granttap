@@ -87,6 +87,34 @@ final class TranscriptHistoryUITests: XCTestCase {
 
 
 extension TranscriptHistoryUITests {
+    func testPinnedRequestFollowsManualUpwardReadingAndSkipsAttachmentFragments() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
+            "GRANTTAP_TEST_TRANSCRIPT_HISTORY": "1", "GRANTTAP_TEST_PINNED_SCROLL": "1",
+            "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        let previous = app.buttons["chat.latest-user-message"]
+        let navigationAvailable = previous.waitForExistence(timeout: 15)
+        if !navigationAvailable {
+            let evidence = XCTAttachment(screenshot: app.screenshot())
+            evidence.lifetime = .keepAlways
+            add(evidence)
+        }
+        XCTAssertTrue(navigationAvailable)
+        XCTAssertTrue(waitForLabel(previous, contains: "Third viewport request"))
+        previous.tap()
+        XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
+        let transcript = app.scrollViews["chat.transcript"]
+        for _ in 0..<16 where !previous.label.contains("First viewport request") { transcript.swipeDown() }
+        XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
+        let first = app.staticTexts["chat.row.viewport-request-0"]
+        XCTAssertLessThan(first.frame.minY, transcript.frame.minY, "The destination must be above the reading position.")
+        previous.tap()
+        XCTAssertTrue(first.isHittable)
+        XCTAssertTrue(previous.label.contains("First viewport request"))
+    }
+
     func testPreviousRequestNavigationPreloadsAndAdvancesWithoutManualPaging() {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -95,7 +123,13 @@ extension TranscriptHistoryUITests {
             "GRANTTAP_TEST_LANGUAGE": "en"]
         app.launch()
         let previous = app.buttons["chat.latest-user-message"]
-        XCTAssertTrue(previous.waitForExistence(timeout: 15))
+        let navigationAvailable = previous.waitForExistence(timeout: 15)
+        if !navigationAvailable {
+            let evidence = XCTAttachment(screenshot: app.screenshot())
+            evidence.lifetime = .keepAlways
+            add(evidence)
+        }
+        XCTAssertTrue(navigationAvailable)
         XCTAssertTrue(waitForLabel(previous, contains: "Latest user request"))
         XCTAssertTrue(app.buttons["chat.project"].exists)
         XCTAssertTrue(app.staticTexts["chat.time.history-final"].exists)
@@ -109,7 +143,7 @@ extension TranscriptHistoryUITests {
         XCTAssertFalse(app.buttons["chat.history.more"].exists)
         previous.tap()
         XCTAssertTrue(app.staticTexts["chat.row.request-2"].isHittable)
-        XCTAssertTrue(waitForLabel(previous, contains: "First user message"))
+        XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
     }
 
     private func waitForLabel(_ element: XCUIElement, contains text: String) -> Bool {

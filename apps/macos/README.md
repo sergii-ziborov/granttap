@@ -99,3 +99,11 @@ keeps its original Task and Mesh route. In a Mesh, chats are grouped by their
 reported execution repository and show the repository identity and branch.
 Previous executions and missing or conflicting repository evidence are labeled
 explicitly. Workspace folders without confirmed Git are listed separately.
+
+Working repositories appear first with their observed branches and tasks.
+Repository details also show Git state, recent commits and contributors from
+the local computer. This requires MCP 0.8.29 source or later. Verified Git reports
+combine stale local and remote identities; conflicting checkouts remain separate.
+Tasks started in another Mesh are automatically presented under the unique
+visible repository Mesh. Original Task IDs, history, routes and permissions are
+preserved, and both locations explain the relationship.

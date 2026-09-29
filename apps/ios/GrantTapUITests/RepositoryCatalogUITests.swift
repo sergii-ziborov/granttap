@@ -7,7 +7,7 @@ final class RepositoryCatalogUITests: XCTestCase {
         app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_CAPTURE_TAB": "projects",
             "GRANTTAP_TEST_REPOSITORIES": "1", "GRANTTAP_TEST_LANGUAGE": "en"]
         app.launch()
-        let mesh = app.buttons["projects.row.granttap-project-demo"]
+        let mesh = app.buttons["projects.row.granttap-runtime-demo"]
         XCTAssertTrue(mesh.waitForExistence(timeout: 10))
         mesh.tap()
         let context = app.staticTexts["task.repository.granttap-pairing-task-demo"]
@@ -19,6 +19,30 @@ final class RepositoryCatalogUITests: XCTestCase {
         XCTAssertTrue(repository.exists)
         repository.tap()
         XCTAssertTrue(app.staticTexts["repository.identity"].waitForExistence(timeout: 10))
+    }
+
+    func testRepositoryShowsActiveWorkGitHistoryAndAutomaticallyPlacedTask() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_CAPTURE_TAB": "projects",
+            "GRANTTAP_TEST_REPOSITORIES": "1", "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        let tabs = app.segmentedControls["projects.catalog-tabs"]
+        XCTAssertTrue(tabs.waitForExistence(timeout: 10))
+        tabs.buttons["Repositories"].tap()
+        let activity = app.staticTexts["repository.activity.github.com/sergii-ziborov/granttap-mcp"]
+        XCTAssertTrue(activity.waitForExistence(timeout: 10))
+        XCTAssertTrue(activity.label.contains("1 working"))
+        app.buttons["repositories.row.github.com/sergii-ziborov/granttap-mcp"].tap()
+        XCTAssertTrue(app.staticTexts["repository.activity"].waitForExistence(timeout: 10))
+        let placed = app.buttons["repository.task.granttap-project-demo.granttap-pairing-task-demo"]
+        XCTAssertTrue(placed.exists)
+        XCTAssertTrue(placed.label.contains("Started in Mesh: granttap"))
+        let commit = app.staticTexts["repository.commit.\(String(repeating: "a", count: 40))"]
+        for _ in 0..<10 where !commit.isHittable { app.swipeUp() }
+        XCTAssertTrue(commit.exists)
+        XCTAssertTrue(app.staticTexts["Fixture contributor"].firstMatch.exists)
+        XCTAssertTrue(app.staticTexts["Commits on this branch"].exists)
     }
 
     func testRepositoryTabShowsMeshScopeAndRoutesItsChat() {

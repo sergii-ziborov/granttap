@@ -2296,3 +2296,31 @@
 "This repository is no longer in the visible Mesh catalog." = "Этого репозитория больше нет в каталоге видимых Mesh.";
 
 "No chat execution has reported this repository in this Mesh." = "Выполнения чатов в этом Mesh пока не сообщили об этом репозитории.";
+
+"Started in Mesh: %@" = "Начато в Mesh: %@";
+
+"Tasks in another Mesh" = "Задачи в другом Mesh";
+
+"Previous executions" = "Предыдущие выполнения";
+
+"Git history" = "История Git";
+
+"Waiting for repository details from the computer." = "Ожидание данных репозитория от компьютера.";
+
+"Uncommitted changes" = "Незафиксированные изменения";
+
+"Commits on this branch" = "Коммитов в этой ветке";
+
+"No Git repository confirmed here." = "Git-репозиторий здесь не подтверждён.";
+
+"The checkout is unavailable on this computer." = "Локальная копия недоступна на этом компьютере.";
+
+"Recent commits" = "Последние коммиты";
+
+"Contributors" = "Участники";
+
+"%d contributors on this branch" = "Участников в этой ветке: %d";
+
+"%d task" = "%d задача";
+
+"%d tasks" = "%d задач";

@@ -5,6 +5,11 @@ struct ChatHistoryPositionKey: PreferenceKey {
     static func reduce(value: inout CGFloat?, nextValue: () -> CGFloat?) { value = nextValue() ?? value }
 }
 
+struct ChatHistoryHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat { 0 }
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
 extension TaskChatView {
     var transcriptHistory: TranscriptHistoryPage? { model.activities[chatSessionId]?.history }
 
@@ -39,7 +44,10 @@ extension TaskChatView {
               let cursor = transcriptHistory?.cursor else { return }
         historyLoading = true
         historyError = false
-        historyPreservedBottom = automatic && userMessageAnchor == nil && focusEntryId == nil
+        // Initial row measurements precede the first scroll-to-bottom. Until
+        // that layout has settled, preload must still preserve the opening end.
+        historyPreservedBottom = automatic && (chatIsAtBottom || !historyAutoPagingReady)
+            && userMessageAnchor == nil && focusEntryId == nil
         if !historyPreservedBottom { chatIsAtBottom = false }
         if historyPreservedBottom { historyScrollAnchor = "chat-bottom" }
         else if automatic, let id = userMessageAnchor,

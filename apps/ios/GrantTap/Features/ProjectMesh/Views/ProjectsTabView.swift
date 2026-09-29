@@ -38,6 +38,7 @@ struct ProjectsTabView: View {
                 meshList
             }
         }
+        .task { await model.observeRepositoryCatalog() }
     }
 
     @ViewBuilder private var meshList: some View {

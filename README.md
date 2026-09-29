@@ -81,3 +81,13 @@ and iPhone. Repository details show their original Mesh scopes and chat
 executions. Mesh chat rows show repository identity and branch, with earlier
 executions, conflicting reports and missing Git evidence labeled explicitly.
 Each chat keeps its Task ID, history and Mesh permissions.
+
+### Repository activity and automatic task placement
+
+On Mac, iPhone and iPad, Mesh → Repositories shows working repositories first.
+Repository details include related tasks and Mesh scopes, observed branches,
+working tree state, recent commits and contributors. Git observations require
+MCP 0.8.29 source or later; missing data is shown explicitly. Tasks started in
+another Mesh are presented under the unique visible Mesh matching their
+confirmed execution repository. Original Task IDs, history and permissions
+remain intact, with links explaining where the task started.

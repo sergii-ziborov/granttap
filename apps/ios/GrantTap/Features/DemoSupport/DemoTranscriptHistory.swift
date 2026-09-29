@@ -6,6 +6,9 @@ enum DemoTranscriptHistory {
     static var enabled: Bool { ProcessInfo.processInfo.environment["GRANTTAP_TEST_TRANSCRIPT_HISTORY"] == "1" }
 
     static func initial(at now: Double) -> SessionActivity {
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_PINNED_SCROLL"] == "1" {
+            return readingFixture(at: now)
+        }
         let files = (1...7).map { index in
             let longLine = index == 7 ? "+BEGIN " + String(repeating: "source ", count: 30) + " END\n" : ""
             return RecordedFileChange(path: "/demo/file-\(index).swift", linesAdded: index, linesRemoved: 1,
@@ -55,9 +58,26 @@ enum DemoTranscriptHistory {
         let entry = ActivityEntry(id: "request-\(index)", kind: "user", text: name, createdAt: at)
         let more = index + 1 < pages.count
         model.applyActivity(SessionActivity(sessionId: sessionId, agent: "codex", state: "idle",
-            entries: [entry], generatedAt: Date().timeIntervalSince1970 * 1000,
+            entries: [entry, ActivityEntry(id: "request-\(index)-image", kind: "user", text: "",
+                createdAt: at, attachments: ["Image"])], generatedAt: Date().timeIntervalSince1970 * 1000,
             history: .init(cursor: more ? pages[index + 1] : nil, hasMore: more, requestedCursor: cursor)))
         return true
+    }
+
+    private static func readingFixture(at now: Double) -> SessionActivity {
+        let names = ["First viewport request", "Second viewport request", "Third viewport request"]
+        let entries = names.enumerated().flatMap { index, name -> [ActivityEntry] in
+            let time = now - 1000 + Double(index * 100)
+            return [ActivityEntry(id: "viewport-request-\(index)", kind: "user", text: name, createdAt: time),
+                ActivityEntry(id: "viewport-image-\(index)", kind: "user", text: "", createdAt: time,
+                    attachments: ["Image"])] + (0..<8).map { reply in
+                ActivityEntry(id: "viewport-reply-\(index)-\(reply)", kind: "message",
+                    text: "Reply \(index).\(reply)\n" + String(repeating: "A fixture transcript line for scroll navigation.\n", count: 6),
+                    createdAt: time + Double(reply + 1))
+            }
+        }
+        return SessionActivity(sessionId: AppModelDemoFixtures.codexSessionId, agent: "codex", state: "idle",
+            entries: entries, generatedAt: now, history: .init(hasMore: false))
     }
 
     private static func messages(in range: Range<Int>, prefix: String, baseTime: Double) -> [ActivityEntry] {

@@ -87,10 +87,15 @@ extension TaskChatView {
                                 key: ChatHistoryPositionKey.self,
                                 value: content.frame(in: .named("chat-transcript")).minY
                             )
+                            .preference(key: ChatHistoryHeightKey.self, value: content.size.height)
                         })
                     }
                     .accessibilityIdentifier("chat.transcript")
                     .coordinateSpace(name: "chat-transcript")
+                    .onPreferenceChange(ChatHistoryHeightKey.self) { height in
+                        transcriptFitsViewport = height <= viewport.size.height
+                        if transcriptFitsViewport { chatIsAtBottom = true }
+                    }
                     .onPreferenceChange(ChatHistoryPositionKey.self) { position in
                         if !historyAutoPagingReady, let position, position < -100 {
                             historyAutoPagingReady = true
@@ -102,7 +107,7 @@ extension TaskChatView {
                         guard let top = ChatPinnedUserMessage.topVisibleRow(
                             positions, viewportHeight: viewport.size.height
                         ) else { return }
-                        if topVisibleTranscriptRow != top { topVisibleTranscriptRow = top }
+                        updateTopTranscriptRow(top, proxy: proxy)
                     }
                     .onPreferenceChange(ChatBottomPositionKey.self) { position in
                         guard let position else {

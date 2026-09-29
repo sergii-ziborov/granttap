@@ -3,14 +3,15 @@ import SwiftUI
 extension TaskChatView {
     var latestUserEntry: ActivityEntry? {
         ChatPinnedUserMessage.entry(in: ChatActivityGrouping.rows(visibleTimeline),
-            topRowId: topVisibleTranscriptRow)
+            topRowId: chatIsAtBottom ? nil : topVisibleTranscriptRow)
     }
 
     var previousUserEntry: ActivityEntry? {
-        if let userMessageAnchor {
+        if chatIsAtBottom {
             return TranscriptRequestBoundary.previous(in: rootEntries, before: userMessageAnchor)
         }
-        return TranscriptRequestBoundary.previous(in: rootEntries, before: nil)
+        return ChatPinnedUserMessage.navigationEntry(in: ChatActivityGrouping.rows(visibleTimeline),
+            topRowId: topVisibleTranscriptRow, afterJump: userMessageAnchor)
     }
 
     func latestUserMessageButton(_ proxy: ScrollViewProxy) -> some View {
@@ -36,7 +37,9 @@ extension TaskChatView {
     }
 
     private var previousRequestTitle: String {
-        if let entry = previousUserEntry {
+        let first = transcriptHistory?.hasMore != true && !historyLoading && userMessageAnchor != nil
+            ? rootEntries.first { $0.id == userMessageAnchor } : nil
+        if let entry = previousUserEntry ?? first {
             let text = entry.text.replacingOccurrences(of: "\n", with: " ")
             return text.isEmpty ? L("Attachment") : text
         }
@@ -61,7 +64,7 @@ extension TaskChatView {
         }
         pendingUserJump = false
         userMessageAnchor = entry.id
-        chatIsAtBottom = false
+        chatIsAtBottom = transcriptFitsViewport
         withAnimation(.easeOut(duration: 0.2)) {
             proxy.scrollTo(ChatScrollTarget.forEntry(entry), anchor: .top)
         }
@@ -71,8 +74,20 @@ extension TaskChatView {
 
     func ensurePreviousRequest(_ proxy: ScrollViewProxy) {
         guard historyReadingActive, !historyLoading, !historyError,
-              TranscriptRequestBoundary.needsEarlierPage(in: rootEntries, before: userMessageAnchor)
+              TranscriptRequestBoundary.needsEarlierPage(in: rootEntries,
+                  before: userMessageAnchor ?? latestUserEntry?.id)
         else { return }
         loadEarlierMessages(proxy, automatic: true)
+    }
+
+    func updateTopTranscriptRow(_ top: String, proxy: ScrollViewProxy) {
+        guard topVisibleTranscriptRow != top else { return }
+        topVisibleTranscriptRow = top
+        if !chatIsAtBottom, let anchor = userMessageAnchor, let request = latestUserEntry,
+           let readingIndex = rootEntries.firstIndex(where: { $0.id == request.id }),
+           let anchorIndex = rootEntries.firstIndex(where: { $0.id == anchor }), readingIndex < anchorIndex {
+            userMessageAnchor = nil
+            ensurePreviousRequest(proxy)
+        }
     }
 }

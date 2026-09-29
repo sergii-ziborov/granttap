@@ -36,14 +36,17 @@ struct RepositoryCatalogListView: View {
                         RepositoryCatalogDetailView(repositoryId: entry.id, model: model, onOpenSession: onOpenSession)
                     } label: {
                         HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: entry.isGit ? "folder" : "square.stack")
-                                .frame(width: 24).foregroundStyle(Theme.codex)
+                            Image(systemName: RepositoryActivity.working(entry) > 0 ? "bolt.fill" : entry.isGit ? "folder" : "square.stack")
+                                .frame(width: 24).foregroundStyle(RepositoryActivity.working(entry) > 0 ? Theme.ok : Theme.codex)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(entry.name).foregroundStyle(Theme.ink)
                                 Text(RepositoryCatalogPresentation.identity(entry))
                                     .font(.caption).foregroundStyle(Theme.muted)
                                 Text(String(format: L("Mesh: %@"), entry.memberships.map(\.name).joined(separator: ", ")))
                                     .font(.caption).foregroundStyle(Theme.codex).lineLimit(2)
+                                Text(RepositoryActivity.summary(entry)).font(.caption)
+                                    .foregroundStyle(RepositoryActivity.working(entry) > 0 ? Theme.ok : Theme.muted)
+                                    .accessibilityIdentifier("repository.activity.\(entry.id)")
                             }
                         }
                     }

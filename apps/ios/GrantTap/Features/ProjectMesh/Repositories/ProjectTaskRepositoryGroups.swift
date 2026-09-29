@@ -30,6 +30,10 @@ enum ProjectTaskRepositoryGroups {
         let bindings = (snapshot.bindings ?? []).filter { $0.projectId == snapshot.projectId }
         let executions = snapshot.executions.filter { taskIDs.contains($0.taskId) }
         var confirmed = Set(bindings.filter { $0.revision?.isEmpty == false }.map(\.repositoryId))
+        let reports = Dictionary(grouping: (snapshot.repositoryDetails ?? []).filter {
+            $0.projectId == snapshot.projectId
+        }, by: \.id).values.compactMap { $0.max { $0.observedAt < $1.observedAt } }
+        confirmed.formUnion(reports.filter { $0.status == "ready" }.map(\.repositoryId))
         confirmed.formUnion(executions.filter { $0.worktree?.isEmpty == false }.compactMap(\.repositoryId))
         let observed = [snapshot.project.canonicalRepositoryId]
             + bindings.map(\.repositoryId) + executions.compactMap(\.repositoryId)
@@ -37,14 +41,16 @@ enum ProjectTaskRepositoryGroups {
         return confirmed.filter { !$0.isEmpty }
     }
 
-    static func make(snapshot: ProjectMeshSnapshot, sessions: [SessionInfo]) -> [Group] {
-        let rows = ProjectMeshRecency.rows(
+    static func make(snapshot: ProjectMeshSnapshot, sessions: [SessionInfo],
+                     placedRows: [ProjectMeshRecency.Row]? = nil,
+                     sourceSnapshots: [String: ProjectMeshSnapshot] = [:]) -> [Group] {
+        let rows = placedRows ?? ProjectMeshRecency.rows(
             snapshot.tasks.filter { $0.projectId == snapshot.projectId }, snapshot: snapshot, sessions: sessions
         )
-        let confirmed = confirmedRepositories(snapshot)
-        let executions = Dictionary(grouping: snapshot.executions, by: \.taskId)
         let grouped = Dictionary(grouping: rows) { row in
-            scope(task: row.task, executions: executions[row.task.taskId] ?? [], confirmed: confirmed)
+            let source = sourceSnapshots[row.task.projectId] ?? snapshot
+            return scope(task: row.task, executions: source.executions.filter { $0.taskId == row.task.taskId },
+                         confirmed: confirmedRepositories(source))
         }
         return grouped.map { scope, rows in
             switch scope {

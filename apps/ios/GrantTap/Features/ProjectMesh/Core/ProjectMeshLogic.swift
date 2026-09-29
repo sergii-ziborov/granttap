@@ -78,6 +78,7 @@ enum ProjectMeshLogic {
             incoming.generatedAt >= current.generatedAt ? new : old
         }
         merged.repositoryGraphs = graphs.isEmpty ? nil : graphs
+        merged.repositoryDetails = ProjectRepositoryDetails.merging(current.repositoryDetails, incoming.repositoryDetails)
         let cortex = merge(current.cortex ?? [], incoming.cortex ?? [], key: \.endpointId) {
             $1.checkedAt >= $0.checkedAt ? $1 : $0
         }

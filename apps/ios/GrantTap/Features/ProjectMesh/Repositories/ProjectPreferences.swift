@@ -74,11 +74,12 @@ enum ProjectsCatalog {
             !isRedundantEmptyProject($0, among: snapshots, rooms: rooms,
                                      localProjectIds: localProjectIds)
         }
+        let placements = Dictionary(grouping: MeshTaskPlacement.make(
+            snapshots: visibleSnapshots.filter { preferences[$0.projectId]?.hidden != true }, sessions: sessions
+        ), by: \.projectId)
         let rows = visibleSnapshots.map { snapshot -> ProjectListRow in
             let preference = preferences[snapshot.projectId]
-            let taskRows = ProjectMeshRecency.rows(
-                snapshot.tasks, snapshot: snapshot, sessions: sessions
-            )
+            let taskRows = (placements[snapshot.projectId] ?? []).map(\.row)
             let states = taskRows.map(\.state)
             let lastActive = taskRows.first?.lastActiveAt ?? 0
             return ProjectListRow(
@@ -86,7 +87,7 @@ enum ProjectsCatalog {
                 name: displayName(snapshot, preference: preference),
                 repositoryLeaf: ProjectRepositories.repositoryLeaf(snapshot.project.canonicalRepositoryId),
                 computers: ProjectManagePresentation.endpointIds(snapshot).count,
-                openTasks: snapshot.tasks.filter { !["completed", "failed"].contains($0.state) }.count,
+                openTasks: taskRows.filter { !["completed", "failed"].contains($0.task.state) }.count,
                 working: states.filter { $0 == "working" }.count,
                 needsYou: states.filter { $0 == "needs_user" || $0 == "blocked" }.count,
                 members: memberLinks.filter { $0.allowsProject(snapshot.projectId) }.count,

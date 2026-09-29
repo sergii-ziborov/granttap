@@ -26,6 +26,11 @@ Messages and grouped runs show the provider’s date and local time.
 Codex and Claude chat history use native backward pages through `ChatHistoryPaging`.
 The persistent previous-request control preloads at least two root user requests,
 including attachment-only requests. Each jump prepares the next older request;
+while reading earlier turns, the pinned text follows the viewport and the next
+jump goes upward from that turn. Native attachment fragments at one timestamp
+share their request's text and navigation boundary. A standalone file or image
+request still has a boundary of its own. Short transcripts retain sequential
+request navigation even when all rows fit in the viewport.
 long tool runs cannot hide the question above them. Top-edge paging also works,
 and the explicit history button recovers failed or stalled loads without a retry loop.
 The latest-message action shares the pinned request strip, outside the scrolling

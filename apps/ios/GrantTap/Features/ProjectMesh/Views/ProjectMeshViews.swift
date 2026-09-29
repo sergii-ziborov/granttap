@@ -46,7 +46,7 @@ struct ProjectMeshView: View {
 
     var body: some View {
         let snapshot = currentSnapshot
-        let rows = ProjectMeshRecency.rows(snapshot.tasks, snapshot: snapshot, sessions: model.sessions)
+        let rows = model.repositoryPlacedTasks(projectId: snapshot.projectId)
         List {
             Section(L("Mesh")) {
                 ProjectDestinationRows(snapshot: snapshot, model: model)
