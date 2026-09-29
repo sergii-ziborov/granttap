@@ -12,7 +12,8 @@ struct ProjectMeshStatisticsView: View {
     }
 
     private var currentSnapshot: ProjectMeshSnapshot {
-        model.meshSnapshots[snapshot.projectId] ?? snapshot
+        ProjectMeshStatistics.presented(model.meshSnapshots[snapshot.projectId] ?? snapshot,
+                                        sessions: model.sessions + model.allSessionHistory)
     }
 
     private var events: [CapabilityUsageEvent] {
@@ -27,8 +28,7 @@ struct ProjectMeshStatisticsView: View {
     var body: some View {
         let snapshot = currentSnapshot
         let value = ProjectMeshStatistics.make(snapshot)
-        let hasGraph = snapshot.repositoryGraphs?.isEmpty == false
-            || snapshot.backbone != nil
+        let hasGraph = ProjectInsightReports.hasEvidence(snapshot)
         let live = ProjectLiveResources.samples(
             snapshot: snapshot, roomByEndpointId: model.projectUsageRooms,
             loadsByRoom: model.machineLoadByRoom,
@@ -192,6 +192,8 @@ struct ProjectMeshStatisticsView: View {
             }
         }
         .pageNavigationTitle(L("Statistics"))
+        .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
+        .refreshable { await model.refreshProjectInsights(projectId: snapshot.projectId, requestRemote: true) }
     }
 
     private func workLink(
@@ -205,7 +207,7 @@ struct ProjectMeshStatisticsView: View {
     }
 
     private func graphSource(_ snapshot: ProjectMeshSnapshot) -> String {
-        if let report = snapshot.repositoryGraphs?.first {
+        if let report = ProjectInsightReports.reports(snapshot).first {
             return "Weavatrix \(report.weavatrixVersion) · \(report.analysisStatus ?? L("legacy report"))"
         }
         if snapshot.backbone?.head != nil { return L("GrantTap Engine Backbone only") }

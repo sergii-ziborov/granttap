@@ -21,6 +21,11 @@ struct SessionUsageSnapshot: Decodable, Sendable {
             && (model.map { $0.utf8.count <= 128 } ?? true)
     }
 
+    /// A cached usage scan must not replace fresher native token facts.
+    func applyingIfMoreComplete(to session: SessionInfo) -> SessionInfo {
+        tokensSession >= session.tokensSession ? applying(to: session) : session
+    }
+
     func applying(to session: SessionInfo) -> SessionInfo {
         guard isValid, session.sessionId == sessionId, session.agent == agent else { return session }
         var result = session

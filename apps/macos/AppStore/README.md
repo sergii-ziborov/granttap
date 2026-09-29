@@ -22,11 +22,19 @@ Configure the Mac developer-tools category, privacy policy, support URL, content
 rights and review contact using verified account data. Final export-compliance
 answers require the owner's confirmation, not assumptions in a build file.
 
-The listing text in `APP_STORE_METADATA.md` is a draft for the account owner.
-Configure the corresponding Mac platform and products through App Store Connect.
-Screenshots belong in `Screenshots/en-US/Mac` and `Screenshots/ru/Mac`. Capture
-sanitized release UI at Apple's accepted desktop dimensions. Draft screenshots
-for a signed store build have not been captured yet.
+The uploader filters versions strictly by platform and only edits an existing
+editable record. Local validation does not require credentials:
+
+```bash
+node scripts/appstore/push-metadata.mjs --platform MAC_OS --dry-run
+```
+
+After the Mac platform and API access exist, supply `--key`, `--key-id`,
+`--issuer`; do not put private keys in this repository. Screenshots go in
+`Screenshots/en-US/Mac` and `Screenshots/ru/Mac`. Capture sanitized real release
+UI at Apple's accepted desktop dimensions; never upload live private task data
+or represent fixture screenshots as real usage. Draft screenshots are not yet
+captured for a signed store build.
 
 Run `bash apps/macos/AppStore/archive.sh` with distribution signing configured.
 An unsigned archive can be built with `GRANTTAP_UNSIGNED_ARCHIVE=1` for inspection,
@@ -37,7 +45,7 @@ local authorization, files and pairing in Apple's sandbox/TestFlight before
 submission. Developer ID downloads additionally need signing and notarization.
 
 The `GrantTap Commerce` scheme activates the local `.storekit` catalog solely
-for the separate `GrantTapCommerceTests` integration target. Its launch price is not a live App Store product. The default
+for its separate `GrantTapCommerceTests` integration target. Its launch price is not a live App Store product. The default
 GrantTap and GrantTap Local schemes use normal live services. Receipt-policy
 tests run in the regular gate; StoreKit service tests require the Commerce
 scheme, then Apple's sandbox/TestFlight for the signed Mac release.

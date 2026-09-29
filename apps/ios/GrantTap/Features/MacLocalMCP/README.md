@@ -79,3 +79,11 @@ The separate runtime supports the normal SweepLoom CLI locations or
 Fresh local observations replace older relay copies only for the same native
 session, provider and computer. A different computer or provider keeps its
 separate routing, and an older local observation cannot overwrite newer state.
+
+The visible Mesh insight views read local process samples and selected graph
+reports every ten seconds. `MacLocalMachineLoad` validates bounded, nonnegative
+measurements and preserves native chat attribution when converting to the shared
+wire model. Periodic lightweight catalog updates retain graph enrichment without
+requiring a Cortex report. Historical command measurements remain separate from
+live process readings. Native active chats also receive provider usage facts,
+without replacing fresher native totals with an older cached scan.

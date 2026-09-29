@@ -19,7 +19,8 @@ struct MacLocalMCPBridge {
         guard fd >= 0 else { throw MacLocalMCPError.unavailable }
         defer { _ = Darwin.close(fd) }
         let needsEngine = operation == "desktop.mesh_snapshot" && input?["enrich"] == "true"
-        var timeout = timeval(tv_sec: operation == "desktop.capability_usage"
+        var timeout = timeval(tv_sec: needsEngine && input?["refresh_graph"] == "true" ? 125
+                              : operation == "desktop.capability_usage"
                               || operation == "desktop.mesh_snapshots" ? 75
                               : operation == "desktop.task_send"
                               || operation == "desktop.task_create"

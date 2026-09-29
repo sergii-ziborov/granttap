@@ -81,11 +81,11 @@ extension RelayClient {
              ttl: 60)
     }
 
-    func requestProjectGraphAnalysis(_ projectId: String) {
+    func requestProjectGraphAnalysis(_ projectId: String, completion: ((Error?) -> Void)? = nil) {
         send(payload: SessionsRefresh(
             type: "sessions.refresh", createdAt: Date().timeIntervalSince1970 * 1_000,
             graphProjectId: projectId
-        ), ttl: 60)
+        ), ttl: 60, completion: completion)
     }
 
     func sendSessionAccess(sessionId: String, accessLevel: String) {

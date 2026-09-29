@@ -47,7 +47,8 @@ struct ProjectTaskStateDiagram: View {
     private var slices: [ProjectStatisticValue] {
         let states = Dictionary(grouping: tasks, by: \.state).mapValues(\.count)
         return [
-            .init(label: L("Planned"), count: states["planned"] ?? 0, color: .gray),
+            .init(label: L("Idle"), count: states["planned"] ?? 0, color: .gray),
+            .init(label: L("Paused"), count: states["paused"] ?? 0, color: .gray),
             .init(label: L("Working"), count: states["working"] ?? 0, color: .green),
             .init(label: L("Blocked"), count: states["blocked"] ?? 0, color: .orange),
             .init(label: L("Needs You"), count: states["needs_user"] ?? 0, color: .red),

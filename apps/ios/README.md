@@ -265,14 +265,14 @@ use a paid team App ID with Push enabled, or the Debug/Release schemes.
 - No advertising, cross-app tracking, or analytics SDK is present.
 - `PrivacyInfo.xcprivacy` is included for both targets.
 
-## Store and public resources
+## Apple review materials
 
-- [Mac App Store preparation](../macos/AppStore/README.md)
-- [Purchase and connection modes](../../docs/subscriptions.md)
-- [Localized product screenshots](AppStore/Screenshots/README.md)
+- [App Store metadata](AppStore/APP_STORE_METADATA.md)
+- [Review notes](AppStore/APP_REVIEW_NOTES.md)
+- [App Privacy answers](AppStore/APP_PRIVACY_ANSWERS.md)
+- [Submission checklist](AppStore/SUBMISSION_CHECKLIST.md)
+- [Localized screenshots](AppStore/Screenshots/README.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
-- [Support](https://granttap.com/support), [Terms](https://granttap.com/terms),
-  and [Privacy](https://granttap.com/privacy)
 
 ## Architecture note
 
@@ -282,12 +282,9 @@ The watch can display synchronized state and initiate actions, but network
 delivery requires the companion path. This limitation is stated explicitly in
 the review notes and is not presented as standalone cloud connectivity.
 
-## Chat history
-
-The fixed user-message strip jumps to your latest request, preloads the preceding
-request, and prepares older requests as you navigate. Project/Mesh and message
-dates are visible in chat. Codex and Claude history pages load automatically.
-Mac archives retain every fetched page until cleared in Settings. The nested
-provider-storage inspector uses the optional external SweepLoom CLI; confirmed
-temporary cache cleanup moves selected files to the Mac Trash. Provider history
-and credentials are not cleanup candidates.
+Chat history automatically loads through the latest and preceding user requests.
+The fixed request strip scrolls to the latest request, then preloads an older
+request after each backward jump. Messages show their date and local time;
+the status strip names their Project/Mesh. Mac keeps all fetched pages, while
+phones retain complete recent request boundaries. Local transcript cleanup is
+available within existing Settings.

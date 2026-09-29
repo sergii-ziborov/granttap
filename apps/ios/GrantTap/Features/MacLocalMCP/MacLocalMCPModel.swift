@@ -1,28 +1,6 @@
 #if targetEnvironment(macCatalyst)
 import Foundation
 
-struct MacLocalMachineLoad: Decodable, Sendable {
-    struct Group: Decodable, Sendable {
-        let name: String
-        let count: Int
-        let cpu_percent: Double
-        let memory_bytes: Double
-    }
-    struct Agent: Decodable, Identifiable, Sendable {
-        let agent: String
-        let processes: Int
-        let cpu_percent: Double
-        let memory_bytes: Double
-        let groups: [Group]
-        var id: String { agent }
-    }
-    let operation: String
-    let source: String
-    let computer: String
-    let observed_at: Double
-    let agents: [Agent]
-}
-
 @MainActor
 final class MacLocalMCPModel: ObservableObject {
     @Published private(set) var status: MacLocalMCPStatus?
@@ -55,12 +33,7 @@ final class MacLocalMCPModel: ObservableObject {
             let data = try await MacLocalMCPClient.read(socketPath: socket,
                 operation: "desktop.machine_load", input: nil)
             let value = try JSONDecoder().decode(MacLocalMachineLoad.self, from: data)
-            guard value.operation == "desktop.machine_load", value.source == "process_sample",
-                  value.agents.count <= 16,
-                  value.agents.allSatisfy({ $0.processes >= 0 && $0.cpu_percent.isFinite
-                      && $0.memory_bytes.isFinite && $0.groups.count <= 8 }) else {
-                throw MacLocalMCPError.incompatible
-            }
+            guard value.isValid else { throw MacLocalMCPError.incompatible }
             machineLoad = value
             machineLoadError = nil
         } catch {
@@ -108,7 +81,7 @@ final class MacLocalMCPModel: ObservableObject {
         }
     }
 
-    private func refreshUsage(socketPath: String) async {
+    func refreshUsage(socketPath: String) async {
         guard !usageRefreshInFlight,
               lastUsageReadAt.map({ Date().timeIntervalSince($0) > (usageError == nil ? 120 : 15) })
                 ?? true else { return }
@@ -136,10 +109,10 @@ final class MacLocalMCPModel: ObservableObject {
         return activity
     }
 
-    func enrichedMesh(projectId: String) async throws -> ProjectMeshSnapshot {
+    func enrichedMesh(projectId: String, refreshGraph: Bool = false) async throws -> ProjectMeshSnapshot {
         guard let socket = status?.desktopEngineSocket else { throw MacLocalMCPError.unavailable }
         let snapshot = try await MacLocalMCPClient.meshSnapshot(
-            socketPath: socket, projectId: projectId, enrich: true
+            socketPath: socket, projectId: projectId, enrich: true, refreshGraph: refreshGraph
         )
         meshSnapshots[projectId] = snapshot
         return snapshot

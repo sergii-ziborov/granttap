@@ -6,11 +6,17 @@ struct ProjectStatisticsTasksView: View {
     var state: String? = nil
 
     private var tasks: [ProjectMeshTask] {
-        snapshot.tasks.filter { state == nil || $0.state == state }
+        currentSnapshot.tasks.filter { state == nil || $0.state == state }
             .sorted { $0.updatedAt > $1.updatedAt }
     }
 
+    private var currentSnapshot: ProjectMeshSnapshot {
+        ProjectMeshStatistics.presented(model.meshSnapshots[snapshot.projectId] ?? snapshot,
+                                        sessions: model.sessions + model.allSessionHistory)
+    }
+
     var body: some View {
+        let snapshot = currentSnapshot
         List {
             if tasks.isEmpty {
                 Text(L("No Tasks in this bounded projection."))
@@ -39,7 +45,13 @@ struct ProjectStatisticsActivityView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
 
+    private var currentSnapshot: ProjectMeshSnapshot {
+        ProjectMeshStatistics.presented(model.meshSnapshots[snapshot.projectId] ?? snapshot,
+                                        sessions: model.sessions + model.allSessionHistory)
+    }
+
     var body: some View {
+        let snapshot = currentSnapshot
         List {
             Section(L("Executions")) {
                 ForEach(snapshot.executions) { execution in
@@ -90,14 +102,20 @@ struct ProjectStatisticsUsageView: View {
     }
 
     private var scopedEvents: [CapabilityUsageEvent] {
-        ProjectUsageStats.events(usage.events, snapshot: snapshot,
+        ProjectUsageStats.events(usage.events, snapshot: currentSnapshot,
                                  roomByEndpointId: model.projectUsageRooms)
     }
     private var totals: (calls: Int, failures: Int, peakMemoryBytes: Int?, cpuTimeMs: Int?)? {
         ProjectUsageStats.totals(scopedEvents)
     }
 
+    private var currentSnapshot: ProjectMeshSnapshot {
+        ProjectMeshStatistics.presented(model.meshSnapshots[snapshot.projectId] ?? snapshot,
+                                        sessions: model.sessions + model.allSessionHistory)
+    }
+
     var body: some View {
+        let snapshot = currentSnapshot
         let live = ProjectLiveResources.samples(
             snapshot: snapshot, roomByEndpointId: model.projectUsageRooms,
             loadsByRoom: model.machineLoadByRoom,

@@ -21,9 +21,13 @@ struct ProjectComputerUsageView: View {
         self.usage = usage ?? .shared
     }
 
+    private var currentSnapshot: ProjectMeshSnapshot {
+        model.meshSnapshots[snapshot.projectId] ?? snapshot
+    }
+
     private var events: [CapabilityUsageEvent] {
         ProjectUsageStats.events(
-            usage.events, snapshot: snapshot,
+            usage.events, snapshot: currentSnapshot,
             roomByEndpointId: model.projectUsageRooms,
             endpointId: endpointId
         ).sorted { $0.createdAt > $1.createdAt }
@@ -39,6 +43,7 @@ struct ProjectComputerUsageView: View {
     }
 
     var body: some View {
+        let snapshot = currentSnapshot
         let live = ProjectLiveResources.samples(
             snapshot: snapshot, roomByEndpointId: model.projectUsageRooms,
             loadsByRoom: model.machineLoadByRoom,

@@ -8,7 +8,7 @@ enum MacLocalProjection {
     static func apply(_ snapshots: [String: ProjectMeshSnapshot], to model: AppModel,
                       sessionUsage: [String: SessionUsageSnapshot]? = nil) {
         let local = Dictionary(uniqueKeysWithValues: snapshots.map { id, fresh in
-            (id, retainingEnrichment(fresh, from: model.meshSnapshots[id]))
+            (id, ProjectInsightReports.retainingEnrichment(fresh, from: model.meshSnapshots[id]))
         })
         let linked = Set(model.connectionRegistry.connections.map(\.id))
         let remoteProjects = Set(model.meshProjectSourceRooms.compactMap { id, rooms in
@@ -30,7 +30,8 @@ enum MacLocalProjection {
             if let native = MacLiveSessionProjection.session(execution: execution, task: task,
                 observed: observed, endpointId: endpointId) {
                 liveNativeIds.insert(native.sessionId)
-                return native
+                return usageBySession["\(execution.provider)\u{1f}\(execution.sessionId)"]?
+                    .applyingIfMoreComplete(to: native) ?? native
             }
             let last = execution.activeAt ?? execution.updatedAt ?? execution.startedAt
             let recent = execution.endedAt == nil
@@ -72,27 +73,6 @@ enum MacLocalProjection {
                 && !executionIsOpen($0, in: executions) },
             current: currentHistory, remoteSessionIds: remoteIds).filter { !liveIds.contains($0.sessionId) }
         model.resumeChatQueues(observed: sessions, localOnly: true)
-    }
-
-    private static func retainingEnrichment(
-        _ fresh: ProjectMeshSnapshot, from previous: ProjectMeshSnapshot?
-    ) -> ProjectMeshSnapshot {
-        guard let previous, previous.bindings == fresh.bindings,
-              previous.publisherEndpointId != nil, previous.cortex != nil else { return fresh }
-        var result = fresh
-        result.publisherEndpointId = previous.publisherEndpointId
-        result.skills = fresh.skills ?? previous.skills
-        result.mcpServers = fresh.mcpServers ?? previous.mcpServers
-        result.capabilityObservations = fresh.capabilityObservations
-            ?? previous.capabilityObservations
-        result.modelCatalog = fresh.modelCatalog ?? previous.modelCatalog
-        result.backbone = fresh.backbone ?? previous.backbone
-        result.repositoryGraphs = fresh.repositoryGraphs ?? previous.repositoryGraphs
-        result.cortex = fresh.cortex ?? previous.cortex
-        result.knowledge = fresh.knowledge ?? previous.knowledge
-        result.supersededKnowledgeRecordIds = fresh.supersededKnowledgeRecordIds
-            ?? previous.supersededKnowledgeRecordIds
-        return result
     }
 
     static func apply(_ activity: MacLocalTaskActivity, for session: SessionInfo,

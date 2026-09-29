@@ -36,6 +36,6 @@ enum ProjectHealthDiagnostics {
     static func graphReport(
         for repositoryId: String, snapshot: ProjectMeshSnapshot
     ) -> ProjectRepositoryGraph? {
-        snapshot.repositoryGraphs?.first { $0.repositoryId == repositoryId }
+        ProjectInsightReports.reports(snapshot).first { $0.repositoryId == repositoryId }
     }
 }

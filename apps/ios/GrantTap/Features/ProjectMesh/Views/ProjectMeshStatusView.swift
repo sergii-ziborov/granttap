@@ -3,6 +3,7 @@ import SwiftUI
 struct ProjectMeshStatusView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
+    @State private var refreshing = false
     @State private var toast: String?
     @State private var towerReport: ProjectRepositoryGraph?
 
@@ -41,6 +42,10 @@ struct ProjectMeshStatusView: View {
                     )
                     VStack(alignment: .leading, spacing: 3) {
                         Text(ProjectRepositories.repositoryLeaf(repositoryId))
+                        if repositoryIds.filter({ ProjectRepositories.repositoryLeaf($0)
+                            == ProjectRepositories.repositoryLeaf(repositoryId) }).count > 1 {
+                            Text(repositoryId).font(.caption2).foregroundStyle(Theme.muted)
+                        }
                         Text(graphDetail(report))
                             .font(.caption).foregroundStyle(report?.analysisStatus == "COMPLETE" ? Theme.muted : .orange)
                         if let report, report.analysisStatus != "UNAVAILABLE" {
@@ -70,12 +75,18 @@ struct ProjectMeshStatusView: View {
                     }
                 }
                 Button {
-                    toast = model.requestProjectGraphAnalysis(projectId: snapshot.projectId)
-                        ? L("Requested architecture analysis on this Mesh's computers.")
-                        : L("No connected computer can receive this Mesh's analysis request.")
+                    refreshing = true
+                    Task {
+                        toast = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId).message
+                        refreshing = false
+                    }
                 } label: {
-                    Label(L("Build or refresh code towers"), systemImage: "arrow.clockwise")
+                    HStack {
+                        Label(L("Build or refresh code towers"), systemImage: "arrow.clockwise")
+                        if refreshing { ProgressView() }
+                    }
                 }
+                .disabled(refreshing)
                 .accessibilityIdentifier("health.code-towers.refresh")
                 NavigationLink(L("Open graph and analysis status")) {
                     ProjectGraphView(snapshot: snapshot, model: model)
@@ -153,6 +164,8 @@ struct ProjectMeshStatusView: View {
         }
         .pageNavigationTitle(L("Health"))
         .transientToast($toast)
+        .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
+        .refreshable { await model.refreshProjectInsights(projectId: snapshot.projectId, requestRemote: true) }
         .fullScreenCover(item: $towerReport) { report in
             if let map = report.codeMap {
                 ProjectTowersFullScreen(

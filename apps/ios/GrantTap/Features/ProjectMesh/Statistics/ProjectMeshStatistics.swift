@@ -20,11 +20,22 @@ struct ProjectMeshStatistics: Equatable {
     let dependencies: Int
     let events: Int
 
+    static func presented(_ snapshot: ProjectMeshSnapshot, sessions: [SessionInfo]) -> ProjectMeshSnapshot {
+        var result = snapshot
+        result.tasks = ProjectMeshRecency.rows(snapshot.tasks, snapshot: snapshot, sessions: sessions).map { row in
+            var task = row.task
+            task.state = row.state
+            return task
+        }
+        return result
+    }
+
     static func make(_ snapshot: ProjectMeshSnapshot) -> ProjectMeshStatistics {
+        let reports = ProjectInsightReports.reports(snapshot).filter { $0.analysisStatus != "UNAVAILABLE" }
         let graphNodes = (snapshot.backbone?.nodes.count ?? 0)
-            + (snapshot.repositoryGraphs?.reduce(0) { $0 + $1.totalNodes } ?? 0)
+            + reports.reduce(0) { $0 + $1.totalNodes }
         let graphRelations = (snapshot.backbone?.relations.count ?? 0)
-            + (snapshot.repositoryGraphs?.reduce(0) { $0 + $1.totalRelations } ?? 0)
+            + reports.reduce(0) { $0 + $1.totalRelations }
         let repositories = Set((snapshot.bindings ?? []).map(\.repositoryId)
             + [snapshot.project.canonicalRepositoryId]).count
         return ProjectMeshStatistics(

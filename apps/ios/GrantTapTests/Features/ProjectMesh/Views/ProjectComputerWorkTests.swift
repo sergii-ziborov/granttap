@@ -28,7 +28,10 @@ final class ProjectComputerWorkTests: XCTestCase {
     }
 
     private func session(_ id: String, state: String, paused: Bool = false, at: Double? = nil) -> SessionInfo {
-        var session = SessionInfo(sessionId: id, agent: "claude", title: id == "s-live" ? "Live work" : nil, state: state,
+        let execution = snapshot().executions.first { $0.sessionId == id }!
+        var session = SessionInfo(sessionId: id, agent: execution.provider,
+                                  projectId: "p", taskId: execution.taskId, computerId: execution.computerId,
+                                  title: id == "s-live" ? "Live work" : nil, state: state,
                                   startedAt: 1, lastActivityAt: at ?? now, tokensSession: 1, tokensLastTurn: 1)
         session.paused = paused
         return session

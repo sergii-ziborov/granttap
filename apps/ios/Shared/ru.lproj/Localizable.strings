@@ -2245,3 +2245,6 @@
 "Latest frontier agentic coding model for broad defensive cybersecurity work." = "Современная сильная модель для разработки и задач защиты в кибербезопасности.";
 "Legacy coding model." = "Модель предыдущего поколения для разработки.";
 "Use provider default" = "По умолчанию у провайдера";
+
+"Some computers could not refresh architecture. Check Health and retry." = "Не всем компьютерам удалось обновить архитектуру. Проверьте Health и повторите.";
+"Architecture refresh failed. Check the computer and repository binding in Health." = "Не удалось обновить архитектуру. Проверьте компьютер и привязку репозитория в Health.";

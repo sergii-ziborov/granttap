@@ -10,7 +10,7 @@ struct ProjectGraphView: View {
     @State private var feedback: String?
 
     private var reports: [ProjectRepositoryGraph] {
-        (currentSnapshot.repositoryGraphs ?? []).sorted { $0.repositoryId < $1.repositoryId }
+        ProjectInsightReports.reports(currentSnapshot)
     }
 
     private var currentSnapshot: ProjectMeshSnapshot {
@@ -23,6 +23,7 @@ struct ProjectGraphView: View {
         .pageNavigationTitle(L("Graph"))
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("project.graph")
+        .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
         .onChange(of: reports) { _ in
             if pending {
                 pending = false
@@ -45,6 +46,8 @@ struct ProjectGraphView: View {
                 }
                 .font(.caption)
                 .padding(.horizontal)
+                if let feedback { Text(feedback).font(.caption).foregroundStyle(Theme.muted) }
+                if pending { ProgressView(L("Building architecture…")) }
                 MeshCyberboardView(reports: reports)
             }
         }
@@ -85,6 +88,8 @@ struct ProjectGraphView: View {
                     .font(.caption).foregroundStyle(Theme.muted)
             }
             buildButton
+            if let feedback { Text(feedback).font(.caption).foregroundStyle(Theme.muted) }
+            if pending { ProgressView(L("Building architecture…")) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
@@ -93,17 +98,20 @@ struct ProjectGraphView: View {
 
     private var buildButton: some View {
         Button {
-            if model.requestProjectGraphAnalysis(projectId: snapshot.projectId) {
-                pending = true
-                feedback = L("Requested on this Mesh's computers. Waiting for their reports.")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
-                    if pending {
-                        pending = false
-                        feedback = L("No analysis report arrived. Check the computer and repository binding in Health.")
+            pending = true
+            feedback = L("Building architecture…")
+            Task {
+                let result = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId)
+                feedback = result.message
+                pending = result == .requested
+                if pending {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
+                        if pending {
+                            pending = false
+                            feedback = L("No analysis report arrived. Check the computer and repository binding in Health.")
+                        }
                     }
                 }
-            } else {
-                feedback = L("No connected computer can receive this Mesh's analysis request.")
             }
         } label: {
             Label(L("Build architecture now"), systemImage: "arrow.clockwise")

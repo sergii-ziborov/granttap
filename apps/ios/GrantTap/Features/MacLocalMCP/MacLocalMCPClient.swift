@@ -182,11 +182,12 @@ enum MacLocalMCPClient {
     }
 
     static func meshSnapshot(socketPath: String, projectId: String,
-                             enrich: Bool = false) async throws
+                             enrich: Bool = false, refreshGraph: Bool = false) async throws
         -> ProjectMeshSnapshot {
         let data = try await read(socketPath: socketPath, operation: "desktop.mesh_snapshot",
                                   input: ["project_id": projectId,
-                                          "enrich": enrich ? "true" : "false"])
+                                          "enrich": enrich ? "true" : "false",
+                                          "refresh_graph": refreshGraph ? "true" : "false"])
         let snapshot = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: data)
         guard snapshot.type == "mesh.snapshot", snapshot.projectId == projectId,
               snapshot.project.projectId == projectId, snapshot.sessionId == projectId,
