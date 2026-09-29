@@ -27,8 +27,14 @@ final class ProductInformationUITests: XCTestCase {
     }
 
     private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<10 where !element.isHittable { app.swipeUp() }
+        for _ in 0..<10 where !fullyVisible(element, in: app) { app.swipeUp() }
         XCTAssertTrue(element.waitForExistence(timeout: 5))
-        XCTAssertTrue(element.isHittable)
+        XCTAssertTrue(fullyVisible(element, in: app))
+    }
+
+    private func fullyVisible(_ element: XCUIElement, in app: XCUIApplication) -> Bool {
+        guard element.exists, element.isHittable else { return false }
+        let frame = element.frame
+        return frame.width > 0 && frame.height > 0 && app.frame.insetBy(dx: 0, dy: 90).contains(frame)
     }
 }

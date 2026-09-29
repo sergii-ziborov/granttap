@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "b697cd39778b5ed68551838d078c8110a67440c0",
+  "sourceCommit": "b45f4ca084ae1fc1faca225cf8b6b3b8cf7b29db",
   "files": [
     {
       "path": ".gitignore",
@@ -3168,7 +3168,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ProductInformationUITests.swift",
-      "sha256": "d66ea683abbacd39e26920ceb34f767bcb0e252c3b20efe3d88c3837687ee3ca"
+      "sha256": "d1ff1936dccd9ec82e9808532a902795d7e9e1238a5738ae4977a5b341acb4ea"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectControllerDeviceUITests.swift",
