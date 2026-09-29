@@ -10,6 +10,7 @@ final class ProductInformationUITests: XCTestCase {
         let about = app.buttons["About GrantTap"].firstMatch
         reveal(about, in: app)
         about.tap()
+        XCTAssertTrue(app.navigationBars["About GrantTap"].waitForExistence(timeout: 10))
         let terms = app.buttons["information.terms"].firstMatch
         reveal(terms, in: app)
         terms.tap()
