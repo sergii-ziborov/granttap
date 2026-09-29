@@ -151,6 +151,7 @@
 		340A52AD8074D7E77920A9BF /* GlobalCapabilityPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C73A8E263CBEF773DB30F7 /* GlobalCapabilityPolicyTests.swift */; };
 		355FF76C15A8B0B1E6724A9D /* PairingRoutingUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3767DBCF139835782619C9F /* PairingRoutingUsageTests.swift */; };
 		35FCC94F22A5252603895C8F /* PairingFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D3E3B2C5C33242E0C8E675 /* PairingFixture.swift */; };
+		3611655B545431734CF954C6 /* ChatScrollControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275A0CAA36C6CA68A45A8C32 /* ChatScrollControls.swift */; };
 		362665E98BDE55ACB6A45C08 /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EDC3026DAE4224D67C66AF /* WatchBridge.swift */; };
 		3910B91A05E5E5E4C1FBD970 /* ConnectionDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C3567E01235826B5BAC91 /* ConnectionDetailSheet.swift */; };
 		39858D398E959028600C0E9E /* ActivityCommandMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46AC3BA201545F47B922EC1 /* ActivityCommandMetrics.swift */; };
@@ -857,6 +858,7 @@
 		2720D26C9847B99CF87B8BF1 /* ProjectApprovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectApprovalTests.swift; sourceTree = "<group>"; };
 		2724B1F60DE664638F810348 /* WatchReplyControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchReplyControls.swift; sourceTree = "<group>"; };
 		274637705061188B8E7A1E03 /* SessionChatEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionChatEntries.swift; sourceTree = "<group>"; };
+		275A0CAA36C6CA68A45A8C32 /* ChatScrollControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScrollControls.swift; sourceTree = "<group>"; };
 		2775204BA99B7A6E24CCD458 /* MacRemoteCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRemoteCatalogTests.swift; sourceTree = "<group>"; };
 		27B21AA4FC035A4DAB736C09 /* MacLocalMCPInvocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLocalMCPInvocation.swift; sourceTree = "<group>"; };
 		281FD81C504F203D70CD6AB8 /* AppModelAgentMeshSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelAgentMeshSettings.swift; sourceTree = "<group>"; };
@@ -2060,6 +2062,7 @@
 				AE401D2210954F11A1AF28A1 /* ChatFileChanges.swift */,
 				DF19D8BC32F3E1DB32289310 /* ChatHistoryPaging.swift */,
 				109F3C6C6DBB827F3B7032C2 /* ChatPinnedUserMessage.swift */,
+				275A0CAA36C6CA68A45A8C32 /* ChatScrollControls.swift */,
 				3CF1ED055FF4583838F1F49C /* ChatScrollTarget.swift */,
 				37DEA346E97C5FD42BB86F7A /* ChatTranscriptViews.swift */,
 				7BCFB0FCF0A06E37A35F5400 /* LatestUserMessageButton.swift */,
@@ -3850,6 +3853,7 @@
 				0526D7DA92C161A2A47C6FF9 /* ChatMessageQueueFixture.swift in Sources */,
 				D9B0F7CA2E6784867E4B2CEB /* ChatMessageQueuePolicy.swift in Sources */,
 				DD34F9505BA3B029291D89EE /* ChatPinnedUserMessage.swift in Sources */,
+				3611655B545431734CF954C6 /* ChatScrollControls.swift in Sources */,
 				4C27CB5EA0B37BC03C5BE8AA /* ChatScrollTarget.swift in Sources */,
 				A01B881A35677DC0C5208E0C /* ChatTranscriptViews.swift in Sources */,
 				6BAC703B88396DC3517B3FE5 /* ChatTurnOverridesSection.swift in Sources */,

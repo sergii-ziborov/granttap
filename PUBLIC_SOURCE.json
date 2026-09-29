@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "f5ea3c07311b8447e2af5560bc62a4a87bbe6a3c",
+  "sourceCommit": "5d874985a325259bd44facc204e64a9249002810",
   "files": [
     {
       "path": ".gitignore",
@@ -132,7 +132,7 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "8da312c0718c291d7c8b73a83ebe54856adc9dda8fb010f8cd01534f590f9ab4"
+      "sha256": "20e2064e9d2024be74655495c5ff3d62762a99ac743ef5a4e95da39477650c00"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
@@ -1960,11 +1960,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatHistoryPaging.swift",
-      "sha256": "41f2d6410df320a83cad3614933efca79cdb528a499e6c25aba5b73a68e1668a"
+      "sha256": "d8c7e8d10f7caf9ee2743baaac40a3878f878880dc7c17c647bdfb152b6bbe7b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatPinnedUserMessage.swift",
       "sha256": "417e2445f6056e2187ec5ed8c0146d83c9e01c2a0843c632edc5437bc4a92dc1"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatScrollControls.swift",
+      "sha256": "ed605e960ca69c9d79ab9348141bc8a89009cf63044b3dc7fe648967199dd536"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatScrollTarget.swift",
@@ -2004,7 +2008,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatScreen.swift",
-      "sha256": "41e730bc54476363be16fad55db7f086c434bb43aaddf315d0c4a7035704b6fe"
+      "sha256": "f389ac8918f9f79b742b53804f236ad590db94b4d25afa502b61779ac12d22e0"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatTranscriptRows.swift",
@@ -2060,7 +2064,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/README.md",
-      "sha256": "66f85aeefebd4d5b668b9d39b29cb20f2846c6559f0f4cff6479de097b37009b"
+      "sha256": "d75c237d57a9c74ae97033e17f0cccddd78af55f389f365b4f266f6dfeb6be31"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Session/Views/PairingPurpose.swift",
@@ -3032,7 +3036,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/TranscriptHistoryUITests.swift",
-      "sha256": "32be94fe5e7857815752c53c8003d5d32c642387eab21350120bbbc9b28d5b86"
+      "sha256": "71d47e71a76cf5625bc160d236b1fa44a8622ad0bd90ca46e3edaab31cd69666"
     },
     {
       "path": "apps/ios/GrantTapUITests/TurnModelPickerUITests.swift",
@@ -3264,7 +3268,7 @@
     },
     {
       "path": "apps/macos/README.md",
-      "sha256": "802edcb7263e9fe5c163049921ae3f879cbf366e9de05ab69cba27ca73b47775"
+      "sha256": "6521f8b22670a2c4788e6db13a7404daba1c9e6f2fa00847274e7a1fef2ea1a7"
     },
     {
       "path": "apps/macos/Sources/DesktopInspectorCore/EngineClient.swift",

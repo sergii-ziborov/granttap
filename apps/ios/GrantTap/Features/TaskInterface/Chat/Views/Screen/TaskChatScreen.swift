@@ -54,7 +54,13 @@ extension TaskChatView {
     private var chatTranscript: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                latestUserMessageButton(proxy)
+                HStack(spacing: 0) {
+                    latestUserMessageButton(proxy)
+                    if !chatIsAtBottom && !visibleTimeline.isEmpty {
+                        jumpToLatestButton(proxy)
+                    }
+                }
+                .background(Theme.surface)
                 GeometryReader { viewport in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 14) {
@@ -73,12 +79,19 @@ extension TaskChatView {
                                 .id("chat-bottom")
                         }
                         .padding(16)
+                        .background(GeometryReader { content in
+                            Color.clear.preference(
+                                key: ChatHistoryPositionKey.self,
+                                value: content.frame(in: .named("chat-transcript")).minY
+                            )
+                        })
                     }
+                    .accessibilityIdentifier("chat.transcript")
                     .coordinateSpace(name: "chat-transcript")
                     .onPreferenceChange(ChatHistoryPositionKey.self) { position in
-                        // The first layout exposes the header briefly. Arm only
-                        // after it has actually scrolled above the viewport.
-                        if let position, position < -100 { historyAutoPagingReady = true }
+                        if !historyAutoPagingReady, let position, position < -100 {
+                            historyAutoPagingReady = true
+                        }
                         if historyAutoPagingReady, let position, position >= -100, position < viewport.size.height,
                            !chatIsAtBottom, !historyError { loadEarlierMessages(proxy) }
                     }
@@ -90,32 +103,11 @@ extension TaskChatView {
                     }
                     .onPreferenceChange(ChatBottomPositionKey.self) { position in
                         guard let position else {
-                            if !visibleTimeline.isEmpty { chatIsAtBottom = false }
+                            if chatIsAtBottom && !visibleTimeline.isEmpty { chatIsAtBottom = false }
                             return
                         }
                         let atBottom = position <= viewport.size.height + 36
-                        chatIsAtBottom = atBottom
-                    }
-                    .overlay(alignment: .bottomTrailing) {
-                        if !chatIsAtBottom && !visibleTimeline.isEmpty {
-                            Button {
-                                userMessageAnchor = nil
-                                pendingUserJump = false
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    proxy.scrollTo("chat-bottom", anchor: .bottom)
-                                }
-                            } label: {
-                                Image(systemName: "arrow.down")
-                                    .font(.system(size: 17, weight: .semibold))
-                                    .frame(width: 44, height: 44)
-                                    .background(Theme.surface, in: Circle())
-                                    .overlay(Circle().stroke(Theme.line, lineWidth: 1))
-                            }
-                            .accessibilityLabel(L("Jump to latest messages"))
-                            .accessibilityIdentifier("chat.jumpToLatest")
-                            .padding(.trailing, 16)
-                            .padding(.bottom, 10)
-                        }
+                        if chatIsAtBottom != atBottom { chatIsAtBottom = atBottom }
                     }
                 }
             }

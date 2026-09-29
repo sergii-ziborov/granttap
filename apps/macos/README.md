@@ -67,8 +67,8 @@ ad-hoc build is neither notarized nor an App Store distribution archive. The
 store upload requires the owner's distribution signing and provisioning,
 paid-app agreement, editable Mac platform record and final physical checks.
 
-For the native App Sandbox connection, use a runtime built from the published
-MCP source revision containing `desktop/native-access` (0.8.25 source or later).
+For the native App Sandbox connection, code-tower refresh and live Mesh
+statistics, use a runtime built from MCP 0.8.28 source or later.
 The source release is available on GitHub; an npm tag is a separate publication.
 The `embed-graph-resources.sh` Xcode phase includes graph assets before signing,
 so App Store archives contain the same graph as local Mac builds.

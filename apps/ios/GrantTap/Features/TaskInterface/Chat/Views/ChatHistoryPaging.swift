@@ -20,10 +20,6 @@ extension TaskChatView {
                 Spacer()
             }
             .font(.system(size: 13))
-            .background(GeometryReader { geometry in
-                Color.clear.preference(key: ChatHistoryPositionKey.self,
-                    value: geometry.frame(in: .named("chat-transcript")).minY)
-            })
         }
     }
 

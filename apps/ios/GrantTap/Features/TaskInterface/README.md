@@ -28,6 +28,9 @@ The persistent previous-request control preloads at least two root user requests
 including attachment-only requests. Each jump prepares the next older request;
 long tool runs cannot hide the question above them. Top-edge paging also works,
 and the explicit history button recovers failed or stalled loads without a retry loop.
+The latest-message action shares the pinned request strip, outside the scrolling
+surface, so it cannot intercept transcript pans. Paging measures the content
+container rather than a lazy header that may disappear from the view hierarchy.
 Stable entry ids and older cursors survive live snapshots. iPhone keeps a bounded
 recent window extended through two complete request boundaries. Mac retains every
 fetched page in a per-chat protected archive across launches until the user clears

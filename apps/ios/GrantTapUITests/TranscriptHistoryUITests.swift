@@ -18,7 +18,11 @@ final class TranscriptHistoryUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.staticTexts["History review finished"].waitForExistence(timeout: 15))
         let first = app.staticTexts["chat.row.history-0"]
-        for _ in 0..<16 where !first.isHittable { app.swipeDown() }
+        let transcript = app.scrollViews["chat.transcript"]
+        XCTAssertTrue(transcript.exists)
+        for _ in 0..<16 where !first.isHittable {
+            transcript.swipeDown()
+        }
         XCTAssertTrue(first.waitForExistence(timeout: 5))
         XCTAssertTrue(first.isHittable)
         XCTAssertFalse(app.buttons["chat.history.more"].exists)
