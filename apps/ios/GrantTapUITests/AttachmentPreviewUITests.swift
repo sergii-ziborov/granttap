@@ -62,7 +62,11 @@ final class AttachmentPreviewUITests: XCTestCase {
         XCTAssertFalse(app.textViews["attachment.preview.text"].exists)
         capture(app, name: "PDF attachment preview")
         closePDF.tap()
-        app.buttons["Remove Fixture.swift"].tap()
+        XCTAssertTrue(closePDF.waitForNonExistence(timeout: 8))
+        let removeSource = app.buttons["Remove Fixture.swift"]
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "hittable == true"), object: removeSource)], timeout: 8), .completed)
+        removeSource.tap()
         XCTAssertFalse(source.exists)
         XCTAssertTrue(app.buttons["attachment.preview.Fixture.pdf"].exists)
         capture(app, name: "Flat composer and remaining file")

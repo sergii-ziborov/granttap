@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "9a5cda76155e1b02f2e24d3e3536569719174053",
+  "sourceCommit": "b697cd39778b5ed68551838d078c8110a67440c0",
   "files": [
     {
       "path": ".gitignore",
@@ -3152,7 +3152,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/AttachmentPreviewUITests.swift",
-      "sha256": "6be7583ee8e56c932a704909b8444ecba12a3e70a41ccd68bddcd9183c3137a1"
+      "sha256": "64e7a8aa512d07ccb187d9aaf7d149b25e9d47927c206ead1db8bdc72c986f2f"
     },
     {
       "path": "apps/ios/GrantTapUITests/ChatMessageQueueUITests.swift",
