@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "6db4c379b8702c31451c10263ae7cab27bd88ff9",
+  "sourceCommit": "d9fbd5db225e3d4052bb307704b389c53aa9c0dc",
   "files": [
     {
       "path": "apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg",
@@ -428,7 +428,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/Compatibility.swift",
-      "sha256": "570bcc27270d4a35c2857599eedb05fa3af1924aaf25308871d0d196e52d2526"
+      "sha256": "2de5feea667dd0c8f0192453a629d1e3ce2a0a90a2c623b4afeea08cfba259f2"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/DecisionActionButton.swift",
@@ -437,6 +437,10 @@
     {
       "path": "apps/ios/GrantTap/Features/AppShell/GrantTapApp.swift",
       "sha256": "edd7d53e4eac65a62eee163f91a7ff7d5e59ae67e6862e883441e51d0eee58d0"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/AppShell/README.md",
+      "sha256": "ed49b25e92bed700ee16c38a0822d1707665aa45472ff5df8508cef3b3b007d6"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/Theme.swift",
@@ -2964,7 +2968,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectGraphUITests.swift",
-      "sha256": "6276c7f6cdb958660c555f376d236d43b3d75da821bffa7b396f9e9f6884228a"
+      "sha256": "11cace4e281e4e71976abb67b72491651b8d73847dc1bf18012061a941089199"
     },
     {
       "path": "apps/ios/GrantTapUITests/SettingsNavigationUITests.swift",

@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// NavigationStack-compatible container for iOS 15. Stack style is explicit:
-/// the default NavigationView split presentation otherwise opens an empty
-/// detail column on iPad and in Stage Manager.
+/// Keep pushed destinations alive while presenting a full-screen inspector.
+/// iOS 15 uses explicit stack style to avoid an empty iPad detail column.
 struct CompatNavigationStack<Content: View>: View {
     private let content: Content
 
@@ -11,17 +10,12 @@ struct CompatNavigationStack<Content: View>: View {
     }
 
     var body: some View {
-        #if targetEnvironment(macCatalyst)
         if #available(iOS 16.0, *) {
             NavigationStack { content }
         } else {
             NavigationView { content }
                 .navigationViewStyle(StackNavigationViewStyle())
         }
-        #else
-        NavigationView { content }
-            .navigationViewStyle(StackNavigationViewStyle())
-        #endif
     }
 }
 

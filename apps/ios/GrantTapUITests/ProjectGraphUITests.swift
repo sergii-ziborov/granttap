@@ -145,6 +145,9 @@ final class ProjectGraphUITests: XCTestCase {
         XCTAssertTrue(file.waitForExistence(timeout: 10))
         file.tap()
         XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].waitForExistence(timeout: 10))
+        app.buttons["Close code towers"].tap()
+        XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Partial map"].exists)
     }
 
     func testStatisticsHasTaskDiagramAndEvidenceBars() {
