@@ -56,9 +56,10 @@ extension TaskChatView {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     latestUserMessageButton(proxy)
-                    if !chatIsAtBottom && !visibleTimeline.isEmpty {
-                        jumpToLatestButton(proxy)
-                    }
+                    jumpToLatestButton(proxy)
+                        .opacity(chatIsAtBottom || visibleTimeline.isEmpty ? 0 : 1)
+                        .disabled(chatIsAtBottom || visibleTimeline.isEmpty)
+                        .accessibilityHidden(chatIsAtBottom || visibleTimeline.isEmpty)
                 }
                 .background(Theme.surface)
                 GeometryReader { viewport in
