@@ -62,7 +62,7 @@ struct AppLifecycleDependencies {
     )
 }
 
-final class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
     private let dependencies: AppLifecycleDependencies
 
     override convenience init() { self.init(dependencies: .live) }
@@ -70,6 +70,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     init(dependencies: AppLifecycleDependencies) {
         self.dependencies = dependencies
         super.init()
+    }
+
+    override func buildMenu(with builder: UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        #if targetEnvironment(macCatalyst)
+        ProductInformationMenus.install(in: builder)
+        #endif
     }
 
     func application(_ application: UIApplication,

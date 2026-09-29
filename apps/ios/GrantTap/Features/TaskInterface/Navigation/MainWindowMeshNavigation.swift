@@ -21,6 +21,7 @@ extension EnvironmentValues {
 enum MacMainWindowRoute: Hashable {
     case chat(String)
     case mesh(MainWindowMeshRoute)
+    case information(ProductInformation)
 }
 
 extension ContentView {
@@ -59,6 +60,9 @@ extension ContentView {
 
     @ViewBuilder func macDestination(_ route: MacMainWindowRoute) -> some View {
         switch route {
+        case .information(let information):
+            ProductInformationView(information: information)
+                .environmentObject(model)
         case .chat(let sessionId):
             sessionDestination(id: sessionId)
         case .mesh(let mesh):

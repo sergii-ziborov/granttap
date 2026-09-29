@@ -1,0 +1,69 @@
+{
+  "title": "Privacy Policy",
+  "updated": "2026-09-29",
+  "intro": "This policy covers the GrantTap Mac, iPhone, iPad and Apple Watch apps, its local machine helper, the encrypted relay, and granttap.com. GrantTap creates no advertising profile or readable cloud chat history.",
+  "sections": [
+    {
+      "heading": "Mac and endpoint discovery",
+      "paragraphs": [
+        "App Store purchase evidence is verified by StoreKit; we do not receive payment-card details. The native Mac keeps its separate local MCP access token in its device-only Keychain. Direct mode announces only authenticated encrypted endpoint records with opaque room and recipient identifiers, sizes and expiry. The managed directory cannot decrypt an address; network operators still observe connection IPs and timing. Directory records expire within 15 minutes. In fully self-hosted mode, pairing and chat traffic use your endpoint and do not contact that directory. You administer your own server logs, queues and retention."
+      ]
+    },
+    {
+      "heading": "Privacy at a glance",
+      "bullets": [
+        "GrantTap Personal requires no username or password.",
+        "Repositories, provider credentials, model prompts, and model traffic do not pass through the GrantTap relay.",
+        "Task messages, commands, questions, attachments, replies, and decisions are end-to-end encrypted before leaving an authorized endpoint.",
+        "GrantTap does not sell personal data or use app data for advertising, tracking, productivity scoring, or profiling."
+      ]
+    },
+    {
+      "heading": "Data processed to provide the app",
+      "bullets": [
+        "Pairing uses a random mailbox identifier and a single-use encrypted blob. The independent transfer key remains in the QR or manual token and never reaches the relay.",
+        "Delivery uses opaque room, task, message, and delivery identifiers; sender and recipient roles; timing; ciphertext size; expiry; delivery status; and retry state.",
+        "Cloudflare may process IP address and ordinary security request data to operate the relay and website.",
+        "Background delivery stores an APNs device token, environment, bundle identifier, and update time. Push payloads contain no prompt, command, title, path, request identifier, or message body."
+      ]
+    },
+    {
+      "heading": "Encrypted content and local storage",
+      "paragraphs": [
+        "The relay receives authenticated ciphertext and a nonce, not readable task content. Pairing and per-task keys are created locally and are absent from relay code, storage, logs, and secrets. Each task has an independent key.",
+        "Readable content exists only on the computer and Apple devices you authorize, plus tools you explicitly use there. GrantTap does not proxy provider model traffic."
+      ],
+      "bullets": [
+        "The app stores keys, preferences, delivery state, hidden/history state, a bounded local audit, and capability usage in protected local storage. Mac also stores fetched chat pages in a protected local archive. Clear this copy in Settings → This Mac → Chat history & cache without deleting provider history or device connections.",
+        "The helper stores local pairing and provider integration configuration under ~/.granttap.",
+        "Each Mesh has an additional key. The phone hands it only to computers you have already paired, inside the pairing encryption they already use, so shared Task state, Governance policy, and cost figures travel as ciphertext like everything else.",
+        "Report a problem composes its text on your device and hands it to the system share sheet. The report contains no keys, tokens, chat content, or commands, and the app itself sends nothing.",
+        "Camera, photos, files, microphone, speech recognition, biometrics, and notifications are used only for the features you explicitly invoke or enable."
+      ]
+    },
+    {
+      "heading": "Retention, deletion, and your choices",
+      "paragraphs": [
+        "Pairing blobs expire after 15 minutes and are single-use. Encrypted offline queues are bounded and expire. Local data remains until you clear it, unlink a computer, reset pairing, or remove the app/helper.",
+        "You may decline optional system permissions. Depending on applicable law, you may request access, correction, deletion, restriction, portability, or objection for data GrantTap can identify and control. Because Personal has no identity index and the relay cannot decrypt payloads, no readable task record may exist for a centralized identity search."
+      ],
+      "links": [
+        {
+          "label": "Manage or delete data",
+          "href": "/data-rights"
+        },
+        {
+          "label": "Email privacy support",
+          "href": "mailto:sergii.ziborov@gmail.com"
+        }
+      ]
+    },
+    {
+      "heading": "Service providers, website, and changes",
+      "paragraphs": [
+        "Cloudflare provides network, Worker, Durable Object, and website infrastructure. Apple provides APNs, system speech and biometric APIs, and App Store services under Apple's terms. Neither receives GrantTap decryption keys from the app.",
+        "granttap.com stores only your language choice locally and uses no advertising or product analytics. Material policy changes will be posted here with a new effective date."
+      ]
+    }
+  ]
+}

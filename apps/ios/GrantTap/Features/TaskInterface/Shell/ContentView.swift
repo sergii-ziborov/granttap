@@ -220,6 +220,11 @@ struct ContentView: View {
             #endif
         }
         #if targetEnvironment(macCatalyst)
+        .onReceive(NotificationCenter.default.publisher(for: ProductInformation.requested)) { notification in
+            guard let information = notification.object as? ProductInformation else { return }
+            selectMacTab(.settings)
+            macNavigationPath = [.information(information)]
+        }
         .onChange(of: openedSession) { destination in
             navigateMacChat(destination)
             loadMacLocalActivity(destination)

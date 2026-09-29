@@ -1,0 +1,116 @@
+{
+  "title": "Terms of Use",
+  "updated": "2026-09-28",
+  "intro": "These terms cover the GrantTap app, encrypted relay, and related support services. GrantTap extends coding-agent sessions on computers you control; it does not replace the agent or move your project into a GrantTap cloud.",
+  "sections": [
+    {
+      "heading": "Agreement and license",
+      "paragraphs": [
+        "By downloading or using GrantTap, you agree to these terms and any non-waivable rules that apply where you live. Apps obtained through Apple's App Store use Apple's Standard Licensed Application End User License Agreement unless a custom agreement is presented there. Directly distributed GrantTap Desktop builds use the GrantTap Desktop Commercial End-User License. These terms also cover the relay, website, and support.",
+        "App Store use follows the applicable Apple license and purchase terms. Direct Desktop use follows its own purchase record and Desktop license. Neither app license grants rights to the Apple-client source code."
+      ],
+      "links": [
+        {
+          "label": "Apple Standard EULA",
+          "href": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        },
+        {
+          "label": "Desktop commercial license",
+          "href": "https://github.com/sergii-ziborov/granttap/blob/main/apps/macos/DESKTOP_EULA.md"
+        }
+      ]
+    },
+    {
+      "heading": "Personal pairing",
+      "paragraphs": [
+        "GrantTap pairing authorizes devices using locally held cryptographic credentials. Your Apple billing identity and third-party provider sign-ins remain separate and are governed by those services."
+      ]
+    },
+    {
+      "heading": "Your devices, agents, and approvals",
+      "bullets": [
+        "You are responsible for the computers, agents, repositories, MCP servers, credentials, and devices you pair, and for complying with their terms and applicable law.",
+        "Review each request before approving it. An agent action may edit or delete files, run commands, publish code, spend paid resources, or affect external systems.",
+        "Protect paired devices and backups, enable suitable device authentication, and forget a pairing you no longer control.",
+        "Keep an independent recovery path. GrantTap must not be the only approval, backup, safety, or emergency mechanism for important work."
+      ]
+    },
+    {
+      "heading": "Third-party agents and services",
+      "paragraphs": [
+        "Cursor, Claude Code, Codex, Grok Build, Apple services, Cloudflare, MCP servers, repositories, and any external tool you select are independent services with their own terms and privacy practices. GrantTap does not control their outputs, availability, pricing, or data practices and does not proxy model traffic.",
+        "References to third-party names describe compatibility only. GrantTap is an independent product and is not affiliated with, endorsed by, or sponsored by Apple, Anthropic, OpenAI, Anysphere, xAI, or Cloudflare."
+      ]
+    },
+    {
+      "heading": "Purchases and refunds",
+      "paragraphs": [
+        "The Mac app is prepared for a one-time $39.99 US license. App Store availability, local price and the purchase receipt govern. A purchased Mac license does not expire when Personal ends and includes running and privately modifying the GrantTap relay for personal or internal use, excluding redistribution, resale or hosting for third parties. Direct mode uses encrypted address discovery; fully self-hosted mode uses your own endpoint. You maintain reachability, server security and backups. The Mac end-user license applies alongside mandatory Apple rules.",
+        "Personal is an optional auto-renewable subscription with a 7-day free trial for eligible new subscribers. Personal is priced by linked computers: $1.99 per month for one, $3.99 for up to five, $5.99 for up to ten, with unlimited agents on each. The exact price and trial eligibility shown by Apple before confirmation control if they differ from this page.",
+        "The subscription renews automatically unless cancelled at least 24 hours before the current period ends. App Store purchases, payment processing, taxes, family sharing, and refunds are handled by Apple. GrantTap does not receive your payment-card details."
+      ],
+      "links": [
+        {
+          "label": "Pricing and subscription details",
+          "href": "/pricing"
+        },
+        {
+          "label": "Apple Report a Problem",
+          "href": "https://reportaproblem.apple.com/"
+        }
+      ]
+    },
+    {
+      "heading": "Acceptable use",
+      "bullets": [
+        "Do not access a computer, project, account, or task without authorization.",
+        "Do not interfere with, overload, probe, reverse engineer except where law permits, or bypass limits or security of the relay or app.",
+        "Do not use GrantTap to distribute malware, violate rights, evade security controls, or break applicable law.",
+        "Do not share pairing codes, room credentials, or encryption keys with someone you do not intend to authorize."
+      ]
+    },
+    {
+      "heading": "Availability and changes",
+      "paragraphs": [
+        "The app, background delivery, APNs, relay, bridge integrations, speech recognition, and third-party agents may be delayed, interrupted, changed, or unavailable. Apple does not guarantee notification delivery, and GrantTap does not promise that a remote request will arrive by a particular time.",
+        "We may update features or these terms to improve security, comply with law, or reflect service changes. Material terms changes will be posted with a new date and, when appropriate, surfaced in the app or release notes."
+      ]
+    },
+    {
+      "heading": "Ownership and open source",
+      "paragraphs": [
+        "GrantTap branding, app design, Apple-client code, relay, and website remain the property of their owner. The standalone GrantTap MCP is MIT licensed. Earlier relay and website versions released under MIT retain those license rights. Third-party components keep their own licenses; current terms are listed on the Licenses page and in each repository."
+      ],
+      "links": [
+        {
+          "label": "Licenses and notices",
+          "href": "/licenses"
+        }
+      ]
+    },
+    {
+      "heading": "Disclaimers and liability",
+      "paragraphs": [
+        "To the maximum extent permitted by law, GrantTap is provided as available and without warranties of uninterrupted operation, error-free delivery, fitness for a particular purpose, or agent-output accuracy. You remain responsible for reviewing changes and maintaining backups.",
+        "To the maximum extent permitted by law, the developer is not liable for indirect, incidental, special, consequential, or punitive loss, loss of data, source code, profits, or business caused by use or inability to use GrantTap. Nothing here limits liability or consumer rights that applicable law does not allow to be limited."
+      ]
+    },
+    {
+      "heading": "Stopping use and contact",
+      "paragraphs": [
+        "You may stop using GrantTap at any time, forget the paired computer, and remove local data. Access may be limited to protect users or the service from abuse or a security threat. Sections that by their nature should survive—such as ownership, disclaimers, and lawful limits—continue after use ends.",
+        "Questions about these terms can be sent to the support email below. Do not include pairing secrets, keys, or real task content."
+      ],
+      "links": [
+        {
+          "label": "Deletion and data choices",
+          "href": "/data-rights"
+        },
+        {
+          "label": "Email support",
+          "href": "mailto:sergii.ziborov@gmail.com"
+        }
+      ]
+    }
+  ]
+}

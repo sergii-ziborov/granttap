@@ -17,6 +17,19 @@ final class MacCommerceStoreKitTests: XCTestCase {
         return session
     }
 
+    func testStoreCatalogOffersTheMacLicenseAndAllThreePersonalTiers() async throws {
+        let session = try session()
+        defer { session.clearTransactions() }
+        let ids = [DesktopLicense.productID] + SubscriptionProduct.allCases.map(\.rawValue)
+        let products = try await Product.products(for: ids)
+        XCTAssertEqual(Set(products.map(\.id)), Set(ids))
+        let prices = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0.price) })
+        XCTAssertEqual(prices[DesktopLicense.productID], Decimal(string: "39.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.solo.rawValue], Decimal(string: "1.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.personal.rawValue], Decimal(string: "3.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.fleet.rawValue], Decimal(string: "5.99"))
+    }
+
     func testActualStoreKitPurchaseSurvivesRestartAndRefundRevokesMacLicense() async throws {
         let session = try session()
         defer { session.clearTransactions() }

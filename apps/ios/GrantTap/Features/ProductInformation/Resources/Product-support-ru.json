@@ -1,0 +1,72 @@
+{
+  "title": "Поддержка",
+  "updated": "2026-09-29",
+  "intro": "Установите runtime, выполните setup и подтвердите coding app. Одноразовый QR находится в панели подключения GrantTap и сканируется телефоном — не в чате.",
+  "sections": [
+    {
+      "heading": "Mac и подключение устройств",
+      "bullets": [
+        "Откройте Help → GrantTap Help для встроенной справки. GrantTap → About GrantTap показывает версию, покупки, условия, конфиденциальность и лицензии. Документы доступны без интернета.",
+        "На Mac откройте Settings → Device network → Connect iPhone or iPad: появится одноразовый QR. На телефоне или планшете: Settings → Connections → Add a device (Scan QR).",
+        "Для подключения Mac или PC выберите Connect a computer by link и вставьте его одноразовое приглашение. Существующие подключения сохраняются.",
+        "Установите отдельный MCP helper на этом Mac. В релизе требуется Authorize local Mac access; hooks провайдера могут отдельно требовать проверки в Codex."
+      ]
+    },
+    {
+      "heading": "Покупка, восстановление и режимы связи",
+      "paragraphs": [
+        "Стартовая лицензия Mac планируется за $39,99 в США; доступность и локальную цену показывает Apple. Personal необязательна: $1,99 / $3,99 / $5,99 в месяц за 1 / 5 / 10 компьютеров. Пробный период для подходящего покупателя показывает Apple. Токены модели оплачиваются отдельно.",
+        "Нажмите Restore purchases в Settings с тем же Apple Account, с которого покупали. Manage subscription открывает управление Apple. Удаление приложения не отменяет подписку.",
+        "Лицензированный Mac работает через управляемую доставку с Personal, напрямую с зашифрованным поиском адреса без Personal или через полностью свой relay. Настройка: Settings → Device network → Connection mode & own relay. Для прямой связи и своего relay нужен доступный TLS endpoint или VPN; объявление IP не обходит NAT. Сервером и резервными копиями управляете вы. Для фоновых уведомлений нужен соответствующий push-сервис."
+      ]
+    },
+    {
+      "heading": "Подключить компьютер",
+      "bullets": [
+        "Установите Node.js 22 или новее.",
+        "Выполните npm install -g granttap-mcp.",
+        "Выполните granttap setup. Команда найдёт providers, установит hooks и запустит или исправит helper.",
+        "В панели GrantTap в coding app выберите Add a device и отсканируйте одноразовый QR приложением на iPhone.",
+        "Для второго телефона используйте Add another device, для того же — Reconnect. granttap.com/connect служит для подтверждения coding app и наблюдения, а не для QR.",
+        "granttap status показывает read-only readiness summary."
+      ]
+    },
+    {
+      "heading": "Готовность providers",
+      "bullets": [
+        "Claude Code и Codex — основные интеграции.",
+        "Codex может потребовать доверить точные GrantTap hooks и перезапустить Codex.",
+        "Cursor — Beta. Карточка GrantTap в Marketplace, затем granttap setup. Не добавляйте GrantTap в Customize → MCPs.",
+        "Cursor Cloud · fetch failed — лишний user HTTP MCP на 127.0.0.1:17342 или cloud-источник плагина, а не доказательство, что телефон не спарен.",
+        "Неустановленный provider не является ошибкой."
+      ]
+    },
+    {
+      "heading": "Не работает pairing или delivery",
+      "bullets": [
+        "Проверьте интернет и wss:// relay URL.",
+        "«Seen» или Connected на сайте — наблюдение, но не Live. Live видно в GrantTap, когда helper и телефон в одной комнате.",
+        "Телефон без комнаты принимает комнату компьютера. Если телефон уже Live, он сохраняет комнату, а компьютер подключается к ней. Reconnect даёт QR той же комнаты.",
+        "Откройте GrantTap на разблокированном iPhone. Заблокированный телефон остаётся offline.",
+        "Проверьте iOS Notifications и Background App Refresh. Время APNs определяет Apple и оно не гарантируется.",
+        "Не отправляйте в поддержку pairing tokens, room credentials, provider credentials, prompts или repository paths."
+      ]
+    },
+    {
+      "heading": "Контакт и diagnostics",
+      "paragraphs": [
+        "Напишите на sergii.ziborov@gmail.com версии приложения, iOS/watchOS, Node.js, helper и provider, а также очищенные шаги воспроизведения. При наличии экспортируйте diagnostics из Troubleshooting."
+      ],
+      "links": [
+        {
+          "label": "Проблемы MCP/helper",
+          "href": "https://github.com/sergii-ziborov/granttap-mcp/issues"
+        },
+        {
+          "label": "Проблемы relay",
+          "href": "https://github.com/sergii-ziborov/granttap-relay/issues"
+        }
+      ]
+    }
+  ]
+}

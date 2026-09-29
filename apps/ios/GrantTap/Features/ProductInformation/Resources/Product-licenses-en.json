@@ -1,0 +1,84 @@
+{
+  "title": "Licenses and notices",
+  "updated": "2026-09-28",
+  "intro": "GrantTap app, desktop, relay, and website are commercial software. Public source access does not make them MIT-licensed. The MCP project has its own MIT license.",
+  "sections": [
+    {
+      "heading": "GrantTap apps",
+      "paragraphs": [
+        "Copyright © 2026 Serhii Ziborov. All rights reserved. The iPhone, iPad, and Apple Watch app uses the applicable App Store end-user license. App Store apps use Apple's Standard EULA unless a custom EULA is displayed there. The Mac license additionally grants personal/internal use of your own GrantTap relay. A purchased Mac license includes personal/internal own-relay use without a Personal subscription. The publicly readable first-party app source is governed by the GrantTap Commercial Source License."
+      ],
+      "links": [
+        {
+          "label": "Commercial Source License",
+          "href": "https://github.com/sergii-ziborov/granttap/blob/main/LICENSE"
+        },
+        {
+          "label": "Desktop end-user license",
+          "href": "https://github.com/sergii-ziborov/granttap/blob/main/apps/macos/DESKTOP_EULA.md"
+        }
+      ]
+    },
+    {
+      "heading": "Open-source project",
+      "links": [
+        {
+          "label": "MCP bridge — MIT",
+          "href": "https://github.com/sergii-ziborov/granttap-mcp/blob/main/LICENSE"
+        }
+      ]
+    },
+    {
+      "heading": "Relay and website source",
+      "paragraphs": [
+        "Current first-party source versions are under the GrantTap Commercial Source License. Copies of earlier versions validly released under MIT retain their original MIT permissions; the change does not revoke them."
+      ],
+      "links": [
+        {
+          "label": "Relay commercial source license",
+          "href": "https://github.com/sergii-ziborov/granttap-relay/blob/main/LICENSE"
+        },
+        {
+          "label": "Website commercial source license",
+          "href": "https://github.com/sergii-ziborov/granttap-site/blob/main/LICENSE"
+        }
+      ]
+    },
+    {
+      "heading": "Third-party software",
+      "bullets": [
+        "TweetNacl SwiftWrap — MIT",
+        "tweetnacl-js — Unlicense",
+        "Model Context Protocol SDK — MIT",
+        "ws — MIT",
+        "Zod — MIT",
+        "React and Next.js — MIT",
+        "Weavatrix Rust graph and repository crates in the separate Engine — MIT where identified by their package licenses",
+        "Cortex Context in the separate Engine — MIT OR Apache-2.0",
+        "Cloudflare Workers tooling — applicable open-source licenses"
+      ]
+    },
+    {
+      "heading": "Related engineering projects",
+      "paragraphs": [
+        "Cortex Loom contains both dual-licensed public crates and reserved-rights components; its unpublished cortex-weavatrix adapter is not covered by the public crate licenses. Weavatrix Loom is a separate dual-licensed MIT OR Apache-2.0 project, not a bundled GrantTap component. Their own repositories define the scope of each grant."
+      ],
+      "links": [
+        {
+          "label": "Cortex Loom licensing",
+          "href": "https://github.com/sergii-ziborov/cortex-loom/blob/main/docs/licensing.md"
+        },
+        {
+          "label": "Weavatrix Loom",
+          "href": "https://github.com/Weavatrix/weavatrix-loom"
+        }
+      ]
+    },
+    {
+      "heading": "Trademarks",
+      "paragraphs": [
+        "Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude and Claude Code are trademarks of Anthropic. OpenAI and Codex are trademarks of OpenAI. Cursor belongs to Anysphere. Grok and xAI belong to xAI. All other names belong to their respective owners."
+      ]
+    }
+  ]
+}

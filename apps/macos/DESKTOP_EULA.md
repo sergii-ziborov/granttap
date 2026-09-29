@@ -1,7 +1,13 @@
 # GrantTap Mac End-User License
 
-Effective September 28, 2026. Licensor: Serhii Ziborov,
+Effective September 29, 2026. Licensor: Serhii Ziborov,
 sergii.ziborov@gmail.com. Copyright © 2026. All rights reserved.
+
+For App Store downloads, Apple's Standard EULA governs the app unless a custom
+EULA is actually displayed in App Store Connect. This document additionally
+grants the relay-use rights below; it does not replace Apple's applicable
+license, purchase rules or mandatory consumer rights. Direct distribution uses
+this Mac end-user license.
 
 ## Purchase and scope
 

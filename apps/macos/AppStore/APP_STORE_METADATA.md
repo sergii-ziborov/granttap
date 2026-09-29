@@ -1,6 +1,6 @@
 # GrantTap Mac App Store metadata
 
-Prepared for version 1.0, revised 2026-09-28.
+Prepared for version 1.0, revised 2026-09-29.
 
 - Marketing URL: https://granttap.com
 - Support URL: https://granttap.com/support
@@ -33,9 +33,10 @@ work only where their supported controls are available.
 
 Connect iPhone or iPad from Settings with a one-time QR, or add a computer by
 link. Apple Watch receives state through its paired iPhone. GrantTap payloads
-are end-to-end encrypted.
+are end-to-end encrypted. Built-in Help, Terms, Privacy and licenses are
+available from Settings and the Mac menus, including offline.
 
-Mac License: a one-time non-consumable purchase unlocks licensed Mac local
+Mac License: a one-time $39.99 US non-consumable purchase unlocks Mac local
 control and personal/internal own-relay setup. Restore it with the same Apple
 Account. A Personal subscription is optional and does not replace this license.
 Direct mode uses a short-lived encrypted address directory; fully self-hosted
@@ -92,7 +93,7 @@ Project Mesh сохраняет Task при смене сессии, прова�
 Apple Watch получает состояние через связанный iPhone. Данные GrantTap защищены
 сквозным шифрованием.
 
-Mac License — разовая покупка для локального управления и личного/внутреннего
+Mac License — разовая покупка за $39,99 в США для локального управления и личного/внутреннего
 использования своего relay. Восстановление покупки использует тот же Apple
 Account. Подписка Personal необязательна и не заменяет лицензию. Прямой режим
 использует краткоживущий зашифрованный каталог адресов, автономный — ваш endpoint

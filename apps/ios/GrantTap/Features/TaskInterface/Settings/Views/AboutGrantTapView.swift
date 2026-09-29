@@ -83,6 +83,10 @@ struct AboutGrantTapView: View {
             }
 
             Section(L("Legal")) {
+                ProductInformationLinks()
+            }
+
+            Section(L("Website and source")) {
                 ForEach(Array(GrantTapLinks.all.enumerated()), id: \.offset) { _, item in
                     if let url = URL(string: item.1) {
                         Link(L(item.0), destination: url)

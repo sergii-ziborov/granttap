@@ -14,8 +14,6 @@ struct SettingsView: View {
     @State private var showPairing = false
     @State private var showControllerInvite = false
 
-    private let links = GrantTapLinks.all
-
     init(modelOverride: AppModel? = nil, localComputer: String? = nil,
          localPaired: Bool? = nil, localRelayStatus: String? = nil,
          localPhoneReachability: String? = nil,
@@ -124,6 +122,8 @@ struct SettingsView: View {
             Label(L("Learn"), systemImage: "book")
         }
         .accessibilityIdentifier("settings.open-learn")
+        NavigationLink(L("GrantTap Help")) { ProductInformationView(information: .help) }
+            .accessibilityIdentifier("settings.open-help")
         Picker(L("Language"), selection: $language) {
             Text(L("English")).tag("en")
             Text(L("Русский")).tag("ru")
@@ -133,17 +133,7 @@ struct SettingsView: View {
         } label: {
             Label(L("About GrantTap"), systemImage: "info.circle")
         }
-        ForEach(Array(links.enumerated()), id: \.offset) { _, item in
-            if let url = URL(string: item.1) {
-                Link(destination: url) {
-                    HStack {
-                        Text(L(item.0))
-                        Spacer()
-                        Image(systemName: "arrow.up.right").foregroundStyle(Theme.muted)
-                    }
-                }
-            }
-        }
+        ProductInformationLinks(includesHelp: false)
         CompatLabeledContent(L("Version"), value: AppVersion.display)
     }
     }

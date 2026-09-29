@@ -45,9 +45,7 @@ struct DesktopLicenseView: View {
                 NavigationLink(L("Manage subscription")) { SubscriptionView() }
             }
             Section(L("Legal")) {
-                Link(L("Terms"), destination: URL(string: "https://granttap.com/terms")!)
-                Link(L("Privacy"), destination: URL(string: "https://granttap.com/privacy")!)
-                Link(L("Licenses"), destination: URL(string: "https://granttap.com/licenses")!)
+                ProductInformationLinks()
             }
             if let error = store.lastError {
                 Section { Text(error).foregroundStyle(Theme.riskHigh) }

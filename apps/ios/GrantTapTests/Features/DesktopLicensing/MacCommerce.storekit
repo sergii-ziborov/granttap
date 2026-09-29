@@ -1,38 +1,133 @@
 {
-  "identifier" : "E55DA0F7-102F-4E1D-90F7-574AC86EF15E",
-  "nonRenewingSubscriptions" : [],
-  "products" : [
+  "identifier": "E55DA0F7-102F-4E1D-90F7-574AC86EF15E",
+  "nonRenewingSubscriptions": [],
+  "products": [
     {
-      "displayPrice" : "39.99",
-      "familyShareable" : false,
-      "internalID" : "mac-license",
-      "localizations" : [
-        { "description" : "Permanent Mac license, including personal self-hosting.", "displayName" : "GrantTap Mac License", "locale" : "en_US" }
+      "displayPrice": "39.99",
+      "familyShareable": false,
+      "internalID": "mac-license",
+      "localizations": [
+        {
+          "description": "Permanent Mac license, including personal self-hosting.",
+          "displayName": "GrantTap Mac License",
+          "locale": "en_US"
+        },
+        {
+          "description": "Постоянная лицензия Mac, включая собственный relay.",
+          "displayName": "Лицензия GrantTap Mac",
+          "locale": "ru"
+        }
       ],
-      "productID" : "com.ziborov.granttap.mac.license",
-      "referenceName" : "GrantTap Mac License",
-      "type" : "NonConsumable"
+      "productID": "com.ziborov.granttap.mac.license",
+      "referenceName": "GrantTap Mac License",
+      "type": "NonConsumable"
     }
   ],
-  "settings" : { "_failTransactionsEnabled" : false, "_locale" : "en_US", "_storefront" : "USA" },
-  "subscriptionGroups" : [
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA"
+  },
+  "subscriptionGroups": [
     {
-      "id" : "personal",
-      "localizations" : [],
-      "name" : "Personal",
-      "subscriptions" : [
+      "id": "personal",
+      "localizations": [
         {
-          "adHocOffers" : [], "codeOffers" : [], "displayPrice" : "1.99", "familyShareable" : false,
-          "groupNumber" : 1, "internalID" : "personal-one", "introductoryOffer" : null,
-          "localizations" : [
-            { "description" : "Managed relay for one computer.", "displayName" : "Personal 1", "locale" : "en_US" }
+          "description": "Optional managed relay for your computers.",
+          "displayName": "Personal",
+          "locale": "en_US"
+        },
+        {
+          "description": "Необязательный управляемый relay для ваших компьютеров.",
+          "displayName": "Personal",
+          "locale": "ru"
+        }
+      ],
+      "name": "Personal",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "1.99",
+          "familyShareable": false,
+          "groupNumber": 3,
+          "internalID": "personal-one",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Managed relay for up to 1 computers.",
+              "displayName": "Personal 1",
+              "locale": "en_US"
+            },
+            {
+              "description": "Управляемый relay для компьютеров: до 1.",
+              "displayName": "Personal 1",
+              "locale": "ru"
+            }
           ],
-          "productID" : "com.ziborov.granttap.personal.solo.monthly",
-          "recurringSubscriptionPeriod" : "P1M", "referenceName" : "Personal 1",
-          "subscriptionGroupID" : "personal", "type" : "RecurringSubscription"
+          "productID": "com.ziborov.granttap.personal.solo.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Personal 1",
+          "subscriptionGroupID": "personal",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "3.99",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "personal-five",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Managed relay for up to 5 computers.",
+              "displayName": "Personal 5",
+              "locale": "en_US"
+            },
+            {
+              "description": "Управляемый relay для компьютеров: до 5.",
+              "displayName": "Personal 5",
+              "locale": "ru"
+            }
+          ],
+          "productID": "com.ziborov.granttap.personal.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Personal 5",
+          "subscriptionGroupID": "personal",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "5.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "personal-ten",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Managed relay for up to 10 computers.",
+              "displayName": "Personal 10",
+              "locale": "en_US"
+            },
+            {
+              "description": "Управляемый relay для компьютеров: до 10.",
+              "displayName": "Personal 10",
+              "locale": "ru"
+            }
+          ],
+          "productID": "com.ziborov.granttap.personal.fleet.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Personal 10",
+          "subscriptionGroupID": "personal",
+          "type": "RecurringSubscription"
         }
       ]
     }
   ],
-  "version" : { "major" : 3, "minor" : 0 }
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
 }

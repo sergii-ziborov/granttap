@@ -1,0 +1,72 @@
+{
+  "title": "Support",
+  "updated": "2026-09-29",
+  "intro": "Install the runtime, run setup, and authenticate the coding app. The one-time QR stays in the GrantTap connection card and is scanned on the phone — never in chat.",
+  "sections": [
+    {
+      "heading": "Mac app and device connections",
+      "bullets": [
+        "Open Help → GrantTap Help for built-in guides. GrantTap → About GrantTap shows the version, purchase options, Terms, Privacy and licenses. These documents remain readable offline.",
+        "In the Mac app, use Settings → Device network → Connect iPhone or iPad to display a one-time QR. On the phone or tablet, use Settings → Connections → Add a device (Scan QR).",
+        "To add a Mac or PC, choose Connect a computer by link and paste its one-time invitation. Existing device connections are preserved.",
+        "Install the separate MCP helper on this Mac. A release build needs Authorize local Mac access; provider hooks may also need review in Codex."
+      ]
+    },
+    {
+      "heading": "Purchase, restore and connection modes",
+      "paragraphs": [
+        "The launch Mac License is planned at $39.99 in the US; Apple supplies the actual local price and availability. Personal is optional: $1.99 / $3.99 / $5.99 per month for 1 / 5 / 10 computers, with the eligible trial shown by Apple. Model tokens are separate.",
+        "Use Restore purchases in Settings with the same Apple Account that made the purchase. Manage subscription opens Apple's controls. Deleting the app does not cancel a subscription.",
+        "A licensed Mac can use managed delivery with Personal, direct delivery using encrypted address discovery without Personal, or a fully self-hosted relay. Configure Settings → Device network → Connection mode & own relay. Direct and self-hosted delivery need a reachable TLS endpoint or VPN; an announced IP alone cannot cross NAT. You maintain your own server and backups. Background notifications require a suitable push service."
+      ]
+    },
+    {
+      "heading": "Connect a computer",
+      "bullets": [
+        "Install Node.js 22 or newer.",
+        "Run npm install -g granttap-mcp.",
+        "Run granttap setup. It detects providers, installs supported hooks, and starts or repairs the helper.",
+        "Open the GrantTap connection card in the coding app and choose Add a device. Scan its one-time QR in GrantTap on iPhone.",
+        "Use Add another device for a second phone or Reconnect for the same phone. granttap.com/connect handles coding-app approval and observations, not the QR.",
+        "Use granttap status for a read-only readiness summary."
+      ]
+    },
+    {
+      "heading": "Provider readiness",
+      "bullets": [
+        "Claude Code and Codex are the primary integrations.",
+        "Codex may require you to trust the exact GrantTap hooks before restarting Codex.",
+        "Cursor is Beta. Install the GrantTap Marketplace listing, then granttap setup. Do not add GrantTap in Customize → MCPs.",
+        "Cursor Cloud · fetch failed is a leftover user HTTP MCP at 127.0.0.1:17342, or the unused cloud plugin source — not proof the phone is unpaired.",
+        "A provider that is not installed is not an error."
+      ]
+    },
+    {
+      "heading": "Pairing or delivery does not work",
+      "bullets": [
+        "Confirm internet access and use a wss:// relay URL.",
+        "A website “seen” or Connected label is an observation, not Live. Live is visible in GrantTap after the helper and phone share a room.",
+        "A phone without a room adopts the computer's room. If already Live, it keeps its room and the computer joins it. Reconnect mints a QR for the same room.",
+        "Open GrantTap on the unlocked iPhone. A locked phone stays offline.",
+        "Check iOS Notifications and Background App Refresh. APNs timing is controlled by Apple and cannot be guaranteed.",
+        "Never send pairing tokens, room credentials, provider credentials, prompts, or repository paths in support messages."
+      ]
+    },
+    {
+      "heading": "Contact and diagnostics",
+      "paragraphs": [
+        "Email sergii.ziborov@gmail.com with app, iOS/watchOS, Node.js, helper, and provider versions plus sanitized reproduction steps. Export diagnostics from the app's Troubleshooting destination when available."
+      ],
+      "links": [
+        {
+          "label": "MCP/helper issues",
+          "href": "https://github.com/sergii-ziborov/granttap-mcp/issues"
+        },
+        {
+          "label": "Relay issues",
+          "href": "https://github.com/sergii-ziborov/granttap-relay/issues"
+        }
+      ]
+    }
+  ]
+}

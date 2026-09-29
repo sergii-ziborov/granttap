@@ -18,10 +18,10 @@ in Settings. The release app requests explicit access to the local MCP through
 an authenticated loopback connection compatible with the App Sandbox.
 
 The Mac App Store release is being prepared; it is not available for purchase
-yet. The proposed price is **USD 39.99 once** for the Mac License. The draft
+yet. The proposed price is **USD 39.99 once** for the Mac License. The selected
 universal configuration is a free download with a non-consumable Mac unlock.
 Final storefront prices and availability are determined by Apple's purchase
-sheet. A paid-download alternative requires a separate Mac app record.
+sheet. The iPhone download remains free.
 
 A purchased Mac license includes local control and running your own relay for
 personal or internal use. It remains valid when a Personal subscription ends,
@@ -91,3 +91,11 @@ MCP 0.8.29 source or later; missing data is shown explicitly. Tasks started in
 another Mesh are presented under the unique visible Mesh matching their
 confirmed execution repository. Original Task IDs, history and permissions
 remain intact, with links explaining where the task started.
+
+## About, Help and legal documents
+
+On Mac, **GrantTap → About GrantTap** and **Help → GrantTap Help** open the
+main-window Settings flow. Help, Terms, Privacy, licenses and pricing are bundled
+in English and Russian for offline reading on Mac, iPhone and iPad. Help covers
+device pairing, local MCP authorization, purchase recovery and all three
+connection modes. The public website carries the same customer documents.

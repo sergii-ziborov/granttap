@@ -47,6 +47,9 @@ struct SubscriptionView: View {
                 Button(L("Manage subscription")) { Task { await store.manage() } }
                 Link("Terms of Use", destination: URL(string: "https://granttap.com/terms")!)
                 Link("Privacy Policy", destination: URL(string: "https://granttap.com/privacy")!)
+                NavigationLink(L("Pricing and connection modes")) {
+                    ProductInformationView(information: .pricing)
+                }
             }
 
         }

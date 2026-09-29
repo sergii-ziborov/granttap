@@ -107,3 +107,11 @@ combine stale local and remote identities; conflicting checkouts remain separate
 Tasks started in another Mesh are automatically presented under the unique
 visible repository Mesh. Original Task IDs, history, routes and permissions are
 preserved, and both locations explain the relationship.
+
+## About, Help and legal information
+
+The native **GrantTap → About GrantTap** and **Help → GrantTap Help** menus
+open the same pages as Settings in the main window. Terms, Privacy, licenses
+and pricing are bundled in English and Russian and readable without internet.
+Help covers device QR pairing, computer links, local MCP authorization, hooks,
+purchase restoration, Personal and direct/self-hosted delivery.

@@ -298,3 +298,12 @@ keeps its original Task and Mesh route. In a Mesh, chats are grouped by their
 reported execution repository and show the repository identity and branch.
 Previous executions and missing or conflicting repository evidence are labeled
 explicitly. Workspace folders without confirmed Git are listed separately.
+
+## Built-in Help on Apple devices
+
+On Mac, **Help → GrantTap Help** and **GrantTap → About GrantTap** open pages
+in the main application window. Settings on Mac, iPhone and iPad contains the
+same help, Terms, Privacy, licenses and pricing documents, readable offline.
+Purchase and subscription prices are loaded from StoreKit for the storefront.
+The US Mac launch plan is $39.99 once; optional Personal tiers are $1.99, $3.99
+and $5.99 monthly for 1, 5 and 10 computers. See [subscriptions](../../docs/subscriptions.md).

@@ -5,13 +5,12 @@ and an archive entry point. It does not establish that Apple has accepted a Mac
 platform, product, distribution certificate or build. Do not submit for review
 until the exact release passes the repository's physical gate and store testing.
 
-Proposed architecture: universal free download and a non-consumable $39.99 Mac
+Selected architecture: universal free download and a non-consumable $39.99 Mac
 License (`com.ziborov.granttap.mac.license`), plus the existing Personal group.
-This shares phone subscriptions through the same Apple Account. The alternative
-is a separate paid Mac record (`com.ziborov.granttap.mac`); a verified receipt
-under the existing free phone bundle ID must never unlock a paid-download Mac.
-Adding the Mac platform to a universal record is irreversible; resolve the
-owner's requested distribution choice before that App Store Connect action.
+This shares phone subscriptions through the same Apple Account. The Mac platform uses the existing `com.ziborov.granttap` record so Personal
+subscriptions share the same Apple Account entitlement. Keep the phone download
+free; the Mac purchase is a separate permanent unlock. This platform choice
+becomes permanent once Apple approves multiple platforms.
 
 In App Store Connect, configure the launch purchase price in the US storefront,
 localized title/description, screenshot for review, purchase availability and
@@ -56,3 +55,8 @@ a configuration synchronization issue in [this developer forum thread](https://d
 Use a working runtime for local service tests and still verify the signed Mac
 release in Apple's sandbox. Refund tests wait for the asynchronous StoreKit
 revocation event and exercise the app's transaction observer.
+
+Built-in native About and Help are connected to the main-window Settings flow.
+English/Russian Terms, Privacy, licenses, pricing and device help are bundled
+for offline reading. Apple's Standard EULA applies until a custom EULA is
+actually configured; the Mac terms additionally grant own-relay use.
