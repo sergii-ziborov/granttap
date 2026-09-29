@@ -22,7 +22,7 @@ extension ProjectMeshRuntimeTests {
 
         XCTAssertEqual(view.taskCount("working"), 0)
         XCTAssertEqual(row.stateLabel, L("Idle"))
-        XCTAssertEqual(row.detailLine, "\(L("Idle")) · Codex · Workstation")
+        XCTAssertEqual(row.detailLine, "\(L("Idle")) · Codex · Workstation · branch")
     }
 
     func testMeshUIActionsResolveOneTaskWithoutDuplicateCards() throws {
