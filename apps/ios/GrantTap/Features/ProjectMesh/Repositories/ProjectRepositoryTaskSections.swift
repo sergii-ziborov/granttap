@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Both Mac and iPad recompute the same repository sections from the latest
+/// Mac, iPhone and iPad recompute the same repository sections from the latest
 /// snapshot. Every navigation route retains the Task's original Mesh scope.
 struct ProjectRepositoryTaskSections: View {
     let snapshot: ProjectMeshSnapshot
@@ -21,13 +21,19 @@ struct ProjectRepositoryTaskSections: View {
                     } label: {
                         ProjectMeshTaskRow(
                             task: row.task, execution: row.execution, currentSession: row.session,
-                            presentedState: row.state, lastActiveAt: row.lastActiveAt
+                            presentedState: row.state, lastActiveAt: row.lastActiveAt,
+                            repositoryContext: RepositoryCatalogPresentation.taskContext(task: row.task, snapshot: snapshot)
                         )
                     }
                     .accessibilityIdentifier("project.task.\(row.task.taskId)")
                 }
             } header: {
-                Text(group.title)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(group.title)
+                    if let repository = group.repositoryId, !repository.hasPrefix("local:") {
+                        Text(repository).font(.caption2)
+                    }
+                }
             } footer: {
                 if !group.rows.isEmpty {
                     Text(L("Most recently worked first."))

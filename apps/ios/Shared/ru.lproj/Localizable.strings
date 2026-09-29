@@ -2252,3 +2252,47 @@
 
 "Some computers could not refresh architecture. Check Health and retry." = "Не всем компьютерам удалось обновить архитектуру. Проверьте Health и повторите.";
 "Architecture refresh failed. Check the computer and repository binding in Health." = "Не удалось обновить архитектуру. Проверьте компьютер и привязку репозитория в Health.";
+
+"Mesh catalog" = "Каталог Mesh";
+
+"Mesh: %@" = "Mesh: %@";
+
+"Repositories: %@" = "Репозитории: %@";
+
+"Repository: %@" = "Репозиторий: %@";
+
+"Last observed repository: %@" = "Последний известный репозиторий: %@";
+
+"Task repository" = "Репозиторий задачи";
+
+"Last observed repository" = "Последний известный репозиторий";
+
+"Previous execution" = "Предыдущее выполнение";
+
+"Multiple repositories reported" = "Сообщено несколько репозиториев";
+
+"No repository reported" = "Репозиторий не указан";
+
+"Local Git repository" = "Локальный Git-репозиторий";
+
+"Workspace without confirmed Git" = "Рабочая папка без подтверждённого Git";
+
+"Workspaces without confirmed Git" = "Рабочие папки без подтверждённого Git";
+
+"Primary Mesh repository" = "Основной репозиторий Mesh";
+
+"Bound to this Mesh" = "Привязан к этому Mesh";
+
+"Reported in the code map" = "Указан в карте кода";
+
+"Observed in chat executions" = "Наблюдался при выполнении чатов";
+
+"No repositories reported by visible Mesh spaces yet." = "В видимых Mesh пока нет сведений о репозиториях.";
+
+"Open a repository to see its Mesh scopes and chats. Each Mesh keeps its own permissions." = "Откройте репозиторий, чтобы увидеть его Mesh и чаты. У каждого Mesh свои права доступа.";
+
+"Some Mesh data is incomplete; more repositories may arrive from the computers." = "Данные некоторых Mesh неполные; компьютеры могут сообщить дополнительные репозитории.";
+
+"This repository is no longer in the visible Mesh catalog." = "Этого репозитория больше нет в каталоге видимых Mesh.";
+
+"No chat execution has reported this repository in this Mesh." = "Выполнения чатов в этом Mesh пока не сообщили об этом репозитории.";

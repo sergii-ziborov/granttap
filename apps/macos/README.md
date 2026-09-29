@@ -89,3 +89,13 @@ using the optional separately installed SweepLoom CLI. Only selected temporary
 caches or logs are eligible for confirmed moves to Trash; provider history,
 credentials, configuration and databases are inspect-only. Running providers
 and changed caches require a fresh review.
+
+## Browse Mesh and repositories
+
+The Mesh screen has a pinned **Mesh / Repositories** switch on Mac, iPad and
+iPhone. Mesh preserves coordination and access scopes. Repositories lists reported
+repository identities and opens their Mesh scopes and chat executions. Each chat
+keeps its original Task and Mesh route. In a Mesh, chats are grouped by their
+reported execution repository and show the repository identity and branch.
+Previous executions and missing or conflicting repository evidence are labeled
+explicitly. Workspace folders without confirmed Git are listed separately.

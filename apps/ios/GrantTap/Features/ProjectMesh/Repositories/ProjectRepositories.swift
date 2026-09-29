@@ -21,10 +21,11 @@ struct ProjectRepositoryRow: Identifiable, Equatable {
     let branches: [String]
     /// Another Project on this phone whose repository this is, if any.
     let projectId: String?
+    var repositoryIds: [String] = []
 
     static func == (lhs: ProjectRepositoryRow, rhs: ProjectRepositoryRow) -> Bool {
         lhs.id == rhs.id && lhs.name == rhs.name && lhs.kind == rhs.kind && lhs.openTasks == rhs.openTasks
-            && lhs.branches == rhs.branches && lhs.projectId == rhs.projectId
+            && lhs.branches == rhs.branches && lhs.projectId == rhs.projectId && lhs.repositoryIds == rhs.repositoryIds
             && lhs.computers.map(\.endpointId) == rhs.computers.map(\.endpointId)
             && lhs.computers.map(\.available) == rhs.computers.map(\.available)
     }
@@ -159,7 +160,8 @@ enum ProjectRepositories {
         }
         return ProjectRepositoryRow(
             id: input.id, name: input.name, kind: input.kind, computers: computers,
-            openTasks: Set(open.map(\.taskId)).count, branches: branches, projectId: project?.projectId
+            openTasks: Set(open.map(\.taskId)).count, branches: branches, projectId: project?.projectId,
+            repositoryIds: repositoryIds.sorted()
         )
     }
 
@@ -189,82 +191,5 @@ enum ProjectRepositories {
         if row.openTasks > 0 { parts.append(LPlural(row.openTasks, one: "%d open task", many: "%d open tasks")) }
         if !row.branches.isEmpty { parts.append(row.branches.prefix(3).joined(separator: ", ")) }
         return parts.joined(separator: " · ")
-    }
-}
-
-/// The Repositories section of a Project screen: a row per repository, with
-/// a way through to the Project that is that repository when there is one.
-struct ProjectRepositoriesSection: View {
-    let snapshot: ProjectMeshSnapshot
-    @ObservedObject var model: AppModel
-    var onOpenSession: (SessionInfo) -> Void = { _ in }
-
-    var rows: [ProjectRepositoryRow] {
-        ProjectRepositories.rows(snapshot: snapshot, projects: Array(model.meshSnapshots.values))
-    }
-
-    var body: some View {
-        let rows = rows
-        Section {
-            ForEach(rows) { row in
-                if let projectId = row.projectId, let target = model.meshSnapshots[projectId] {
-                    NavigationLink {
-                        ProjectMeshView(snapshot: target, model: model, onOpenSession: onOpenSession)
-                    } label: {
-                        label(row, linked: model.projectDisplayName(target))
-                    }
-                    .accessibilityIdentifier("project.repository.\(row.id)")
-                } else {
-                    label(row, linked: nil)
-                        .accessibilityIdentifier("project.repository.\(row.id)")
-                }
-            }
-        } header: {
-            Text(ProjectTaskRepositoryGroups.isWorkspace(snapshot) ? L("Task repositories") : L("Repositories"))
-        } footer: {
-            if ProjectTaskRepositoryGroups.isWorkspace(snapshot) {
-                Text(L("Tasks are grouped automatically by their execution repositories."))
-            } else if (snapshot.peers ?? []).isEmpty {
-                Text(L("Only Engine relations are verified architecture. Repository bindings can link Mesh views without merging access or proving a dependency."))
-            }
-        }
-    }
-
-    private func label(_ row: ProjectRepositoryRow, linked: String?) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon(row.kind))
-                .frame(width: 24)
-                .foregroundColor(row.computers.contains { $0.available }
-                    || row.kind == .own || row.kind == .workspace ? Theme.codex : Theme.muted)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(row.name).foregroundColor(Theme.ink)
-                    if row.kind == .own {
-                        Text(L("this Mesh")).font(.caption2.weight(.semibold)).foregroundColor(Theme.muted)
-                    } else if row.kind == .workspace {
-                        Text(L("workspace")).font(.caption2.weight(.semibold)).foregroundColor(Theme.muted)
-                    }
-                }
-                let detail = ProjectRepositories.detail(row)
-                if !detail.isEmpty {
-                    Text(detail).font(.caption).foregroundColor(Theme.muted).lineLimit(2)
-                }
-                if let linked {
-                    Text(String(format: L("Mesh scope: %@"), linked)).font(.caption2).foregroundColor(Theme.codex)
-                }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
-    private func icon(_ kind: ProjectRepositoryRow.Kind) -> String {
-        switch kind {
-        case .own: return "folder.fill"
-        case .workspace: return "square.stack"
-        case .workspaceObservation: return "folder"
-        case .peer: return "arrow.left.arrow.right"
-        case .seen: return "folder.badge.questionmark"
-        case .relatedByBinding: return "arrow.left.arrow.right"
-        }
     }
 }

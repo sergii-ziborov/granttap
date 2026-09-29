@@ -14,6 +14,7 @@ struct ProjectsTabView: View {
     @State private var forgetting: ProjectListRow?
     @State private var showHidden = false
     @State private var showJoin = false
+    @State private var catalogTab = "mesh"
 
     init(model: AppModel, onOpenSession: @escaping (SessionInfo) -> Void = { _ in }, showHidden: Bool = false) {
         self.model = model
@@ -22,11 +23,26 @@ struct ProjectsTabView: View {
     }
 
     var body: some View {
+        VStack(spacing: 0) {
+            Picker(L("Mesh catalog"), selection: $catalogTab) {
+                Text(L("Mesh")).tag("mesh")
+                Text(L("Repositories")).tag("repositories")
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 16).padding(.vertical, 8)
+            .accessibilityIdentifier("projects.catalog-tabs")
+            Divider()
+            if catalogTab == "repositories" {
+                RepositoryCatalogListView(model: model, onOpenSession: onOpenSession)
+            } else {
+                meshList
+            }
+        }
+    }
+
+    @ViewBuilder private var meshList: some View {
         let rows = model.projectListRows
         let hidden = rows.filter(\.hidden)
-        let grouped = ProjectSolutionGroups.make(
-            rows: rows.filter { !$0.hidden }, snapshots: model.meshSnapshots
-        )
         List {
             if rows.isEmpty {
                 Section {
@@ -34,35 +50,7 @@ struct ProjectsTabView: View {
                         .font(.system(size: 13)).foregroundStyle(Theme.muted)
                 }
             }
-            ForEach(grouped.solutions) { solution in
-                Section {
-                    ForEach(solution.rows) { row in projectLink(row) }
-                } header: {
-                    Text(String(format: L("Solution · %@"), solution.title))
-                } footer: {
-                    Text(L("Grouped by evidenced Weavatrix relations. Each Mesh keeps its own members and permissions."))
-                }
-            }
-            ForEach(grouped.linked) { link in
-                Section {
-                    ForEach(link.rows) { row in projectLink(row) }
-                } header: {
-                    Text(String(format: L("Linked Mesh spaces · %@"), link.title))
-                } footer: {
-                    Text(L("These Mesh spaces share repositories through bindings or Task executions. Each keeps separate access; a code dependency appears only after Weavatrix verifies it."))
-                }
-            }
-            if !grouped.ungrouped.isEmpty {
-                Section {
-                    ForEach(grouped.ungrouped) { row in projectLink(row) }
-                } header: {
-                    if !grouped.solutions.isEmpty || !grouped.linked.isEmpty {
-                        Text(L("Other Mesh spaces"))
-                    }
-                } footer: {
-                    Text(L("Solutions appear when the Engine reports an evidenced relation between repositories. Mesh spaces with the same name keep separate access. Swipe to rename or hide."))
-                }
-            }
+            groupedSections(rows.filter { !$0.hidden })
             if !hidden.isEmpty {
                 Section {
                     Button {
@@ -117,13 +105,46 @@ struct ProjectsTabView: View {
         }
     }
 
+    @ViewBuilder private func groupedSections(_ rows: [ProjectListRow]) -> some View {
+        let grouped = ProjectSolutionGroups.make(rows: rows, snapshots: model.meshSnapshots)
+        ForEach(grouped.solutions) { solution in
+            Section {
+                ForEach(solution.rows) { row in projectLink(row) }
+            } header: {
+                Text(String(format: L("Solution · %@"), solution.title))
+            } footer: {
+                Text(L("Grouped by evidenced Weavatrix relations. Each Mesh keeps its own members and permissions."))
+            }
+        }
+        ForEach(grouped.linked) { link in
+            Section {
+                ForEach(link.rows) { row in projectLink(row) }
+            } header: {
+                Text(String(format: L("Linked Mesh spaces · %@"), link.title))
+            } footer: {
+                Text(L("These Mesh spaces share repositories through bindings or Task executions. Each keeps separate access; a code dependency appears only after Weavatrix verifies it."))
+            }
+        }
+        if !grouped.ungrouped.isEmpty {
+            Section {
+                ForEach(grouped.ungrouped) { row in projectLink(row) }
+            } header: {
+                if !grouped.solutions.isEmpty || !grouped.linked.isEmpty {
+                    Text(L("Other Mesh spaces"))
+                }
+            } footer: {
+                Text(L("Solutions appear when the Engine reports an evidenced relation between repositories. Mesh spaces with the same name keep separate access. Swipe to rename or hide."))
+            }
+        }
+    }
+
     @ViewBuilder
     private func projectLink(_ row: ProjectListRow) -> some View {
         if let snapshot = model.meshSnapshots[row.projectId] {
             NavigationLink {
                 ProjectMeshView(snapshot: snapshot, model: model, onOpenSession: onOpenSession)
             } label: {
-                ProjectListRowView(row: row)
+                ProjectListRowView(row: row, repositorySummary: RepositoryCatalogPresentation.meshSummary(snapshot))
             }
             .accessibilityIdentifier("projects.row.\(row.projectId)")
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -147,109 +168,6 @@ struct ProjectsTabView: View {
                 }
                 Button(role: .destructive) { forgetting = row } label: {
                     Label(L("Forget on this phone…"), systemImage: "trash")
-                }
-            }
-        }
-    }
-}
-
-struct ProjectListRowView: View {
-    let row: ProjectListRow
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: row.hidden ? "eye.slash" : "point.3.connected.trianglepath.dotted")
-                .frame(width: 24)
-                .foregroundColor(row.hidden ? Theme.muted : row.working > 0 ? Theme.ok : Theme.codex)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(row.name).foregroundColor(Theme.ink).lineLimit(1)
-                    if row.working > 0 {
-                        Text(L("ACTIVE"))
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(Theme.ok)
-                            .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(Theme.ok.opacity(0.14), in: Capsule())
-                            .accessibilityLabel(L("Active Mesh"))
-                    }
-                    if !row.holdsKey {
-                        Image(systemName: "key.slash").font(.caption2).foregroundColor(Theme.muted)
-                            .accessibilityLabel(L("Has not received this Mesh key"))
-                    }
-                }
-                Text(row.detail).font(.caption).foregroundColor(Theme.muted).lineLimit(2)
-                if let sharedBy = row.sharedBy {
-                    Label(String(format: L("Shared by %@"), sharedBy), systemImage: "person.crop.circle")
-                        .font(.caption).foregroundColor(Theme.codex).lineLimit(1)
-                        .accessibilityIdentifier("project.shared-by.\(row.projectId)")
-                }
-                HStack(spacing: 8) {
-                    if row.working > 0 {
-                        Text(LPlural(row.working, one: "%d working", many: "%d working")).foregroundColor(Theme.ok)
-                    }
-                    if row.needsYou > 0 {
-                        Text(LPlural(row.needsYou, one: "%d needs you", many: "%d need you")).foregroundColor(Theme.riskMed)
-                    }
-                    if row.lastActiveAt > 0 {
-                        let seconds = Int(max(0, Date().timeIntervalSince1970 - row.lastActiveAt / 1_000))
-                        Text("\(L("Last active")) \(ConnectionLoadFormat.age(seconds: seconds))").foregroundColor(Theme.muted)
-                    }
-                }
-                .font(.caption2.weight(.semibold))
-            }
-        }
-        .padding(.vertical, 3)
-    }
-}
-
-/// A name of the person's own for a Project, kept on this phone.
-struct RenameProjectSheet: View {
-    let row: ProjectListRow
-    @ObservedObject var model: AppModel
-    @Environment(\.dismiss) private var dismiss
-    @State private var name: String
-
-    init(row: ProjectListRow, model: AppModel) {
-        self.row = row
-        self.model = model
-        _name = State(initialValue: row.name)
-    }
-
-    var repositoryName: String {
-        model.meshSnapshots[row.projectId].map { ProjectsCatalog.displayName($0, preference: nil) } ?? row.name
-    }
-
-    var body: some View {
-        CompatNavigationStack {
-            List {
-                Section {
-                    TextField(L("Name"), text: $name)
-                        .accessibilityIdentifier("projects.rename.field")
-                } footer: {
-                    Text(String(format: L("Its reported name is “%@”. This name is shown only on this device."), repositoryName))
-                }
-                if name.trimmingCharacters(in: .whitespacesAndNewlines) != repositoryName {
-                    Section {
-                        Button(L("Use reported name")) {
-                            model.renameProject(row.projectId, to: "")
-                            dismiss()
-                        }
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle(L("Rename Mesh"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L("Cancel")) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L("Save")) {
-                        model.renameProject(row.projectId, to: name)
-                        dismiss()
-                    }
-                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .accessibilityIdentifier("projects.rename.save")
                 }
             }
         }

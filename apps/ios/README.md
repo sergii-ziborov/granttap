@@ -288,3 +288,13 @@ request after each backward jump. Messages show their date and local time;
 the status strip names their Project/Mesh. Mac keeps all fetched pages, while
 phones retain complete recent request boundaries. Local transcript cleanup is
 available within existing Settings.
+
+## Browse Mesh and repositories
+
+The Mesh screen has a pinned **Mesh / Repositories** switch on Mac, iPad and
+iPhone. Mesh preserves coordination and access scopes. Repositories lists reported
+repository identities and opens their Mesh scopes and chat executions. Each chat
+keeps its original Task and Mesh route. In a Mesh, chats are grouped by their
+reported execution repository and show the repository identity and branch.
+Previous executions and missing or conflicting repository evidence are labeled
+explicitly. Workspace folders without confirmed Git are listed separately.

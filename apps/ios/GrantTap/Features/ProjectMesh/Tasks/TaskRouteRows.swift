@@ -37,7 +37,7 @@ extension TaskRouteView {
     func executionRow(_ execution: ExecutionSessionLink) -> some View {
         if session(for: execution) != nil {
             Button {
-                dismiss()
+                if presentedAsSheet { dismiss() }
                 openChat(for: execution)
             } label: {
                 executionContent(execution, chatAvailable: true)

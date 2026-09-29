@@ -84,7 +84,7 @@ final class ProjectTaskRepositoryGroupsTests: XCTestCase {
         XCTAssertTrue(ProjectTaskRepositoryGroups.isWorkspace(snapshot))
         snapshot.executions[0].worktree = "/dev"
         XCTAssertFalse(ProjectTaskRepositoryGroups.isWorkspace(snapshot), "Git need not have a first commit")
-        XCTAssertEqual(ProjectTaskRepositoryGroups.make(snapshot: snapshot, sessions: []).map(\.title), [L("Tasks")])
+        XCTAssertEqual(ProjectTaskRepositoryGroups.make(snapshot: snapshot, sessions: []).map(\.repositoryId), ["local:/dev"])
         snapshot.executions[0].worktree = nil
         snapshot.bindings = [.init(bindingId: "binding", projectId: "workspace", endpointId: "mac",
                                    repositoryId: "local:/dev", displayName: "dev", available: false,

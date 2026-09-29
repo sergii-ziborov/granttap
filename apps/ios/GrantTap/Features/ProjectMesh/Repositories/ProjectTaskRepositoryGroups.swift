@@ -3,6 +3,10 @@ import Foundation
 /// Repository observations partition a workspace's Tasks without changing
 /// their durable Project, identity, history, or access scope.
 enum ProjectTaskRepositoryGroups {
+    struct Assignment {
+        let repositoryIds: [String]
+        let isCurrent: Bool
+    }
     struct Group: Identifiable {
         let id: String
         let repositoryId: String?
@@ -37,9 +41,6 @@ enum ProjectTaskRepositoryGroups {
         let rows = ProjectMeshRecency.rows(
             snapshot.tasks.filter { $0.projectId == snapshot.projectId }, snapshot: snapshot, sessions: sessions
         )
-        guard isWorkspace(snapshot) else {
-            return [Group(id: "tasks", repositoryId: nil, title: L("Tasks"), rows: rows)]
-        }
         let confirmed = confirmedRepositories(snapshot)
         let executions = Dictionary(grouping: snapshot.executions, by: \.taskId)
         let grouped = Dictionary(grouping: rows) { row in
@@ -53,7 +54,8 @@ enum ProjectTaskRepositoryGroups {
             case .multiple:
                 return Group(id: "multiple", repositoryId: nil, title: L("Multiple repositories"), rows: rows)
             case .workspace:
-                return Group(id: "workspace", repositoryId: nil, title: L("Workspace tasks"), rows: rows)
+                return Group(id: "workspace", repositoryId: nil,
+                             title: isWorkspace(snapshot) ? L("Workspace tasks") : L("No repository reported"), rows: rows)
             }
         }.sorted { left, right in
             if (left.repositoryId != nil) != (right.repositoryId != nil) { return left.repositoryId != nil }
@@ -65,13 +67,38 @@ enum ProjectTaskRepositoryGroups {
     private static func scope(
         task: ProjectMeshTask, executions: [ExecutionSessionLink], confirmed: Set<String>
     ) -> Scope {
+        let assignment = assignment(task: task, executions: executions, confirmed: confirmed)
+        if assignment.repositoryIds.count == 1, let repository = assignment.repositoryIds.first {
+            return .repository(repository)
+        }
+        return assignment.repositoryIds.isEmpty ? .workspace : .multiple
+    }
+
+    static func assignment(task: ProjectMeshTask, snapshot: ProjectMeshSnapshot) -> Assignment {
+        guard task.projectId == snapshot.projectId else {
+            return Assignment(repositoryIds: [], isCurrent: false)
+        }
+        return assignment(task: task, executions: snapshot.executions.filter { $0.taskId == task.taskId },
+                          confirmed: confirmedRepositories(snapshot))
+    }
+
+    static func assignments(_ snapshot: ProjectMeshSnapshot) -> [String: Assignment] {
+        let confirmed = confirmedRepositories(snapshot)
+        let executions = Dictionary(grouping: snapshot.executions, by: \.taskId)
+        return Dictionary(uniqueKeysWithValues: snapshot.tasks.filter { $0.projectId == snapshot.projectId }.map {
+            ($0.taskId, assignment(task: $0, executions: executions[$0.taskId] ?? [], confirmed: confirmed))
+        })
+    }
+
+    private static func assignment(
+        task: ProjectMeshTask, executions: [ExecutionSessionLink], confirmed: Set<String>
+    ) -> Assignment {
         let owner = executions.filter { $0.sessionId == task.ownerSessionId }
         let activeOwner = owner.filter { $0.endedAt == nil }
         let current = repositories(activeOwner.isEmpty ? owner : activeOwner, confirmed: confirmed)
-        if current.count == 1, let repository = current.first { return .repository(repository) }
+        if !current.isEmpty { return Assignment(repositoryIds: current.sorted(), isCurrent: true) }
         let history = repositories(executions, confirmed: confirmed)
-        if history.count == 1, let repository = history.first { return .repository(repository) }
-        return history.isEmpty ? .workspace : .multiple
+        return Assignment(repositoryIds: history.sorted(), isCurrent: false)
     }
 
     private static func repositories(

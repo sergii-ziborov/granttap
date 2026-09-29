@@ -74,12 +74,10 @@ file. This snapshot contains app/runtime-facing source, tests, public help and
 build resources. Internal plans, account credentials and local build state are
 excluded. Report vulnerabilities using [Security](SECURITY.md).
 
-## Chat history
+## Mesh and repositories
 
-The fixed user-message strip jumps to your latest request, preloads the preceding
-request, and prepares older requests as you navigate. Project/Mesh and message
-dates are visible in chat. Codex and Claude history pages load automatically.
-Mac archives retain every fetched page until cleared in Settings. The nested
-provider-storage inspector uses the optional external SweepLoom CLI; confirmed
-temporary cache cleanup moves selected files to the Mac Trash. Provider history
-and credentials are not cleanup candidates.
+The Mesh screen includes a pinned **Mesh / Repositories** switch on Mac, iPad
+and iPhone. Repository details show their original Mesh scopes and chat
+executions. Mesh chat rows show repository identity and branch, with earlier
+executions, conflicting reports and missing Git evidence labeled explicitly.
+Each chat keeps its Task ID, history and Mesh permissions.

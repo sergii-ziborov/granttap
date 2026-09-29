@@ -22,11 +22,16 @@ Historical executions retain those links. Shared non-canonical repositories
 also connect groups, while names, paths, and shared computers do not. Weavatrix
 relations with positive evidence produce Solution groups; repository membership
 alone produces linked groups. Every member retains its Project identity,
-navigation destination, Tasks, and access scope on Mac and iPad.
+navigation destination, Tasks, and access scope on Mac, iPad and iPhone.
+The pinned Mesh / Repositories switch also exposes a repository index with every
+original Mesh scope and its chat executions. Mesh chat rows show reported
+repository identity and branch independently of their title. Current ownership,
+historical executions, ambiguity and missing Git evidence use the shared
+assignment algorithm in the [repository catalog](RepositoryCatalog/README.md).
 
 A local parent workspace without confirmed Git identity does not connect its
 observed repositories into one linked group. `ProjectTaskRepositoryGroups`
-recomputes its Task sections on every snapshot: a confirmed owner repository
+recomputes repository sections for every Mesh on each snapshot: a confirmed owner repository
 wins, otherwise a single observed repository is used. Conflicting or multiple
 repositories remain in a distinct section, and Tasks without Git evidence stay
 under workspace Tasks. Git bindings and native worktree observations also

@@ -34,18 +34,7 @@ extension AppModel {
         }
         #endif
         meshSnapshots = [mesh.projectId: mesh]
-        #if DEBUG
-        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_SOLUTION"] == "1" {
-            let linked = AppModelDemoMeshFixtures.linkedSnapshot(at: now)
-            mesh.bindings = mesh.bindings?.filter {
-                $0.repositoryId == mesh.project.canonicalRepositoryId
-            }
-            mesh.executions[0].repositoryId = linked.project.canonicalRepositoryId
-            meshSnapshots[mesh.projectId] = mesh
-            meshSnapshots[linked.projectId] = linked
-        }
-        TurnModelPickerFixture.apply(to: self, at: now)
-        #endif
+        applyDemoMeshPresentationFixtures(mesh: &mesh, at: now)
         projectGovernance = [mesh.projectId: AppModelDemoMeshFixtures.governance(at: now)]
         pendingProjectPolicyRevisions = [:]
         projectPolicyErrors = [:]

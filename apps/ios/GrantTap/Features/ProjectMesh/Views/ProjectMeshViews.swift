@@ -133,6 +133,7 @@ struct ProjectMeshTaskRow: View {
     var presentedState: String? = nil
     /// When any execution of this Task last did anything, epoch milliseconds.
     var lastActiveAt: Double? = nil
+    var repositoryContext: String? = nil
 
     var stateLabel: String {
         ProjectMeshTaskPresentation.label(
@@ -143,7 +144,7 @@ struct ProjectMeshTaskRow: View {
     }
 
     var detailLine: String {
-        [stateLabel, execution.map(MeshActorPresentation.executionName)]
+        [stateLabel, execution.map(MeshActorPresentation.executionName), execution?.branch]
             .compactMap { $0 }.joined(separator: " · ")
     }
 
@@ -157,6 +158,11 @@ struct ProjectMeshTaskRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(ProjectMeshTaskTitle.text(task, session: currentSession)).font(.headline)
+            if let repositoryContext {
+                Label(repositoryContext, systemImage: "folder")
+                    .font(.caption).foregroundStyle(Theme.codex)
+                    .accessibilityIdentifier("task.repository.\(task.taskId)")
+            }
             Text(detailLine).font(.caption).foregroundStyle(Theme.muted)
             if let recencyLine {
                 Text(recencyLine).font(.caption2).foregroundStyle(Theme.muted)
