@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "32e83dcc2b6514a93c01c052352340f166f0301a",
+  "sourceCommit": "dae13058f9f52368c991d3f7303260ff1d1aacb3",
   "files": [
     {
       "path": ".gitignore",
@@ -132,7 +132,7 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "85d9b4faa9b2a5223f09bb828cd4a8344192a122a323460d0ddf5c43a6fb8365"
+      "sha256": "a1e7f640019da637bad3bc9099f10e4b18fe6293dc3cc32b9a77624f05c8e3f0"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
@@ -1276,7 +1276,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/AppModelProjectGraph.swift",
-      "sha256": "597f4210e27805d7bed888a16e10cf249c053b34564d4a1120dd7f8b83565532"
+      "sha256": "da65742a08abbe1163de9a720224969ab3112401a849aec07681d6a983c74daf"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectArchitectureDiagram.swift",
@@ -1316,7 +1316,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectGraphView.swift",
-      "sha256": "4ed18ac690530f20f2681af85fef8421e56c803ae25cbd1e2116ead96674c412"
+      "sha256": "52650a9ea41bb37c6b00723175e597e714fda262e7eb76f2feddfb284b24af88"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectRepositoryNetworkView.swift",
+      "sha256": "d9249230a3f0ac3db912efbe8d85bfe8296d21a9d5f00f12c7c0346cf7e150e8"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectTowerGeometry.swift",
@@ -2092,7 +2096,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatScrollControls.swift",
-      "sha256": "ed605e960ca69c9d79ab9348141bc8a89009cf63044b3dc7fe648967199dd536"
+      "sha256": "ecaafa260878225cce982784b4ec9e21cace9d2929119f81afb2d503bcada92f"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatScrollTarget.swift",
@@ -2104,7 +2108,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/LatestUserMessageButton.swift",
-      "sha256": "012ed9357276cd3e7524f08d41d72342b94111407f65e22b28143148723e7c15"
+      "sha256": "d339147d06008381bc5f6be6a978c563dd6f09244a558795d2772faec6bfacfe"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/MessageImageContent.swift",
@@ -2140,7 +2144,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/TaskChatView.swift",
-      "sha256": "44c84dfeb1eed050b0bd1f037dbb995331ae1a895f3728e50bcff6386f3c4d67"
+      "sha256": "66ca9a6f8d5459775ea9b6f472bc7fd18d86df9bd532c6011c7ad9e3da8e42e2"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Content/Views/ContentHeader.swift",
@@ -2867,6 +2871,10 @@
       "sha256": "d5547068349c57265e09c0cccfe883927308e52cac2846018b9a06ea1d55bd36"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/ProjectRepositoryNetworkTests.swift",
+      "sha256": "762aba541aeac15263808b44e15d1b9d5321624868ca71d59ad52f876980e2c0"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/ProjectSolutionGroupsTests.swift",
       "sha256": "66050744bee0fa535c92bf97d46dc90b0c564da51d1f5e804662a3bd535702fe"
     },
@@ -3196,7 +3204,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/TranscriptHistoryUITests.swift",
-      "sha256": "8807039bf5763e078347027042b16096b54233e31e32c7b5836f2809e80c1a06"
+      "sha256": "995080b0f30c25ac13826a5c3894bc43904b92aa21a6203079ec93be865fe941"
     },
     {
       "path": "apps/ios/GrantTapUITests/TurnModelPickerUITests.swift",
@@ -3312,7 +3320,7 @@
     },
     {
       "path": "apps/ios/project.yml",
-      "sha256": "d97cc31d92fad6373e5d12bb741840ecb31fdf351f865060e5ed8a6f637d72e8"
+      "sha256": "07ac1269584737c8ac3abfded91f2e8bbe0bf3571f4e60683f393e0ced7e4a6d"
     },
     {
       "path": "apps/ios/README.md",
@@ -3336,7 +3344,7 @@
     },
     {
       "path": "apps/ios/Shared/ru.lproj/Localizable.strings",
-      "sha256": "a06cfd70953fa2600dbf3e13424d3284bd6f99c24189f3afa2517006c2e1cd95"
+      "sha256": "f4ab29fca188aaaf772a42ea7a6743da7343e0e0951217491335314f996682c4"
     },
     {
       "path": "apps/ios/Shared/WatchLink.swift",
@@ -3384,7 +3392,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/board-data.js",
-      "sha256": "e5f0ec1c34fe96f3587a1fd9c2366f3ba0cbad97fc30d1484cb0091e026701a7"
+      "sha256": "a371d07f580914e704fa2684ed13da9539614c36e61247f5149c491247597680"
     },
     {
       "path": "apps/macos/GraphWeb/build/cb-core.js",
@@ -3408,7 +3416,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/index.html",
-      "sha256": "c440aba2d2a7f69b2377978a540ccb53104c00545938bd58979e61d1a8861ffa"
+      "sha256": "3e227e18bfb02438bb7117365e47f113e975d32a39e5b9b6d19eeafa7795eb30"
     },
     {
       "path": "apps/macos/GraphWeb/mesh-graph.js",
@@ -3420,7 +3428,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/tests/board-data.test.mjs",
-      "sha256": "65434b6374744233873ed0125378409b85156557048db89b4386382ee679d0a5"
+      "sha256": "ad66dfa9ab22eb577f186a2fe1ab5a02bc3e1c7f65ef42f01e3b8bccace365e9"
     },
     {
       "path": "apps/macos/GraphWeb/THREE_LICENSE.txt",

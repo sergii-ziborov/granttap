@@ -51,3 +51,20 @@ test('observed external services keep their evidenced roads', () => {
   assert.equal(data.exts[0].name, 'Postgres · api');
   assert.deepEqual(data.edges.map(edge => [edge.a, edge.b, edge.type]), [[0, 1, 'io']]);
 });
+
+test('a file map retains architecture components and their evidenced service links', () => {
+  const data = boardData([{ repositoryId: 'api', codeMap: {
+    files: [{ path: 'src/server.ts', lineCount: 60, symbols: [] }],
+    externals: [{ id: 'ext:postgres', label: 'Postgres', kind: 'db' }],
+    roads: [{ source: 'src/server.ts', target: 'ext:postgres', relation: 'reads' }],
+  }, nodes: [{ id: 'route', label: 'HTTP router', kind: 'service' },
+    { id: 'store', label: 'Store', kind: 'component' }],
+  relations: [{ source: 'route', target: 'store', relation: 'calls', evidenceCount: 3 }],
+  }]);
+  assert.equal(data.files.length, 1);
+  assert.deepEqual(data.exts.map(item => item.name),
+    ['Postgres · api', 'HTTP router · api', 'Store · api']);
+  assert.deepEqual(data.edges.map(edge => [edge.a, edge.b, edge.type]),
+    [[0, 1, 'io'], [2, 3, 'call']]);
+  assert.equal(data.edges[1].payload, 3);
+});

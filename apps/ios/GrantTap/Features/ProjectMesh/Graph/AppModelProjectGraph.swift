@@ -3,16 +3,18 @@ import Foundation
 @MainActor
 extension AppModel {
     func requestProjectGraphAnalysis(projectId: String) async -> ProjectGraphRefreshResult {
-        guard let snapshot = meshSnapshots[projectId] else { return .noRoute }
+        guard meshSnapshots[projectId] != nil else { return .noRoute }
         var localAvailable = false
         var localRoom: String?
         #if targetEnvironment(macCatalyst)
         if let reader = localMCPReader, reader.isReady,
-           reader.meshSnapshots[projectId] != nil, let endpoint = reader.status?.endpointId {
-            localAvailable = snapshot.bindings?.contains {
-                $0.endpointId == endpoint && $0.available
-            } == true
-            localRoom = meshComputerRoomByEndpointId[endpoint]
+           reader.meshSnapshots[projectId] != nil {
+            // Refresh also repairs stale bindings. Requiring an already-available
+            // binding here made exactly those Mesh spaces impossible to rebuild.
+            localAvailable = true
+            if let endpoint = reader.status?.endpointId {
+                localRoom = meshComputerRoomByEndpointId[endpoint]
+            }
         }
         #endif
         let plan = ProjectGraphRefreshPlan.make(

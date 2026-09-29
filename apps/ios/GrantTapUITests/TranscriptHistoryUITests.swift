@@ -106,12 +106,18 @@ extension TranscriptHistoryUITests {
         previous.tap()
         XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
         let transcript = app.scrollViews["chat.transcript"]
+        let second = app.staticTexts["chat.row.viewport-request-1"]
+        XCTAssertTrue(second.waitForExistence(timeout: 5))
+        XCTAssertLessThanOrEqual(second.frame.minY, transcript.frame.minY + 30,
+            "The pinned request must scroll to its message, not only change its title.")
         for _ in 0..<16 where !previous.label.contains("First viewport request") { transcript.swipeDown() }
         XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
         let first = app.staticTexts["chat.row.viewport-request-0"]
         XCTAssertLessThan(first.frame.minY, transcript.frame.minY, "The destination must be above the reading position.")
         previous.tap()
-        XCTAssertTrue(first.isHittable)
+        XCTAssertTrue(waitForHittable(first), "The previous request must be brought into view.")
+        XCTAssertLessThanOrEqual(first.frame.minY, transcript.frame.minY + 30,
+            "The previous request must land at the top of the transcript.")
         XCTAssertTrue(previous.label.contains("First viewport request"))
     }
 
@@ -149,5 +155,10 @@ extension TranscriptHistoryUITests {
     private func waitForLabel(_ element: XCUIElement, contains text: String) -> Bool {
         XCTWaiter.wait(for: [XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "label CONTAINS %@", text), object: element)], timeout: 10) == .completed
+    }
+
+    private func waitForHittable(_ element: XCUIElement) -> Bool {
+        XCTWaiter.wait(for: [XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "hittable == true"), object: element)], timeout: 5) == .completed
     }
 }

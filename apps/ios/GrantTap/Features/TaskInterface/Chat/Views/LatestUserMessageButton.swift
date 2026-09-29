@@ -7,7 +7,7 @@ extension TaskChatView {
     }
 
     var previousUserEntry: ActivityEntry? {
-        if chatIsAtBottom {
+        if chatIsAtBottom || userMessageAnchor != nil {
             return TranscriptRequestBoundary.previous(in: rootEntries, before: userMessageAnchor)
         }
         return ChatPinnedUserMessage.navigationEntry(in: ChatActivityGrouping.rows(visibleTimeline),
@@ -64,12 +64,23 @@ extension TaskChatView {
         }
         pendingUserJump = false
         userMessageAnchor = entry.id
+        requestJumpSettling = true
         chatIsAtBottom = transcriptFitsViewport
-        withAnimation(.easeOut(duration: 0.2)) {
-            proxy.scrollTo(ChatScrollTarget.forEntry(entry), anchor: .top)
+        let target = ChatScrollTarget.forEntry(entry)
+        // Updating the pinned strip changes the scroll view's layout. Move on
+        // the next layout pass, then repeat if history reconciliation moved it.
+        DispatchQueue.main.async {
+            guard userMessageAnchor == entry.id else { return }
+            proxy.scrollTo(target, anchor: .top)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                guard userMessageAnchor == entry.id else { return }
+                proxy.scrollTo(target, anchor: .top)
+                ensurePreviousRequest(proxy)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    if userMessageAnchor == entry.id { requestJumpSettling = false }
+                }
+            }
         }
-        // Prepare the next older request immediately after jumping to this one.
-        ensurePreviousRequest(proxy)
     }
 
     func ensurePreviousRequest(_ proxy: ScrollViewProxy) {
@@ -83,7 +94,8 @@ extension TaskChatView {
     func updateTopTranscriptRow(_ top: String, proxy: ScrollViewProxy) {
         guard topVisibleTranscriptRow != top else { return }
         topVisibleTranscriptRow = top
-        if !chatIsAtBottom, let anchor = userMessageAnchor, let request = latestUserEntry,
+        if !requestJumpSettling, !chatIsAtBottom, let anchor = userMessageAnchor,
+           let request = latestUserEntry,
            let readingIndex = rootEntries.firstIndex(where: { $0.id == request.id }),
            let anchorIndex = rootEntries.firstIndex(where: { $0.id == anchor }), readingIndex < anchorIndex {
             userMessageAnchor = nil

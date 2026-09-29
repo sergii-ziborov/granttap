@@ -2342,3 +2342,13 @@
 "This document could not be loaded." = "Не удалось загрузить документ.";
 
 "Website and source" = "Сайт и исходный код";
+
+"Graph view" = "Вид графа";
+"Components" = "Компоненты";
+"Code city" = "Город кода";
+"Repository connections" = "Связи репозиториев";
+"Only verified Mesh relations are drawn. Select a repository for its computers, tasks and components." = "Показаны только подтверждённые связи Mesh. Выберите репозиторий, чтобы увидеть компьютеры, задачи и компоненты.";
+"No verified cross-repository relation is reported for this Mesh." = "Для этого Mesh не сообщалось о подтверждённых связях между репозиториями.";
+"Code city could not open; component graph remains available." = "Город кода не открылся; граф компонентов доступен.";
+"Retry code city" = "Повторить открытие города кода";
+"Analysis reported an unavailable repository. Waiting for another computer or retry." = "Репозиторий недоступен для анализа. Ожидаем другой компьютер или повторную попытку.";

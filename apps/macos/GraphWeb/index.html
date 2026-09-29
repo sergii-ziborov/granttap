@@ -15,6 +15,7 @@
   </script>
   <script>
     window.graphFailure = () => {
+      window.webkit?.messageHandlers?.graphStatus?.postMessage('failed');
       const message = document.getElementById('empty');
       if (message) {
         message.textContent = 'The graph could not be displayed. Reopen this Mesh and try again.';
@@ -22,6 +23,7 @@
       }
     };
     window.addEventListener('error', window.graphFailure);
+    window.addEventListener('unhandledrejection', window.graphFailure);
     window.setMeshReports = encoded => {
       try { window.meshReports = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), c => c.charCodeAt(0)))); }
       catch { window.graphFailure(); return; }

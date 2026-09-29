@@ -36,6 +36,7 @@ struct TaskChatView: View {
     @State var historyPreservedBottom = false
     @State var historyReadingActive = false
     @State var userMessageAnchor: String?
+    @State var requestJumpSettling = false
     @State var pendingUserJump = false
     /// Per-chat answer settings; unset means "use whatever the chat already has".
     @State var showCapabilities = false

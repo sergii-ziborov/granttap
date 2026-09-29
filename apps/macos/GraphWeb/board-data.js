@@ -25,7 +25,7 @@ function edgeType(relation) {
 
 export function boardData(reports) {
   const modules = [], files = [], edges = [], exts = [];
-  const identities = new Map();
+  const identities = new Map(), componentIds = new Map();
   const selected = (reports || []).map(report => ({ report, nodes: sourceNodes(report) }))
     .filter(item => item.nodes.length);
   const names = [...new Set(selected.flatMap(item => item.nodes.map(node => node.module)))].sort();
@@ -52,6 +52,7 @@ export function boardData(reports) {
         loc: Math.max(1, Number(node.lineCount) || 20), health: null });
       const id = files.length;
       identities.set(`${report.repositoryId}\u0000${node.id}`, id);
+      if (!report.codeMap?.files?.length) componentIds.set(`${report.repositoryId}\u0000${node.id}`, id);
       files.push({ id, name: node.label, module: node.module, modIdx: layout.index,
         x, z, _path: node.path, _fileId: node.id, kind: node.kind, methods,
         unknownHealth: true, symbolsUnavailable: node.symbols.length === 0,
@@ -68,20 +69,34 @@ export function boardData(reports) {
         x: -130 - Math.floor(exts.length / 8) * 18,
         z: (exts.length % 8 - 3.5) * 20, fanIn: 0, fanOut: 0, height: 7 });
     }
+    // The file map and architecture report describe different levels of the
+    // same repository. Keep services/components beside file towers instead of
+    // silently dropping every architecture node when files are available.
+    if (report.codeMap?.files?.length) for (const node of report.nodes || []) {
+      const id = files.length + exts.length;
+      componentIds.set(`${report.repositoryId}\u0000${node.id}`, id);
+      exts.push({ id, name: `${node.label} · ${report.repositoryId}`,
+        kind: node.kind, isExternal: true, modIdx: -1,
+        color: node.kind === 'service' ? 0x59d0a0 : 0xc38bff,
+        x: -130 - Math.floor(exts.length / 8) * 18,
+        z: (exts.length % 8 - 3.5) * 20, fanIn: 0, fanOut: 0, height: 7 });
+    }
   });
   const byId = [...files, ...exts];
   selected.forEach(({ report }) => {
     const map = report.codeMap;
-    const relations = map?.files?.length ? (map.roads || []) : (report.relations || []);
-    for (const relation of relations) {
-      const a = identities.get(`${report.repositoryId}\u0000${relation.source}`);
-      const b = identities.get(`${report.repositoryId}\u0000${relation.target}`);
+    const addRelations = (relations, nodes, architecture = false) => { for (const relation of relations) {
+      const a = nodes.get(`${report.repositoryId}\u0000${relation.source}`);
+      const b = nodes.get(`${report.repositoryId}\u0000${relation.target}`);
       if (a === undefined || b === undefined) continue;
-      edges.push({ a, b, type: byId[a].isExternal || byId[b].isExternal ? 'io' : edgeType(relation.relation),
+      edges.push({ a, b, type: !architecture && (byId[a].isExternal || byId[b].isExternal)
+        ? 'io' : edgeType(relation.relation),
         relation: relation.relation, payload: relation.evidenceCount || 1 });
       byId[a].fanOut += 1;
       byId[b].fanIn += 1;
-    }
+    } };
+    if (map?.files?.length) addRelations(map.roads || [], identities);
+    addRelations(report.relations || [], componentIds, true);
   });
   return { MODULES: modules, files, edges, exts, agent: null };
 }

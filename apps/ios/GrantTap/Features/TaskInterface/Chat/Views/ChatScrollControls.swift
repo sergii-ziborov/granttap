@@ -5,6 +5,7 @@ extension TaskChatView {
     func jumpToLatestButton(_ proxy: ScrollViewProxy) -> some View {
         Button {
             userMessageAnchor = nil
+            requestJumpSettling = false
             pendingUserJump = false
             withAnimation(.easeOut(duration: 0.2)) {
                 proxy.scrollTo("chat-bottom", anchor: .bottom)
