@@ -9,3 +9,9 @@ The owner's phone checks both grants before forwarding a complete Project snapsh
 Existing device invites with no account ID retain their previous Project grants. The member detail screen marks them as legacy and lets the owner assign an account once. Assigning an account starts the repository gate immediately. Revoking or pausing an account stops new forwarding through this phone; already delivered data on a recipient device cannot be recalled. No account or Project name is used as authority in place of IDs and the authenticated pairing room.
 
 The account store and device pairings are separate Keychain records. Changes are persisted before live routing is changed. Tests in `GrantTapTests/Features/ProjectMesh/Members` cover independent grants, two device links on one account, and revocation.
+
+`ProjectControllerDevice.swift` presents the device viewing Members / Computers:
+Mac Catalyst uses This Mac and a computer icon, iPad uses This iPad, and iPhone
+uses This iPhone. The device label does not grant a Mesh key or change access.
+The unit tests cover each device family and unknown devices; the shared UI test
+verifies the visible label on iPhone and iPad.

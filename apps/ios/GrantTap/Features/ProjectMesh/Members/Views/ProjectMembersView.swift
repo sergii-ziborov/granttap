@@ -23,17 +23,17 @@ struct ProjectMembersView: View {
     }
 
     var body: some View {
+        let controller = ProjectControllerDevice.current
         List {
-            // "You / Current account" said nothing true: no agent runs on the
-            // phone, and a Project has no accounts. What the phone actually is
-            // here is the holder of the Project key and the only party paired
-            // with every computer -- which is why adding one happens from here.
+            // The current device's key receipt and computer membership are
+            // reported independently.
             Section {
                 HStack(spacing: 12) {
-                    Image(systemName: "iphone.gen3")
+                    Image(systemName: controller.symbol)
                         .font(.title2).foregroundColor(Theme.codex)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(L("This iPhone"))
+                        Text(L(controller.titleKey))
+                            .accessibilityIdentifier("members.controller-device")
                         Text(holdsKey
                              ? L("Holds this Mesh key")
                              : L("Has not received this Mesh key"))
@@ -46,7 +46,7 @@ struct ProjectMembersView: View {
                             .font(.title2).foregroundColor(Theme.codex)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(String(format: L("Shared with you by %@"), sharedBy))
-                            Text(L("Their phone forwards this Mesh with the role they gave you. Add a computer of your own below to work in it."))
+                            Text(L("Their device forwards this Mesh with the role they gave you. Add a computer of your own below to work in it."))
                                 .font(.caption).foregroundColor(Theme.muted)
                         }
                     }
@@ -79,7 +79,7 @@ struct ProjectMembersView: View {
             } header: {
                 Text(L("Computers"))
             } footer: {
-                Text(L("The mesh is encrypted under a key of its own. A computer takes part once this phone hands it that key."))
+                Text(L("Each Mesh is encrypted with its own key. A computer joins after an authorized device shares that key."))
             }
             unboundSection
         }
@@ -89,8 +89,7 @@ struct ProjectMembersView: View {
         }
     }
 
-    /// People whose phones this phone forwards the Project to, and the way to
-    /// add one — or to join a Project from someone else's phone.
+    /// People receiving this Project through an authorized device link.
     private var peopleSection: some View {
         Section {
             ForEach(model.memberLinks.filter { $0.allowsProject(snapshot.projectId) }
@@ -126,8 +125,7 @@ struct ProjectMembersView: View {
                 }
                 .accessibilityIdentifier("members.link.\(link.id)")
             }
-            // A Project shared with this phone is someone else's to share on:
-            // the rules they set for this phone cannot reach a third one.
+            // The owner controls whether a shared Project may be forwarded.
             if sharedBy == nil {
                 Button {
                     showInvite = true
@@ -193,12 +191,12 @@ struct ProjectMembersView: View {
         .padding(.vertical, 2)
     }
 
-    /// The phone takes part by holding the key it hands to computers.
+    /// An authenticated source room has delivered this Mesh's key.
     private var holdsKey: Bool {
         !(model.meshProjectSourceRooms[snapshot.projectId] ?? []).isEmpty
     }
 
-    /// The person whose phone this Project comes through, when it is theirs.
+    /// The person whose device this shared Project comes through.
     private var sharedBy: String? {
         ProjectsCatalog.sharedBy(
             snapshot.projectId, rooms: model.meshProjectSourceRooms, connections: model.connectionRegistry.connections

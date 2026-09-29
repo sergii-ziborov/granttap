@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "38a251c43c7a46fa2ef4d959d6322431101a88fa",
+  "sourceCommit": "06ebc26117e79339fe38b140b633a7efa101cdf3",
   "files": [
     {
       "path": ".gitignore",
@@ -132,7 +132,7 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "20e2064e9d2024be74655495c5ff3d62762a99ac743ef5a4e95da39477650c00"
+      "sha256": "4b4ad30c977ed73e3a714ecd95715ed5781ca5833749a9af64d9e722596b7c43"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
@@ -1316,7 +1316,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Members/README.md",
-      "sha256": "3def2572d1ad8a7532132e0c62f809bbb38fddaaaaf8ca4e538f1990bc7d9976"
+      "sha256": "aae1aa53f7293b5c3bc76b3c4c56dc34c95f0445c8473a9f899ab5da5f0f17a9"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Members/Runtime/AppModelMemberChats.swift",
@@ -1379,12 +1379,16 @@
       "sha256": "600862b82c3cd197db06f4ebd19e0ce0d49e9e38da9c78ba20e792edc957b024"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/Members/Views/ProjectControllerDevice.swift",
+      "sha256": "f09fe418fc41ddebd153f8641e4dd3726adfe440e1d3e2729c4f740adc6fd0a0"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Members/Views/ProjectMembership.swift",
       "sha256": "ceb7090b0854e3d20ec0102507fd3f6ad036a5ee0e7556520218b1bddf736571"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Members/Views/ProjectMembersView.swift",
-      "sha256": "841cb4fcccefce1a797884905da1ad826137115e7cdaed0a4c3223797c0cc3ee"
+      "sha256": "472391bdf01a2dadafc107822b9ce8922dcdefae66b9242580a11a582d55f62b"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/README.md",
@@ -2651,6 +2655,10 @@
       "sha256": "015c16780394a376fdb764f542492f29dcff0371c8614838b7709059f1522c58"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Members/ProjectControllerDeviceTests.swift",
+      "sha256": "7b964b94b8e9d753e069fcc9435bca36f1e7d36a66ce30f389082fcff68aac7a"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Members/ProjectMembershipTests.swift",
       "sha256": "f24fb1b098313d44624aa409c49974827db5161c5391b8487127b7141c5c92f8"
     },
@@ -3019,6 +3027,10 @@
       "sha256": "6062005da2464d46df8c6b177b2f21c3d1e762b713333fad2834974373d3710c"
     },
     {
+      "path": "apps/ios/GrantTapUITests/ProjectControllerDeviceUITests.swift",
+      "sha256": "0d05b4fee288b143f1fbe9446c96f38edbd58abd011dff5486c3b06e5d6d35b3"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/ProjectGraphUITests.swift",
       "sha256": "11cace4e281e4e71976abb67b72491651b8d73847dc1bf18012061a941089199"
     },
@@ -3152,7 +3164,7 @@
     },
     {
       "path": "apps/ios/project.yml",
-      "sha256": "5ccdcb9d6165c72d6dd4c62773206b14f61b393c8db76bd37972de9c177b68c5"
+      "sha256": "0410c59836b435a85b4b15f1d2965b5dc98fbfd8312284b78d60f39ef4baff93"
     },
     {
       "path": "apps/ios/README.md",
@@ -3176,7 +3188,7 @@
     },
     {
       "path": "apps/ios/Shared/ru.lproj/Localizable.strings",
-      "sha256": "40184dfd06e0cd6e689c74f018ba05625c6897c16407f81d474dcce7f700c30a"
+      "sha256": "9401fdae98b5d4c6e6349c79d469bb0c7ee1fe055f6f4297dd267e189d77aafe"
     },
     {
       "path": "apps/ios/Shared/WatchLink.swift",

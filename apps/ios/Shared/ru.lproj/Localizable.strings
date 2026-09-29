@@ -1782,6 +1782,10 @@
 "Join a Mesh with invite" = "Присоединиться к Mesh по приглашению";
 "Scan a one-time Mesh invite from its owner. This device receives only the permitted scope and role. Computers are paired separately." = "Отсканируйте одноразовое приглашение от владельца Mesh. Устройство получит только разрешённую область и роль. Компьютеры подключаются отдельно.";
 "This Mac" = "Этот Mac";
+"This iPad" = "Этот iPad";
+"This device" = "Это устройство";
+"Their device forwards this Mesh with the role they gave you. Add a computer of your own below to work in it." = "Их устройство передаёт этот Mesh с назначенной вам ролью. Добавьте свой компьютер ниже, чтобы работать в нём.";
+"Each Mesh is encrypted with its own key. A computer joins after an authorized device shares that key." = "Каждый Mesh зашифрован собственным ключом. Компьютер присоединяется после передачи ключа устройством с соответствующим доступом.";
 "Checking GrantTap MCP on this Mac…" = "Проверяем GrantTap MCP на этом Mac…";
 "GrantTap MCP is unavailable on this Mac." = "GrantTap MCP недоступен на этом Mac.";
 "Install GrantTap MCP on this Mac, then check again. If it is already installed, make sure its local service is running." = "Установите GrantTap MCP на этот Mac и проверьте снова. Если он уже установлен, убедитесь, что локальная служба запущена.";

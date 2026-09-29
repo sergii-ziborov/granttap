@@ -211,6 +211,7 @@
 		4B5775CF63E46DA6C0080285 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7077A428CF6FF9790A27A4BB /* Localizable.strings */; };
 		4B692B065771FC840B7F2891 /* PageNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808C37FAB2CA3938B1939FB0 /* PageNavigation.swift */; };
 		4B9A7EFFC9BAE4F3F7BF1D94 /* DesktopLicenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D37928AFE0A659BF9704AF /* DesktopLicenseView.swift */; };
+		4BB83A5770236301D7FDC06A /* ProjectControllerDeviceUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E5765DD6ED8CF908238358C /* ProjectControllerDeviceUITests.swift */; };
 		4C27CB5EA0B37BC03C5BE8AA /* ChatScrollTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1ED055FF4583838F1F49C /* ChatScrollTarget.swift */; };
 		4C7C95B465E569E09B3B01CD /* SwiftUISurfaceCoverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A8850DB02E9E833DD0CD64 /* SwiftUISurfaceCoverageTests.swift */; };
 		4D15AA038A3279B00E1A18D0 /* InstallIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC06C8F5446F97E33601722 /* InstallIdentity.swift */; };
@@ -253,6 +254,7 @@
 		5C09AC7D9888D3C8072E0C8F /* ProjectComputerAccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D718A0FB365FFAEC2C2B8 /* ProjectComputerAccessView.swift */; };
 		5C280DEA85AE0315B4BDDACF /* ProjectMeshStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC5F02A46C5F11457D523F /* ProjectMeshStatusView.swift */; };
 		5D6101E05218B550D172FBC5 /* ProjectAuxiliaryPolicyValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3ECA1579E46907DFAF0449 /* ProjectAuxiliaryPolicyValidation.swift */; };
+		5D6CB03207BE09C90A41F408 /* ProjectControllerDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD705DFE33D31AEA0A118C62 /* ProjectControllerDeviceTests.swift */; };
 		5DBFB9BA40EFB6B5EB77A3FE /* AppModelLifecycleCoverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB64853B6A7C80B1C2E6C8 /* AppModelLifecycleCoverageTests.swift */; };
 		5DDA7707458855E7C3AED6AF /* WatchSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A1F5FD51D7B5049C224AB4 /* WatchSyncView.swift */; };
 		5E3CFD67435BEDD86ADDA564 /* OutboxLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69DE1B7BD768B4902C4E213 /* OutboxLifecycle.swift */; };
@@ -275,6 +277,7 @@
 		6722FAEBBF5AD48CC8D2AF25 /* AppModelGrokBotEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7971953068F52D81B67AF1D4 /* AppModelGrokBotEndpoint.swift */; };
 		67FDF35BB2562A79D7A9AA9A /* MacQueuedMessageDelivery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7BD0665B96493B4D130AA0 /* MacQueuedMessageDelivery.swift */; };
 		68C267B54460857ABB283DCD /* ProjectMeshSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD95C7881F696131BC2B0170 /* ProjectMeshSnapshot.swift */; };
+		68FA039FAAE83885CA231CFD /* ProjectControllerDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD86BC8602DF8A557531F32 /* ProjectControllerDevice.swift */; };
 		6907144C3092F865A023013B /* ConnectionActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9CC20B129787F1FCBF8D6C /* ConnectionActionTests.swift */; };
 		69C02BAAA93276F16C9DF28D /* AgentLoadDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251AB1402FEE90CC7C344372 /* AgentLoadDetailView.swift */; };
 		6A121FE0F06C3900F95AE99B /* TaskHandoffSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE915276687E35DEE28F85E2 /* TaskHandoffSheet.swift */; };
@@ -789,6 +792,7 @@
 		0C79973A8455056AADAB0124 /* ProjectComputerWorkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectComputerWorkTests.swift; sourceTree = "<group>"; };
 		0D115F5493986E69459E15C6 /* ProjectGovernanceCustomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectGovernanceCustomTests.swift; sourceTree = "<group>"; };
 		0E308B610376F0D1BC95CF88 /* SubscriptionStoreEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStoreEvidence.swift; sourceTree = "<group>"; };
+		0E5765DD6ED8CF908238358C /* ProjectControllerDeviceUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectControllerDeviceUITests.swift; sourceTree = "<group>"; };
 		0EFCB422BE8FD12502E4B8FD /* Dictation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictation.swift; sourceTree = "<group>"; };
 		0F230F268DC1108CCC819D34 /* QRCodeImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeImage.swift; sourceTree = "<group>"; };
 		0FB2FAB949E04AC2201B32C3 /* SettingsLifecycleCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLifecycleCoverageTests.swift; sourceTree = "<group>"; };
@@ -1268,6 +1272,7 @@
 		BCA05CEA9E1B72D264461B34 /* TaskChatSending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskChatSending.swift; sourceTree = "<group>"; };
 		BD446F5AEA12774CE1E6BAB0 /* MemberInviteShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberInviteShareSheet.swift; sourceTree = "<group>"; };
 		BD63D0CD23779200F049F20D /* UsageBreakdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageBreakdownTests.swift; sourceTree = "<group>"; };
+		BD705DFE33D31AEA0A118C62 /* ProjectControllerDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectControllerDeviceTests.swift; sourceTree = "<group>"; };
 		BDE0D8D2A7322E987C8CEBD5 /* RelayInboundCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayInboundCoverageTests.swift; sourceTree = "<group>"; };
 		BDFE68012F635573895B01ED /* EndpointDirectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointDirectoryTests.swift; sourceTree = "<group>"; };
 		BE1911C39C81A46714982BFB /* TranscriptArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptArchive.swift; sourceTree = "<group>"; };
@@ -1355,6 +1360,7 @@
 		DD8C22268E0A27F098B9E3F5 /* MessageImageContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageImageContentView.swift; sourceTree = "<group>"; };
 		DD95C7881F696131BC2B0170 /* ProjectMeshSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectMeshSnapshot.swift; sourceTree = "<group>"; };
 		DDD0DDB59458E61B2F25EF44 /* AboutGrantTapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutGrantTapView.swift; sourceTree = "<group>"; };
+		DDD86BC8602DF8A557531F32 /* ProjectControllerDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectControllerDevice.swift; sourceTree = "<group>"; };
 		DE8218700ABCCE5EA5072C8D /* WatchTaskRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTaskRows.swift; sourceTree = "<group>"; };
 		DE8B029EFDC259DA98E08162 /* EchoAndFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EchoAndFixtures.swift; sourceTree = "<group>"; };
 		DF1833FDBC9755E0282817D0 /* LoadHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadHistoryTests.swift; sourceTree = "<group>"; };
@@ -1548,6 +1554,7 @@
 				BAD29A3F239B9B384F275027 /* MemberHubFixture.swift */,
 				D6A1939BFC4A047CC85B0B18 /* MemberLinkHubTests.swift */,
 				95089958CB7744D7E73ACB08 /* MemberLinkTests.swift */,
+				BD705DFE33D31AEA0A118C62 /* ProjectControllerDeviceTests.swift */,
 				9B5C4284236571196AAC9689 /* ProjectMembershipTests.swift */,
 			);
 			path = Members;
@@ -1747,6 +1754,7 @@
 				2AAFADCB70049F96FFD223E9 /* ChatMessageQueueUITests.swift */,
 				DB7A83E4150AF3FDED5D0B84 /* MacPageNavigationUITests.swift */,
 				CFAEE11021766F2EBFCA8BA2 /* MessageImageUITests.swift */,
+				0E5765DD6ED8CF908238358C /* ProjectControllerDeviceUITests.swift */,
 				2AF2A7313BC66CC76F9B5C69 /* ProjectGraphUITests.swift */,
 				A6D6522CD58CD9893D9E830C /* ProjectInsightsUITests.swift */,
 				4723801C1EC3BEC7AB366E77 /* SettingsNavigationUITests.swift */,
@@ -1923,6 +1931,7 @@
 				4864F41B93B0E2442AE6BB1D /* MemberLinkDetailView.swift */,
 				89981470815661F8ABCD9F2C /* MemberProjectAccessSection.swift */,
 				A26D718A0FB365FFAEC2C2B8 /* ProjectComputerAccessView.swift */,
+				DDD86BC8602DF8A557531F32 /* ProjectControllerDevice.swift */,
 				7A88B761D9FFFA6EC37B2CD3 /* ProjectMembership.swift */,
 				088B5D059EEA182076B6285F /* ProjectMembersView.swift */,
 			);
@@ -4018,6 +4027,7 @@
 				5C09AC7D9888D3C8072E0C8F /* ProjectComputerAccessView.swift in Sources */,
 				F28B6633A4C8703EE51FC988 /* ProjectComputerUsageView.swift in Sources */,
 				54ADC11E438DDF9AAAA2DE88 /* ProjectComputerWork.swift in Sources */,
+				68FA039FAAE83885CA231CFD /* ProjectControllerDevice.swift in Sources */,
 				637A8F4572558D3D2A5ED6C3 /* ProjectCortexModels.swift in Sources */,
 				5483196F2F2374F28788D8F1 /* ProjectCortexView.swift in Sources */,
 				7BBE5696ED6DA0C3B5384913 /* ProjectEnforcementDetailView.swift in Sources */,
@@ -4318,6 +4328,7 @@
 				8203ABD3CE54FA300119E9CB /* ProjectAuxiliaryContractTests.swift in Sources */,
 				09F60D4E16A1127A7F7A0052 /* ProjectCapabilityUsageTests.swift in Sources */,
 				88D93ECA2A336F02750091BF /* ProjectComputerWorkTests.swift in Sources */,
+				5D6CB03207BE09C90A41F408 /* ProjectControllerDeviceTests.swift in Sources */,
 				921C3DBF9B452DF9213C3371 /* ProjectEnvironmentDeliveryTests.swift in Sources */,
 				AA55373AEE888431BEDAAD5F /* ProjectEnvironmentKeyTests.swift in Sources */,
 				2792650BC460395C25EC9D5F /* ProjectEnvironmentVariableEditorTests.swift in Sources */,
@@ -4440,6 +4451,7 @@
 				3E457D92AF0A6AE5B6F850A0 /* ChatMessageQueueUITests.swift in Sources */,
 				A09F31CC5F0223A61DB18894 /* MacPageNavigationUITests.swift in Sources */,
 				B8F96461AF4557CE88376DBB /* MessageImageUITests.swift in Sources */,
+				4BB83A5770236301D7FDC06A /* ProjectControllerDeviceUITests.swift in Sources */,
 				87D1E20DBDED02BF165F78DF /* ProjectGraphUITests.swift in Sources */,
 				058B1BB4A89126C327B543C2 /* ProjectInsightsUITests.swift in Sources */,
 				AD2CC6D3F02B5A47C13D88F4 /* SettingsNavigationUITests.swift in Sources */,
@@ -4607,7 +4619,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -4640,7 +4652,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -4727,7 +4739,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -4814,7 +4826,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -4852,7 +4864,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -4969,7 +4981,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 134;
+				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
