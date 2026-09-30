@@ -8,6 +8,9 @@ parsing, and Keychain storage.
 - `PairingLinks.swift` parses v2 mailbox links and migrates legacy v1 records.
 - `Identity/SessionKeyVault.swift` stores per-task encryption keys.
 - `Identity/PairingKeychain.swift` isolates the legacy Keychain adapter.
+- `AccountBridge/` signs in with a synced passkey and recovers a computer through
+  an account-authorized, end-to-end encrypted offer. The account session is
+  stored only in this device's Keychain; QR pairing remains available.
 - `Device/ControllerInviteCoordinator.swift` requests a separate, expiring
   controller credential from each Live linked computer. The trusted phone
   publishes their encrypted one-use links as a second QR through the relay.

@@ -10,6 +10,7 @@ struct MacLocalMCPWelcomeView: View {
     let onSettings: () -> Void
 
     @ObservedObject private var access = MacNativeAccess.shared
+    @State private var showingAccount = false
     private let installURL = URL(string: "https://granttap.com/#install")!
 
     var body: some View {
@@ -43,6 +44,8 @@ struct MacLocalMCPWelcomeView: View {
                         .fixedSize(horizontal: false, vertical: true)
 
                     if found {
+                        Button(L("Account and passkey")) { showingAccount = true }
+                            .buttonStyle(FilledButton(tint: Theme.claude))
                         Button(L("Authorize local Mac access")) {
                             Task { await access.authorize(); onRetry() }
                         }.disabled(access.busy)
@@ -82,6 +85,9 @@ struct MacLocalMCPWelcomeView: View {
             .frame(maxWidth: .infinity, minHeight: 480, alignment: .top)
         }
         .background(Theme.bg)
+        .sheet(isPresented: $showingAccount) {
+            AccountConnectionView(onPaired: { _ in false }, allowsRecovery: false)
+        }
     }
 }
 #endif

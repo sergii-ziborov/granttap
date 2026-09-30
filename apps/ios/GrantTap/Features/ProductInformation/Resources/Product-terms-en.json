@@ -1,6 +1,6 @@
 {
   "title": "Terms of Use",
-  "updated": "2026-09-28",
+  "updated": "2026-09-30",
   "intro": "These terms cover the GrantTap app, encrypted relay, and related support services. GrantTap extends coding-agent sessions on computers you control; it does not replace the agent or move your project into a GrantTap cloud.",
   "sections": [
     {
@@ -23,7 +23,8 @@
     {
       "heading": "Personal pairing",
       "paragraphs": [
-        "GrantTap pairing authorizes devices using locally held cryptographic credentials. Your Apple billing identity and third-party provider sign-ins remain separate and are governed by those services."
+        "GrantTap pairing authorizes devices using locally held cryptographic credentials. Your Apple billing identity and third-party provider sign-ins remain separate and are governed by those services.",
+        "An optional passkey account links your Mac, iPhone, and MCP authorization. The account service verifies identity and forwards an encrypted pairing offer; the linked Mac must be online, and a passkey alone cannot decrypt task data. Protect and revoke account-linked devices you no longer control."
       ]
     },
     {

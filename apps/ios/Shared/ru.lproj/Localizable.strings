@@ -2355,3 +2355,19 @@
 "Code city could not open; component graph remains available." = "Город кода не открылся; граф компонентов доступен.";
 "Retry code city" = "Повторить открытие города кода";
 "Analysis reported an unavailable repository. Waiting for another computer or retry." = "Репозиторий недоступен для анализа. Ожидаем другой компьютер или повторную попытку.";
+
+"Connect with passkey" = "Подключить через passkey";
+"Account and passkey" = "Аккаунт и passkey";
+"Sign in with passkey" = "Войти через passkey";
+"Create a GrantTap account" = "Создать аккаунт GrantTap";
+"A passkey can find your linked computers when their Mac service is online. Pairing keys travel encrypted directly to this device." = "Passkey найдёт привязанные компьютеры, когда их служба на Mac работает. Ключи подключения передаются зашифрованными прямо на это устройство.";
+"Account %@" = "Аккаунт %@";
+"Waiting for this Mac" = "Ожидаем этот Mac";
+"Account-linked Mac" = "Mac привязан к аккаунту";
+"No Mac is linked to this account yet. Sign in with the same passkey on your Mac or its MCP connection page." = "К этому аккаунту ещё не привязан Mac. Войдите с тем же passkey на Mac или на странице подключения его MCP.";
+"Refresh computers" = "Обновить компьютеры";
+"Use a different passkey" = "Использовать другой passkey";
+"GrantTap could not verify this passkey response." = "GrantTap не удалось проверить ответ passkey.";
+"The GrantTap account service is unavailable." = "Сервис аккаунта GrantTap недоступен.";
+"This sign-in expired. Try again." = "Время входа истекло. Попробуйте ещё раз.";
+"The account session could not be saved on this device." = "Не удалось сохранить сеанс аккаунта на этом устройстве.";

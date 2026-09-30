@@ -24,6 +24,12 @@ struct MacLocalMCPSettingsSection: View {
                 Text(L("GrantTap MCP is running on this Mac."))
                     .foregroundStyle(Theme.muted)
                 NavigationLink {
+                    AccountConnectionView { model.addConnection($0) }
+                } label: {
+                    Label(L("Account and passkey"), systemImage: "person.crop.circle.badge.checkmark")
+                }
+                .accessibilityIdentifier("settings.account-passkey")
+                NavigationLink {
                     MacLocalComputerDetailView(reader: reader)
                 } label: {
                     Label(L("Computer activity"), systemImage: "cpu")

@@ -17,6 +17,16 @@ runtime, or offers installation when missing. Network connections are managed
 in Settings. The release app requests explicit access to the local MCP through
 an authenticated loopback connection compatible with the App Sandbox.
 
+## Connect devices
+
+Scan the Mac's QR code to pair an iPhone or iPad directly. A GrantTap account
+offers a passkey alternative: link the Mac or its MCP service to the account,
+then sign in with the same passkey on the phone to find that Mac. The Mac
+encrypts a fresh pairing offer for the phone; the account service relays it
+without receiving the pairing secret. The account shows linked computers and
+lets you revoke their access. Passkeys need a network connection; QR pairing
+remains available without an account.
+
 The Mac App Store release is being prepared; it is not available for purchase
 yet. The proposed price is **USD 39.99 once** for the Mac License. The selected
 universal configuration is a free download with a non-consumable Mac unlock.

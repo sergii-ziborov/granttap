@@ -23,6 +23,17 @@ final class MacNativeAccess: NSObject, ObservableObject, ASWebAuthenticationPres
         return token
     }
 
+    func linkAccount(_ accountToken: String) async throws {
+        if token == nil { await authorize() }
+        guard let token else { throw MacLocalMCPError.untrusted }
+        var request = URLRequest(url: Self.baseURL.appendingPathComponent("desktop/account/link"))
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["accountToken": accountToken])
+        _ = try await MacNativeTransport.fetch(request, limit: 2_048)
+    }
+
     func authorize() async {
         guard !busy else { return }
         busy = true

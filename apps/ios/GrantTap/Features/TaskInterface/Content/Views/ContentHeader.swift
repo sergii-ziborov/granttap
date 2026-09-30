@@ -26,6 +26,10 @@ extension ContentView {
 
             Button(L("Connect a computer")) { showPairing = true }
                 .buttonStyle(FilledButton(tint: Theme.claude))
+            #if !targetEnvironment(macCatalyst)
+            Button(L("Sign in with passkey")) { showAccountConnection = true }
+                .buttonStyle(OutlineButton(tint: Theme.ink))
+            #endif
             Button(L("Explore demo")) { model.startDemo() }
                 .buttonStyle(OutlineButton(tint: Theme.ink))
         }

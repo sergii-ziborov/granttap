@@ -24,6 +24,7 @@ struct ContentView: View {
     @ObservedObject var security: SecurityGate
     @State var selectedTab: PersonalTab = .now
     @State var showPairing = false
+    @State var showAccountConnection = false
     @State var showMeshJoin = false
     @State var showSettings = false
     @State var showConnectionDetail = false
@@ -172,6 +173,9 @@ struct ContentView: View {
             #endif
         }
         .sheet(isPresented: $showPairing) { PairingSheet().environmentObject(model) }
+        .sheet(isPresented: $showAccountConnection) {
+            AccountConnectionView { model.addConnection($0) }
+        }
         .sheet(isPresented: $showMeshJoin) {
             PairingSheet(purpose: .joinProject).environmentObject(model)
         }

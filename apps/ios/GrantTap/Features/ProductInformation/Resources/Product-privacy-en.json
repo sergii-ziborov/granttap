@@ -1,6 +1,6 @@
 {
   "title": "Privacy Policy",
-  "updated": "2026-09-29",
+  "updated": "2026-09-30",
   "intro": "This policy covers the GrantTap Mac, iPhone, iPad and Apple Watch apps, its local machine helper, the encrypted relay, and granttap.com. GrantTap creates no advertising profile or readable cloud chat history.",
   "sections": [
     {
@@ -12,7 +12,7 @@
     {
       "heading": "Privacy at a glance",
       "bullets": [
-        "GrantTap Personal requires no username or password.",
+        "QR pairing requires no account. The optional account uses a passkey without a password.",
         "Repositories, provider credentials, model prompts, and model traffic do not pass through the GrantTap relay.",
         "Task messages, commands, questions, attachments, replies, and decisions are end-to-end encrypted before leaving an authorized endpoint.",
         "GrantTap does not sell personal data or use app data for advertising, tracking, productivity scoring, or profiling."
@@ -22,8 +22,9 @@
       "heading": "Data processed to provide the app",
       "bullets": [
         "Pairing uses a random mailbox identifier and a single-use encrypted blob. The independent transfer key remains in the QR or manual token and never reaches the relay.",
+        "If you use an account, the service stores a passkey public credential, account ID, computer name and identifier, a hash of the Mac credential, and last-seen time. A recovery request holds an ephemeral phone public key and encrypted offer for up to five minutes. The service cannot read the offered pairing key.",
         "Delivery uses opaque room, task, message, and delivery identifiers; sender and recipient roles; timing; ciphertext size; expiry; delivery status; and retry state.",
-        "Cloudflare may process IP address and ordinary security request data to operate the relay and website.",
+        "Hetzner hosts the current relay, website and account bridge and may process IP addresses and ordinary security request data. Cloudflare provides DNS and may process DNS request metadata.",
         "Background delivery stores an APNs device token, environment, bundle identifier, and update time. Push payloads contain no prompt, command, title, path, request identifier, or message body."
       ]
     },
@@ -45,7 +46,7 @@
       "heading": "Retention, deletion, and your choices",
       "paragraphs": [
         "Pairing blobs expire after 15 minutes and are single-use. Encrypted offline queues are bounded and expire. Local data remains until you clear it, unlink a computer, reset pairing, or remove the app/helper.",
-        "You may decline optional system permissions. Depending on applicable law, you may request access, correction, deletion, restriction, portability, or objection for data GrantTap can identify and control. Because Personal has no identity index and the relay cannot decrypt payloads, no readable task record may exist for a centralized identity search."
+        "You may decline optional system permissions. Account devices can be revoked and the account deleted on the account page. Depending on applicable law, you may request access, correction, deletion, restriction, portability, or objection for data GrantTap can identify and control. The relay cannot decrypt task payloads or search their readable content by account."
       ],
       "links": [
         {
@@ -61,8 +62,8 @@
     {
       "heading": "Service providers, website, and changes",
       "paragraphs": [
-        "Cloudflare provides network, Worker, Durable Object, and website infrastructure. Apple provides APNs, system speech and biometric APIs, and App Store services under Apple's terms. Neither receives GrantTap decryption keys from the app.",
-        "granttap.com stores only your language choice locally and uses no advertising or product analytics. Material policy changes will be posted here with a new effective date."
+        "Hetzner hosts the current relay, website and account bridge; Cloudflare provides DNS. Apple provides APNs, system speech and biometric APIs, and App Store services under Apple's terms. These providers do not receive GrantTap decryption keys from the app.",
+        "The website stores your language choice locally and uses an HttpOnly session cookie when you sign in to an account. It uses no advertising or product analytics. Material policy changes will be posted here with a new effective date."
       ]
     }
   ]
