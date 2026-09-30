@@ -60,9 +60,11 @@ final class RepositoryCatalogUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["repository.identity"].waitForExistence(timeout: 10))
         let mesh = app.buttons["repository.mesh.granttap-project-demo"]
         XCTAssertTrue(mesh.exists)
-        XCTAssertTrue(app.buttons["repository.mesh.granttap-runtime-demo"].exists)
+        let linkedMesh = app.buttons["repository.mesh.granttap-runtime-demo"]
+        for _ in 0..<8 where !linkedMesh.exists { app.swipeUp() }
+        XCTAssertTrue(linkedMesh.exists)
         let chat = app.buttons["repository.task.granttap-project-demo.granttap-pairing-task-demo"]
-        for _ in 0..<5 where !chat.isHittable { app.swipeUp() }
+        for _ in 0..<8 where !chat.exists { app.swipeDown() }
         XCTAssertTrue(chat.exists)
         chat.tap()
         XCTAssertTrue(app.staticTexts["Finalize the pairing API"].waitForExistence(timeout: 10))

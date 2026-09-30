@@ -36,11 +36,11 @@ struct ActivityCommandMetrics {
 
     var source: String {
         switch resource?.attribution {
-        case .measured: return L("Measured for this call")
+        case .measured: return L("Measured by GrantTap")
         case .attributed:
             return isMcpServerSample ? L("Nearby MCP server sample") : L("Approximate share of agent processes")
         case .estimated: return L("Estimated resources")
-        case .unknown, nil: return L("Not reported")
+        case .unknown, nil: return L("No OS sample for this call")
         }
     }
 
@@ -51,7 +51,7 @@ struct ActivityCommandMetrics {
                 ? L("RAM comes from a nearby sample of the MCP server processes; it is not the isolated memory cost of this call.")
                 : L("CPU and RAM are approximate shares of sampled agent processes, including agent overhead. They are not isolated command measurements.")
         case .estimated: return L("The computer reported estimated resources for this call.")
-        case .measured: return L("CPU above 100% means more than one core was used.")
+        case .measured: return L("GrantTap samples the command process tree. Peak RAM is the highest sampled RSS; CPU above 100% means multiple cores were used.")
         case .unknown, nil: return L("No resource measurement was retained for this call.")
         }
     }
@@ -74,7 +74,6 @@ struct ActivityCommandMetricsSection: View {
             row("Peak RAM (RSS)", value: metrics.peakMemoryBytes.map {
                 qualified(CapabilityResourceFormat.bytes($0))
             }, id: "memory")
-            row("Model tokens", value: L("Not reported per command"), id: "modelTokens")
             row("Estimated context tokens", value: metrics.contextTokens.map {
                 "~\(Format.tokens($0)) tok"
             }, id: "contextTokens")

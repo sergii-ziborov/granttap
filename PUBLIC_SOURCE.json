@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "dae13058f9f52368c991d3f7303260ff1d1aacb3",
+  "sourceCommit": "3b61dd92e07b419c38a302cabf5ea28d1fa3d769",
   "files": [
     {
       "path": ".gitignore",
@@ -2048,7 +2048,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/ActivityCommandMetrics.swift",
-      "sha256": "2d2becc1e99ef3749426f673c2eda3015831817f9997d742208fd13b5a3f9624"
+      "sha256": "8ad5e6a48e8e8ce3d0c0eb1b6986d98965818ae29f12f0f9f9306e9d01bd3114"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/ActivityRow.swift",
@@ -2948,7 +2948,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Chat/ActivityCommandMetricsTests.swift",
-      "sha256": "d707f3c91174782efa2bc846e14b6e924ac48d0a71c7ce03709f4784d42a5568"
+      "sha256": "dcdb2a634d9933411ca7a8c8a6b5da7e1d6fbc9a7e4e961bfeb42bcf143fc798"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Chat/ChatActivityRunTests.swift",
@@ -3192,7 +3192,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/RepositoryCatalogUITests.swift",
-      "sha256": "0c18f989bae6ab9240d5484d978af7243b44e516c7a0f5a6595bb87955b16f11"
+      "sha256": "f7998433c552191861ad6c1d63eea91a6e26440525c2f4238f301c2d743ab3ca"
     },
     {
       "path": "apps/ios/GrantTapUITests/SettingsNavigationUITests.swift",
@@ -3204,7 +3204,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/TranscriptHistoryUITests.swift",
-      "sha256": "995080b0f30c25ac13826a5c3894bc43904b92aa21a6203079ec93be865fe941"
+      "sha256": "1f48fdde0a101504141c6f975a6548de9860c31783ca540b9101341a654e7822"
     },
     {
       "path": "apps/ios/GrantTapUITests/TurnModelPickerUITests.swift",
@@ -3344,7 +3344,7 @@
     },
     {
       "path": "apps/ios/Shared/ru.lproj/Localizable.strings",
-      "sha256": "f4ab29fca188aaaf772a42ea7a6743da7343e0e0951217491335314f996682c4"
+      "sha256": "bf2a91abbb6b682ba74b9ef8c9f7abc10408dba46d96ef32f90e76b1c859fac4"
     },
     {
       "path": "apps/ios/Shared/WatchLink.swift",

@@ -79,7 +79,7 @@ final class TranscriptHistoryUITests: XCTestCase {
         XCTAssertTrue(cpu.waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["~7.5s"].exists)
         XCTAssertTrue(app.staticTexts["~286 MB"].exists)
-        XCTAssertTrue(app.staticTexts["Not reported per command"].exists)
+        XCTAssertTrue(app.staticTexts["Estimated context tokens"].exists)
         XCTAssertTrue(app.staticTexts["~320 tok"].exists)
         XCTAssertTrue(app.staticTexts["Approximate share of agent processes"].exists)
     }

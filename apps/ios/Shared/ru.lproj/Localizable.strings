@@ -2098,6 +2098,9 @@
 "Resource source" = "Источник замеров";
 "Not reported per command" = "Нет данных по отдельной команде";
 "Measured for this call" = "Замер этого вызова";
+"Measured by GrantTap" = "Измерено GrantTap";
+"No OS sample for this call" = "Нет замера ОС для этого вызова";
+"GrantTap samples the command process tree. Peak RAM is the highest sampled RSS; CPU above 100% means multiple cores were used." = "GrantTap измеряет дерево процессов команды. Пиковая память — наибольший измеренный RSS; CPU выше 100% означает использование нескольких ядер.";
 "Approximate share of agent processes" = "Приблизительная доля процессов агента";
 "Nearby MCP server sample" = "Замер MCP-сервера рядом по времени";
 "Estimated resources" = "Оценка ресурсов";
