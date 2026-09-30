@@ -9,9 +9,11 @@ struct AccountComputer: Decodable, Identifiable {
 }
 
 enum AccountRecovery {
-    static func computers(session: GrantTapAccountSession) async throws -> [AccountComputer] {
-        let response = try await GrantTapAccountAPI.json("machines", token: session.token)
-        guard let rows = response["machines"],
+    static func computers(session: GrantTapAccountSession,
+                          transport: URLSession = .shared) async throws -> [AccountComputer] {
+        let response = try await GrantTapAccountAPI.json("machines", token: session.token,
+                                                         transport: transport)
+        guard let rows = response["machines"] as? [[String: Any]],
               let data = try? JSONSerialization.data(withJSONObject: rows) else {
             throw AccountBridgeError.invalidResponse
         }
@@ -19,19 +21,21 @@ enum AccountRecovery {
     }
 
     static func connect(_ computer: AccountComputer,
-                        session: GrantTapAccountSession) async throws -> Pairing {
+                        session: GrantTapAccountSession, transport: URLSession = .shared,
+                        pollDelayNanoseconds: UInt64 = 2_000_000_000) async throws -> Pairing {
         let key = try NaclBox.keyPair()
         let request = try await GrantTapAccountAPI.json(
             "machines/\(computer.id)/requests", method: "POST",
             body: ["phonePublicKey": GrantTapAccountAPI.encodeURL(key.publicKey)],
-            token: session.token)
+            token: session.token, transport: transport)
         guard let id = request["id"] as? String, UUID(uuidString: id) != nil else {
             throw AccountBridgeError.invalidResponse
         }
         for _ in 0..<75 {
             try Task.checkCancellation()
-            try await Task.sleep(nanoseconds: 2_000_000_000)
-            let result = try await GrantTapAccountAPI.json("requests/\(id)", token: session.token)
+            try await Task.sleep(nanoseconds: pollDelayNanoseconds)
+            let result = try await GrantTapAccountAPI.json("requests/\(id)", token: session.token,
+                                                           transport: transport)
             if (result["status"] as? String) == "pending" { continue }
             guard let encrypted = result["encryptedOffer"] as? String else {
                 throw AccountBridgeError.invalidResponse

@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "c232bea7f119c7c8a986ca79d824bda2764aa952",
+  "sourceCommit": "c6b3726e107a53542059a253547eb8e6912bad31",
   "files": [
     {
       "path": "LICENSE",
@@ -132,7 +132,7 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "03685106712deaa00fbbaa1aed3ecc8d0a166424633983aaab9a9c18b7e910f4"
+      "sha256": "7720202a507315e37ca11cf5c8a756ec1094129bfb19ff91bf87889e6daf725b"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
@@ -932,11 +932,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/Pairing/AccountBridge/AccountPasskeys.swift",
-      "sha256": "fb1e20e16ea59794656ab7ac94444a08bce57ffd01203eab4ecf8d07b9cd2ecc"
+      "sha256": "c8b4bf56710d45551dd20b26ae60b6242958b93ca4a11a4c537a629f5e3b8905"
     },
     {
       "path": "apps/ios/GrantTap/Features/Pairing/AccountBridge/AccountRecovery.swift",
-      "sha256": "952594e8bbb13d46b1d974ae6e16e8834db64c35ceb8a2ecc093f86171610f53"
+      "sha256": "ffa4b81febb0ce35e6fb508ad74fb34741eafeddf8967ce9e2fed08c011754f8"
     },
     {
       "path": "apps/ios/GrantTap/Features/Pairing/Device/ComputerLinkEnrollment.swift",
@@ -3064,7 +3064,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Verification/Device/AccountRecoveryTests.swift",
-      "sha256": "426338f402ede0c7a8c959bf38f135786f7ef9b9e92b7ae76745b89e6a201654"
+      "sha256": "3cd2127587b0bc1dbd6aff12b2e46e60297a09e1262e4219d2b47b2c443908a4"
     },
     {
       "path": "apps/ios/GrantTapTests/Verification/Device/ControllerNetworkTransferTests.swift",
@@ -3189,6 +3189,10 @@
     {
       "path": "apps/ios/GrantTapUITests/MessageImageUITests.swift",
       "sha256": "6062005da2464d46df8c6b177b2f21c3d1e762b713333fad2834974373d3710c"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/PasskeyConnectionUITests.swift",
+      "sha256": "ae16a461273aa80e6d0a45b20e9991d1e608fb7cccf820293e0fbd33476ac6d1"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProductInformationUITests.swift",

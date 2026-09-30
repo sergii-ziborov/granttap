@@ -31,9 +31,10 @@ enum GrantTapAccountAPI {
 
     static func clearSession() { KeychainPairing.remove(service: keychainService) }
 
-    @MainActor static func authenticate(register: Bool) async throws -> GrantTapAccountSession {
+    @MainActor static func authenticate(register: Bool,
+                                         transport: URLSession = .shared) async throws -> GrantTapAccountSession {
         let kind = register ? "registration" : "authentication"
-        let ceremony = try await json("\(kind)/options", method: "POST")
+        let ceremony = try await json("\(kind)/options", method: "POST", transport: transport)
         guard let ceremonyId = ceremony["ceremonyId"] as? String,
               let options = ceremony["options"] as? [String: Any],
               let challenge = decodeURL(options["challenge"] as? String),
@@ -77,7 +78,8 @@ enum GrantTapAccountAPI {
                               "clientExtensionResults": [:]]
         } else { throw AccountBridgeError.invalidResponse }
         let verified = try await json("\(kind)/verify", method: "POST",
-                                      body: ["ceremonyId": ceremonyId, "response": publicResponse])
+                                      body: ["ceremonyId": ceremonyId, "response": publicResponse],
+                                      transport: transport)
         guard let accountId = verified["accountId"] as? String,
               let token = verified["token"] as? String, token.count == 43 else {
             throw AccountBridgeError.invalidResponse
@@ -90,7 +92,7 @@ enum GrantTapAccountAPI {
     }
 
     static func json(_ path: String, method: String = "GET", body: [String: Any]? = nil,
-                     token: String? = nil) async throws -> [String: Any] {
+                     token: String? = nil, transport: URLSession = .shared) async throws -> [String: Any] {
         var request = URLRequest(url: root.appendingPathComponent(path))
         request.httpMethod = method
         request.timeoutInterval = 12
@@ -100,7 +102,7 @@ enum GrantTapAccountAPI {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         }
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await transport.data(for: request)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         if status == 401 { throw AccountBridgeError.expired }
         guard (200...299).contains(status), data.count <= 32_768,
