@@ -8,11 +8,13 @@ deterministic demo captures from the current UI, resized to the accepted
 must not be described as a live customer scan. Upload `01-root`, `02-approval`,
 `03-task` for Apple Watch.
 
-The iPhone and iPad sets were captured from build 93 on 2026-09-08, from the
-running app on the simulator rather than from rendered components: Now with
+The first five English iPhone and iPad images were recaptured on 2026-10-01
+(the chat image was refreshed on 2026-10-03); the corresponding Russian images
+were recaptured on 2026-10-03 from the
+current Debug app on iOS 26.5 simulators rather than from rendered components: Now with
 what needs a person first, the Tasks list, one Task as a chat with the
 message block a turn is written in, Usage where every figure opens what it
-counted, and Projects with the way in to a Project someone else shared. The
+counted, and Mesh with its Repositories switch. The
 Apple Watch sets are from 2026-08-28; the watch screens have not changed
 since.
 
@@ -28,7 +30,9 @@ since.
 All localized phone, tablet, and Watch sets have been captured and visually
 reviewed. Landscape captures may use the inverse accepted dimensions.
 
-The Russian sets are Russian all the way down. Before this capture the
+For a Russian capture, launch with both `-AppleLanguages "(ru)"` and
+`-granttap.language ru`; the test-language flag alone does not localize
+Foundation dates. Before this capture the
 interface still answered in English wherever a string had been handed
 straight to SwiftUI instead of asked for by name — the approval buttons among
 them — so those calls now go through the same lookup as everything else and

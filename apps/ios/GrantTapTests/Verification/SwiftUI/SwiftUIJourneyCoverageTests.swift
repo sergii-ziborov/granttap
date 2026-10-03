@@ -46,7 +46,9 @@ final class SwiftUIJourneyCoverageTests: XCTestCase {
 
     func testTaskJourneyRendersTimelineControlsAndComposer() throws {
         let session = try XCTUnwrap(model.sessions.first)
-        XCTAssertEqual(model.activities[session.sessionId]?.entries.count, 3)
+        let entries = model.activities[session.sessionId]?.entries
+        XCTAssertEqual(entries?.count, 4)
+        XCTAssertEqual(entries?.first?.kind, "user")
         XCTAssertEqual(session.childThreads?.count, 2)
         XCTAssertEqual(session.mcpServers?.count, 3)
         assertRendered(

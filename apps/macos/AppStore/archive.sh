@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../../.." && pwd)"
-export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p)}"
 archive="${GRANTTAP_MAC_ARCHIVE:-$root/.release/mac-store/GrantTap.xcarchive}"
 args=()
 if [[ "${GRANTTAP_UNSIGNED_ARCHIVE:-0}" == 1 ]]; then args+=(CODE_SIGNING_ALLOWED=NO); fi

@@ -7,7 +7,7 @@ enum UsageDemoFixtures {
     -> [CapabilityUsageEvent] {
         [
             CapabilityUsageEvent(id: "demo-mcp-1", sourceId: "demo:mcp:1",
-                                 agent: "codex", model: "gpt-5.6-sol", kind: .mcp,
+                                 agent: "codex", model: "gpt-6-sol", kind: .mcp,
                                  name: "github", sessionId: AppModelDemoFixtures.codexSessionId,
                                  createdAt: now - 90_000, toolName: "search_issues",
                                  durationMs: 840, outcome: .success,
@@ -17,7 +17,7 @@ enum UsageDemoFixtures {
                                     sampleWindowMs: 840
                                  )),
             CapabilityUsageEvent(id: "demo-cli-1", sourceId: "demo:cli:1",
-                                 agent: "codex", model: "gpt-5.6-sol", kind: .cli,
+                                 agent: "codex", model: "gpt-6-sol", kind: .cli,
                                  name: "rg", sessionId: AppModelDemoFixtures.codexSessionId,
                                  createdAt: now - 150_000, toolName: "exec_command",
                                  durationMs: 120, outcome: .success),

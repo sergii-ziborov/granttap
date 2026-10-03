@@ -133,7 +133,7 @@ enum AppModelDemoFixtures {
                 taskId: AppModelDemoMeshFixtures.releaseTaskId, computerId: "Workstation",
                 title: L("GrantTap release audit"), cwd: "/Users/reviewer/granttap",
                 branch: "release/1.0", worktree: "/Users/reviewer/granttap-release",
-                model: "gpt-5.6-sol",
+                model: "gpt-6-sol",
                 state: "working", startedAt: now - 12 * 60 * 1000, lastActivityAt: now,
                 tokensSession: 18_420, tokensLastTurn: 1_284,
                 contextTokensUsed: 227_400, contextWindow: 258_400,
@@ -204,6 +204,11 @@ enum AppModelDemoFixtures {
             codexSessionId: SessionActivity(
                 type: "session.activity", sessionId: codexSessionId, agent: "codex",
                 state: "working", entries: [
+                    ActivityEntry(
+                        id: "demo-user-request", kind: "user",
+                        text: L("Complete the GrantTap release audit"),
+                        createdAt: now - 70_000
+                    ),
                     ActivityEntry(
                         id: "demo-message", kind: "message",
                         text: L("Checking the release metadata, privacy manifest, and public links."),

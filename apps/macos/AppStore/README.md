@@ -60,3 +60,8 @@ Built-in native About and Help are connected to the main-window Settings flow.
 English/Russian Terms, Privacy, licenses, pricing and device help are bundled
 for offline reading. Apple's Standard EULA applies until a custom EULA is
 actually configured; the Mac terms additionally grant own-relay use.
+
+An optional account passkey can sign in on Mac and iPhone and authorize a
+coding-app request through the Mac's local bridge. Account sign-in is distinct
+from phone pairing: QR remains account-free, and an encrypted device-link
+ceremony must transfer a fresh pairing half before the phone can connect.

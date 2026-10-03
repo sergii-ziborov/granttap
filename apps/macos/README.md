@@ -115,3 +115,9 @@ open the same pages as Settings in the main window. Terms, Privacy, licenses
 and pricing are bundled in English and Russian and readable without internet.
 Help covers device QR pairing, computer links, local MCP authorization, hooks,
 purchase restoration, Personal and direct/self-hosted delivery.
+
+Optional GrantTap account sign-in uses a passkey shared through the user's
+credential provider. The Mac still authorizes its local MCP bridge and links
+each phone separately; account sign-in by itself neither imports a pairing key
+nor grants a coding app access. A fresh passkey assertion can authorize a
+coding app through `granttap.com/connect` when the local bridge is available.
