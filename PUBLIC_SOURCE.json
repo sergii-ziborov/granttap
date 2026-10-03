@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "86bc4719140c0b20f2750eabc231ea859ac569cd",
+  "sourceCommit": "37c23e006b06c7109998a8bea2daa4fdd7eb826d",
   "files": [
     {
       "path": "LICENSE",
@@ -3396,7 +3396,7 @@
     },
     {
       "path": "apps/macos/AppStore/archive.sh",
-      "sha256": "d44bfd175d308ae64f817fe91b4842f140ef3802a8af5486063864c7f5d314dd"
+      "sha256": "1dae3dc34ef1d96f946bca3952bad44fb6cf3bab99f5037df51807ac2fbf27d5"
     },
     {
       "path": "apps/macos/DESKTOP_EULA.md",
