@@ -1,13 +1,33 @@
 # GrantTap for Mac, iPhone, iPad and Apple Watch
 
-GrantTap is a personal control center for local coding agents. See running
-Tasks, answer approvals and questions, continue a chat, inspect tool activity,
-and organize related repositories in Project Mesh.
+> **See the work. Make the decision. Keep the Task moving.**
+
+GrantTap brings local coding-agent work into one control center on Mac, iPhone,
+iPad, and Apple Watch. See which Task needs you, answer approvals and questions
+with context, and return to its conversation without losing the history when a
+session or computer changes.
 
 A Task keeps its identity and history across provider sessions and computers.
-Claude Code and Codex are primary integrations; Cursor is Beta. Other providers
-are shown only at the control depth their implementation supports. Provider
-accounts and model tokens are separate from GrantTap purchases.
+Claude Code and Codex support the primary control paths. Cursor joins the Task
+view and supported local controls; Grok Build appears where its installed
+integration can report reliable work. Each provider shows the control depth it
+actually supports. Provider accounts and model tokens are separate from
+GrantTap purchases.
+
+[Explore the product](https://granttap.com) · [Read the journal](https://granttap.com/blog) ·
+[See availability](https://granttap.com/#availability)
+
+## The app in action
+
+| Now on iPhone | Task conversation | Project Mesh |
+| --- | --- | --- |
+| ![GrantTap Now with requests and active Tasks](docs/images/iphone-command-center.png) | ![GrantTap Task conversation and approvals](docs/images/iphone-chat.png) | ![GrantTap Project Mesh overview](docs/images/iphone-project-mesh.png) |
+
+These are GrantTap app screens with sample tasks and computers. They do not
+show private user work or claim a live repository scan. Apple Watch offers a
+compact [Needs You view](apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/01-root.jpg)
+and [approval screen](apps/ios/AppStore/Screenshots/en-US/Apple-Watch-46mm/02-approval.jpg),
+also captured with sample work.
 
 ## Mac
 
