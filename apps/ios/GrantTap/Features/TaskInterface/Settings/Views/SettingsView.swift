@@ -10,9 +10,6 @@ struct SettingsView: View {
     var onExitDemo: () -> Void
     var model: AppModel { modelOverride ?? environmentModel }
     @AppStorage(AppLocale.storageKey) private var language = "en"
-    @State private var showForgetConfirmation = false
-    @State private var showPairing = false
-    @State private var showControllerInvite = false
 
     init(modelOverride: AppModel? = nil, localComputer: String? = nil,
          localPaired: Bool? = nil, localRelayStatus: String? = nil,
@@ -28,21 +25,6 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            #if targetEnvironment(macCatalyst)
-            MacLocalMCPSettingsSection(
-                computer: localComputer, paired: localPaired,
-                relayStatus: localRelayStatus,
-                phoneReachability: localPhoneReachability
-            )
-            #else
-            SettingsConnectionSection(
-                onPair: { showPairing = true },
-                onInviteController: { showControllerInvite = true },
-                onForgetAll: { showForgetConfirmation = true },
-                localComputer: localComputer
-            )
-            #endif
-
             AgentsMeshSettingsSection(model: model)
 
             Section(L("Company")) {
@@ -98,18 +80,6 @@ struct SettingsView: View {
         #if targetEnvironment(macCatalyst)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .sheet(isPresented: $showPairing) { PairingSheet().environmentObject(model) }
-        .sheet(isPresented: $showControllerInvite) {
-            ControllerNetworkInviteSheet().environmentObject(model)
-        }
-        .confirmationDialog(L("Unlink all computers?"),
-                            isPresented: $showForgetConfirmation,
-                            titleVisibility: .visible) {
-            Button(L("Unlink all"), role: .destructive) { model.forgetPairing() }
-            Button(L("Cancel"), role: .cancel) {}
-        } message: {
-            Text(L("This removes every linked computer and local session state from this iPhone."))
-        }
     }
 
     private var helpSection: some View {

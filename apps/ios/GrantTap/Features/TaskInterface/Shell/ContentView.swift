@@ -12,6 +12,7 @@ enum PersonalTab: Hashable {
     case tasks
     case projects
     case usage
+    case devices
     case settings
 }
 
@@ -24,7 +25,6 @@ struct ContentView: View {
     @ObservedObject var security: SecurityGate
     @State var selectedTab: PersonalTab = .now
     @State var showPairing = false
-    @State var showAccountConnection = false
     @State var showMeshJoin = false
     @State var showSettings = false
     @State var showConnectionDetail = false
@@ -35,6 +35,7 @@ struct ContentView: View {
     /// What was in front when the screen went dark or the lock came down.
     @State var lockedAway: LockedAway?
     @State var openedTaskRoute: TaskRoute?
+    @State var handoffSession: SessionInfo?
     @StateObject var dictator: Dictator
     @FocusState var composeFocused: Bool
     @State var replyRequestId: String?
@@ -75,6 +76,7 @@ struct ContentView: View {
         case "tasks": return .tasks
         case "projects": return .projects
         case "usage": return .usage
+        case "devices": return .devices
         #if targetEnvironment(macCatalyst)
         case "settings": return .settings
         #endif
@@ -154,7 +156,8 @@ struct ContentView: View {
             #if targetEnvironment(macCatalyst)
             ZStack {
                 HStack(spacing: 0) {
-                    if macLocalMCP.isReady || model.pairing != nil || model.demoMode || selectedTab == .settings {
+                    if macLocalMCP.isReady || model.pairing != nil || model.demoMode
+                        || selectedTab == .settings || selectedTab == .devices {
                         macSidebar
                         Divider()
                     }
@@ -173,9 +176,6 @@ struct ContentView: View {
             #endif
         }
         .sheet(isPresented: $showPairing) { PairingSheet().environmentObject(model) }
-        .sheet(isPresented: $showAccountConnection) {
-            AccountConnectionView { model.addConnection($0) }
-        }
         .sheet(isPresented: $showMeshJoin) {
             PairingSheet(purpose: .joinProject).environmentObject(model)
         }
@@ -200,6 +200,9 @@ struct ContentView: View {
         .sheet(item: $openedTaskRoute) { route in
             TaskRouteView(route: route, model: model) { session in open(session) }
         }
+        .sheet(item: $handoffSession) { session in
+            TaskHandoffSheet(session: session, model: model)
+        }
         .onChange(of: model.sessions) { sessions in
             openRequestedSession(from: sessions)
             if let selected = composeSessionId, replyRequestId == nil,
@@ -219,6 +222,11 @@ struct ContentView: View {
         }
         .onChange(of: model.sessionToOpen) { _ in openRequestedSession(from: model.sessions) }
         .onReceive(SubscriptionStore.shared.$entitlement) { _ in
+            #if !DEBUG
+            for client in model.relaysByRoom.values { client.forceReconnect() }
+            #endif
+        }
+        .onReceive(SubscriptionStore.shared.$betaRelayAccess) { _ in
             #if !DEBUG
             for client in model.relaysByRoom.values { client.forceReconnect() }
             #endif

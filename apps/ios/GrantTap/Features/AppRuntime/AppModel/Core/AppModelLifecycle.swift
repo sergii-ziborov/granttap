@@ -13,6 +13,7 @@ extension AppModel {
         #endif
         WatchBridge.shared.start()
         loadConnectionRegistry()
+        startAccountSpaceSync()
         loadCachedSessionCatalogIfNeeded()
         if !demoMode,
            sessions.contains(where: { Self.isGrantTapDemoSessionId($0.sessionId) })

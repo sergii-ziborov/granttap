@@ -1,6 +1,7 @@
 # GrantTap Mac App Store metadata
 
-Prepared for version 1.0, revised 2026-09-29.
+Prepared for version 1.0, revised 2026-10-08. The four-tier Personal pricing
+below remains pending App Store Connect configuration and review.
 
 - Marketing URL: https://granttap.com
 - Support URL: https://granttap.com/support
@@ -44,9 +45,10 @@ mode uses your endpoint for pairing and delivery. Supply a reachable TLS proxy
 or VPN. Router ports, APNs credentials and guaranteed background delivery are
 not included. Computers in one room use the same relay endpoint.
 
-Subscription: Personal managed delivery is $1.99/month for one computer,
-$3.99/month for up to five or $5.99/month for up to ten, with a seven-day trial
-for eligible new subscribers. Agents are not counted. Local prices and trial
+Subscription: Personal managed delivery is $1.99/month for up to two computers,
+$3.99/month for up to five, $5.99/month for up to ten, or $9.99/month for up to
+fifteen, with a seven-day trial for eligible new subscribers. Agents are not
+counted. Local prices and trial
 eligibility follow Apple's purchase sheet. Subscription renews automatically
 unless cancelled at least 24 hours before the period ends; manage it in Apple
 settings. Cancelling Personal does not revoke the Mac License. Apple handles
@@ -101,8 +103,8 @@ Account. Подписка Personal необязательна и не замен
 ключи APNs и гарантированная фоновая доставка не включены. Компьютеры одной
 комнаты используют общий endpoint.
 
-Подписка Personal оплачивает управляемую доставку: $1,99/месяц за один компьютер,
-$3,99 — до пяти, $5,99 — до десяти, с семью пробными днями для подходящих новых
+Подписка Personal оплачивает управляемую доставку: $1,99/месяц — до двух компьютеров,
+$3,99 — до пяти, $5,99 — до десяти, $9,99 — до пятнадцати, с семью пробными днями для подходящих новых
 подписчиков. Агентов не считают. Локальные цены и право на пробный период
 указаны в окне Apple. Подписка продлевается автоматически, если не отменить её
 минимум за 24 часа до конца периода. Управляйте в настройках Apple. Отмена

@@ -3,6 +3,7 @@ import SwiftUI
 
 @MainActor
 struct SubscriptionView: View {
+    private static let appleSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
     @ObservedObject var store: SubscriptionStore
     private let offersOverride: [SubscriptionOffer]?
 
@@ -44,7 +45,7 @@ struct SubscriptionView: View {
 
             Section(L("Manage")) {
                 Button(L("Restore purchases")) { Task { await store.restore() } }
-                Button(L("Manage subscription")) { Task { await store.manage() } }
+                manageSubscriptionLink
                 Link("Terms of Use", destination: URL(string: "https://granttap.com/terms")!)
                 Link("Privacy Policy", destination: URL(string: "https://granttap.com/privacy")!)
                 NavigationLink(L("Pricing and connection modes")) {
@@ -121,7 +122,7 @@ struct SubscriptionView: View {
     func productRow(_ offer: SubscriptionOffer) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Image(systemName: offer.seatLimit == 1 ? "desktopcomputer" : "macpro.gen3")
+                Image(systemName: offer.seatLimit <= 2 ? "desktopcomputer" : "macpro.gen3")
                     .foregroundStyle(Theme.claude)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(offer.summary).font(.headline)
@@ -146,14 +147,32 @@ struct SubscriptionView: View {
             Text("7-day free trial for eligible new subscribers; then \(offer.displayPrice) per month. Renews automatically until cancelled.")
                 .font(.caption).foregroundStyle(Theme.muted)
 
-            Button(isCurrent(offer) ? "Manage" : "Subscribe") {
-                if isCurrent(offer) { Task { await store.manage() } } else { subscribe(offer) }
+            if isCurrent(offer) {
+                #if targetEnvironment(macCatalyst)
+                Link(L("Manage"), destination: Self.appleSubscriptions)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("subscription.\(offer.id)")
+                #else
+                Button(L("Manage")) { Task { await store.manage() } }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("subscription.\(offer.id)")
+                #endif
+            } else {
+                Button(L("Subscribe")) { subscribe(offer) }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Theme.claude)
+                    .accessibilityIdentifier("subscription.\(offer.id)")
             }
-            .buttonStyle(.borderedProminent)
-            .tint(isCurrent(offer) ? Theme.muted : Theme.claude)
-            .accessibilityIdentifier("subscription.\(offer.id)")
         }
         .padding(.vertical, 5)
+    }
+
+    @ViewBuilder private var manageSubscriptionLink: some View {
+        #if targetEnvironment(macCatalyst)
+        Link(L("Manage subscription"), destination: Self.appleSubscriptions)
+        #else
+        Button(L("Manage subscription")) { Task { await store.manage() } }
+        #endif
     }
 
     func subscribe(_ offer: SubscriptionOffer) {

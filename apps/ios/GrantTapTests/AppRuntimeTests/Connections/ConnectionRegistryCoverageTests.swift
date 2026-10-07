@@ -2,6 +2,43 @@ import XCTest
 @testable import GrantTap
 
 extension AppRuntimeTests {
+    func testOlderStoredComputerWithoutRecoveryTimestampKeepsItsAccountLink() throws {
+        let pairing = coveragePairing(label: "a", name: "Mac")
+        let reference = AccountMachineReference(accountId: "account", machineId: "machine")
+        let linked = ConnectionRegistryLogic.noteAccountRecovery(
+            ConnectionRegistryLogic.upsert(.empty, pairing: pairing),
+            roomId: pairing.room, peerPublicKey: pairing.peerPublicKey, reference: reference)
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(
+            with: JSONEncoder().encode(linked.connections[0])) as? [String: Any])
+        json.removeValue(forKey: "lastRecoveredAt")
+        let restored = try JSONDecoder().decode(LinkedComputer.self,
+                                                from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertEqual(restored.accountReference, reference)
+        XCTAssertNil(restored.lastRecoveredAt)
+    }
+
+    @MainActor
+    func testPasskeyLinkMergesWithQRComputersWithoutChangingChatDestination() {
+        let first = coveragePairing(label: "a", name: "First Mac")
+        let second = coveragePairing(label: "b", name: "Second Mac")
+        var registry = ConnectionRegistryLogic.upsert(.empty, pairing: first)
+        registry = ConnectionRegistryLogic.upsert(registry, pairing: second, prefer: false)
+        let credential = AccountMachineCredential(
+            accountId: UUID().uuidString, machineId: UUID().uuidString,
+            machineToken: String(repeating: "A", count: 43)
+        )
+        registry = ConnectionRegistryLogic.noteAccountLink(
+            registry, roomId: first.room, peerPublicKey: first.peerPublicKey,
+            credential: credential
+        )
+        XCTAssertEqual(registry.connections.count, 2)
+        XCTAssertEqual(registry.preferredId, first.room)
+        XCTAssertEqual(registry.connections.first?.accountCredential, credential)
+        XCTAssertNil(registry.connections.last?.accountCredential)
+        registry = ConnectionRegistryLogic.upsert(registry, pairing: first)
+        XCTAssertEqual(registry.connections.first?.accountCredential, credential)
+    }
+
     @MainActor
     func testConnectionRegistryPersistsPrefersAndUnlinksWithoutCrossRoomLeakage() {
         let stored = PairedConnectionStore.load()

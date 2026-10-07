@@ -22,8 +22,14 @@ bash build-app.sh
 ```
 
 The result is `dist/GrantTap.app`. Xcode and the Apple client's Swift Package
-dependencies are required. `build-app.sh` embeds the graph resources and signs
-the local development build ad hoc. It does not install or publish the app.
+dependencies are required. Install a Mac Catalyst App Development profile for
+`com.ziborov.granttap` at
+`~/Library/MobileDevice/Provisioning Profiles/GrantTapMacCatalystDevelopment.provisionprofile`,
+or set `GRANTTAP_MAC_PROFILE` to another profile path.
+The script validates the profile, embeds the graph resources, and signs with an
+Apple Development identity. Passkeys need that profile, the GrantTap application
+identifier, and the `webcredentials` associated domain. The script does not
+install or publish the app.
 The app detects the GrantTap MCP service on this Mac at launch and reads its
 local Mesh and Task data. If the service is unavailable, the app offers the MCP
 installation instructions and a retry action. Pairing this computer with other
@@ -62,10 +68,15 @@ device-only Keychain. This works without the product website. Debug/LocalTest
 builds remain explicit source evaluation builds and use the private same-user
 socket. They detect MCP at launch and never automatically enter demo mode.
 
-Store preparation is documented in [App Store](AppStore/README.md). A local
+[Mac availability](https://granttap.com/mac) tracks the release. A local
 ad-hoc build is neither notarized nor an App Store distribution archive. The
 store upload requires the owner's distribution signing and provisioning,
 paid-app agreement, editable Mac platform record and final physical checks.
+The [English](AppStore/Screenshots/en-US/Mac) and
+[Russian](AppStore/Screenshots/ru/Mac) Mac screenshot sets were captured on
+2026-10-08 from a signed SwiftUI Catalyst demo build. They show sample tasks,
+not live private work. The macOS 1.0 platform record exists in App Store
+Connect; a TestFlight build still needs its own archive and processing check.
 
 For the native App Sandbox connection, code-tower refresh and live Mesh
 statistics, use a runtime built from MCP 0.8.28 source or later.

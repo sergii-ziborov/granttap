@@ -97,6 +97,8 @@ struct TaskCapsule: Codable, Equatable {
     let targetProvider: String
     var targetActorId: String? = nil
     let targetComputer: String
+    var targetModel: String? = nil
+    var userComment: String? = nil
     let repository: String
     let baseSha: String
     var branch: String?
@@ -262,6 +264,8 @@ struct ProjectMeshHandoffPrepare: Codable, Equatable {
     let targetProvider: String
     var targetActorId: String? = nil
     let targetComputer: String
+    var targetModel: String? = nil
+    var userComment: String? = nil
     let createdAt: Double
     /// Commit uncommitted work to a checkpoint branch on the source computer
     /// first. Local unless `push` is asked for as well.

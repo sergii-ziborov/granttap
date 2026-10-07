@@ -24,11 +24,13 @@ extension ContentView {
                 .foregroundStyle(Theme.muted)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Button(L("Connect a computer")) { showPairing = true }
+            Button(L("Open Account Mesh")) { selectedTab = .devices }
                 .buttonStyle(FilledButton(tint: Theme.claude))
             #if !targetEnvironment(macCatalyst)
-            Button(L("Sign in with passkey")) { showAccountConnection = true }
+            Button(L("Add a device (Scan QR)")) { showPairing = true }
                 .buttonStyle(OutlineButton(tint: Theme.ink))
+            Text(L("Your Account Mesh works before any computer is added."))
+                .font(.caption).foregroundStyle(Theme.muted)
             #endif
             Button(L("Explore demo")) { model.startDemo() }
                 .buttonStyle(OutlineButton(tint: Theme.ink))
@@ -36,5 +38,4 @@ extension ContentView {
         .card()
     }
 
-    // MARK: pending approvals
 }

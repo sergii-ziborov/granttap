@@ -50,8 +50,9 @@ extension ContentView {
 
     func handleScenePhase(_ phase: ScenePhase) {
         if phase == .background { LoadHistoryPersistence.flush() }
-        if phase != .active && security.enabled { putAway() }
+        if phase == .background && security.enabled { putAway() }
         if phase == .active {
+            model.startAccountSpaceSync()
             if model.connected { model.retryQueuedDeliveries() }
             if model.needsForegroundCatalogRecovery {
                 model.recoverCatalogAfterForeground()

@@ -81,7 +81,7 @@ struct ProjectsTabView: View {
                 }
                 .accessibilityIdentifier("mesh.join")
             } footer: {
-                Text(L("Join a Mesh shared by another person. Computers join in Settings."))
+                Text(L("Join a Mesh shared by another person. Computers join in Devices."))
             }
             #endif
         }

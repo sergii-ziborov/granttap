@@ -11,13 +11,28 @@ struct AccountComputer: Decodable, Identifiable {
 enum AccountRecovery {
     static func computers(session: GrantTapAccountSession,
                           transport: URLSession = .shared) async throws -> [AccountComputer] {
-        let response = try await GrantTapAccountAPI.json("machines", token: session.token,
-                                                         transport: transport)
-        guard let rows = response["machines"] as? [[String: Any]],
-              let data = try? JSONSerialization.data(withJSONObject: rows) else {
-            throw AccountBridgeError.invalidResponse
+        var all: [AccountComputer] = []
+        var cursor: String?
+        var seenCursors = Set<String>()
+        var seenMachines = Set<String>()
+        for _ in 0..<100 {
+            let path = "machines?pageSize=100" + (cursor.map { "&cursor=\($0)" } ?? "")
+            let response = try await GrantTapAccountAPI.json(path, token: session.token,
+                                                             transport: transport)
+            guard let rows = response["machines"] as? [[String: Any]],
+                  let data = try? JSONSerialization.data(withJSONObject: rows),
+                  let page = try? JSONDecoder().decode([AccountComputer].self, from: data)
+            else { throw AccountBridgeError.invalidResponse }
+            for machine in page where seenMachines.insert(machine.id).inserted {
+                all.append(machine)
+            }
+            guard let next = response["nextCursor"] as? String else { return all }
+            guard !next.isEmpty, seenCursors.insert(next).inserted else {
+                throw AccountBridgeError.invalidResponse
+            }
+            cursor = next
         }
-        return try JSONDecoder().decode([AccountComputer].self, from: data)
+        throw AccountBridgeError.invalidResponse
     }
 
     static func connect(_ computer: AccountComputer,

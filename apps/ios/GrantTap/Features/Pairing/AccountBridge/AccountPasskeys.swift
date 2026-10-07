@@ -18,6 +18,16 @@ enum AccountBridgeError: LocalizedError {
         case .storage: return L("The account session could not be saved on this device.")
         }
     }
+
+    static func presentationMessage(for error: Error) -> String? {
+        if error is CancellationError { return nil }
+        let authorizationError = error as NSError
+        if authorizationError.domain == ASAuthorizationErrorDomain,
+           authorizationError.code == ASAuthorizationError.Code.canceled.rawValue {
+            return nil
+        }
+        return error.localizedDescription
+    }
 }
 
 enum GrantTapAccountAPI {
@@ -30,6 +40,16 @@ enum GrantTapAccountAPI {
     }
 
     static func clearSession() { KeychainPairing.remove(service: keychainService) }
+
+    static func deleteAccount(_ session: GrantTapAccountSession,
+                              transport: URLSession = .shared) async throws {
+        let result = try await json("me", method: "DELETE", token: session.token,
+                                    transport: transport)
+        guard result["deleted"] as? Bool == true else {
+            throw AccountBridgeError.invalidResponse
+        }
+        if self.session?.accountId == session.accountId { clearSession() }
+    }
 
     @MainActor static func authenticate(register: Bool,
                                          transport: URLSession = .shared) async throws -> GrantTapAccountSession {
@@ -93,7 +113,10 @@ enum GrantTapAccountAPI {
 
     static func json(_ path: String, method: String = "GET", body: [String: Any]? = nil,
                      token: String? = nil, transport: URLSession = .shared) async throws -> [String: Any] {
-        var request = URLRequest(url: root.appendingPathComponent(path))
+        guard let url = URL(string: path, relativeTo: root)?.absoluteURL else {
+            throw AccountBridgeError.invalidResponse
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.timeoutInterval = 12
         request.setValue("application/json", forHTTPHeaderField: "Accept")

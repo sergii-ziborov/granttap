@@ -17,6 +17,7 @@ final class SubscriptionStore: ObservableObject {
 
     @Published private(set) var products: [Product] = []
     @Published private(set) var entitlement: SubscriptionEntitlement = .unavailable
+    @Published private(set) var betaRelayAccess = false
     @Published private(set) var availability: Availability = .loading
     @Published private(set) var purchaseInProgress = false
     @Published private(set) var lastError: String?
@@ -35,6 +36,7 @@ final class SubscriptionStore: ObservableObject {
     private var observer: Task<Void, Never>?
     private let productLoader: ProductLoader
     private let snapshotLoader: SnapshotLoader
+    private let betaEnvironmentLoader: () async -> Bool
     private let storeSync: StoreSync
     private let manageSubscriptions: ManageSubscriptions
 
@@ -47,6 +49,13 @@ final class SubscriptionStore: ObservableObject {
             try await Product.products(for: SubscriptionProduct.allCases.map(\.rawValue))
         },
         snapshotLoader: @escaping SnapshotLoader = { await SubscriptionStoreEvidence.load($0) },
+        betaEnvironmentLoader: @escaping () async -> Bool = {
+            guard !AppRuntime.isRunningUnitTests else { return false }
+            guard #available(iOS 16.0, macCatalyst 16.0, *) else { return false }
+            guard let result = try? await AppTransaction.shared,
+                  case .verified(let transaction) = result else { return false }
+            return transaction.environment == .sandbox
+        },
         storeSync: @escaping StoreSync = { try await AppStore.sync() },
         manageSubscriptions: @escaping ManageSubscriptions = {
             try await AppStore.showManageSubscriptions(in: $0)
@@ -57,6 +66,7 @@ final class SubscriptionStore: ObservableObject {
         self.lastError = lastError
         self.productLoader = productLoader
         self.snapshotLoader = snapshotLoader
+        self.betaEnvironmentLoader = betaEnvironmentLoader
         self.storeSync = storeSync
         self.manageSubscriptions = manageSubscriptions
         if startObserving {
@@ -72,8 +82,27 @@ final class SubscriptionStore: ObservableObject {
     deinit { observer?.cancel() }
 
     func start() async {
+        await prepareTransport()
+        await loadStorefront()
+    }
+
+    /// Relay routing must wait for verified access, not product discovery.
+    func prepareTransport() async {
+        await refreshBetaRelayAccess()
+        await refresh()
+    }
+
+    func loadStorefront() async {
         await loadProducts()
         await refresh()
+    }
+
+    var allowsManagedTransport: Bool {
+        betaRelayAccess || entitlement.state.allowsRemoteInfrastructure
+    }
+
+    func refreshBetaRelayAccess() async {
+        betaRelayAccess = await betaEnvironmentLoader()
     }
 
     func loadProducts() async {

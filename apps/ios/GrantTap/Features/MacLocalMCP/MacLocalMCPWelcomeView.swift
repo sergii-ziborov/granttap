@@ -6,11 +6,12 @@ struct MacLocalMCPWelcomeView: View {
     let checked: Bool
     let refreshing: Bool
     let found: Bool
+    let accountLinked: Bool
     let onRetry: () -> Void
     let onSettings: () -> Void
+    let onDevices: () -> Void
 
     @ObservedObject private var access = MacNativeAccess.shared
-    @State private var showingAccount = false
     private let installURL = URL(string: "https://granttap.com/#install")!
 
     var body: some View {
@@ -33,22 +34,40 @@ struct MacLocalMCPWelcomeView: View {
                     }
                     .foregroundStyle(Theme.muted)
                 } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L("Your Account Mesh is ready before any computer joins."))
+                            .font(.system(size: 19, weight: .semibold))
+                        Text(L("Use the same passkey as iPhone or iPad. Add this Mac later; each Task keeps its own computer route."))
+                            .foregroundStyle(Theme.muted)
+                        Button(L("Open Devices and Account Mesh"), action: onDevices)
+                            .buttonStyle(FilledButton(tint: Theme.claude))
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18))
+
                     Text(found
-                         ? L("GrantTap MCP cannot read this Mac's Mesh yet.")
+                         ? (access.token == nil
+                            ? L("GrantTap for Mac needs local access.")
+                            : L("GrantTap MCP cannot read this Mac's Mesh yet."))
                          : L("GrantTap MCP is unavailable on this Mac."))
                         .font(.system(size: 19, weight: .semibold))
                     Text(found
-                         ? L("Check the local MCP service and try again.")
+                         ? (access.token == nil
+                            ? (accountLinked
+                               ? L("This MCP is already linked to an account. Sign in with the same passkey in Devices to unlock this Mac app, or authorize local access below.")
+                               : L("Authorize this Mac app to inspect tasks and link your passkey account."))
+                            : L("Check the local MCP service and try again."))
                          : L("Install GrantTap MCP on this Mac, then check again. If it is already installed, make sure its local service is running."))
                         .foregroundStyle(Theme.muted)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if found {
-                        Button(L("Account and passkey")) { showingAccount = true }
-                            .buttonStyle(FilledButton(tint: Theme.claude))
                         Button(L("Authorize local Mac access")) {
                             Task { await access.authorize(); onRetry() }
-                        }.disabled(access.busy)
+                        }
+                        .buttonStyle(FilledButton(tint: Theme.claude))
+                        .disabled(access.busy)
                         if let error = access.lastError { Text(error).foregroundStyle(Theme.riskHigh) }
                     }
                     if !found {
@@ -85,9 +104,6 @@ struct MacLocalMCPWelcomeView: View {
             .frame(maxWidth: .infinity, minHeight: 480, alignment: .top)
         }
         .background(Theme.bg)
-        .sheet(isPresented: $showingAccount) {
-            AccountConnectionView(onPaired: { _ in false }, allowsRecovery: false)
-        }
     }
 }
 #endif

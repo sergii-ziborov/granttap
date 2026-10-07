@@ -157,6 +157,19 @@ final class SettingsLifecycleCoverageTests: XCTestCase {
         content.handleScenePhase(.active)
     }
 
+    func testSystemSubscriptionSheetDoesNotDismissProtectedChatOnInactive() {
+        XCTAssertTrue(AppPinStore.save("123456"))
+        UserDefaults.standard.set(true, forKey: enabledKey)
+        let gate = SecurityGate(authenticator: SettingsAuthenticator())
+        XCTAssertTrue(gate.unlockWithPin("123456"))
+        let content = ContentView(modelOverride: AppModel(), security: gate,
+                                  openedSession: OpenSession(id: "chat"))
+        content.handleScenePhase(.inactive)
+        XCTAssertEqual(content.openedSession?.id, "chat")
+        XCTAssertNil(content.lockedAway)
+        XCTAssertFalse(gate.locked)
+    }
+
     func testDebugLifecycleSeedsUsageAndExercisesCaptureLaunchRoutes() async {
         let keys = [
             "GRANTTAP_DEMO", "GRANTTAP_CAPTURE_TAB", "GRANTTAP_OPEN_SESSION",

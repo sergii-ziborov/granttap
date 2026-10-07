@@ -250,6 +250,7 @@ enum ProjectMeshLogic {
                 sourceProvider: capsule.sourceProvider, sourceActorId: capsule.sourceActorId,
                 sourceComputer: capsule.sourceComputer, targetProvider: capsule.targetProvider,
                 targetActorId: capsule.targetActorId, targetComputer: capsule.targetComputer,
+                targetModel: capsule.targetModel, userComment: capsule.userComment,
                 repository: capsule.repository, baseSha: capsule.baseSha, branch: capsule.branch,
                 latestCommit: capsule.latestCommit, dirtyDiffHash: capsule.dirtyDiffHash,
                 workingTree: capsule.workingTree, filesChanged: capsule.filesChanged, testsStatus: capsule.testsStatus,
@@ -274,16 +275,6 @@ enum ProjectMeshLogic {
             targetSessionId: event.targetSessionId, eventType: event.eventType, createdAt: event.createdAt,
             expiresAt: event.expiresAt, payload: payload
         )
-    }
-
-    /// Without a `prefer` rule the later array simply wins, which is only safe
-    /// for entities a late copy cannot make wrong.
-    /// A binding retired under a computer's former name is that computer's
-    /// leftover, not a second computer: while the same repository is offered
-    /// by an available binding, the unavailable twin is not listed.
-    static func visibleBindings(_ bindings: [ProjectBindingSummary]) -> [ProjectBindingSummary] {
-        let offered = Set(bindings.filter(\.available).map(\.repositoryId))
-        return bindings.filter { $0.available || !offered.contains($0.repositoryId) }
     }
 
     private static func merge<T, Key: Hashable>(

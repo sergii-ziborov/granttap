@@ -17,6 +17,9 @@ final class AppModel: ObservableObject {
     @Published var pairing: Pairing? = nil
     /// All linked Mac/PC rooms (3–4+ is normal). Preferred drives chat catalog.
     @Published var connectionRegistry: ConnectionRegistry = .empty
+    var accountSpaceSyncTask: Task<Void, Never>?
+    var accountSpaceSyncGeneration: UUID?
+    var lastAccountSpaceSyncAt: TimeInterval = 0
     @Published var demoMode = false
     @Published var connected = false
     /// Offline grace — brief WS blips must not flicker the Connected pill.

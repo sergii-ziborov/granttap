@@ -12,7 +12,8 @@ enum ProjectMeshWireValidator {
     ]
     private static let capsuleKeys: Set<String> = [
         "taskId", "goal", "currentStatus", "sourceProvider", "sourceActorId", "sourceComputer",
-        "targetProvider", "targetActorId", "targetComputer", "repository", "baseSha", "branch",
+        "targetProvider", "targetActorId", "targetComputer", "targetModel", "userComment",
+        "repository", "baseSha", "branch",
         "latestCommit", "dirtyDiffHash", "workingTree", "filesChanged", "testsStatus",
         "dependencies", "resourceClaims", "remainingWork", "importantDecisions", "checkpoint", "createdAt",
     ]
@@ -248,6 +249,11 @@ enum ProjectMeshWireValidator {
         else { return false }
         if let workingTree = capsule["workingTree"],
            !workingTreeStates.contains(boundedString(workingTree, max: 16) ?? "") { return false }
+        if let targetModel = capsule["targetModel"] as? String,
+           !validModelId(targetModel) { return false }
+        if capsule["targetModel"] != nil && !(capsule["targetModel"] is String) { return false }
+        if capsule["userComment"] != nil,
+           boundedString(capsule["userComment"], max: 1_000) == nil { return false }
         if let checkpoint = capsule["checkpoint"] {
             guard let value = checkpoint as? [String: Any], Set(value.keys) == checkpointKeys,
                   CapsuleCheckpoint.statuses.contains(boundedString(value["status"], max: 16) ?? ""),
@@ -262,6 +268,11 @@ enum ProjectMeshWireValidator {
             guard boundedString(capsule["targetActorId"], max: 128) != nil else { return false }
         } else if capsule["targetActorId"] != nil { return false }
         return true
+    }
+
+    static func validModelId(_ value: String) -> Bool {
+        value.range(of: #"^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,159}$"#,
+                    options: .regularExpression) != nil
     }
 
     private static func boundedString(_ value: Any?, max: Int) -> String? {

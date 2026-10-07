@@ -1,13 +1,20 @@
 {
   "title": "Support",
-  "updated": "2026-09-29",
+  "updated": "2026-10-05",
   "intro": "Install the runtime, run setup, and authenticate the coding app. The one-time QR stays in the GrantTap connection card and is scanned on the phone — never in chat.",
   "sections": [
+    {
+      "heading": "Account Mesh and passkey",
+      "paragraphs": [
+        "Your Account Mesh exists on the relay after you create or sign in to a GrantTap account, even when it has no computers. It can contain many Projects and their Meshes; chats stay empty until a computer joins.",
+        "On iPhone, open Devices and sign in with passkey. Use the same passkey in GrantTap MCP to add this computer to the account. A QR is optional for a direct device link. Each Task keeps its own computer route."
+      ]
+    },
     {
       "heading": "Mac app and device connections",
       "bullets": [
         "Open Help → GrantTap Help for built-in guides. GrantTap → About GrantTap shows the version, purchase options, Terms, Privacy and licenses. These documents remain readable offline.",
-        "In the Mac app, use Settings → Device network → Connect iPhone or iPad to display a one-time QR. On the phone or tablet, use Settings → Connections → Add a device (Scan QR).",
+        "In the Mac app, use Devices → Connect iPhone or iPad to display a one-time QR. On the phone or tablet, use Devices → Add a device (Scan QR).",
         "To add a Mac or PC, choose Connect a computer by link and paste its one-time invitation. Existing device connections are preserved.",
         "Install the separate MCP helper on this Mac. A release build needs Authorize local Mac access; provider hooks may also need review in Codex."
       ]
@@ -15,9 +22,9 @@
     {
       "heading": "Purchase, restore and connection modes",
       "paragraphs": [
-        "The launch Mac License is planned at $39.99 in the US; Apple supplies the actual local price and availability. Personal is optional: $1.99 / $3.99 / $5.99 per month for 1 / 5 / 10 computers, with the eligible trial shown by Apple. Model tokens are separate.",
+        "The launch Mac License is planned at $39.99 in the US; Apple supplies the actual local price and availability. Personal is optional: $1.99 / $3.99 / $5.99 / $9.99 per month for up to 2 / 5 / 10 / 15 computers, with the eligible trial shown by Apple. Model tokens are separate.",
         "Use Restore purchases in Settings with the same Apple Account that made the purchase. Manage subscription opens Apple's controls. Deleting the app does not cancel a subscription.",
-        "A licensed Mac can use managed delivery with Personal, direct delivery using encrypted address discovery without Personal, or a fully self-hosted relay. Configure Settings → Device network → Connection mode & own relay. Direct and self-hosted delivery need a reachable TLS endpoint or VPN; an announced IP alone cannot cross NAT. You maintain your own server and backups. Background notifications require a suitable push service."
+        "A licensed Mac can use managed delivery with Personal, direct delivery using encrypted address discovery without Personal, or a fully self-hosted relay. Configure Devices → Device network → Connection mode & own relay. Direct and self-hosted delivery need a reachable TLS endpoint or VPN; an announced IP alone cannot cross NAT. You maintain your own server and backups. Background notifications require a suitable push service."
       ]
     },
     {

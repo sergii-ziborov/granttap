@@ -15,8 +15,17 @@ final class TaskHideRestoreUITests: XCTestCase {
         let task = app.buttons["task.task:granttap-project-demo\u{001F}granttap-pairing-task-demo"]
         XCTAssertTrue(task.waitForExistence(timeout: 10))
 
-        openContextMenu(on: task, until: app.buttons["Hide"])
-        tap(app.buttons["Hide"], until: { !task.exists })
+        task.swipeLeft()
+        let send = app.buttons["Send"]
+        XCTAssertTrue(send.waitForExistence(timeout: 5))
+        send.tap()
+        XCTAssertTrue(app.navigationBars["Task handoff"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textViews["handoff.comment"].exists)
+        app.buttons["Cancel"].tap()
+        task.swipeLeft()
+        let archive = app.buttons["Archive"]
+        XCTAssertTrue(archive.waitForExistence(timeout: 5))
+        tap(archive, until: { !task.exists })
         XCTAssertTrue(task.waitForNonExistence(timeout: 5))
 
         let hidden = app.buttons["tasks.hidden"]
@@ -32,22 +41,6 @@ final class TaskHideRestoreUITests: XCTestCase {
             hiddenNavigation.buttons.firstMatch.tap()
         }
         XCTAssertTrue(task.waitForExistence(timeout: 5))
-    }
-
-    /// A long press only opens the menu once the list has stopped rebuilding,
-    /// and pressing the element's own frame misses while it is being replaced.
-    /// Pressing the middle of its current frame, and asking again, is stable.
-    private func openContextMenu(
-        on element: XCUIElement, until item: XCUIElement,
-        file: StaticString = #filePath, line: UInt = #line
-    ) {
-        for _ in 0..<4 {
-            guard !item.exists else { return }
-            element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-                .press(forDuration: 1.2)
-            if item.waitForExistence(timeout: 4) { return }
-        }
-        XCTFail("the context menu never opened", file: file, line: line)
     }
 
     /// Taps until the interface actually moved on.

@@ -8,6 +8,7 @@ struct MacLocalMCPStatus: Decodable, Sendable {
     let service: String
     let computer: String
     let endpointId: String?
+    let accountLinkSaved: Bool?
     let version: String
     let paired: Bool
     let relayStatus: String?
@@ -224,24 +225,12 @@ enum MacLocalMCPClient {
 
     static func read(socketPath: String, operation: String, input: [String: String]?) async throws
         -> Data {
-        #if DEBUG
-        return try await Task.detached(priority: .userInitiated) {
-            try MacLocalMCPBridge(socketPath: socketPath).read(operation: operation, input: input)
-        }.value
-        #else
         return try await MacNativeTransport.invoke(operation: operation, input: input)
-        #endif
     }
     private static func catalogPage(socketPath: String, cursor: String?) async throws -> Data {
-        #if DEBUG
-        return try await Task.detached(priority: .userInitiated) {
-            try MacLocalMCPBridge(socketPath: socketPath).read(operation: "project.list", input: nil, catalogAfter: cursor)
-        }.value
-        #else
         var input: [String: Any] = ["limit": 50]
         if let cursor { input["after_project_id"] = cursor }
         return try await MacNativeTransport.invoke(operation: "project.list", input: input)
-        #endif
     }
 }
 

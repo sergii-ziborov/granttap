@@ -10,15 +10,16 @@ remove the Mac license. Restore Purchases rechecks verified StoreKit evidence.
 
 ## Personal
 
-The existing Personal monthly tiers are USD 1.99 for one computer, 3.99 for up
-to five, and 5.99 for up to ten. Agents are not counted. Eligible new subscribers
+The Personal monthly tiers are USD 1.99 for up to two computers, 3.99 for up
+to five, 5.99 for up to ten, and 9.99 for up to fifteen. Agents are not counted. Eligible new subscribers
 may receive a seven-day introductory trial. Auto-renewal, trial eligibility,
 price and refunds follow Apple's purchase sheet. Manage or restore in Settings.
 The same Apple Account can restore a universal app subscription on Mac and phone.
 
 Product IDs: `com.ziborov.granttap.personal.solo.monthly`,
-`com.ziborov.granttap.personal.monthly`, and
-`com.ziborov.granttap.personal.fleet.monthly`. Keep them in one subscription group.
+`com.ziborov.granttap.personal.monthly`,
+`com.ziborov.granttap.personal.fleet.monthly`, and
+`com.ziborov.granttap.personal.studio.monthly`. Keep them in one subscription group.
 Personal pays for managed encrypted relay delivery, bounded queues and supported
 APNs wake-up. It does not provide model tokens or an unrestricted web client.
 Verified StoreKit status determines client access; the relay's room credential
@@ -33,7 +34,7 @@ chat traffic to that endpoint. Fully self-hosted mode uses your endpoint for
 pairing and delivery; no managed directory is contacted. The iPhone does not
 need a separate subscription for that route. Apple Watch uses its paired iPhone.
 
-Use Settings → Device network on Mac. Install/start/stop the local relay there,
+Use Devices → Device network on Mac. Install/start/stop the local relay there,
 and connect iPhone/iPad with the existing one-time QR. Supply a reachable TLS
 endpoint or VPN; a computer behind NAT does not become reachable by announcing
 an IP address. All computers in a room use the same relay endpoint. Restart the

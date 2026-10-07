@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// What surrounds the tabs: the screen shown before a computer is paired,
-/// the tab bar itself, and the badge that says whether the phone is connected.
+/// Main navigation and the status of an individual linked computer.
 extension ContentView {
     var navigationTitle: String {
         switch selectedTab {
@@ -9,17 +8,8 @@ extension ContentView {
         case .tasks: return L("Tasks")
         case .projects: return L("Mesh")
         case .usage: return L("Usage")
+        case .devices: return L("Devices")
         case .settings: return L("Settings")
-        }
-    }
-
-    var onboarding: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Spacer(minLength: 50)
-                notPairedCard
-            }
-            .padding(16)
         }
     }
 
@@ -29,6 +19,9 @@ extension ContentView {
         #else
         TabView(selection: $selectedTab) {
             tabScroll {
+                if model.pairing == nil && GrantTapAccountAPI.session == nil && !model.demoMode {
+                    notPairedCard
+                }
                 pendingSection
                 nowSessionsSection
             }
@@ -48,6 +41,11 @@ extension ContentView {
             CapabilityUsageView()
                 .tabItem { Label(L("Usage"), systemImage: "chart.bar.xaxis") }
                 .tag(PersonalTab.usage)
+
+            DevicesView()
+                .environmentObject(model)
+                .tabItem { Label(L("Devices"), systemImage: "desktopcomputer") }
+                .tag(PersonalTab.devices)
         }
         #endif
     }

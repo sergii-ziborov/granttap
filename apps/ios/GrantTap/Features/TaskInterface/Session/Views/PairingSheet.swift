@@ -15,7 +15,6 @@ struct PairingSheet: View {
     @State private var json = ""
     @State private var error: String?
     @State private var scanning = false
-    @State private var showingAccount = false
     @State private var secureToken = ""
     private let relayBase = Pairing.currentRelayHTTP
     @State private var busy = false
@@ -83,19 +82,11 @@ struct PairingSheet: View {
                 QRScanView(
                     onCode: { scanned in
                         scanning = false
-                        // Fetch may still fail (single-use mailbox) — keep sheet + show error.
                         apply(scanned)
                     },
                     onCancel: { scanning = false },
                     cameraAuthorization: cameraAuthorization
                 )
-            }
-            .sheet(isPresented: $showingAccount) {
-                AccountConnectionView { pairing in
-                    guard consume(pairing) else { return false }
-                    finishPairing()
-                    return true
-                }
             }
             .overlay {
                 if busy {
@@ -129,12 +120,6 @@ struct PairingSheet: View {
             }
             .buttonStyle(FilledButton(tint: Theme.claude))
             .disabled(busy)
-
-            if purpose == .computer {
-                Button(L("Connect with passkey")) { showingAccount = true }
-                    .buttonStyle(OutlineButton())
-                    .disabled(busy)
-            }
 
             Text(purpose.scanExplanation)
                 .font(.system(size: 12.5))
@@ -244,7 +229,6 @@ struct PairingSheet: View {
         if purpose == .computer, let bundle = ControllerNetworkTransfer.bundleLink(from: text) {
             connectControllerNetwork(bundle)
         } else if let link = Pairing.secureLink(fromURI: text) {
-            // Stay on sheet with Connecting… — do not treat QR decode as success.
             connect(link)
         } else if let p = Pairing.fromURI(text) ?? Pairing.fromJSON(text) {
             guard Pairing.isValid(p) else {
@@ -295,5 +279,3 @@ struct PairingSheet: View {
         if let onPaired { onPaired() } else { dismiss() }
     }
 }
-
-// MARK: - settings and trust links

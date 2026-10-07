@@ -78,6 +78,25 @@ final class TaskHandoffSameComputerTests: XCTestCase {
         RenderProbe.render(capabilities.environmentObject(model))
     }
 
+    func testSameAgentCanMoveToAnotherModelWithAComment() {
+        let model = model(rooms: ["source"])
+        let sheet = TaskHandoffSheet(
+            session: session(), model: model, initialTargetRoom: "source",
+            initialTargetProvider: "claude", initialTargetModel: "opus"
+        )
+        XCTAssertFalse(sheet.sameAgentHere)
+        XCTAssertTrue(sheet.isReady)
+        let request = ProjectMeshHandoffPrepare(
+            type: "mesh.handoff.prepare", sessionId: "claude", projectId: "project",
+            taskId: "task", targetProvider: "claude", targetComputer: "source.lan",
+            targetModel: "opus", userComment: "Review the tests first.", createdAt: now
+        )
+        let data = try! RelayClient.encodeOmittingNulls(request)
+        let decoded = try! JSONDecoder().decode(ProjectMeshHandoffPrepare.self, from: data)
+        XCTAssertEqual(decoded.targetModel, "opus")
+        XCTAssertEqual(decoded.userComment, "Review the tests first.")
+    }
+
     func testAPushIsAskedForOnlyWhenTheTaskLeavesTheComputer() {
         let model = model(rooms: ["source", "target"])
         var sent: [ProjectMeshHandoffPrepare] = []

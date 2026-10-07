@@ -15,7 +15,7 @@ enum PairingPurpose {
     var scanExplanation: String {
         switch self {
         case .computer:
-            return L("Scan a one-time QR from a Mac or PC, or a controller QR shown in Settings on a trusted iPhone or iPad. Existing connections stay.")
+            return L("Scan a one-time QR from a Mac or PC, or a controller QR shown in Devices on a trusted iPhone or iPad. Existing connections stay.")
         case .joinProject:
             return L("Scan a one-time Mesh invite from its owner. This device receives only the permitted scope and role. Computers are paired separately.")
         }

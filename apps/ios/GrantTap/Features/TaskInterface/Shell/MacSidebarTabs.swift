@@ -27,6 +27,7 @@ extension ContentView {
             sidebarTab(.tasks, L("Tasks"), "tray.full")
             sidebarTab(.projects, L("Mesh"), "point.3.connected.trianglepath.dotted")
             sidebarTab(.usage, L("Usage"), "chart.bar.xaxis")
+            sidebarTab(.devices, L("Devices"), "desktopcomputer")
 
             Divider().padding(.vertical, 12)
             if selectedTab == .projects {
@@ -43,7 +44,7 @@ extension ContentView {
     var macSelectedScreen: some View {
         VStack(spacing: 0) {
             Group {
-                if selectedTab != .settings,
+                if selectedTab != .settings && selectedTab != .devices,
                    macLocalMCP.refreshing && model.meshSnapshots.isEmpty && model.sessions.isEmpty {
                     ProgressView(L("Loading Mesh and Tasks from this Mac…"))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,6 +60,14 @@ extension ContentView {
                         }
                     case .usage:
                         CapabilityUsageView()
+                    case .devices:
+                        DevicesView(localComputer: macLocalMCP.status?.computer,
+                                    localAccountLinked: macLocalMCP.status?.accountLinkSaved,
+                                    localPaired: macLocalMCP.status?.paired,
+                                    localRelayStatus: macLocalMCP.status?.relayStatus,
+                                    localPhoneReachability: macLocalMCP.status?.phoneReachability)
+                            .environmentObject(model)
+                            .environmentObject(macLocalMCP)
                     case .settings:
                         SettingsView(
                             localComputer: macLocalMCP.status?.computer,

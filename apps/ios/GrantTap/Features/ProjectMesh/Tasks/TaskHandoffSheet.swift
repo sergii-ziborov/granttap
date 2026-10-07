@@ -1,34 +1,62 @@
 import SwiftUI
 
 struct TaskHandoffSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) var dismiss
     let session: SessionInfo
     @ObservedObject var model: AppModel
-    @State private var targetRoom: String
-    @State private var checkpointUncommitted = false
-    @State private var pushBranch = false
-    @State private var targetProvider: String
+    @State var targetRoom: String
+    @State var checkpointUncommitted = false
+    @State var pushBranch = false
+    @State var targetProvider: String
+    @State var targetModel: String
+    @State var userComment = ""
+    @State var handoffError: String?
+    @State var submitting = false
 
     init(
         session: SessionInfo,
         model: AppModel,
         initialTargetRoom: String = "",
-        initialTargetProvider: String = ""
+        initialTargetProvider: String = "",
+        initialTargetModel: String = ""
     ) {
         self.session = session
         self.model = model
         _targetRoom = State(initialValue: initialTargetRoom)
         _targetProvider = State(initialValue: initialTargetProvider)
+        _targetModel = State(initialValue: initialTargetModel)
     }
 
-    var sourceRoom: String? { model.sourceRoom(forSessionId: session.sessionId) }
+    var sourceRoom: String? {
+        #if targetEnvironment(macCatalyst)
+        if model.usesLocalMCP(for: session) { return "local-mcp" }
+        #endif
+        return model.sourceRoom(forSessionId: session.sessionId)
+    }
+    var localComputerId: String? {
+        #if targetEnvironment(macCatalyst)
+        return model.localMCPReader?.status?.endpointId
+        #else
+        return nil
+        #endif
+    }
+    var localComputerName: String? {
+        #if targetEnvironment(macCatalyst)
+        return model.localMCPReader?.status?.computer
+        #else
+        return nil
+        #endif
+    }
     /// Every computer of the mesh, this one first: a Task can move to another
     /// agent here as well as to another machine.
     var targets: [LinkedComputer] {
         let all = model.connectionRegistry.connections
         return all.filter { $0.id == sourceRoom } + all.filter { $0.id != sourceRoom }
     }
-    var staysHere: Bool { targetRoom == sourceRoom }
+    var staysHere: Bool {
+        targetRoom == sourceRoom
+            || (localComputerId != nil && destinationComputer(for: targetRoom) == localComputerId)
+    }
     private var effectiveTargetRoom: String {
         targetRoom.isEmpty ? defaultSelection.room : targetRoom
     }
@@ -38,26 +66,30 @@ struct TaskHandoffSheet: View {
     /// The same agent on the same computer is not a move.
     var sameAgentHere: Bool {
         staysHere && AgentIdentity.normalize(targetProvider) == AgentIdentity.normalize(session.agent)
+            && (targetModel.isEmpty || targetModel == session.model)
+    }
+
+    var modelOptions: [TurnModelOption] {
+        #if targetEnvironment(macCatalyst)
+        if effectiveTargetRoom == "local-mcp" {
+            return model.turnModelCatalog(agent: effectiveTargetProvider, session: session).options
+        }
+        #endif
+        return model.turnModelCatalog(agent: effectiveTargetProvider, roomId: effectiveTargetRoom).options
     }
 
     var body: some View {
         CompatNavigationStack {
             Form {
+                destinationSection
                 Section {
-                    Picker(L("Computer"), selection: $targetRoom) {
-                        computerOptions
-                    }
-                    Picker(L("Agent"), selection: $targetProvider) {
-                        agentOptions
-                    }
+                    TextEditor(text: $userComment)
+                        .frame(minHeight: 80)
+                        .accessibilityIdentifier("handoff.comment")
                 } header: {
-                    Text(L("Destination"))
+                    Text(L("Comment for the next agent"))
                 } footer: {
-                    Text(sameAgentHere
-                         ? L("Choose another agent, or another computer: this is where the Task already is.")
-                         : staysHere
-                            ? L("The Task continues here with the other agent, in a worktree of its own from the last commit.")
-                            : L("The other computer needs the commit: push the branch, or make sure it can fetch it."))
+                    Text(L("The comment travels in the encrypted Task Capsule and is shown to the destination agent."))
                 }
                 if !grokActors.isEmpty {
                     Section("Grok Bot") {
@@ -112,8 +144,11 @@ struct TaskHandoffSheet: View {
                     Text(L("GrantTap sends a bounded encrypted Task Capsule: goal, git state, changed files, tests, dependencies, claims, remaining work, and explicit decisions. It never copies hidden reasoning."))
                     Text(L("Use a separate branch or worktree on the destination computer. If no authorized checkout matches, the handoff fails safely in Needs You."))
                 }
+                if let handoffError {
+                    Text(handoffError).foregroundStyle(Theme.riskHigh)
+                }
                 Button(L("Prepare and hand off"), action: submitHandoff)
-                .disabled(!isReady || sameAgentHere)
+                .disabled(!isReady || sameAgentHere || userComment.count > 1_000 || submitting)
                 .accessibilityIdentifier("handoff.submit")
             }
             .navigationTitle(L("Task handoff"))
@@ -126,13 +161,41 @@ struct TaskHandoffSheet: View {
         }
     }
 
+    private var destinationSection: some View {
+        Section {
+            Picker(L("Computer"), selection: $targetRoom) { computerOptions }
+            Picker(L("Agent"), selection: $targetProvider) { agentOptions }
+            Picker(L("Model"), selection: $targetModel) {
+                Text(L("Automatic")).tag("")
+                ForEach(modelOptions) { option in Text(option.label).tag(option.id) }
+            }
+            .accessibilityIdentifier("handoff.model")
+            .onChange(of: targetProvider) { _ in targetModel = "" }
+            .onChange(of: targetRoom) { _ in targetModel = "" }
+        } header: {
+            Text(L("Destination"))
+        } footer: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(sameAgentHere
+                     ? L("Choose another agent or model, or another computer: this is where the Task already is.")
+                     : staysHere
+                        ? L("The Task continues here in a new worktree from the last commit.")
+                        : L("The other computer needs the commit: push the branch, or make sure it can fetch it."))
+                if !targetModel.isEmpty {
+                    Text(L("A new execution starts with Task context and your comment; native chat history is not copied."))
+                }
+            }
+        }
+    }
+
     /// Readiness for one concrete destination, so the button and the action
     /// that follows it can never disagree about what is being checked.
     func readinessChecks(room: String, provider: String) -> [HandoffReadinessCheck] {
         TaskHandoffReadiness.checks(
             session: session,
             snapshot: session.projectId.flatMap { model.meshSnapshots[$0] },
-            destinationSelected: targets.contains { $0.id == room },
+            destinationSelected: targets.contains { $0.id == room }
+                || (room == "local-mcp" && localComputerId != nil),
             targetProviderEnabled: !provider.isEmpty
                 && model.agentMeshPreferences.isProviderEnabled(
                     AgentIdentity.normalize(provider)
@@ -162,10 +225,16 @@ struct TaskHandoffSheet: View {
     }
 
     var computerOptions: some View {
-        ForEach(targets) { connection in
-            Text(connection.id == sourceRoom
-                 ? String(format: L("%@ (this computer)"), computerName(connection))
-                 : computerName(connection)).tag(connection.id)
+        Group {
+            if let localComputerId {
+                Text(String(format: L("%@ (this computer)"),
+                            localComputerName ?? localComputerId)).tag("local-mcp")
+            }
+            ForEach(targets) { connection in
+                Text(connection.id == sourceRoom
+                     ? String(format: L("%@ (this computer)"), computerName(connection))
+                     : computerName(connection)).tag(connection.id)
+            }
         }
     }
 
@@ -188,56 +257,4 @@ struct TaskHandoffSheet: View {
         return connection.actors.filter(\.enabled)
     }
 
-    func applyDefaults() {
-        let defaults = defaultSelection
-        if targetRoom.isEmpty { targetRoom = defaults.room }
-        if targetProvider.isEmpty { targetProvider = defaults.provider }
-    }
-
-    func submitHandoff() {
-        if performHandoff(targetRoom: targetRoom, targetProvider: targetProvider) { dismiss() }
-    }
-
-    /// Another computer when there is one, else this one with another agent.
-    var defaultSelection: (room: String, provider: String) {
-        let source = AgentIdentity.normalize(session.agent)
-        let otherComputer = targets.first { $0.id != sourceRoom }
-        if let otherComputer {
-            return (otherComputer.id, source)
-        }
-        let enabled = AgentIdentity.composeIds.filter {
-            $0 != source && model.agentMeshPreferences.isProviderEnabled($0)
-        }
-        let preferred = source == "claude" ? "codex" : "claude"
-        let provider = enabled.contains(preferred) ? preferred : enabled.first ?? ""
-        let room = targets.first?.id ?? ""
-        return (room, provider)
-    }
-
-    @discardableResult
-    func performHandoff(targetRoom: String, targetProvider: String) -> Bool {
-        guard TaskHandoffReadiness.isReady(
-                  readinessChecks(room: targetRoom, provider: targetProvider)
-              ),
-              let target = targets.first(where: { $0.id == targetRoom }) else { return false }
-        let normalizedProvider = AgentIdentity.normalize(targetProvider)
-        guard AgentIdentity.composeIds.contains(normalizedProvider),
-              model.agentMeshPreferences.isProviderEnabled(normalizedProvider) else { return false }
-        guard !(targetRoom == sourceRoom && normalizedProvider == AgentIdentity.normalize(session.agent)) else {
-            return false
-        }
-        model.prepareTaskHandoff(
-            session: session,
-            targetProvider: normalizedProvider,
-            targetComputer: computerName(target),
-            checkpoint: checkpointUncommitted && hasUncommittedWork,
-            push: pushBranch && targetRoom != sourceRoom
-        )
-        return true
-    }
-
-    func computerName(_ connection: LinkedComputer) -> String {
-        let published = connection.lastMachineName.trimmingCharacters(in: .whitespacesAndNewlines)
-        return published.isEmpty ? connection.displayName : published
-    }
 }

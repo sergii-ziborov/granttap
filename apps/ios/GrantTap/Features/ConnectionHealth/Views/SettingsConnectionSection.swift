@@ -28,7 +28,6 @@ struct SettingsConnectionSection: View {
 
     private var links: [LinkedComputer] { model.connectionRegistry.connections }
     private var hasOwnComputer: Bool { links.contains { !$0.pairing.isHub } }
-    private var preferredId: String? { model.connectionRegistry.preferredId }
 
     var body: some View {
         Section {
@@ -61,11 +60,9 @@ struct SettingsConnectionSection: View {
                 Button(L("Unlink all computers"), role: .destructive, action: onForgetAll)
             }
         } header: {
-            Text(L("Connections"))
+            Text(L("On this device"))
         } footer: {
-            Text(hasOwnComputer
-                 ? L("Scan a Mac or PC QR to link this device. To add another controller, show a QR here and scan it on the new iPhone or iPad. This grants access to the listed Live computers, not membership in a Mesh.")
-                 : L("Scan a Mac or PC QR to link a computer. Company accounts are managed here in Settings; Mesh invites are under Mesh."))
+            Text(L("These computers can run Tasks in your Account Mesh. Each chat and Project Mesh keeps its own computer route."))
         }
         .confirmationDialog(
             L("Unlink this computer?"),
@@ -97,11 +94,14 @@ struct SettingsConnectionSection: View {
     private var emptyRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
-                Circle().fill(Theme.riskMed).frame(width: 10, height: 10)
-                Text(L("Need pair"))
+                Image(systemName: "desktopcomputer")
+                    .foregroundStyle(Theme.muted)
+                Text(L("No devices yet"))
                     .font(.system(size: 17, weight: .semibold))
             }
-            Text(L("No computers linked. Scan a QR from any Mac/PC agent chat to add one."))
+            Text(GrantTapAccountAPI.session == nil
+                 ? L("Sign in to your Account Mesh or scan a computer QR.")
+                 : L("Your Account Mesh is ready. Chats appear when a computer joins."))
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.muted)
         }
@@ -123,7 +123,6 @@ struct SettingsConnectionSection: View {
     @ViewBuilder
     private func connectionCard(_ conn: LinkedComputer) -> some View {
         let snap = model.snapshotForConnection(conn)
-        let isPreferred = conn.id == preferredId && !conn.pairing.isHub
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center, spacing: 10) {
                 Circle()
@@ -143,15 +142,6 @@ struct SettingsConnectionSection: View {
                     }
                 }
                 Spacer(minLength: 0)
-                if isPreferred {
-                    Text(L("Active for chats"))
-                        .font(.system(size: 10, weight: .heavy))
-                        .tracking(0.4)
-                        .foregroundStyle(Theme.claude)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Theme.claude.opacity(0.14), in: Capsule())
-                }
             }
 
             Text(snap.detail)
@@ -182,12 +172,6 @@ struct SettingsConnectionSection: View {
                 .disabled(busyRoom != nil)
                 .accessibilityIdentifier("connection.reconnect.\(conn.id)")
 
-                if !isPreferred {
-                    Button(L("Prefer for chats")) { prefer(conn) }
-                        .buttonStyle(.borderless)
-                        .accessibilityIdentifier("connection.prefer.\(conn.id)")
-                }
-
                 Spacer(minLength: 0)
 
                 Button(L("Unlink"), role: .destructive) { requestUnlink(conn) }
@@ -217,10 +201,6 @@ struct SettingsConnectionSection: View {
             await target.reconnectConnection(roomId: conn.id)
         }
         busyRoom = nil
-    }
-
-    func prefer(_ conn: LinkedComputer, using target: AppModel? = nil) {
-        (target ?? model).setPreferredConnection(roomId: conn.id)
     }
 
     func requestUnlink(_ conn: LinkedComputer) { unlinkRoom = conn.id }

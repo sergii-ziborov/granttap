@@ -1,3 +1,4 @@
+import AuthenticationServices
 import TweetNacl
 import XCTest
 @testable import GrantTap
@@ -73,6 +74,90 @@ final class AccountRecoveryTests: XCTestCase {
         } catch AccountBridgeError.invalidResponse { }
     }
 
+    func testQRComputerRegistrationUsesMachineCredentialWithoutSendingPairingKeys() async throws {
+        let transport = stubTransport()
+        defer { StubURLProtocol.handler = nil; transport.invalidateAndCancel() }
+        let session = GrantTapAccountSession(accountId: UUID().uuidString,
+                                             token: String(repeating: "t", count: 43))
+        let computer = ConnectionRegistryLogic.upsert(
+            .empty, pairing: PairingFixture.pairing(room: String(repeating: "a", count: 32))
+        ).connections[0]
+        let machineId = UUID().uuidString
+        StubURLProtocol.handler = { request in
+            XCTAssertEqual(request.httpMethod, "POST")
+            XCTAssertEqual(request.url?.path, "/api/account/machines")
+            let body = try XCTUnwrap(Self.requestBody(request))
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: String])
+            XCTAssertNotNil(json["name"])
+            XCTAssertNil(json["pairing"])
+            XCTAssertNil(json["token"])
+            return (201, try JSONSerialization.data(withJSONObject: [
+                "id": machineId, "machineToken": String(repeating: "A", count: 43),
+            ]))
+        }
+        let credential = try await AccountRecovery.register(computer, session: session,
+                                                             transport: transport)
+        XCTAssertEqual(credential.accountId, session.accountId)
+        XCTAssertEqual(credential.machineId, machineId)
+    }
+
+    @MainActor
+    func testPasskeyLinksExistingQRComputersWithoutChangingTheirRoute() async throws {
+        let transport = stubTransport()
+        let previous = PairedConnectionStore.load()
+        defer {
+            StubURLProtocol.handler = nil
+            transport.invalidateAndCancel()
+            _ = PairedConnectionStore.save(previous)
+        }
+        let session = GrantTapAccountSession(accountId: UUID().uuidString,
+                                             token: String(repeating: "t", count: 43))
+        let phone = try NaclBox.keyPair()
+        let mac = try NaclBox.keyPair()
+        func pairing(_ room: String, _ name: String) -> Pairing {
+            Pairing(relayUrl: "wss://relay.granttap.com", room: room, role: "phone",
+                    deviceName: name, senderId: "phone",
+                    myPublicKey: phone.publicKey.base64EncodedString(),
+                    mySecretKey: phone.secretKey.base64EncodedString(),
+                    peerPublicKey: mac.publicKey.base64EncodedString())
+        }
+        let first = pairing(String(repeating: "a", count: 32), "Studio Mac")
+        let second = pairing(String(repeating: "b", count: 32), "Travel Mac")
+        let model = AppModel()
+        model.connectionRegistry = ConnectionRegistryLogic.upsert(
+            ConnectionRegistryLogic.upsert(.empty, pairing: first),
+            pairing: second, prefer: false
+        )
+        var registrations = 0
+        StubURLProtocol.handler = { request in
+            XCTAssertEqual(request.httpMethod, "POST")
+            XCTAssertEqual(request.url?.path, "/api/account/machines")
+            registrations += 1
+            return (201, try JSONSerialization.data(withJSONObject: [
+                "id": UUID().uuidString, "machineToken": String(repeating: "A", count: 43),
+            ]))
+        }
+
+        try await model.linkLocalComputersToAccount(session, transport: transport)
+        XCTAssertEqual(registrations, 2)
+        XCTAssertEqual(model.connectionRegistry.preferredId, first.room)
+        let restored = PairedConnectionStore.load()
+        XCTAssertEqual(restored.preferredId, first.room)
+        XCTAssertEqual(Set(restored.connections.compactMap { $0.accountCredential?.machineId }).count, 2)
+        XCTAssertTrue(model.connectionRegistry.connections.allSatisfy {
+            $0.accountCredential?.accountId == session.accountId
+        })
+        try await model.linkLocalComputersToAccount(session, transport: transport)
+        XCTAssertEqual(registrations, 2, "Reopening passkey should reuse the machine links")
+        let other = GrantTapAccountSession(accountId: UUID().uuidString, token: session.token)
+        try await model.linkLocalComputersToAccount(other, transport: transport)
+        XCTAssertEqual(registrations, 2, "A different account must not register QR computers again")
+        XCTAssertTrue(model.connectionRegistry.connections.allSatisfy {
+            $0.accountCredential?.accountId == session.accountId
+        }, "A different passkey account must not move QR computers silently")
+        XCTAssertEqual(model.connectionRegistry.preferredId, first.room)
+    }
+
     func testPasskeyOptionsRejectMalformedChallengesBeforeAuthorization() async throws {
         let transport = stubTransport()
         defer { StubURLProtocol.handler = nil; transport.invalidateAndCancel() }
@@ -93,6 +178,16 @@ final class AccountRecoveryTests: XCTestCase {
         for error in [AccountBridgeError.invalidResponse, .unavailable, .expired, .storage] {
             XCTAssertFalse(try XCTUnwrap(error.errorDescription).isEmpty)
         }
+    }
+
+    func testCancelledPasskeyRequestDoesNotBecomeAnErrorMessage() {
+        let cancelled = NSError(domain: ASAuthorizationErrorDomain,
+                                code: ASAuthorizationError.Code.canceled.rawValue)
+        XCTAssertNil(AccountBridgeError.presentationMessage(for: cancelled))
+        XCTAssertNil(AccountBridgeError.presentationMessage(for: CancellationError()))
+        let failed = NSError(domain: ASAuthorizationErrorDomain,
+                             code: ASAuthorizationError.Code.failed.rawValue)
+        XCTAssertNotNil(AccountBridgeError.presentationMessage(for: failed))
     }
 
     func testAccountServiceRecoversFreshEncryptedPhonePairing() async throws {

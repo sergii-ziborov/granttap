@@ -95,6 +95,11 @@ elsewhere from committed state alone. Overlapping resource claims, a missing
 destination, and a disabled target agent block it the same way; the destination
 verifies the commit itself when it accepts. A working tree the owning computer
 could not read blocks it too, because "we could not look" is not "clean".
+The handoff sheet selects a computer, enabled agent, and advertised model,
+and accepts a bounded user comment. The comment and model choice travel in the
+encrypted Task Capsule. The destination opens a new native execution in a
+separate worktree under the same Task; its receipt changes the owner. The same
+agent on the same computer is allowed only with a different model.
 
 Tests live in `GrantTapTests/Features/ProjectMesh`. See the repository
 [`AGENTS.md`](../../../../../AGENTS.md) for the product and quality contract.

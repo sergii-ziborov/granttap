@@ -2,6 +2,17 @@
 import XCTest
 
 final class MacPageNavigationUITests: XCTestCase {
+    func testAccountMeshOpensFromDevicesWithoutALocalComputer() {
+        continueAfterFailure = false
+        let app = demoApp(openChat: false)
+        app.buttons["sidebar.devices"].tap()
+        assertCompactHeader(app)
+        XCTAssertTrue(app.staticTexts["Account Mesh"].exists)
+        XCTAssertTrue(app.buttons["Sign in with passkey"].exists)
+        XCTAssertEqual(app.sheets.count, 0)
+        XCTAssertTrue(app.buttons["sidebar.devices"].isSelected)
+    }
+
     func testChatMeshOpensTheExistingMainWindowPageAndReturnsToTheList() {
         continueAfterFailure = false
         let app = demoApp(openChat: true)

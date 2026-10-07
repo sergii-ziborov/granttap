@@ -10,13 +10,15 @@ enum SubscriptionProduct: String, CaseIterable, Sendable {
     case solo = "com.ziborov.granttap.personal.solo.monthly"
     case personal = "com.ziborov.granttap.personal.monthly"
     case fleet = "com.ziborov.granttap.personal.fleet.monthly"
+    case studio = "com.ziborov.granttap.personal.studio.monthly"
 
     /// Linked computers this tier allows. Agents per computer are unlimited.
     var seatLimit: Int {
         switch self {
-        case .solo: 1
+        case .solo: 2
         case .personal: 5
         case .fleet: 10
+        case .studio: 15
         }
     }
 

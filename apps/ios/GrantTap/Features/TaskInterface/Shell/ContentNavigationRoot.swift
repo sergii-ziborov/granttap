@@ -43,9 +43,11 @@ extension ContentView {
         ZStack {
             Theme.bg.ignoresSafeArea()
             #if targetEnvironment(macCatalyst)
-            if !desktopLicense.license.permitsLocalControl && selectedTab != .settings {
+            if !desktopLicense.license.permitsLocalControl
+                && selectedTab != .settings && selectedTab != .devices {
                 DesktopLicenseView(store: desktopLicense)
-            } else if macLocalMCP.isReady || model.pairing != nil || model.demoMode || selectedTab == .settings {
+            } else if macLocalMCP.isReady || model.pairing != nil || model.demoMode
+                        || selectedTab == .settings || selectedTab == .devices {
                 personalTabs
                     .id(selectedTab)
             } else {
@@ -53,13 +55,14 @@ extension ContentView {
                     checked: macLocalMCP.hasCheckedLocalMCP,
                     refreshing: macLocalMCP.refreshing,
                     found: macLocalMCP.status != nil,
+                    accountLinked: macLocalMCP.status?.accountLinkSaved == true,
                     onRetry: { Task { await refreshMacLocal() } },
-                    onSettings: { selectMacTab(.settings) }
+                    onSettings: { selectMacTab(.settings) },
+                    onDevices: { selectMacTab(.devices) }
                 )
             }
             #else
-            if model.pairing == nil && !model.demoMode { onboarding }
-            else { personalTabs }
+            personalTabs
             privacyLayers
             #endif
         }
@@ -74,7 +77,7 @@ extension ContentView {
                 if !security.showsLockUI, model.pairing != nil || model.demoMode { connectionBadge }
             }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if !security.showsLockUI, model.pairing != nil || model.demoMode {
+                if !security.showsLockUI {
                     Button { showSettings = true } label: { Image(systemName: "gearshape") }
                         .accessibilityLabel(L("Settings"))
                 }

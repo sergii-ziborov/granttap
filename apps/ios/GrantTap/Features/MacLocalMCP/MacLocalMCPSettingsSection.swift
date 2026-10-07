@@ -16,19 +16,18 @@ struct MacLocalMCPSettingsSection: View {
     var body: some View {
         Section(L("This Mac")) {
             if let computer {
-                Button(L("Authorize local Mac access")) { Task { await access.authorize() } }
-                    .disabled(access.busy)
+                if reader.isReady {
+                    Label(L("Local Mac access granted"), systemImage: "checkmark.shield.fill")
+                        .foregroundStyle(Theme.ok)
+                } else {
+                    Button(L("Authorize local Mac access")) { Task { await access.authorize() } }
+                        .disabled(access.busy)
+                }
                 if let error = access.lastError { Text(error).foregroundStyle(Theme.riskHigh) }
                 Label(computer, systemImage: "desktopcomputer")
                     .foregroundStyle(Theme.ok)
                 Text(L("GrantTap MCP is running on this Mac."))
                     .foregroundStyle(Theme.muted)
-                NavigationLink {
-                    AccountConnectionView { model.addConnection($0) }
-                } label: {
-                    Label(L("Account and passkey"), systemImage: "person.crop.circle.badge.checkmark")
-                }
-                .accessibilityIdentifier("settings.account-passkey")
                 NavigationLink {
                     MacLocalComputerDetailView(reader: reader)
                 } label: {

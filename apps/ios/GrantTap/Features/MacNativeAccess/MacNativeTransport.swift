@@ -9,9 +9,10 @@ private final class MacNativeNoRedirect: NSObject, URLSessionTaskDelegate {
 }
 
 enum MacNativeTransport {
-    static func fetch(_ input: URLRequest, limit: Int = 512 * 1_024) async throws -> Data {
+    static func fetch(_ input: URLRequest, limit: Int = 512 * 1_024,
+                      timeout: TimeInterval = 260) async throws -> Data {
         var request = input
-        request.timeoutInterval = 260
+        request.timeoutInterval = timeout
         let session = URLSession(configuration: .ephemeral, delegate: MacNativeNoRedirect(), delegateQueue: nil)
         defer { session.invalidateAndCancel() }
         let (bytes, response) = try await session.bytes(for: request)

@@ -10,7 +10,9 @@ parsing, and Keychain storage.
 - `Identity/PairingKeychain.swift` isolates the legacy Keychain adapter.
 - `AccountBridge/` signs in with a synced passkey and recovers a computer through
   an account-authorized, end-to-end encrypted offer. The account session is
-  stored only in this device's Keychain; QR pairing remains available.
+  stored only in this device's Keychain. Existing QR computers are registered
+  for recovery with machine-scoped credentials sent through their encrypted
+  rooms; chat and Mesh ownership stay bound to their original rooms.
 - `Device/ControllerInviteCoordinator.swift` requests a separate, expiring
   controller credential from each Live linked computer. The trusted phone
   publishes their encrypted one-use links as a second QR through the relay.

@@ -129,7 +129,7 @@ final class UIEdgeCoverageTests: XCTestCase {
 
         let empty = AppModel()
         empty.connectionRegistry = .empty
-        XCTAssertTrue(ContentView(modelOverride: empty).emptySessionsHint.contains("Connect"))
+        XCTAssertTrue(ContentView(modelOverride: empty).emptySessionsHint.contains("Account Mesh"))
         empty.connectionRegistry = ConnectionRegistryLogic.upsert(
             .empty, pairing: edgePairing(), prefer: true
         )

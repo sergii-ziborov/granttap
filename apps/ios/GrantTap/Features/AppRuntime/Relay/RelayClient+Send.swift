@@ -12,7 +12,8 @@ extension RelayClient {
     func sendHello(recoverPeer: Bool = false) {
         let name = pairing.deviceName.trimmingCharacters(in: .whitespacesAndNewlines)
         send(payload: Payloads.hello(
-            name.isEmpty ? UIDevice.current.name : name,
+            role == .phone ? ControllerDisplayName.current()
+                : (name.isEmpty ? UIDevice.current.name : name),
             role: role, recoverPeer: recoverPeer
         ))
     }

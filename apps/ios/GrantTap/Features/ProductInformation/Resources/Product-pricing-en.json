@@ -1,13 +1,13 @@
 {
   "title": "Pricing and subscriptions",
   "updated": "2026-09-28",
-  "intro": "Start with a 7-day free trial. Personal is priced by how many computers you link — $1.99 for one, $3.99 for five, $5.99 for ten per month — billed through Apple's App Store. Agents on each computer are unlimited.",
+  "intro": "Start with a 7-day free trial. Personal is priced by how many computers you link — $1.99 for up to two, $3.99 for five, $5.99 for ten, $9.99 for fifteen per month — billed through Apple's App Store. Agents on each computer are unlimited.",
   "sections": [
     {
       "heading": "Personal",
       "bullets": [
         "7-day free trial for eligible new subscribers.",
-        "$1.99 per month for 1 computer, $3.99 for up to 5, $5.99 for up to 10.",
+        "$1.99 per month for up to 2 computers, $3.99 for up to 5, $5.99 for up to 10, $9.99 for up to 15.",
         "Every computer runs as many coding agents as it can; agents are never counted or charged for.",
         "iPhone and Apple Watch remote, encrypted relay delivery, multi-computer queue, and supported provider integrations.",
         "Cancel in Apple subscription settings at least 24 hours before renewal to avoid the next charge."

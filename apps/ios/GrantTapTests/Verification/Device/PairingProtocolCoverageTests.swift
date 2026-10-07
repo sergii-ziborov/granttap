@@ -133,6 +133,10 @@ final class PairingProtocolCoverageTests: XCTestCase {
         XCTAssertEqual(device.displayName, "Machine")
         device.lastMachineName = " "
         XCTAssertEqual(device.displayName, "PC room")
+        device.label = "iPhone"
+        device.pairing.deviceName = "iPhone"
+        device.lastMachineName = "Serhii’s MacBook Pro"
+        XCTAssertEqual(device.displayName, "Serhii’s MacBook Pro")
 
         let registry = ConnectionRegistry(connections: [custom], preferredId: "missing")
         XCTAssertEqual(registry.preferred?.id, "room")

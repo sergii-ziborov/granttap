@@ -61,6 +61,11 @@ extension AppModel {
         #endif
         restartAllRelays()
         PushRegistrationManager.shared.pairingDidChange()
+        #if !targetEnvironment(macCatalyst)
+        if let session = GrantTapAccountAPI.session {
+            Task { try? await linkLocalComputersToAccount(session) }
+        }
+        #endif
         return true
     }
 
@@ -203,6 +208,14 @@ extension AppModel {
     func reconnectConnection(
         roomId: String, delayNanoseconds: UInt64 = 1_200_000_000
     ) async {
+        if !SubscriptionStore.shared.allowsManagedTransport {
+            await SubscriptionStore.shared.refreshBetaRelayAccess()
+        }
+        if connectionRegistry.connections.contains(where: {
+            $0.id == roomId && $0.accountReference != nil
+        }) {
+            startAccountSpaceSync(force: true, repairRoomId: roomId)
+        }
         if let client = relaysByRoom[roomId] {
             client.forceReconnect()
         } else if let conn = connectionRegistry.connections.first(where: { $0.id == roomId }) {

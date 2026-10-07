@@ -1,17 +1,13 @@
 # App Store screenshots
 
 Upload the iPhone and iPad images in display order: `01-now`, `02-tasks`,
-`03-task`, `04-usage`, `05-projects`. The English iPhone set additionally has
-`06-linked-projects`, `07-architecture-graph`, and `08-code-towers`; these are
-deterministic demo captures from the current UI, resized to the accepted
-6.9-inch dimensions. The graph and code map visibly say `demo-revision` and
-must not be described as a live customer scan. Upload `01-root`, `02-approval`,
-`03-task` for Apple Watch.
+`03-task`, `04-usage`, `05-projects`. Older English-only Project and graph
+captures were removed because they showed an earlier interface. Upload
+`01-root`, `02-approval`, `03-task` for Apple Watch Series 10.
 
-The first five English iPhone and iPad images were recaptured on 2026-10-01
-(the chat image was refreshed on 2026-10-03); the corresponding Russian images
-were recaptured on 2026-10-03 from the
-current Debug app on iOS 26.5 simulators rather than from rendered components: Now with
+The English and Russian iPhone and iPad images were recaptured on
+2026-10-08 from the current Debug app on iOS 26.5 simulators rather than from
+rendered components: Now with
 what needs a person first, the Tasks list, one Task as a chat with the
 message block a turn is written in, Usage where every figure opens what it
 counted, and Mesh with its Repositories switch. The

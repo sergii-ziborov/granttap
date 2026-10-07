@@ -46,10 +46,9 @@ final class UIActionCoverageTests: XCTestCase {
         assertRendered(section.environmentObject(model))
         section.requestUnlink(second)
         section.unlinkSelected(using: model)
-        section.prefer(second, using: model)
         await section.runConnectionAction(second, phase: .needRepair, using: model)
         XCTAssertEqual(pairCount, 1)
-        XCTAssertEqual(model.connectionRegistry.preferredId, second.id)
+        XCTAssertNotEqual(model.connectionRegistry.preferredId, second.id)
         XCTAssertEqual(forgetCount, 0)
     }
 

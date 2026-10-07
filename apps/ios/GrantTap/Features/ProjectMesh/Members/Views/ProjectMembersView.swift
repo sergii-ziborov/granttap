@@ -157,7 +157,7 @@ struct ProjectMembersView: View {
             } header: {
                 Text(L("Not in this Mesh"))
             } footer: {
-                Text(L("Adding a computer hands it this Mesh's key over the pairing you already trust. Pairing a new computer is done in Settings."))
+                Text(L("Adding a computer hands it this Mesh's key over the pairing you already trust. Pairing a new computer is done in Devices."))
             }
         }
     }

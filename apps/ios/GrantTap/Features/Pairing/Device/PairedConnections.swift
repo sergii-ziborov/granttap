@@ -5,6 +5,12 @@ import Security
 /// many rooms and may open a WebSocket per room. Pair/scan adds; replace-all
 /// is explicit. Mirrors `packages/core/paired-connections.ts`.
 
+struct AccountMachineCredential: Codable, Equatable {
+    let accountId: String
+    let machineId: String
+    let machineToken: String
+}
+
 struct LinkedComputer: Codable, Equatable, Identifiable {
     var id: String
     var pairing: Pairing
@@ -12,6 +18,10 @@ struct LinkedComputer: Codable, Equatable, Identifiable {
     var addedAt: Double
     var lastCatalogAt: Double
     var lastMachineName: String
+    /// Machine-scoped recovery credential, kept with this device's pairing in Keychain.
+    var accountCredential: AccountMachineCredential? = nil
+    var accountReference: AccountMachineReference? = nil
+    var lastRecoveredAt: Double? = nil
 
     var displayName: String {
         // "phone" is the role a pairing was minted with, not a name — and the
@@ -29,7 +39,7 @@ struct LinkedComputer: Codable, Equatable, Identifiable {
 
     static func nameOrNothing(_ value: String) -> String {
         let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        return ["phone", "machine"].contains(clean.lowercased()) ? "" : clean
+        return ["phone", "machine", "iphone", "ipad"].contains(clean.lowercased()) ? "" : clean
     }
 }
 
@@ -87,7 +97,10 @@ enum ConnectionRegistryLogic {
                 label: resolvedLabel.isEmpty ? existing.label : resolvedLabel,
                 addedAt: existing.addedAt,
                 lastCatalogAt: samePeer ? existing.lastCatalogAt : 0,
-                lastMachineName: samePeer ? existing.lastMachineName : ""
+                lastMachineName: samePeer ? existing.lastMachineName : "",
+                accountCredential: samePeer ? existing.accountCredential : nil,
+                accountReference: samePeer ? existing.accountReference : nil,
+                lastRecoveredAt: samePeer ? existing.lastRecoveredAt : nil
             )
         } else {
             connections.append(LinkedComputer(

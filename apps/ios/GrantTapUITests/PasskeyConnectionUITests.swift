@@ -1,19 +1,32 @@
 import XCTest
 
 final class PasskeyConnectionUITests: XCTestCase {
-    func testPasskeyConnectionOpensFromUnpairedWelcomeAndReturns() {
+    func testAccountMeshIsAvailableWithoutAComputer() {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment = ["GRANTTAP_TEST_LANGUAGE": "en"]
         app.launch()
 
-        let passkey = app.buttons["Sign in with passkey"].firstMatch
-        XCTAssertTrue(passkey.waitForExistence(timeout: 10))
-        passkey.tap()
+        let devices = app.buttons["Devices"].firstMatch
+        XCTAssertTrue(devices.waitForExistence(timeout: 10))
+        devices.tap()
+        XCTAssertTrue(app.staticTexts["Account Mesh"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Sign in with passkey"].exists)
+        XCTAssertTrue(app.buttons["Add a device (Scan QR)"].exists)
+    }
 
-        XCTAssertTrue(app.navigationBars["Connect with passkey"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Create a GrantTap account"].exists)
-        app.buttons["Done"].tap()
-        XCTAssertTrue(passkey.waitForExistence(timeout: 5))
+    func testAddingADeviceDoesNotContainAccountSignIn() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+
+        let devices = app.buttons["Devices"].firstMatch
+        XCTAssertTrue(devices.waitForExistence(timeout: 10))
+        devices.tap()
+        app.buttons["Add a device (Scan QR)"].tap()
+        XCTAssertTrue(app.navigationBars["Add a device"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Scan QR"].exists)
+        XCTAssertFalse(app.buttons["Sign in with passkey"].isHittable)
     }
 }

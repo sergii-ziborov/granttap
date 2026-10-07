@@ -90,13 +90,18 @@ extension AppModel {
         session: SessionInfo,
         targetProvider: String,
         targetComputer: String,
+        targetModel: String? = nil,
+        userComment: String? = nil,
         checkpoint: Bool = false,
         push: Bool = false
     ) {
+        let note = userComment?.trimmingCharacters(in: .whitespacesAndNewlines)
         guard agentMeshPreferences.meshEnabled,
               agentMeshPreferences.isProviderEnabled(targetProvider),
               let projectId = session.projectId, let taskId = session.taskId,
               AgentIdentity.knownIds.contains(targetProvider),
+              targetModel.map({ TurnModel(rawValue: $0) != nil }) ?? true,
+              note.map({ !$0.isEmpty && $0.count <= 1_000 }) ?? true,
               let source = relayForSession(session.sessionId) else { return }
         let request = ProjectMeshHandoffPrepare(
             type: "mesh.handoff.prepare",
@@ -105,6 +110,8 @@ extension AppModel {
             taskId: taskId,
             targetProvider: targetProvider,
             targetComputer: targetComputer,
+            targetModel: targetModel,
+            userComment: note,
             createdAt: Date().timeIntervalSince1970 * 1_000,
             checkpoint: checkpoint ? true : nil,
             push: push ? true : nil

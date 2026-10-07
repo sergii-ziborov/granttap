@@ -50,24 +50,24 @@
           "codeOffers": [],
           "displayPrice": "1.99",
           "familyShareable": false,
-          "groupNumber": 3,
-          "internalID": "personal-one",
+          "groupNumber": 4,
+          "internalID": "personal-two",
           "introductoryOffer": null,
           "localizations": [
             {
-              "description": "Managed relay for up to 1 computers.",
-              "displayName": "Personal 1",
+              "description": "Managed relay for up to 2 computers.",
+              "displayName": "Personal 2",
               "locale": "en_US"
             },
             {
-              "description": "Управляемый relay для компьютеров: до 1.",
-              "displayName": "Personal 1",
+              "description": "Управляемый relay для компьютеров: до 2.",
+              "displayName": "Personal 2",
               "locale": "ru"
             }
           ],
           "productID": "com.ziborov.granttap.personal.solo.monthly",
           "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "Personal 1",
+          "referenceName": "Personal 2",
           "subscriptionGroupID": "personal",
           "type": "RecurringSubscription"
         },
@@ -76,7 +76,7 @@
           "codeOffers": [],
           "displayPrice": "3.99",
           "familyShareable": false,
-          "groupNumber": 2,
+          "groupNumber": 3,
           "internalID": "personal-five",
           "introductoryOffer": null,
           "localizations": [
@@ -102,7 +102,7 @@
           "codeOffers": [],
           "displayPrice": "5.99",
           "familyShareable": false,
-          "groupNumber": 1,
+          "groupNumber": 2,
           "internalID": "personal-ten",
           "introductoryOffer": null,
           "localizations": [
@@ -120,6 +120,32 @@
           "productID": "com.ziborov.granttap.personal.fleet.monthly",
           "recurringSubscriptionPeriod": "P1M",
           "referenceName": "Personal 10",
+          "subscriptionGroupID": "personal",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "9.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "personal-fifteen",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Managed relay for up to 15 computers.",
+              "displayName": "Personal 15",
+              "locale": "en_US"
+            },
+            {
+              "description": "Управляемый relay для компьютеров: до 15.",
+              "displayName": "Personal 15",
+              "locale": "ru"
+            }
+          ],
+          "productID": "com.ziborov.granttap.personal.studio.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Personal 15",
           "subscriptionGroupID": "personal",
           "type": "RecurringSubscription"
         }

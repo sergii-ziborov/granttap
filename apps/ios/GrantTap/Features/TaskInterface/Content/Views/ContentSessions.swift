@@ -22,7 +22,10 @@ extension ContentView {
         }
         #endif
         switch model.connectionSnapshot.phase {
-        case .notLinked: return L("Connect a computer to see its coding-agent tasks here.")
+        case .notLinked:
+            return GrantTapAccountAPI.session == nil
+                ? L("Open Account Mesh to sign in, or add a device by QR.")
+                : L("Your Account Mesh is ready. Chats will appear when an agent joins it.")
         case .phoneOffline, .macOffline: return L("A linked computer is offline. Open connection status to repair it.")
         case .needRepair: return L("This connection needs repair before tasks can update.")
         case .live, .demo: return L("Open a Mesh to start a Task, or pull to refresh.")
@@ -51,10 +54,7 @@ extension ContentView {
             VStack(alignment: .leading, spacing: 8) {
                 Eyebrow(text: title)
                 ForEach(tasks) { item in
-                    Button { open(item) } label: {
-                        TaskListCard(item: item, route: ownerRoute(item))
-                    }
-                    .buttonStyle(.plain)
+                    taskActionCard(item)
                 }
             }
         }
@@ -91,18 +91,7 @@ extension ContentView {
                 .frame(maxWidth: .infinity)
             } else {
                 ForEach(filteredTaskItems) { item in
-                    Button { open(item) } label: {
-                        TaskListCard(item: item, route: ownerRoute(item))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("task.\(item.id)")
-                    .contextMenu {
-                        if !item.sessionIds.isEmpty {
-                            Button(L("Hide")) {
-                                item.sessionIds.forEach { model.setSessionArchived($0, true) }
-                            }
-                        }
-                    }
+                    taskActionCard(item)
                 }
             }
 

@@ -5,6 +5,12 @@ attachment, approval, pairing, settings, and troubleshooting surfaces.
 `ContentView.swift` remains the root coordinator; each component here owns one
 visible Personal responsibility.
 
+Now and Tasks use the same `TaskSwipeCard`: swipe left on a Task to reveal
+**Send** and **Archive**. Archive hides its native sessions from the active
+list and the existing Hidden tasks view restores them. Send opens the Project
+Mesh handoff sheet for the current owner. A context menu exposes the same
+actions for pointer and keyboard users.
+
 On Mac, Settings is selected in the sidebar and uses the main navigation
 stack, including its child pages. `SettingsView` owns the shared content;
 `SettingsSheet` wraps it for phone and tablet presentation.

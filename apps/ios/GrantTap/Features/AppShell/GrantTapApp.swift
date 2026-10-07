@@ -41,9 +41,9 @@ struct AppLifecycleDependencies {
         registerRemoteNotifications: { $0.registerForRemoteNotifications() },
         startServices: {
             Task { @MainActor in
-                async let subscription: Void = SubscriptionStore.shared.start()
+                await SubscriptionStore.shared.prepareTransport()
                 AppModel.shared.start()
-                _ = await subscription
+                await SubscriptionStore.shared.loadStorefront()
             }
         },
         didRegister: { token in

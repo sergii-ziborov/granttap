@@ -22,7 +22,7 @@ final class ProductInformationUITests: XCTestCase {
         let help = app.buttons["information.help"].firstMatch
         reveal(help, in: app)
         help.tap()
-        XCTAssertTrue(app.staticTexts["Mac app and device connections"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Account Mesh and passkey"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["information.learn"].exists)
     }
 

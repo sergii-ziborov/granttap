@@ -3,6 +3,37 @@ import XCTest
 
 @MainActor
 final class SubscriptionStoreEvidenceTests: XCTestCase {
+    func testTransportEvidenceIsReadyBeforeProductDiscovery() async {
+        let receipt = SubscriptionStatusSnapshot(product: .solo, state: .subscribed,
+            expirationDate: Date().addingTimeInterval(3600), isTrial: false, verified: true)
+        var productsRequested = false
+        let store = SubscriptionStore(startObserving: false, productLoader: {
+            productsRequested = true
+            return []
+        }, snapshotLoader: { products in
+            XCTAssertTrue(products.isEmpty)
+            return [receipt]
+        }, betaEnvironmentLoader: { false })
+        await store.prepareTransport()
+        XCTAssertTrue(store.allowsManagedTransport)
+        XCTAssertFalse(productsRequested)
+        XCTAssertEqual(store.availability, .loading)
+    }
+
+    func testVerifiedSandboxAppCanExerciseRelayWithoutClaimingSubscription() async {
+        let beta = SubscriptionStore(startObserving: false, productLoader: { [] },
+            snapshotLoader: { _ in [] }, betaEnvironmentLoader: { true })
+        await beta.start()
+        XCTAssertEqual(beta.entitlement, .unavailable)
+        XCTAssertTrue(beta.betaRelayAccess)
+        XCTAssertTrue(beta.allowsManagedTransport)
+
+        let production = SubscriptionStore(startObserving: false, productLoader: { [] },
+            snapshotLoader: { _ in [] }, betaEnvironmentLoader: { false })
+        await production.start()
+        XCTAssertFalse(production.allowsManagedTransport)
+    }
+
     func testUnavailableCatalogUsesVerifiedReceiptAndAuthoritativeRevocationStillWins() async {
         let receipt = SubscriptionStatusSnapshot(product: .solo, state: .subscribed,
             expirationDate: Date().addingTimeInterval(3600), isTrial: false, verified: true)
@@ -13,7 +44,7 @@ final class SubscriptionStoreEvidenceTests: XCTestCase {
         })
         await store.start()
         XCTAssertTrue(store.entitlement.state.allowsRemoteInfrastructure)
-        XCTAssertEqual(store.entitlement.seatLimit, 1)
+        XCTAssertEqual(store.entitlement.seatLimit, 2)
         authoritative = [.solo]
         statuses = [.init(product: .solo, state: .revoked, expirationDate: nil, isTrial: false, verified: true)]
         await store.refresh()

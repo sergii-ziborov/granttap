@@ -32,7 +32,10 @@ extension AppRuntimeTests {
         model.applyConnectionChange(
             false, client: client, disconnectDelayNanoseconds: 1_000_000
         )
-        try? await Task.sleep(nanoseconds: 20_000_000)
+        for _ in 0..<100 {
+            if !model.connected { break }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
         XCTAssertFalse(model.connected)
     }
 

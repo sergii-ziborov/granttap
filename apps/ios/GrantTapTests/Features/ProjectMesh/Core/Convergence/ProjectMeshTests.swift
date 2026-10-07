@@ -85,6 +85,25 @@ final class ProjectMeshTests: XCTestCase {
         XCTAssertTrue(ProjectMeshWireValidator.validEvent(try JSONEncoder().encode(progress)))
     }
 
+    func testHandoffCapsuleAcceptsBoundedModelAndComment() throws {
+        let data = try JSONEncoder().encode(fixtureEvent(targetSessionId: nil,
+                                                          targetComputer: "Workstation"))
+        var event = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        var payload = try XCTUnwrap(event["payload"] as? [String: Any])
+        var capsule = try XCTUnwrap(payload["capsule"] as? [String: Any])
+        capsule["targetModel"] = "gpt-6-sol"
+        capsule["userComment"] = "Run the migration tests."
+        payload["capsule"] = capsule
+        event["payload"] = payload
+        XCTAssertTrue(ProjectMeshWireValidator.validEvent(
+            try JSONSerialization.data(withJSONObject: event)))
+        capsule["targetModel"] = "--unsafe"
+        payload["capsule"] = capsule
+        event["payload"] = payload
+        XCTAssertFalse(ProjectMeshWireValidator.validEvent(
+            try JSONSerialization.data(withJSONObject: event)))
+    }
+
     func testWireValidatorBoundsProjectSnapshots() throws {
         let encoded = try JSONEncoder().encode(fixtureSnapshot())
         XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(encoded))

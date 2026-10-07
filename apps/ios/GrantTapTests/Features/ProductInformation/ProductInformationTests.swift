@@ -36,7 +36,8 @@ final class ProductInformationTests: XCTestCase {
         let help = try ProductDocument.load(.help, language: "en")
         let text = help.sections.flatMap { ($0.paragraphs ?? []) + ($0.bullets ?? []) }.joined()
         XCTAssertTrue(text.contains("Help → GrantTap Help"))
-        XCTAssertTrue(text.contains("Device network → Connect iPhone or iPad"))
+        XCTAssertTrue(text.contains("Devices → Connect iPhone or iPad"))
+        XCTAssertTrue(text.contains("Account Mesh exists"))
         XCTAssertTrue(text.contains("Connect a computer by link"))
         XCTAssertTrue(text.contains("Restore purchases"))
     }

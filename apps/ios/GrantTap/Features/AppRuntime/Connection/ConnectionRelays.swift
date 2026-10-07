@@ -3,6 +3,10 @@ import SwiftUI
 import UIKit
 
 extension AppModel {
+    func announceControllerName() {
+        for client in relaysByRoom.values { client.sendHello() }
+    }
+
     func attachRelay(for pairing: Pairing) {
         let room = pairing.room
         relaysByRoom[room]?.disconnect()
@@ -130,6 +134,9 @@ extension AppModel {
         }
         if up {
             syncAgentMeshSettings(to: client)
+            if let credential = connectionRegistry.connections.first(where: { $0.id == room })?.accountCredential {
+                sendAccountLink(credential, roomId: room)
+            }
             var rt = roomRuntime[room] ?? RoomRuntime()
             if !rt.socketUp { rt.socketUpSince = Date().timeIntervalSince1970 * 1000 }
             rt.socketUp = true

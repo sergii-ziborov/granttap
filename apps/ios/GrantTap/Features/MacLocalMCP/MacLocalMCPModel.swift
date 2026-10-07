@@ -11,6 +11,7 @@ final class MacLocalMCPModel: ObservableObject {
     @Published private(set) var refreshing = false
     @Published private(set) var hasCheckedLocalMCP = false
     private var firstLocalCheckAt: Date?
+    private var nextAccountAccessAttempt = Date.distantPast
     @Published private(set) var machineLoad: MacLocalMachineLoad?
     @Published private(set) var machineLoadError: String?
     @Published private(set) var usageError: String?
@@ -56,8 +57,14 @@ final class MacLocalMCPModel: ObservableObject {
                 message = L("Local MCP is running, but its Mesh reader is unavailable.")
                 return
             }
+            if MacNativeAccess.shared.token == nil { _ = await restoreAccountAccess(discovered) }
             async let liveRead = try? MacLocalMCPClient.liveCatalog(socketPath: socket)
-            let snapshot = try await MacLocalMCPClient.workspace(socketPath: socket)
+            let snapshot: MacLocalWorkspace
+            do { snapshot = try await MacLocalMCPClient.workspace(socketPath: socket) }
+            catch {
+                guard await restoreAccountAccess(discovered) else { throw error }
+                snapshot = try await MacLocalMCPClient.workspace(socketPath: socket)
+            }
             workspace = snapshot
             catalogProjects = snapshot.projects == nil
                 ? try? await MacLocalMCPClient.catalog(socketPath: socket, workspace: snapshot) : nil
@@ -79,6 +86,16 @@ final class MacLocalMCPModel: ObservableObject {
                 hasCheckedLocalMCP = true
             }
         }
+    }
+
+    private func restoreAccountAccess(_ status: MacLocalMCPStatus) async -> Bool {
+        guard status.accountLinkSaved == true, let account = GrantTapAccountAPI.session,
+              Date() >= nextAccountAccessAttempt else { return false }
+        nextAccountAccessAttempt = Date().addingTimeInterval(30)
+        do {
+            try await MacNativeAccess.shared.authorizeWithAccount(account.token)
+            return true
+        } catch { return false }
     }
 
     func refreshUsage(socketPath: String) async {
