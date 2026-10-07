@@ -64,8 +64,9 @@ lapses.
 
 The [Mac guide](apps/macos/README.md) explains local MCP authorization,
 Account Mesh and direct QR pairing. [Mac App Store screenshots](apps/macos/AppStore/Screenshots/en-US/Mac)
-show Now, Tasks, a conversation, Usage and Mesh. A Mac TestFlight build must be
-verified in App Store Connect before it is described as available to testers.
+show Now, Tasks, a conversation, Usage and Mesh. Mac build 163 passed Apple
+processing and is assigned to the internal TestFlight group. The public Mac
+App Store release is not yet available for purchase.
 
 ## Product shape
 
