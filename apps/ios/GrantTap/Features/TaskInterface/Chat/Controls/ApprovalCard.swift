@@ -6,12 +6,46 @@ import UIKit
 struct ApprovalCard: View {
     let req: ApprovalRequest
     var isWaiting = false
+    var waitingMessage: String? = nil
     let onApprove: () -> Void
     let onDeny: () -> Void
+    @State private var showingDetails = false
 
     private var accent: Color { Theme.accent(for: req.agent) }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button { showingDetails = true } label: { requestSummary }
+                .pointerButtonStyle()
+                .accessibilityIdentifier("approval.details.\(req.requestId)")
+
+            if isWaiting {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text(waitingMessage ?? L("Decision sent · waiting for the computer to confirm…"))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.muted)
+                }
+            } else {
+                HStack(spacing: 9) {
+                    #if targetEnvironment(macCatalyst)
+                    Spacer(minLength: 0)
+                    #endif
+                    DecisionActionButton(title: L("Deny"), tint: Theme.riskHigh,
+                                         filled: false, action: onDeny)
+                    DecisionActionButton(title: req.kind == "question" ? L("Reply") : L("Allow"), tint: accent,
+                                         textColor: Theme.glyphInk(for: req.agent), action: {
+                        if req.kind == "question" { showingDetails = true } else { onApprove() }
+                    })
+                }
+            }
+        }
+        .card()
+        .sheet(isPresented: $showingDetails) {
+            ApprovalDetailSheet(request: req)
+        }
+    }
+    private var requestSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
                 AgentGlyph(agent: req.agent, size: 28)
@@ -23,7 +57,6 @@ struct ApprovalCard: View {
                 Pill(text: Theme.riskLabel(req.risk), color: Theme.risk(req.risk))
             }
 
-            // Card body is not tappable for dismiss — only Deny/Allow buttons decide.
             VStack(alignment: .leading, spacing: 10) {
                 Text(req.title)
                     .font(.system(size: 16, weight: .semibold))
@@ -53,30 +86,11 @@ struct ApprovalCard: View {
                         .lineLimit(1)
                 }
             }
-            .contentShape(Rectangle())
-            .onTapGesture { /* absorb body taps — never dismiss */ }
 
-            if isWaiting {
-                HStack(spacing: 8) {
-                    ProgressView()
-                    Text(L("Decision sent · waiting for the computer to confirm…"))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Theme.muted)
-                }
-            } else {
-                HStack(spacing: 9) {
-                    #if targetEnvironment(macCatalyst)
-                    Spacer(minLength: 0)
-                    #endif
-                    DecisionActionButton(title: L("Deny"), tint: Theme.riskHigh,
-                                         filled: false, action: onDeny)
-                    DecisionActionButton(title: L("Allow"), tint: accent,
-                                         textColor: Theme.glyphInk(for: req.agent), action: onApprove)
-                }
-            }
-        }
-        .card()
+        }.frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
     }
+
 }
 
 // MARK: - pairing

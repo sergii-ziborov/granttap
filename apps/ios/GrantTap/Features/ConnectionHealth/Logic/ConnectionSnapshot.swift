@@ -58,9 +58,9 @@ struct ConnectionSnapshot: Equatable {
         case .phoneOffline:
             return L("This iPhone is not on the relay. Tap Reconnect to reopen the link.")
         case .macOffline:
-            return L("Phone is linked, but this computer has not published chats recently. If another Mac shows Live, tap Prefer for chats on it. Otherwise keep GrantTap monitor running, then Reconnect.")
+            return L("Phone is linked, but this computer has not published chats recently. Keep GrantTap monitor running, then Reconnect.")
         case .needRepair:
-            return L("Keys are on this iPhone, but this computer never published (wrong room or old pair). Scan a fresh QR from that Mac/PC — existing other links stay. Or Prefer for chats on a Live computer.")
+            return L("This computer has not published chats yet. Reconnect to repair its account link, or scan its QR for a direct link.")
         case .live:
             if let machine = machineName, !machine.isEmpty {
                 return String(format: L("“%@” is publishing chats."), machine)

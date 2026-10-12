@@ -8,10 +8,23 @@ extension TaskChatView {
 
     var previousUserEntry: ActivityEntry? {
         if chatIsAtBottom || userMessageAnchor != nil {
-            return TranscriptRequestBoundary.previous(in: rootEntries, before: userMessageAnchor)
+            let latest = TranscriptRequestBoundary.previous(in: rootEntries, before: nil)
+            let anchor = userMessageAnchor ?? (latestRequestIsVisibleAtTop ? latest?.id : nil)
+            return TranscriptRequestBoundary.previous(in: rootEntries, before: anchor)
+                ?? (userMessageAnchor == nil ? latest : nil)
         }
         return ChatPinnedUserMessage.navigationEntry(in: ChatActivityGrouping.rows(visibleTimeline),
             topRowId: topVisibleTranscriptRow, afterJump: userMessageAnchor)
+    }
+
+    private var latestRequestIsVisibleAtTop: Bool {
+        guard let topVisibleTranscriptRow,
+              let top = rootEntries.first(where: { ChatScrollTarget.forEntry($0) == topVisibleTranscriptRow }),
+              TranscriptRequestBoundary.isRequest(top),
+              let latest = TranscriptRequestBoundary.previous(in: rootEntries, before: nil),
+              let request = TranscriptRequestBoundary.request(containing: top.id, in: rootEntries)
+        else { return false }
+        return request.id == latest.id
     }
 
     func latestUserMessageButton(_ proxy: ScrollViewProxy) -> some View {
@@ -26,11 +39,11 @@ extension TaskChatView {
             .font(.system(size: 12, weight: .semibold))
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(Theme.surface.opacity(0.97))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .disabled(historyLoading && previousUserEntry == nil)
-        .background(Theme.surface.opacity(0.97))
         .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .bottom)
         .accessibilityLabel(L("Previous user message") + ": " + previousRequestTitle)
         .accessibilityIdentifier("chat.latest-user-message")

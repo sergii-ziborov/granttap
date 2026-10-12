@@ -19,16 +19,23 @@ struct DiagnosticsReport: Equatable {
     let connection: String
     let liveSessions: Int
     let governedProjects: Int
+    var providerCounts: String = ""
+    var transportAllowed: Bool = false
+    var recoveryFailed: Bool = false
+    var routes: [String] = []
 
     var text: String {
-        [
+        ([
             "GrantTap \(appVersion) (\(build))",
             "iOS \(systemVersion) · \(deviceModel) · \(locale)",
             "Linked computers: \(linkedComputers)",
             "Connection: \(connection)",
             "Live tasks: \(liveSessions)",
             "Mesh spaces reporting policy: \(governedProjects)",
-        ].joined(separator: "\n")
+            "Provider counts: \(providerCounts)",
+            "Managed access: \(transportAllowed)",
+            "Account recovery failed: \(recoveryFailed)",
+        ] + routes).joined(separator: "\n")
     }
 
     /// Redaction is asserted, not assumed: anything resembling a secret in the

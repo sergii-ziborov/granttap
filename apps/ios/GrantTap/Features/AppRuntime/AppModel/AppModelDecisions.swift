@@ -8,19 +8,25 @@ struct DecisionDeliveryContext {
     let by: String
     let title: String
     let agent: String
+    var note: String? = nil
 }
 
 extension AppModel {
-    func decide(_ req: ApprovalRequest, _ decision: String, by: String = "phone") {
+    func decide(_ req: ApprovalRequest, _ decision: String, by: String = "phone", note: String? = nil) {
         // Only explicit Allow/Deny (or notification action) may clear a live gate.
         // Card-body taps / navigation must never call this.
-        guard approvalDecisionsInFlight[req.requestId] == nil else { return }
-        markDecisionInFlight(req.requestId, decision: decision, sessionId: req.sessionId)
-        pushToWatch()
+        guard approvalDecisionsInFlight[req.requestId] == nil,
+              !approvalDecisionQueue.entries.contains(where: { $0.requestId == req.requestId }) else { return }
         let context = DecisionDeliveryContext(
             requestId: req.requestId, decision: decision, by: by,
-            title: req.title, agent: req.agent
+            title: req.title, agent: req.agent, note: note
         )
+        guard persistApprovalDecision(context, sessionId: req.sessionId) else {
+            append("decision.send failed: decision queue could not be saved")
+            return
+        }
+        markDecisionInFlight(req.requestId, decision: decision, sessionId: req.sessionId)
+        pushToWatch()
         deliverDecision(context, sessionId: req.sessionId)
     }
 
@@ -30,7 +36,7 @@ extension AppModel {
             return
         }
         client.sendDecision(requestId: context.requestId, decision: context.decision, by: context.by,
-                            sessionId: sessionId) { [weak self] error in
+                            sessionId: sessionId, note: context.note) { [weak self] error in
             DispatchQueue.main.async {
                 self?.finishDecisionDelivery(context, error: error)
             }
@@ -38,8 +44,12 @@ extension AppModel {
     }
 
     func finishDecisionDelivery(_ context: DecisionDeliveryContext, error: Error?) {
+        let sessionId = approvalDecisionSessionScope[context.requestId]
+        noteApprovalDecisionSent(context.requestId, sessionId: sessionId, succeeded: error == nil)
         if let error {
-            clearDecisionInFlight(context.requestId)
+            if !approvalDecisionQueue.entries.contains(where: { $0.requestId == context.requestId }) {
+                clearDecisionInFlight(context.requestId)
+            }
             append("decision.send failed \(context.requestId.prefix(8)): \(error.localizedDescription)")
             AuditStore.shared.record("decision", detail: "\(context.decision) · \(context.agent) · \(context.by)",
                                      outcome: "failed")
@@ -71,13 +81,19 @@ extension AppModel {
             }
             decide(req, decision, by: by)
         } else {
-            guard approvalDecisionsInFlight[requestId] == nil else { return }
+            guard approvalDecisionsInFlight[requestId] == nil,
+                  !approvalDecisionQueue.entries.contains(where: { $0.requestId == requestId }) else { return }
             markDecisionInFlight(requestId, decision: decision, sessionId: sessionId)
             pushToWatch()
             let context = DecisionDeliveryContext(
                 requestId: requestId, decision: decision, by: by,
                 title: requestId, agent: "unknown"
             )
+            guard persistApprovalDecision(context, sessionId: sessionId) else {
+                clearDecisionInFlight(requestId)
+                append("decision.send failed: decision queue could not be saved")
+                return
+            }
             deliverDecision(context, sessionId: sessionId)
         }
     }
@@ -131,5 +147,6 @@ extension AppModel {
     func append(_ line: String) {
         log.insert(line, at: 0)
         if log.count > 100 { log.removeLast() }
+        saveRequestedDiagnostics()
     }
 }

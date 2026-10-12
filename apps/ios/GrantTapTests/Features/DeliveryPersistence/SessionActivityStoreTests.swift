@@ -34,26 +34,30 @@ final class SessionActivityStoreTests: XCTestCase {
         XCTAssertEqual(restored["chat"]?.agent, "claude")
     }
 
-    func testOnlyTheNewestChatsAreKept() {
-        // A phone accumulates chats forever; their transcripts must not.
+    func testEveryChatIsKeptUntilExplicitlyCleared() {
+        // All active chats remain available; retention ends only at explicit cleanup.
         let many = Dictionary(uniqueKeysWithValues: (0..<80).map { index in
             ("chat-\(index)", activity("chat-\(index)", entries: 1, generatedAt: Double(index)))
         })
         let bounded = SessionActivityPersistence.bounded(many)
-        XCTAssertEqual(bounded.count, SessionActivityPersistence.maxSessions)
-        // The oldest fall out, the newest stay.
-        XCTAssertNil(bounded["chat-0"])
+        XCTAssertEqual(bounded.count, 80)
+        // Both ends survive.
+        XCTAssertNotNil(bounded["chat-0"])
         XCTAssertNotNil(bounded["chat-79"])
+        SessionActivityPersistence.save(bounded)
+        XCTAssertEqual(SessionActivityPersistence.load().count, 80)
     }
 
-    func testALongChatKeepsItsMostRecentExchange() {
+    func testALongChatKeepsEveryMessage() {
         let long = activity("chat", entries: 400, generatedAt: 1)
         let bounded = SessionActivityPersistence.bounded(["chat": long])
         let kept = try? XCTUnwrap(bounded["chat"]).entries
-        XCTAssertEqual(kept?.count, SessionActivityPersistence.maxEntriesPerSession)
-        // Truncation is from the front: reopening a chat shows where it left off.
+        XCTAssertEqual(kept?.count, 400)
+        // Keep both the first and latest message.
         XCTAssertEqual(kept?.last?.id, "entry-399")
-        XCTAssertEqual(kept?.first?.id, "entry-100")
+        XCTAssertEqual(kept?.first?.id, "entry-0")
+        SessionActivityPersistence.save(bounded)
+        XCTAssertEqual(SessionActivityPersistence.load()["chat"]?.entries.count, 400)
     }
 
     func testNoStoredFileIsAnEmptyStartRatherThanAFailure() {
@@ -71,10 +75,9 @@ final class SessionActivityStoreTests: XCTestCase {
 }
 
 extension SessionActivityStoreTests {
-    /// The computer sends a short window each time; merging them must not grow
-    /// a chat without end.
+    /// Fresh windows add to the device's complete history.
     @MainActor
-    func testMergingWindowsStopsAtTheKeptWindow() {
+    func testMergingWindowsNeverDiscardsEarlierMessages() {
         let cap = SessionActivityPersistence.maxEntriesPerSession
         let existing = SessionActivity(
             sessionId: "chat", agent: "claude", state: "idle",
@@ -85,10 +88,10 @@ extension SessionActivityStoreTests {
             entries: (cap..<(cap + 40)).map(entry), generatedAt: 2
         )
         let merged = AppModel.mergeActivity(existing: existing, incoming: incoming)
-        XCTAssertEqual(merged.entries.count, cap)
-        // Cut from the front: the newest exchange is the part being read.
+        XCTAssertEqual(merged.entries.count, cap + 40)
+        // Earlier turns remain after the latest window arrives.
         XCTAssertEqual(merged.entries.last?.id, "entry-\(cap + 39)")
-        XCTAssertEqual(merged.entries.first?.id, "entry-40")
+        XCTAssertEqual(merged.entries.first?.id, "entry-0")
     }
 }
 

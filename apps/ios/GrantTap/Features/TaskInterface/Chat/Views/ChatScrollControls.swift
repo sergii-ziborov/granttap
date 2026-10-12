@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension TaskChatView {
-    /// Navigation stays in the pinned request strip, outside the scrolling surface.
+    /// A reading shortcut floats above the transcript, just above the composer.
     func jumpToLatestButton(_ proxy: ScrollViewProxy) -> some View {
         Button {
             userMessageAnchor = nil
@@ -13,11 +13,15 @@ extension TaskChatView {
         } label: {
             Image(systemName: "arrow.down")
                 .font(.system(size: 17, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .foregroundStyle(Theme.ink)
+                .frame(width: 44, height: 44)
+                .background(Circle().fill(Theme.surface))
+                .overlay(Circle().stroke(Theme.line, lineWidth: 1))
+                .shadow(color: .black.opacity(0.14), radius: 8, y: 3)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityLabel(L("Jump to latest messages"))
         .accessibilityIdentifier("chat.jumpToLatest")
-        .padding(.trailing, 16)
+        .padding(.trailing, 20)
     }
 }

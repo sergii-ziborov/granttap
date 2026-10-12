@@ -11,7 +11,18 @@ extension AppModel {
         for key in activities.keys where Self.isGrantTapDemoSessionId(key) {
             activities.removeValue(forKey: key)
         }
-        SessionCatalogCache.clear()
+        if let cached = SessionCatalogCache.load() {
+            let live = Self.filterRealCatalogSessions(cached.sessions, allowDemo: false)
+            let history = Self.filterRealCatalogSessions(cached.history, allowDemo: false)
+            if live.isEmpty && history.isEmpty {
+                SessionCatalogCache.clear()
+            } else {
+                SessionCatalogCache.save(.init(sessions: live, history: history,
+                    machine: cached.machine, tokensRecent: cached.tokensRecent,
+                    tokenWindowHours: cached.tokenWindowHours, generatedAt: cached.generatedAt),
+                    retainingPreviousHistory: false)
+            }
+        }
         let after = sessions.count + sessionHistory.count
         if before != after || reason == "pair" || reason == "stop-demo" {
             append("catalog-isolation: purged demo residue (\(reason)) \(before)→\(after)")
@@ -25,20 +36,26 @@ extension AppModel {
         guard sessions.isEmpty, sessionHistory.isEmpty,
               let cached = SessionCatalogCache.load() else { return }
         let before = cached.sessions.count + cached.history.count
-        let live = Self.filterRealCatalogSessions(cached.sessions, allowDemo: false)
-        let hist = Self.filterRealCatalogSessions(cached.history, allowDemo: false)
-        guard !live.isEmpty || !hist.isEmpty else {
+        let realLive = Self.filterRealCatalogSessions(cached.sessions, allowDemo: false)
+        let realHistory = Self.filterRealCatalogSessions(cached.history, allowDemo: false)
+        guard !realLive.isEmpty || !realHistory.isEmpty else {
             SessionCatalogCache.clear()
             append("catalog-cache: discarded demo/opaque sqlite snapshot (\(before) ghosts)")
             return
         }
+        let live = realLive.filter(isReplicaSessionVisible)
+        let hist = realHistory.filter(isReplicaSessionVisible)
+        guard !live.isEmpty || !hist.isEmpty else {
+            // Retain recovery data on disk, but another account cannot browse it.
+            return
+        }
         // Rewrite SQLite without code-blob / demo ghosts so they cannot return.
-        if live.count + hist.count < before {
+        if realLive.count + realHistory.count < before {
             SessionCatalogCache.save(.init(
-                sessions: live, history: hist, machine: cached.machine,
+                sessions: realLive, history: realHistory, machine: cached.machine,
                 tokensRecent: cached.tokensRecent, tokenWindowHours: cached.tokenWindowHours,
                 generatedAt: cached.generatedAt
-            ))
+            ), retainingPreviousHistory: false)
             append("catalog-cache: purged \(before - live.count - hist.count) ghost rows from sqlite")
         }
         sessions = Self.deduplicatedSessions(live)
@@ -48,21 +65,6 @@ extension AppModel {
         tokenWindowHours = cached.tokenWindowHours
         lastSessionsGeneratedAt = cached.generatedAt
         append("catalog-cache: sqlite restored \(sessions.count) live / \(sessionHistory.count) history")
-    }
-
-    /// Settings → Clear local chat cache (does not affect Mac sessions).
-    func clearLocalSessionCache() {
-        SessionCatalogCache.clear()
-        SessionActivityPersistence.clear()
-        sessions = []
-        sessionHistory = []
-        activities = [:]
-        lastSessionsGeneratedAt = 0
-        append("catalog-cache: cleared")
-        AuditStore.shared.record("cache", detail: "Cleared local SQLite session cache")
-        pushToWatch()
-        // Awaitable refresh so Active repopulates from THIS Mac's lean publish.
-        Task { await refreshSessions() }
     }
 
     private func preparedCatalog(
@@ -128,8 +130,9 @@ extension AppModel {
         return Self.deduplicatedSessions(remoteLive + pendingLocal)
     }
 
-    private func applyLiveCatalog(_ nextSessions: [SessionInfo], fromRoom room: String?) {
-        if nextSessions.isEmpty && !self.sessions.isEmpty {
+    private func applyLiveCatalog(_ nextSessions: [SessionInfo], fromRoom room: String?,
+                                  replaceEmpty: Bool = false) {
+        if nextSessions.isEmpty && !self.sessions.isEmpty && !replaceEmpty {
             append("sessions.status ignored empty live (kept \(self.sessions.count))")
         } else if self.sessions != nextSessions {
             // Several reporters send the same list every few seconds; publishing
@@ -148,13 +151,16 @@ extension AppModel {
 
     private func applyHistoryCatalog(
         _ history: [SessionInfo]?,
-        remoteLive: [SessionInfo]
+        remoteLive: [SessionInfo],
+        replaceEmpty: Bool = false
     ) {
         let liveIds = Set(self.sessions.map(\.sessionId))
         if let history, !history.isEmpty {
             self.sessionHistory = history.filter {
                 !liveIds.contains($0.sessionId) && !archivedSessionIds.contains($0.sessionId)
             }
+        } else if replaceEmpty {
+            self.sessionHistory = []
         } else if !self.sessionHistory.isEmpty {
             self.sessionHistory = self.sessionHistory.filter {
                 !liveIds.contains($0.sessionId) && !archivedSessionIds.contains($0.sessionId)
@@ -177,14 +183,6 @@ extension AppModel {
         _ status: SessionsStatus,
         sourceNamespace: String?
     ) {
-        self.tokensRecent = status.tokensRecent
-        self.tokenWindowHours = status.tokenWindowHours
-        self.machineName = status.machine
-        if let g = status.gatingEnabled { self.gatingEnabled = g }
-        if let ex = status.excludedSessions { self.excludedSessions = ex }
-        if let d = status.autoAcceptDefault { self.autoAcceptDefault = d }
-        if let m = status.autoAcceptBySession { self.autoAcceptBySession = m }
-        if let m = status.autoAcceptByProject { self.autoAcceptByProject = m }
         if let room = sourceNamespace, let levels = status.autoAcceptByProject {
             self.autoAcceptByProjectByRoom[room] = levels
         }
@@ -194,13 +192,24 @@ extension AppModel {
         if let room = sourceNamespace, let epoch = status.instanceEpoch {
             self.instanceEpochByRoom[room] = epoch
         }
-        if let p = status.autoAcceptPaused { self.autoAcceptPaused = p }
-        if let names = status.globalMcpDisabled { self.globalMcpDisabled = Set(names) }
-        if let names = status.globalSkillsDisabled { self.globalSkillsDisabled = Set(names) }
-        if let disabled = status.globalShellDisabled { self.globalShellDisabled = disabled }
-        if let agents = status.agents {
-            self.agentIntegrations = agents
-            if let room = sourceNamespace { self.agentIntegrationsByRoom[room] = agents }
+        if let room = sourceNamespace, let agents = status.agents {
+            self.agentIntegrationsByRoom[room] = agents
+        }
+        if sourceNamespace == nil || connectionRegistry.preferredId == nil
+            || sourceNamespace == connectionRegistry.preferredId {
+            self.tokensRecent = status.tokensRecent
+            self.tokenWindowHours = status.tokenWindowHours
+            self.machineName = status.machine
+            if let g = status.gatingEnabled { self.gatingEnabled = g }
+            if let ex = status.excludedSessions { self.excludedSessions = ex }
+            if let d = status.autoAcceptDefault { self.autoAcceptDefault = d }
+            if let m = status.autoAcceptBySession { self.autoAcceptBySession = m }
+            if let m = status.autoAcceptByProject { self.autoAcceptByProject = m }
+            if let p = status.autoAcceptPaused { self.autoAcceptPaused = p }
+            if let names = status.globalMcpDisabled { self.globalMcpDisabled = Set(names) }
+            if let names = status.globalSkillsDisabled { self.globalSkillsDisabled = Set(names) }
+            if let disabled = status.globalShellDisabled { self.globalShellDisabled = disabled }
+            if let agents = status.agents { self.agentIntegrations = agents }
         }
         if let embedded = status.activities {
             for activity in embedded {
@@ -225,7 +234,8 @@ extension AppModel {
     }
 
     func applySessionsStatus(_ status: SessionsStatus,
-                             sourceNamespace: String? = nil) {
+                             sourceNamespace: String? = nil,
+                             visibleCatalog: (live: [SessionInfo], history: [SessionInfo])? = nil) {
         if !demoMode {
             let hadDemo = sessions.contains(where: { Self.isGrantTapDemoSessionId($0.sessionId) })
                 || sessionHistory.contains(where: { Self.isGrantTapDemoSessionId($0.sessionId) })
@@ -237,10 +247,24 @@ extension AppModel {
                 sessionHistory = Self.filterRealCatalogSessions(sessionHistory, allowDemo: false)
             }
         }
-        let catalog = preparedCatalog(from: status)
-        let remoteLive = mergedRemoteLive(catalog.live, history: catalog.history)
-        applyLiveCatalog(remoteLive, fromRoom: sourceNamespace)
-        applyHistoryCatalog(catalog.history, remoteLive: remoteLive)
+        var displayed = status
+        if let visibleCatalog {
+            displayed.sessions = visibleCatalog.live
+            displayed.history = visibleCatalog.history
+        }
+        let catalog = preparedCatalog(from: displayed)
+        let remoteLive: [SessionInfo]
+        if visibleCatalog == nil {
+            remoteLive = mergedRemoteLive(catalog.live, history: catalog.history)
+        } else {
+            remoteLive = Self.deduplicatedSessions(catalog.live + sessions.filter {
+                localOnlySessionIds.contains($0.sessionId)
+            })
+        }
+        applyLiveCatalog(remoteLive, fromRoom: visibleCatalog == nil ? sourceNamespace : nil,
+                         replaceEmpty: visibleCatalog != nil)
+        applyHistoryCatalog(catalog.history, remoteLive: remoteLive,
+                            replaceEmpty: visibleCatalog != nil)
         applyCatalogConfiguration(status, sourceNamespace: sourceNamespace)
         clearStuckMcpReplies()
         self.lastSessionsGeneratedAt = status.generatedAt

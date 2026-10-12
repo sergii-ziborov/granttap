@@ -8,7 +8,7 @@ struct ProjectArchitectureFullScreen: View {
     @State private var query = ""
     @State private var selectedId: String?
     @State private var reset = 0
-    @State private var showAllRelations = false
+    @State private var info: ProjectArchitectureInfo?
     @FocusState private var searchFocused: Bool
 
     private var selected: ProjectRepositoryGraph.Node? {
@@ -18,51 +18,39 @@ struct ProjectArchitectureFullScreen: View {
     private var matches: [ProjectRepositoryGraph.Node] {
         let needle = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !needle.isEmpty else { return [] }
-        return Array(report.nodes.filter {
+        return report.nodes.filter {
             $0.label.localizedStandardContains(needle) || $0.kind.localizedStandardContains(needle)
-        }.prefix(20))
+                || $0.id.localizedStandardContains(needle)
+        }
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Theme.bg.ignoresSafeArea()
-            ProjectArchitectureScene(report: report, selectedId: $selectedId)
-                .id(reset)
-                .ignoresSafeArea()
-                .accessibilityIdentifier("architecture.scene")
-                .allowsHitTesting(query.isEmpty)
-            VStack(spacing: 8) {
-                toolbar
-                if !matches.isEmpty { results }
-                Spacer()
-                if let selected { inspector(selected) }
-                summary
+        VStack(spacing: 8) {
+            toolbar
+            if !query.isEmpty { results }
+            GeometryReader { geometry in
+                ProjectArchitectureScene(report: report, selectedId: $selectedId, viewport: geometry.size)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .id(reset)
+                    .accessibilityIdentifier("architecture.scene")
             }
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-            .padding(.bottom, 18)
-            .zIndex(1)
+            .overlay(alignment: .bottomLeading) {
+                if selected == nil {
+                    Label(L("Tap a component to inspect"), systemImage: "hand.tap")
+                        .font(.caption).foregroundStyle(Theme.muted)
+                        .padding(10).allowsHitTesting(false)
+                }
+            }
+            if let selected { inspector(selected) }
+            summary
         }
-        .sheet(isPresented: $showAllRelations) {
-            NavigationView {
-                List {
-                    ForEach(selectedRelations) { edge in
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("\(label(edge.source)) → \(label(edge.target))")
-                            Text(edge.evidenceCount.map {
-                                "\(edge.relation) · \($0) \(L("observed links"))"
-                            } ?? "\(edge.relation) · \(L("Evidence count unknown"))")
-                                .font(.caption).foregroundStyle(Theme.muted)
-                        }
-                    }
-                }
-                .navigationTitle(L("Component relations"))
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(L("Done")) { showAllRelations = false }
-                    }
-                }
-            }
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+        .background(Theme.bg.ignoresSafeArea())
+        .sheet(item: $info) { destination in
+            ProjectArchitectureInfoSheet(report: report, repositoryName: repositoryName,
+                                         destination: destination) { selectedId = $0 }
         }
     }
 
@@ -80,7 +68,7 @@ struct ProjectArchitectureFullScreen: View {
             HStack(spacing: 10) {
                 Button { dismiss() } label: {
                     Image(systemName: "xmark").font(.headline)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                 }
                 .accessibilityLabel(L("Close graph"))
                 VStack(alignment: .leading) {
@@ -89,8 +77,13 @@ struct ProjectArchitectureFullScreen: View {
                         .font(.caption2).foregroundStyle(Theme.muted)
                 }
                 Spacer()
-                Button { reset += 1; selectedId = nil } label: {
-                    Image(systemName: "arrow.counterclockwise").frame(width: 40, height: 40)
+                Button { info = .report } label: {
+                    Image(systemName: "info.circle").frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(L("About this graph"))
+                .accessibilityIdentifier("architecture.info")
+                Button { reset += 1; selectedId = nil; query = ""; searchFocused = false } label: {
+                    Image(systemName: "arrow.counterclockwise").frame(width: 44, height: 44)
                 }
                 .accessibilityLabel(L("Reset graph view"))
             }
@@ -115,6 +108,9 @@ struct ProjectArchitectureFullScreen: View {
     private var results: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
+                if matches.isEmpty {
+                    Text(L("No matching components")).foregroundStyle(Theme.muted).padding(12)
+                }
                 ForEach(matches) { node in
                     Button {
                         selectedId = node.id
@@ -129,7 +125,7 @@ struct ProjectArchitectureFullScreen: View {
                         .padding(10)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .pointerButtonStyle()
                     .accessibilityIdentifier("architecture.result.\(node.id)")
                 }
             }
@@ -147,7 +143,14 @@ struct ProjectArchitectureFullScreen: View {
                 Button { selectedId = nil } label: { Image(systemName: "xmark.circle") }
                     .accessibilityLabel(L("Close component details"))
             }
-            Text(node.kind.capitalized).font(.caption).foregroundStyle(Theme.muted)
+            HStack {
+                Circle().fill(ProjectArchitectureStyle.color(node.kind)).frame(width: 10, height: 10)
+                Text(node.kind.capitalized).font(.caption).foregroundStyle(Theme.muted)
+                Spacer()
+                Button(L("Component details")) { info = .component(node.id) }
+                    .font(.caption)
+                    .accessibilityIdentifier("architecture.component-info")
+            }
             ForEach(selectedRelations.prefix(4)) { edge in
                 let otherId = edge.source == node.id ? edge.target : edge.source
                 let other = report.nodes.first { $0.id == otherId }
@@ -162,12 +165,12 @@ struct ProjectArchitectureFullScreen: View {
                     }
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .font(.caption)
             }
             if selectedRelations.count > 4 {
                 Button(String(format: L("Show all %d relations"), selectedRelations.count)) {
-                    showAllRelations = true
+                    info = .component(node.id)
                 }
             }
         }
@@ -177,16 +180,22 @@ struct ProjectArchitectureFullScreen: View {
     }
 
     private var summary: some View {
-        HStack {
-            Text(String(format: L("%d of %d components · %d of %d relations"),
-                        report.nodes.count, report.totalNodes,
-                        report.relations.count, report.totalRelations))
+        HStack(spacing: 12) {
+            Button { info = .components } label: {
+                Label(String(format: L("%d components · %d relations"),
+                             report.nodes.count, report.relations.count), systemImage: "list.bullet")
+                    .multilineTextAlignment(.leading)
+            }
+            .accessibilityIdentifier("architecture.components")
             Spacer()
-            Text(report.truncated ? L("Partial report") : (report.analysisStatus ?? L("Legacy")))
-                .foregroundStyle(report.truncated ? .orange : Theme.muted)
+            Button { info = .report } label: {
+                Label(report.truncated ? L("Partial report") : (report.analysisStatus ?? L("Legacy")),
+                      systemImage: report.truncated ? "exclamationmark.circle" : "info.circle")
+                    .foregroundStyle(report.truncated ? .orange : Theme.muted)
+            }
         }
         .font(.caption)
-        .padding(10)
+        .padding(12)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 }

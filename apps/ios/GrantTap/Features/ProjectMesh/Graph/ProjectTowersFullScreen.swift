@@ -139,7 +139,7 @@ struct ProjectTowersFullScreen: View {
                         .padding(10)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .pointerButtonStyle()
                 }
                 ForEach(externalMatches) { external in
                     Button {
@@ -155,7 +155,7 @@ struct ProjectTowersFullScreen: View {
                         .padding(10)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .pointerButtonStyle()
                 }
             }
         }

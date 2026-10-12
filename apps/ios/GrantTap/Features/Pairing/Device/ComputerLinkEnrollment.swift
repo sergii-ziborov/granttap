@@ -64,7 +64,7 @@ final class ComputerLinkEnrollment: ObservableObject {
         defer { busy = false }
         do {
             let pairings = try await networkFetch(link)
-            guard (1...16).contains(pairings.count), Set(pairings.map(\.room)).count == pairings.count,
+            guard (1...32).contains(pairings.count), Set(pairings.map(\.room)).count == pairings.count,
                   pairings.allSatisfy({ Pairing.isValid($0) && !$0.isHub && $0.inviteKind == nil }) else {
                 phase = .wrongPurpose
                 return

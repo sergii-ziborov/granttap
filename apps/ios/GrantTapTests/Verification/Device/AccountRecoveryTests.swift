@@ -102,7 +102,7 @@ final class AccountRecoveryTests: XCTestCase {
     }
 
     @MainActor
-    func testPasskeyLinksExistingQRComputersWithoutChangingTheirRoute() async throws {
+    func testPasskeyDoesNotCreateSecondMachineForExistingQRRoutes() async throws {
         let transport = stubTransport()
         let previous = PairedConnectionStore.load()
         defer {
@@ -139,22 +139,18 @@ final class AccountRecoveryTests: XCTestCase {
         }
 
         try await model.linkLocalComputersToAccount(session, transport: transport)
-        XCTAssertEqual(registrations, 2)
+        XCTAssertEqual(registrations, 0)
         XCTAssertEqual(model.connectionRegistry.preferredId, first.room)
         let restored = PairedConnectionStore.load()
-        XCTAssertEqual(restored.preferredId, first.room)
-        XCTAssertEqual(Set(restored.connections.compactMap { $0.accountCredential?.machineId }).count, 2)
-        XCTAssertTrue(model.connectionRegistry.connections.allSatisfy {
-            $0.accountCredential?.accountId == session.accountId
-        })
+        XCTAssertEqual(restored, previous, "Sign-in must not rewrite saved QR keys")
         try await model.linkLocalComputersToAccount(session, transport: transport)
-        XCTAssertEqual(registrations, 2, "Reopening passkey should reuse the machine links")
+        XCTAssertEqual(registrations, 0)
         let other = GrantTapAccountSession(accountId: UUID().uuidString, token: session.token)
         try await model.linkLocalComputersToAccount(other, transport: transport)
-        XCTAssertEqual(registrations, 2, "A different account must not register QR computers again")
+        XCTAssertEqual(registrations, 0)
         XCTAssertTrue(model.connectionRegistry.connections.allSatisfy {
-            $0.accountCredential?.accountId == session.accountId
-        }, "A different passkey account must not move QR computers silently")
+            $0.accountReference == nil && $0.accountCredential == nil
+        })
         XCTAssertEqual(model.connectionRegistry.preferredId, first.room)
     }
 
@@ -175,7 +171,7 @@ final class AccountRecoveryTests: XCTestCase {
             _ = try await GrantTapAccountAPI.authenticate(register: true, transport: transport)
             XCTFail("Registration requires the service's user identity")
         } catch AccountBridgeError.invalidResponse { }
-        for error in [AccountBridgeError.invalidResponse, .unavailable, .expired, .storage] {
+        for error in [AccountBridgeError.invalidResponse, .unavailable, .expired, .storage, .recoveryFailed] {
             XCTAssertFalse(try XCTUnwrap(error.errorDescription).isEmpty)
         }
     }

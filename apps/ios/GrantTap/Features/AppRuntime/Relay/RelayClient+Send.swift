@@ -19,10 +19,10 @@ extension RelayClient {
     }
 
     func sendDecision(requestId: String, decision: String, by: String = "phone",
-                      sessionId: String? = nil,
+                      sessionId: String? = nil, note: String? = nil,
                       completion: ((Error?) -> Void)? = nil) {
         let payload = Payloads.decision(requestId, decision, by: by,
-                                        sessionId: sessionId)
+                                        sessionId: sessionId, note: note)
         // Approval requests arrive through the device-level E2EE box, so their
         // decisions must use that same always-available channel. A fresh task
         // may not have received its independent session key yet; attempting a
@@ -82,10 +82,10 @@ extension RelayClient {
              ttl: 60)
     }
 
-    func requestProjectGraphAnalysis(_ projectId: String, completion: ((Error?) -> Void)? = nil) {
+    func requestProjectGraphAnalysis(_ projectId: String, requestId: String? = nil, completion: ((Error?) -> Void)? = nil) {
         send(payload: SessionsRefresh(
             type: "sessions.refresh", createdAt: Date().timeIntervalSince1970 * 1_000,
-            graphProjectId: projectId
+            graphProjectId: projectId, graphAnalysisRequestId: requestId
         ), ttl: 60, completion: completion)
     }
 
@@ -153,6 +153,7 @@ extension RelayClient {
                     sessionId: sessionId, ttl: 5 * 60)
     }
 
+    @discardableResult
     func sendConfig(
         enabled: Bool? = nil,
         excludeSession: String? = nil,
@@ -161,16 +162,22 @@ extension RelayClient {
         autoAcceptSessionId: String? = nil,
         autoAcceptSessionLevel: String? = nil,
         clearAutoAcceptSession: Bool = false,
-        autoAcceptPaused: Bool? = nil
-    ) {
+        autoAcceptPaused: Bool? = nil,
+        authorizeProjectAsk: Bool = false,
+        expectedPolicyRevision: Int? = nil,
+        approvalRequestId: String? = nil
+    ) -> String {
         var sessionSet: AutoAcceptSessionSet? = nil
         if let sid = autoAcceptSessionId {
             sessionSet = AutoAcceptSessionSet(
                 sessionId: sid,
-                level: clearAutoAcceptSession ? nil : autoAcceptSessionLevel
+                level: clearAutoAcceptSession ? nil : autoAcceptSessionLevel,
+                authorizeProjectAsk: authorizeProjectAsk ? true : nil,
+                expectedPolicyRevision: expectedPolicyRevision,
+                approvalRequestId: approvalRequestId
             )
         }
-        send(payload: ConfigSet(
+        return sendFreshConfiguration(ConfigSet(
             type: "config.set",
             enabled: enabled,
             excludeSession: excludeSession,
@@ -191,7 +198,7 @@ extension RelayClient {
         meshEnabled: Bool? = nil,
         contextCompilerEnabled: Bool? = nil
     ) {
-        send(payload: ConfigSet(
+        sendFreshConfiguration(ConfigSet(
             type: "config.set", enabled: nil, excludeSession: nil, includeSession: nil,
             autoAcceptDefault: nil, autoAcceptSession: nil, autoAcceptPaused: nil,
             provider: provider, providerEnabled: providerEnabled, meshEnabled: meshEnabled,

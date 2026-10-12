@@ -7,6 +7,7 @@ struct InChatApprovalsBar: View {
     @EnvironmentObject private var model: AppModel
     var sessionId: String? = nil
     let onReply: (String) -> Void
+    @State private var detailRequest: ApprovalRequest?
 
     private var chatPending: [ApprovalRequest] {
         let all = model.pending
@@ -57,6 +58,7 @@ struct InChatApprovalsBar: View {
             .clipped()
             .background(Theme.riskMed.opacity(0.12))
             .overlay(Rectangle().fill(Theme.riskMed.opacity(0.55)).frame(height: 2), alignment: .top)
+            .sheet(item: $detailRequest) { ApprovalDetailSheet(request: $0) }
         }
     }
 
@@ -108,6 +110,8 @@ struct InChatApprovalsBar: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { detailRequest = req }
                 if model.approvalDecisionsInFlight[req.requestId] != nil {
                     ProgressView()
                     Text(L("Waiting for Mac…"))
@@ -117,9 +121,10 @@ struct InChatApprovalsBar: View {
                     compactChip(L("Deny"), tint: Theme.riskHigh, filled: false) {
                         model.decide(req, "deny")
                     }
-                    compactChip(L("Allow"), tint: Theme.accent(for: req.agent), filled: true,
+                    compactChip(req.kind == "question" ? L("Reply") : L("Allow"), tint: Theme.accent(for: req.agent), filled: true,
                                 textColor: Theme.glyphInk(for: req.agent)) {
-                        model.decide(req, "allow")
+                        if req.kind == "question" { detailRequest = req }
+                        else { model.decide(req, "allow") }
                     }
                 }
             }
@@ -165,7 +170,7 @@ struct InChatApprovalsBar: View {
                 .background(filled ? tint : Theme.raised, in: Capsule())
                 .overlay(Capsule().stroke(filled ? Color.clear : tint.opacity(0.45), lineWidth: 1.2))
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .fixedSize()
     }
 }

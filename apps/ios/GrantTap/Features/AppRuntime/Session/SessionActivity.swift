@@ -84,6 +84,7 @@ extension AppModel {
     }
 
     func applyActivity(_ activity: SessionActivity, sourceNamespace: String? = nil) {
+        defer { replicaActivityArrived(activity) }
         if let room = sourceNamespace {
             rememberSessionSourceRoom(room, sessionId: activity.sessionId)
         }
@@ -102,7 +103,7 @@ extension AppModel {
             var next = self.activities
             next[activity.sessionId] = activity
             self.activities = next
-            SessionActivityPersistence.save(next)
+            SessionActivityPersistence.save([activity.sessionId: activity])
             pruneStaleDeliveries()
             self.finishBackgroundWake(.newData)
             return
@@ -124,9 +125,10 @@ extension AppModel {
                 incoming: activity
             )
             merged = Self.mergeActivity(existing: withoutLocalEchoes, incoming: activity)
-            // Same transcript snapshot — skip reassignment (chat flicker).
+            // Retain a fresh receipt even if the visible transcript is unchanged.
             if merged.entries == existing.entries,
-               merged.state == existing.state, merged.history == existing.history {
+               merged.state == existing.state, merged.history == existing.history,
+               merged.generatedAt == existing.generatedAt {
                 pruneStaleDeliveries()
                 self.finishBackgroundWake(.newData)
                 return
@@ -139,7 +141,7 @@ extension AppModel {
         self.activities = next
         // The phone is the only durable holder: the relay stores nothing and the
         // Mac's own copy can be compacted away.
-        SessionActivityPersistence.save(next)
+        SessionActivityPersistence.save([activity.sessionId: merged])
         let after = next[activity.sessionId]?.entries.count ?? 0
         if after != before {
             append("activity.apply \(activity.sessionId.prefix(8)) entries=\(before)→\(after)")

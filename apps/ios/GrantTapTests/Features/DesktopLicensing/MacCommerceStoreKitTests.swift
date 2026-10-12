@@ -62,7 +62,7 @@ final class MacCommerceStoreKitTests: XCTestCase {
             productLoader: { throw URLError(.notConnectedToInternet) })
         await subscription.start()
         XCTAssertTrue(subscription.entitlement.state.allowsRemoteInfrastructure)
-        XCTAssertEqual(subscription.entitlement.seatLimit, 1)
+        XCTAssertEqual(subscription.entitlement.seatLimit, 2)
         let license = DesktopLicenseStore(evaluationAllowed: false, observe: false)
         await license.refresh()
         XCTAssertEqual(license.license, .notPurchased)

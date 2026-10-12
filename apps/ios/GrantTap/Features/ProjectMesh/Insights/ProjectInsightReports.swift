@@ -22,6 +22,14 @@ enum ProjectInsightReports {
         }
     }
 
+    static func needsAnalysis(_ snapshot: ProjectMeshSnapshot) -> Bool {
+        let reports = reports(snapshot)
+        return (snapshot.bindings ?? []).filter(\.available).contains { binding in
+            !reports.contains { $0.repositoryId == binding.repositoryId && $0.analysisStatus != "UNAVAILABLE"
+                && (binding.revision == nil || $0.revision == binding.revision) }
+        }
+    }
+
     static func hasEvidence(_ snapshot: ProjectMeshSnapshot) -> Bool {
         snapshot.backbone != nil || reports(snapshot).contains { $0.analysisStatus != "UNAVAILABLE" }
     }

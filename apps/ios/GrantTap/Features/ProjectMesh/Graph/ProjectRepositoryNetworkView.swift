@@ -77,7 +77,7 @@ struct ProjectRepositoryNetworkView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12)
                                     .stroke(node.isOwn ? Theme.codex : Theme.line, lineWidth: 2))
                             }
-                            .buttonStyle(.plain)
+                            .pointerButtonStyle()
                             .position(positions[node.id] ?? .zero)
                             .accessibilityIdentifier("project.graph.repository.\(node.id)")
                         }

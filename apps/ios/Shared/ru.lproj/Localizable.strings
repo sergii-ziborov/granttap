@@ -497,6 +497,15 @@
 "No computers linked. Scan a QR from any Mac/PC agent chat to add one." = "Нет связанных компьютеров. Отсканируйте QR из чата агента на любом Mac/PC.";
 "This iPhone is not on the relay. Tap Reconnect to reopen the link." = "Этот iPhone не на relay. Нажмите «Переподключить», чтобы открыть канал снова.";
 "Phone is linked, but this computer has not published chats recently. Keep GrantTap monitor running, then Reconnect." = "Телефон связан, но этот компьютер давно не публиковал чаты. Держите GrantTap monitor запущенным, затем «Переподключить».";
+"This computer has not published chats yet. Reconnect to repair its account link, or scan its QR for a direct link." = "Этот компьютер ещё не передал чаты. Переподключитесь для восстановления связи с аккаунтом или отсканируйте его QR для прямой связи.";
+"Each MCP computer contributes Tasks to your Account Mesh. A Task keeps its computer route; Project Meshes may span computers." = "Каждый компьютер с MCP добавляет задачи в Mesh аккаунта. Задача сохраняет маршрут к своему компьютеру, а Mesh проекта может охватывать несколько компьютеров.";
+"Chats available" = "Чаты доступны";
+"Online · waiting for secure chat link" = "В сети · ожидание защищённой связи с чатами";
+"Waiting for encrypted pairing" = "Ожидание зашифрованной привязки";
+"Relay access unavailable" = "Нет доступа к ретранслятору";
+"Waiting for relay connection" = "Ожидание соединения с ретранслятором";
+"Retry secure chat link" = "Повторить защищённое подключение к чатам";
+"The secure chat link could not be recovered." = "Не удалось восстановить защищённое подключение к чатам.";
 "Phone is linked, but this computer has not published chats recently. If another Mac shows Live, tap Prefer for chats on it. Otherwise keep GrantTap monitor running, then Reconnect." = "Телефон связан, но этот компьютер давно не публиковал чаты. Если другой Mac в статусе Live — нажмите «Для чатов» на нём. Иначе держите GrantTap monitor и «Переподключить».";
 "Keys are on this iPhone, but this computer never published. Scan a fresh QR from that Mac/PC — existing other links stay." = "Ключи на iPhone есть, но этот компьютер так и не публиковал. Отсканируйте свежий QR с того Mac/PC — другие связи не трогаем.";
 "Keys are on this iPhone, but this computer never published (wrong room or old pair). Scan a fresh QR from that Mac/PC — existing other links stay. Or Prefer for chats on a Live computer." = "Ключи на iPhone есть, но этот компьютер так и не публиковал (чужая комната или старый pair). Отсканируйте свежий QR с того Mac/PC — другие связи не трогаем. Или «Для чатов» на Live-компьютере.";
@@ -867,6 +876,8 @@
 "is called by it" = "вызывается им";
 "bound in this Project" = "привязан к этому Project";
 "Tools on this computer" = "Инструменты на этом компьютере";
+"Computer load" = "Нагрузка компьютера";
+"This computer is no longer linked." = "Этот компьютер больше не подключён.";
 "Each tool is updated by its own updater, run on that computer. GrantTap never downloads a tool itself." = "Каждый инструмент обновляет его собственный апдейтер, запущенный на том компьютере. GrantTap сам ничего не скачивает.";
 "Update" = "Обновить";
 "Updating…" = "Обновляется…";
@@ -2435,3 +2446,106 @@
 "Your Account Mesh is ready before any computer joins." = "Mesh аккаунта доступен ещё до подключения компьютера.";
 "Use the same passkey as iPhone or iPad. Add this Mac later; each Task keeps its own computer route." = "Используйте тот же passkey, что на iPhone или iPad. Mac можно добавить позже; у каждой задачи свой маршрут к компьютеру.";
 "Open Devices and Account Mesh" = "Открыть Устройства и Mesh аккаунта";
+"TestFlight evaluation" = "Пробный доступ TestFlight";
+"This build is available until %@. A new TestFlight build starts a new 7-day evaluation." = "Эта сборка доступна до %@. Новая сборка TestFlight начинает новый 7-дневный пробный период.";
+"%@ is offline and will not be included." = "%@ не в сети и не будет включён.";
+"A Project Mesh QR is a separate, role-limited invitation. It never grants the whole account or other computers." = "QR проектного Mesh — отдельное приглашение с ограниченной ролью. Оно не даёт доступ ко всему аккаунту или другим компьютерам.";
+"A computer QR links only that computer. Its MCP must be online to issue a one-time key." = "QR компьютера подключает только этот компьютер. Его MCP должен быть в сети, чтобы выдать одноразовый ключ.";
+"Add a controller" = "Добавить устройство управления";
+"Computers already linked to this iPhone" = "Компьютеры, уже подключённые к этому iPhone";
+"Could not create an Account Mesh QR. Check the account connection and try again." = "Не удалось создать QR для Mesh аккаунта. Проверьте связь с аккаунтом и повторите попытку.";
+"Could not load account computers. Check the connection and try again." = "Не удалось загрузить компьютеры аккаунта. Проверьте подключение и повторите попытку.";
+"Entire Account Mesh" = "Весь Mesh аккаунта";
+"No response from this computer. Retry when GrantTap MCP is online." = "Компьютер не ответил. Повторите попытку, когда GrantTap MCP будет в сети.";
+"One Project Mesh" = "Один проектный Mesh";
+"One QR joins this account and discovers every linked MCP computer, including computers added later. Each computer still provides its own secure chat route." = "Один QR подключает к аккаунту и обнаруживает все связанные компьютеры с MCP, включая добавленные позже. У каждого компьютера остаётся свой защищённый маршрут к чатам.";
+"One computer" = "Один компьютер";
+"Prepare QR for linked computers" = "Подготовить QR для подключённых компьютеров";
+"Requesting computer key…" = "Запрашиваем ключ компьютера…";
+"Retry computer" = "Повторить запрос к компьютеру";
+"Scan a one-time QR for the entire Account Mesh, one computer, or a trusted device. Project Mesh invitations use Join a Mesh. Existing computer connections stay." = "Сканируйте одноразовый QR для всего Mesh аккаунта, одного компьютера или доверенного устройства. Для приглашения в проектный Mesh откройте «Присоединиться к Mesh». Существующие подключения сохранятся.";
+"Scan on the new iPhone or iPad. One use; expires in five minutes. This grants full account access." = "Отсканируйте новым iPhone или iPad. Код одноразовый, действует пять минут и даёт полный доступ к аккаунту.";
+"Scan on the new iPhone or iPad. This QR links only the selected computer." = "Отсканируйте новым iPhone или iPad. Этот QR подключает только выбранный компьютер.";
+"Show Account Mesh QR" = "Показать QR всего Mesh аккаунта";
+"Show QR for this computer" = "Показать QR этого компьютера";
+"Show linked-computers QR" = "Показать QR подключённых компьютеров";
+"Show this computer QR" = "Показать QR этого компьютера";
+"Sign in with a passkey to show one QR for your whole Account Mesh." = "Войдите по passkey, чтобы показать один QR для всего Mesh аккаунта.";
+"This Account Mesh QR expired or could not be used. Show a new QR on the trusted device." = "QR Mesh аккаунта истёк или не сработал. Покажите новый QR на доверенном устройстве.";
+"This QR copies the currently reachable computer links to another iPhone. It does not join an account or include computers added later." = "Этот QR передаёт другому iPhone доступ к компьютерам, которые сейчас на связи. Он не подключает к аккаунту и не включает компьютеры, добавленные позже.";
+"This computer could not establish a secure chat link. Open GrantTap MCP on that computer and retry." = "Не удалось установить защищённую связь с чатами этого компьютера. Откройте на нём GrantTap MCP и повторите попытку.";
+"This computer is no longer in the account." = "Этого компьютера больше нет в аккаунте.";
+"This computer is not Live. Open its GrantTap MCP connection card to show its own QR." = "Компьютер не в сети. Откройте его панель подключения GrantTap MCP, чтобы показать его QR.";
+"This device is already in an Account Mesh. Sign out before joining another account." = "Устройство уже подключено к Mesh аккаунта. Выйдите из него перед подключением к другому аккаунту.";
+
+"Messages from active chats, pictures and Mesh are saved on this device. Earlier messages download automatically while connected. Saved content remains readable offline until you clear it." = "Сообщения активных чатов, изображения и Mesh сохраняются на этом устройстве. Ранние сообщения автоматически догружаются при подключении. Сохранённые данные доступны без связи до очистки кэша.";
+"Deletes saved messages, pictures and Mesh from this device. Keys, device connections and provider history are kept. New updates download again when connected." = "Удаляет сохранённые сообщения, изображения и Mesh с этого устройства. Ключи, подключения устройств и история провайдеров сохраняются. Новые данные снова загрузятся при подключении.";
+
+"About this graph" = "Об этом графе";
+
+"Architecture report" = "Архитектурный отчёт";
+
+"Component details" = "Сведения о компоненте";
+
+"How to read this graph" = "Как читать этот граф";
+
+"Drag to rotate, pinch to zoom, and tap a component to inspect its connections. Reset fits the whole report to your screen." = "Вращайте граф перетаскиванием, меняйте масштаб двумя пальцами и нажимайте на компонент, чтобы увидеть его связи. Сброс помещает весь отчёт на экран.";
+
+"Arrows in component details follow the relation from source to target. Colours identify component types, not health or approval status." = "Стрелки в сведениях о компоненте показывают направление связи от источника к цели. Цвет обозначает тип компонента, а не состояние или разрешение.";
+
+"Report scope" = "Область отчёта";
+
+"Complete describes the reported analysis inputs. It does not prove that every dependency in the repository is known. Missing evidence stays unknown." = "Complete означает полноту анализа переданных входных данных. Этот статус не подтверждает, что известны все зависимости репозитория. Отсутствующие сведения остаются неизвестными.";
+
+"Component types" = "Типы компонентов";
+
+"No matching components" = "Компоненты не найдены";
+
+"Show on graph" = "Показать на графе";
+
+"No relations in this report" = "В этом отчёте нет связей";
+
+"Only connections contained in this received report are shown. A component with no reported relations is not necessarily independent." = "Показаны только связи из полученного отчёта. Отсутствие связей в отчёте не означает, что компонент независим.";
+
+"Tap a component to inspect" = "Нажмите на компонент для просмотра";
+
+"Identifier" = "Идентификатор";
+
+"Type" = "Тип";
+
+"Component" = "Компонент";
+
+"Decision saved · waiting for this computer to reconnect…" = "Решение сохранено · ожидаем подключения этого компьютера…";
+
+"Auto allow safe actions in this chat" = "Разрешать безопасные действия в этом чате автоматически";
+
+"The current request still needs your decision. Global action bans always apply." = "Текущий запрос по-прежнему требует вашего решения. Общие запреты действий действуют всегда.";
+
+"Not applied" = "Не применено";
+"Demo preview" = "Демонстрация";
+"Applied on computer" = "Подтверждено компьютером";
+"Action details" = "Подробности действия";
+"Parameters" = "Параметры";
+"Auto allow in this chat" = "Авторазрешение в этом чате";
+"Automation mode" = "Режим авторазрешения";
+"Apply to this chat" = "Применить к этому чату";
+"Reconnect this chat's computer to change its automation." = "Подключите компьютер этого чата, чтобы изменить авторазрешение.";
+"This request has no chat identity. Automation is unavailable." = "Запрос не связан с чатом. Авторазрешение недоступно.";
+"The computer has not confirmed this rule. Try again when it is online." = "Компьютер не подтвердил правило. Повторите, когда он будет в сети.";
+"The computer's rules require a decision for this chat. Automation was not enabled." = "Правила компьютера требуют решения для этого чата. Авторазрешение не включено.";
+"The computer did not apply this rule. Refresh the connection and try again." = "Компьютер не применил правило. Обновите соединение и повторите.";
+
+"Questions" = "Вопросы";
+"Questions could not be read. Refresh this request." = "Не удалось прочитать вопросы. Обновите запрос.";
+"Select all that apply" = "Выберите подходящие варианты";
+"Select one" = "Выберите один вариант";
+"Answers saved · waiting for this computer to reconnect…" = "Ответы сохранены · ждём подключения компьютера…";
+"Answers sent · waiting for the computer to confirm…" = "Ответы отправлены · ждём подтверждения компьютера…";
+"Answered %d of %d" = "Ответы: %d из %d";
+"Offline · answers will wait for this computer to reconnect." = "Нет связи · ответы отправятся после подключения компьютера.";
+"Submit answers" = "Отправить ответы";
+"Answers could not be saved. Try again." = "Не удалось сохранить ответы. Повторите.";
+
+"Automation is paused globally. Resume it in Settings." = "Авторазрешение приостановлено для всех чатов. Возобновите его в Настройках.";
+"Connect with passkey before subscribing so your computers share the same plan." = "Перед подпиской войдите с помощью ключа доступа, чтобы все ваши компьютеры использовали один тариф.";
+"This purchase is not linked to this GrantTap account. Use the account that purchased it." = "Покупка связана с другим аккаунтом GrantTap. Войдите в аккаунт, с которого она была оформлена.";

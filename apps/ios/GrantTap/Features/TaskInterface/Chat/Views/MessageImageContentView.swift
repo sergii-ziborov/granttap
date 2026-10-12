@@ -14,7 +14,7 @@ struct MessageImageContentView: View {
                     .enumerated()), id: \.offset) { _, part in
                     switch part {
                     case .text(let text): RichMessageText(text: text, compact: false)
-                    case .images(let images): MessageImageGallery(images: images, load: imageData)
+                    case .images(let images): MessageImageGallery(images: images, cacheRevision: model.replicaImagesRevision, load: imageData)
                     }
                 }
             }
@@ -25,17 +25,16 @@ struct MessageImageContentView: View {
         #if DEBUG
         if let data = DemoMessageImages.data(for: attachment.id) { return data }
         #endif
-        #if targetEnvironment(macCatalyst)
-        if let reader = model.localMCPReader {
-            return try await reader.image(forEntryId: attachment.id)
+        guard let sessionId = model.imageConversation(forEntryId: attachment.id) else {
+            throw MessageImageLoader.ImageError.unavailable
         }
-        #endif
-        throw MessageImageLoader.ImageError.unavailable
+        return try await model.messageImageData(sessionId: sessionId, imageId: attachment.id)
     }
 }
 
 struct MessageImageGallery: View {
     let images: [MessageImageAttachment]
+    var cacheRevision = 0
     let load: (MessageImageAttachment) async throws -> Data
     @StateObject private var loader = MessageImageLoader()
     @State private var preview: ImagePreview?
@@ -71,14 +70,14 @@ struct MessageImageGallery: View {
                     .background(Theme.raised, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.line, lineWidth: 1))
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .accessibilityLabel(attachment.name)
                 .accessibilityIdentifier("chat.image.\(attachment.id)")
                 .disabled(loader.images[attachment.id] == nil && !loader.failed.contains(attachment.id))
             }
         }
         .frame(maxWidth: 1_200, alignment: .leading)
-        .task(id: images.map(\.id)) { await loader.load(images, data: load) }
+        .task(id: "\(images.map(\.id)):\(cacheRevision)") { await loader.load(images, data: load) }
         .fullScreenCover(item: $preview) { item in
             ImagePreviewScreen(image: item.image) { preview = nil }
         }

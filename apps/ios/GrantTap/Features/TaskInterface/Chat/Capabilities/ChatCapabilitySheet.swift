@@ -94,6 +94,16 @@ struct ChatCapabilitySheet: View {
                 }
             }
             .pickerStyle(.inline)
+            .disabled(model.automationPending[sessionId] != nil)
+            if model.automationPending[sessionId] != nil {
+                HStack { ProgressView(); Text(L("Waiting for the computer to confirm…")) }
+            } else if let error = model.automationErrors[sessionId] {
+                Text(error).font(.caption).foregroundStyle(Theme.riskHigh)
+            }
+            if model.autoAcceptPaused {
+                Text(L("Automation is paused globally. Resume it in Settings."))
+                    .font(.caption).foregroundStyle(Theme.muted)
+            }
             Text(L("Ask for risky actions is recommended for most tasks."))
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.muted)
@@ -215,16 +225,14 @@ struct ChatCapabilitySheet: View {
             if model.isExcluded(sessionId) { return .defaults }
             return model.autoAcceptLevel(for: sessionId) == "ask" ? .every : .risky
         }, set: { mode in
-            model.setAutoAcceptPaused(false)
             switch mode {
             case .defaults:
                 model.setSessionExcluded(sessionId, true)
             case .every:
-                model.setGating(true)
                 model.setSessionAutoAccept(sessionId, "ask")
             case .risky:
-                model.setGating(true)
-                model.setSessionAutoAccept(sessionId, "except_push")
+                model.setSessionAutoAccept(sessionId, "except_push", authorizeProjectAsk: true,
+                    expectedPolicyRevision: session.projectId.flatMap { model.projectGovernance[$0]?.revision })
             }
         })
     }

@@ -85,6 +85,9 @@ final class LoadHistoryTests: XCTestCase {
         RenderProbe.render(NavigationView { detail })
         RenderProbe.render(NavigationView { AgentLoadDetailView(room: room, agent: "codex").environmentObject(model) })
         RenderProbe.render(ConnectionDetailSheet().environmentObject(model))
+        RenderProbe.render(NavigationView {
+            ComputerConnectionDetailView(roomId: room).environmentObject(model)
+        })
         RenderProbe.render(LoadHistoryChart(values: [nil, 1, 2, nil, 4], accent: .blue, startLabel: "a", endLabel: "b"))
         RenderProbe.render(LoadHistoryChart(values: [nil, nil], accent: .blue, startLabel: "a", endLabel: "b"))
         RenderProbe.render(LoadHistoryChart(values: [3], accent: .blue, startLabel: "a", endLabel: "b"))

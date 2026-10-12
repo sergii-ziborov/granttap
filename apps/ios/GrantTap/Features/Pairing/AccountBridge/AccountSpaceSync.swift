@@ -8,20 +8,29 @@ struct RecoveredAccountConnection {
 /// Passkey identifies an account; computer recovery only supplies encrypted routes
 /// for Projects and Tasks that remain pinned to their original machines.
 enum AccountSpaceSync {
+    static func staleRoomsToRecover(_ registry: ConnectionRegistry, accountId: String,
+                                    nowMs: Double = Date().timeIntervalSince1970 * 1_000)
+        -> Set<String> {
+        Set(registry.connections.compactMap { computer in
+            guard computer.linkedAccountId == accountId,
+                  computer.linkedMachineId != nil else { return nil }
+            let recoveredAt = computer.lastRecoveredAt ?? 0
+            let neverReported = computer.lastCatalogAt <= 0
+                && computer.addedAt > 0
+                && nowMs - max(computer.addedAt, recoveredAt) >= 120_000
+            let stoppedReporting = computer.lastCatalogAt > 0
+                && nowMs - max(computer.lastCatalogAt, recoveredAt) >= 300_000
+            return neverReported || stoppedReporting ? computer.id : nil
+        })
+    }
+
     /// A saved account link does not prove that its phone key still works.
     /// Retry the same room after its last recovery failed to deliver a catalog.
     static func staleQRRoomToRecover(_ registry: ConnectionRegistry, accountId: String,
                                      nowMs: Double = Date().timeIntervalSince1970 * 1_000) -> String? {
-        guard let preferred = registry.preferred,
-              preferred.linkedAccountId == accountId,
-              preferred.linkedMachineId != nil else { return nil }
-        let recoveredAt = preferred.lastRecoveredAt ?? 0
-        let neverReported = preferred.lastCatalogAt <= 0
-            && preferred.addedAt > 0
-            && nowMs - max(preferred.addedAt, recoveredAt) >= 120_000
-        let stoppedReporting = preferred.lastCatalogAt > 0
-            && nowMs - max(preferred.lastCatalogAt, recoveredAt) >= 300_000
-        return neverReported || stoppedReporting ? preferred.id : nil
+        guard let preferred = registry.preferred else { return nil }
+        return staleRoomsToRecover(registry, accountId: accountId, nowMs: nowMs)
+            .contains(preferred.id) ? preferred.id : nil
     }
 
     static func availableMachines(_ machines: [AccountComputer],
@@ -63,18 +72,41 @@ enum AccountSpaceSync {
 }
 
 @MainActor
+enum AccountDeviceEnrollment {
+    static func join(_ code: String, model: AppModel) async throws {
+        _ = try await GrantTapAccountAPI.redeemDeviceInvite(code)
+        await SubscriptionStore.shared.refreshBetaRelayAccess()
+        model.refreshAccountDeviceCatalog()
+        model.startAccountSpaceSync(force: true)
+    }
+}
+
+@MainActor
 extension AppModel {
     func startAccountSpaceSync(force: Bool = false, repairRoomId: String? = nil) {
         #if targetEnvironment(macCatalyst)
         return
         #else
         guard !demoMode, let session = GrantTapAccountAPI.session else { return }
+        scheduleAccountSpaceSync(session: session, force: force, repairRoomId: repairRoomId) {
+            [weak self] session, room in
+            guard let self else { return }
+            try await self.synchronizeAccountSpace(session, repairRoomId: room)
+        }
+        #endif
+    }
+
+    func scheduleAccountSpaceSync(
+        session: GrantTapAccountSession, force: Bool = false,
+        repairRoomId: String? = nil, now: TimeInterval = Date().timeIntervalSince1970,
+        synchronize: @escaping @MainActor (GrantTapAccountSession, String?) async throws -> Void
+    ) {
         if accountSpaceSyncTask != nil && !force { return }
-        let now = Date().timeIntervalSince1970
         guard force || now - lastAccountSpaceSyncAt >= 60 else { return }
         accountSpaceSyncTask?.cancel()
         let generation = UUID()
         accountSpaceSyncGeneration = generation
+        accountSpaceSyncError = nil
         lastAccountSpaceSyncAt = now
         accountSpaceSyncTask = Task {
             defer {
@@ -83,11 +115,17 @@ extension AppModel {
                     accountSpaceSyncGeneration = nil
                 }
             }
-            do { try await synchronizeAccountSpace(session, repairRoomId: repairRoomId) }
+            do {
+                try await synchronize(session, repairRoomId)
+                if accountSpaceSyncGeneration == generation { accountSpaceSyncError = nil }
+            }
             catch is CancellationError { return }
-            catch { append("account-space-sync: \(error.localizedDescription)") }
+            catch {
+                guard accountSpaceSyncGeneration == generation else { return }
+                accountSpaceSyncError = error.localizedDescription
+                append("account-space-sync: \(error.localizedDescription)")
+            }
         }
-        #endif
     }
 
     func stopAccountSpaceSync() {
@@ -108,13 +146,19 @@ extension AppModel {
         currentAccountId: () -> String? = { GrantTapAccountAPI.session?.accountId }
     ) async throws {
         let machines = try await loadComputers(session)
-        let roomToRepair = repairRoomId ?? AccountSpaceSync.staleQRRoomToRecover(
-            connectionRegistry, accountId: session.accountId)
+        let respondingRooms = Set(connectionRegistry.connections.filter {
+            snapshotForConnection($0).phase == .live
+                || relaysByRoom[$0.id]?.awaitingInitialPeer() == true
+        }.map(\.id))
+        var roomsToRepair = AccountSpaceSync.staleRoomsToRecover(
+            connectionRegistry, accountId: session.accountId).subtracting(respondingRooms)
+        if let repairRoomId { roomsToRepair.insert(repairRoomId) }
         let linked = Set(connectionRegistry.connections.compactMap { computer in
-            computer.linkedAccountId == session.accountId && computer.id != roomToRepair
+            computer.linkedAccountId == session.accountId && !roomsToRepair.contains(computer.id)
                 ? computer.linkedMachineId : nil
         })
         let targets = AccountSpaceSync.availableMachines(machines, linkedMachineIds: linked)
+        var unrecovered = false
         for start in stride(from: 0, to: targets.count, by: 8) {
             try Task.checkCancellation()
             guard currentAccountId() == session.accountId else {
@@ -122,7 +166,7 @@ extension AppModel {
             }
             let batch = Array(targets[start..<min(start + 8, targets.count)])
             let recovered = await recover(batch, session)
-            guard !recovered.isEmpty else { throw AccountBridgeError.unavailable }
+            if recovered.count < batch.count { unrecovered = true }
             try Task.checkCancellation()
             guard currentAccountId() == session.accountId else {
                 throw CancellationError()
@@ -133,5 +177,6 @@ extension AppModel {
             }
         }
         try await linkLocalComputersToAccount(session)
+        if unrecovered { throw AccountBridgeError.recoveryFailed }
     }
 }

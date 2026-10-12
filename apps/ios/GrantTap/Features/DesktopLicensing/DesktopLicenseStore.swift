@@ -14,6 +14,9 @@ final class DesktopLicenseStore: ObservableObject {
     private let bundleID: String
     private let evaluationAllowed: Bool
     private let evidenceLoader: EvidenceLoader
+    private let betaExpiryLoader: () async -> Date?
+    private let betaRefreshLoader: () async throws -> Date?
+    private var verifiedBetaExpiry: Date?
     private let productLoader: () async throws -> [Product]
     private let storeSync: () async throws -> Void
     private var observer: Task<Void, Never>?
@@ -23,6 +26,16 @@ final class DesktopLicenseStore: ObservableObject {
          evaluationAllowed: Bool = DesktopLicenseStore.isEvaluationBuild,
          observe: Bool = !AppRuntime.isRunningUnitTests,
          evidenceLoader: EvidenceLoader? = nil,
+         betaExpiryLoader: @escaping () async -> Date? = {
+             #if targetEnvironment(macCatalyst)
+             await DesktopBetaTrialStore.currentExpiry()
+             #else
+             nil
+             #endif
+         },
+         betaRefreshLoader: @escaping () async throws -> Date? = {
+             try await DesktopBetaTrialStore.refreshedExpiry()
+         },
          productLoader: @escaping () async throws -> [Product] = {
              try await Product.products(for: [DesktopLicense.productID])
          }, storeSync: @escaping () async throws -> Void = { try await AppStore.sync() }) {
@@ -33,6 +46,8 @@ final class DesktopLicenseStore: ObservableObject {
         self.bundleID = bundleID
         self.evaluationAllowed = evaluationAllowed
         self.evidenceLoader = evidenceLoader ?? { try await Self.readEvidence(selected) }
+        self.betaExpiryLoader = betaExpiryLoader
+        self.betaRefreshLoader = betaRefreshLoader
         self.productLoader = productLoader
         self.storeSync = storeSync
         if observe {
@@ -70,12 +85,31 @@ final class DesktopLicenseStore: ObservableObject {
     }
 
     func refresh() async {
+        let betaExpiresAt = await betaExpiryLoader() ?? verifiedBetaExpiry
+        if let betaExpiresAt { verifiedBetaExpiry = betaExpiresAt }
         do {
             license = DesktopLicense.resolve(try await evidenceLoader(), distribution: distribution,
-                                             bundleID: bundleID, evaluationAllowed: evaluationAllowed)
+                                             bundleID: bundleID, evaluationAllowed: evaluationAllowed,
+                                             betaExpiresAt: betaExpiresAt)
             lastError = nil
         } catch {
-            license = evaluationAllowed ? .evaluation : .notPurchased
+            license = DesktopLicense.resolve([], distribution: distribution, bundleID: bundleID,
+                                             evaluationAllowed: evaluationAllowed,
+                                             betaExpiresAt: betaExpiresAt)
+            lastError = error.localizedDescription
+        }
+    }
+
+    /// Explicit retry can ask StoreKit to sign in; use only from a user action.
+    func verifyBetaTrial() async {
+        do {
+            guard let expiry = try await betaRefreshLoader() else {
+                lastError = L("This TestFlight evaluation could not be verified.")
+                return
+            }
+            verifiedBetaExpiry = expiry
+            await refresh()
+        } catch {
             lastError = error.localizedDescription
         }
     }

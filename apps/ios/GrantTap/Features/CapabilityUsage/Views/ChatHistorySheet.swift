@@ -61,7 +61,7 @@ struct ChatHistorySheet: View {
                                         route: model.chatComputerRoute(forSessionId: session.sessionId)
                                     )
                                 }
-                                .buttonStyle(.plain)
+                                .pointerButtonStyle()
                                 .swipeActions(edge: .trailing) {
                                     Button { toggleArchived(session) } label: {
                                         Label(model.isArchived(session.sessionId) ? "Restore" : "Archive",
@@ -76,6 +76,7 @@ struct ChatHistorySheet: View {
                 }
             }
             .navigationTitle(L("Chat history"))
+            .onAppear { model.loadReplicaCatalogIndex() }
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Done")) { dismiss() } } }
             .background(
                 NavigationLink(destination: historyDestination,

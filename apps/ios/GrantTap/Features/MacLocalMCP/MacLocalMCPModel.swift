@@ -25,6 +25,20 @@ final class MacLocalMCPModel: ObservableObject {
 
     var isReady: Bool { status?.desktopEngineSocket != nil && workspace != nil }
 
+    /// Device settings need an honest service status even when local control
+    /// is locked. This endpoint does not read a workspace or grant access.
+    func probeStatus(fetch: () async throws -> MacLocalMCPStatus = MacLocalMCPClient.status) async {
+        guard !refreshing else { return }
+        refreshing = true
+        defer { refreshing = false }
+        do {
+            status = try await fetch()
+        } catch {
+            status = nil
+        }
+        hasCheckedLocalMCP = true
+    }
+
     func refreshMachineLoad() async {
         guard let socket = status?.desktopEngineSocket else {
             machineLoadError = L("Local MCP is unavailable.")
@@ -162,6 +176,15 @@ final class MacLocalMCPModel: ObservableObject {
         }
         return try await MacLocalMCPClient.image(socketPath: socket, projectId: route.projectId,
                                                   taskId: route.taskId, imageId: id, historyCursor: route.cursor)
+    }
+
+    func image(for session: SessionInfo, imageId: String, cursor: String?) async throws -> Data {
+        guard let socket = status?.desktopEngineSocket,
+              let projectId = session.projectId, let taskId = session.taskId else {
+            throw MacLocalMCPError.unavailable
+        }
+        return try await MacLocalMCPClient.image(socketPath: socket, projectId: projectId,
+            taskId: taskId, imageId: imageId, historyCursor: cursor)
     }
 }
 #endif

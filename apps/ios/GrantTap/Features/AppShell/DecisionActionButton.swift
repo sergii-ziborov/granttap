@@ -27,7 +27,7 @@ struct DecisionActionButton: View {
                     }
                 }
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle(cornerRadius: 8, feedbackColor: filled ? textColor : Theme.ink)
         #else
         if filled {
             Button(title, action: action)

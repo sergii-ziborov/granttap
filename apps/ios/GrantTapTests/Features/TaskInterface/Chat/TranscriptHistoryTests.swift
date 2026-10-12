@@ -4,6 +4,36 @@ import SwiftUI
 
 @MainActor
 final class TranscriptHistoryTests: XCTestCase {
+    func testMissedTurnsAfterReconnectResumeFullHistoryInsteadOfLeavingAGap() {
+        let known = SessionActivity(sessionId: "s", agent: "codex", state: "idle", entries: [
+            .init(id: "before-disconnect", kind: "message", text: "Saved", createdAt: 1)
+        ], generatedAt: 1, history: .init(hasMore: false))
+        let recent = SessionActivity(sessionId: "s", agent: "codex", state: "idle", entries: [
+            .init(id: "after-reconnect", kind: "message", text: "New", createdAt: 100)
+        ], generatedAt: 2, history: .init(cursor: "missed-turns", hasMore: true))
+        var queue = TranscriptBackfill()
+        _ = queue.next(activeIds: ["s"], activities: [:], available: ["s"], now: 1)
+        queue.received(known, now: 2)
+        let merged = AppModel.mergeActivity(existing: known, incoming: recent)
+        XCTAssertEqual(merged.history?.cursor, "missed-turns")
+        XCTAssertEqual(queue.next(activeIds: ["s"], activities: ["s": merged], available: ["s"], now: 3).first?.cursor, "missed-turns")
+        XCTAssertEqual(merged.entries.map(\.id), ["before-disconnect", "after-reconnect"])
+    }
+
+    func testLivePreviewCannotShortenADownloadedFullMessage() {
+        let fullText = String(repeating: "Complete answer ", count: 3000)
+        let full = SessionActivity(sessionId: "s", agent: "codex", state: "idle", entries: [
+            .init(id: "answer", kind: "message", text: fullText, createdAt: 1)
+        ], generatedAt: 10, history: .init(hasMore: false))
+        let preview = SessionActivity(sessionId: "s", agent: "codex", state: "idle", entries: [
+            .init(id: "answer", kind: "message", text: String(fullText.prefix(16384)), createdAt: 1)
+        ], generatedAt: 11)
+        XCTAssertEqual(AppModel.mergeActivity(existing: full, incoming: preview).entries.first?.text.count, fullText.count)
+        let olderPage = SessionActivity(sessionId: "s", agent: "codex", state: "idle", entries: full.entries,
+            generatedAt: 9, history: .init(hasMore: false))
+        XCTAssertEqual(AppModel.mergeActivity(existing: preview, incoming: olderPage).entries.first?.text.count, fullText.count)
+    }
+
     func testOlderPageSurvivesNewerLiveSnapshotAndMemoryWindow() {
         let recent = (40..<350).map { ActivityEntry(id: "row-\($0)", kind: "message", text: "Recent", createdAt: Double($0)) }
         let older = (0..<40).map { ActivityEntry(id: "row-\($0)", kind: "user", text: "Earlier question", createdAt: Double($0)) }
@@ -20,13 +50,13 @@ final class TranscriptHistoryTests: XCTestCase {
         let updated = AppModel.mergeActivity(existing: merged, incoming: refresh)
         XCTAssertEqual(updated.history?.cursor, "older")
         XCTAssertEqual(updated.entries.count, 350)
-        XCTAssertNil(SessionActivityPersistence.bounded(["s": updated])["s"]?.history)
+        XCTAssertEqual(SessionActivityPersistence.bounded(["s": updated])["s"]?.history?.cursor, "older")
         let model = AppModel()
         model.activities["s"] = updated
         model.releaseTranscriptHistory(sessionId: "s")
-        XCTAssertEqual(model.activities["s"]?.entries.count, 312)
-        XCTAssertEqual(model.activities["s"]?.entries.first?.id, "row-38")
-        XCTAssertNil(model.activities["s"]?.history)
+        XCTAssertEqual(model.activities["s"]?.entries.count, 350)
+        XCTAssertEqual(model.activities["s"]?.entries.first?.id, "row-0")
+        XCTAssertEqual(model.activities["s"]?.history?.cursor, "older")
     }
 
     func testFileSummaryBelongsToItsUserTurnAndKeepsFullPaths() {

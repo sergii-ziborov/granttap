@@ -24,7 +24,7 @@ struct AttachmentStrip: View {
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                             }
-                            .buttonStyle(.plain)
+                            .pointerButtonStyle()
                         }
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Theme.muted)
@@ -67,7 +67,7 @@ struct MessageRoutingStrip: View {
             Image(systemName: icon)
             Text(text).lineLimit(1)
             Button(action: remove) { Image(systemName: "xmark.circle.fill") }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
         }
         .font(.system(size: 11, weight: .semibold))
         .foregroundStyle(Theme.muted)

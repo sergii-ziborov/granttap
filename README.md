@@ -28,7 +28,7 @@ view and supported local controls; Grok Build appears where its installed
 integration can report reliable work. Each provider shows the control depth it
 actually supports.
 
-The phone app is a free download. A one-time Mac license is prepared at USD
+The phone app is a free download. The confirmed one-time Mac license price is USD
 39.99; its App Store listing and price are not live yet. The license includes
 local control and personal/internal own-relay use. Personal is optional: direct
 mode uses only encrypted address discovery, and fully self-hosted mode uses
@@ -64,7 +64,7 @@ lapses.
 
 The [Mac guide](apps/macos/README.md) explains local MCP authorization,
 Account Mesh and direct QR pairing. [Mac App Store screenshots](apps/macos/AppStore/Screenshots/en-US/Mac)
-show Now, Tasks, a conversation, Usage and Mesh. Mac build 163 passed Apple
+show Now, Tasks, a conversation, Usage and Mesh. Mac build 180 passed Apple
 processing and is assigned to the internal TestFlight group. The public Mac
 App Store release is not yet available for purchase.
 
@@ -83,7 +83,11 @@ WATCH     Needs You · Active · Short reply · New voice task
 ```
 
 Task screens open directly into the visible timeline, which the phone keeps
-itself: a chat that has been read once is not fetched and decrypted again.
+itself. Active Now conversations download in the background, including older
+pages and original pictures, while the app is running. Opening a chat reads
+its received local history first. Settings clears downloaded content while
+keeping sign-in, pairings and queued replies. Received chats and pictures have
+no automatic day-based expiry.
 Opening a Runtime entry opens the matching execution's chat.
 History shows the timestamp of the latest visible chat message when the
 provider records one. If that timestamp is unavailable, it labels the fallback
@@ -327,3 +331,11 @@ Purchase prices are loaded from StoreKit for the storefront. The US Mac launch
 plan is $39.99 once; optional Personal tiers are $1.99, $3.99, $5.99 and
 $9.99 monthly for up to 2, 5, 10 and 15 computers. See
 [subscriptions](docs/subscriptions.md).
+
+## Health and architecture
+
+Health and Graph share one rebuild state. Missing or changed active repository
+reports start automatically; a manual rebuild finishes only after the matching
+computer report arrives. One progress indicator represents that work. Components,
+relations and received Mesh snapshots remain available in the device replica.
+Repository identity mismatches are reported without merging another checkout.

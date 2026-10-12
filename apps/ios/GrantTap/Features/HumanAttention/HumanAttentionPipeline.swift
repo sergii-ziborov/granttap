@@ -5,7 +5,8 @@ extension AppModel {
     var humanAttentionItems: [HumanAttentionItem] {
         let approvals = pending.map { request in
             HumanAttentionItem(
-                id: request.requestId, kind: .approval, action: .decision,
+                id: request.requestId, kind: request.kind == "question" ? .question : .approval,
+                action: request.kind == "question" ? .openPhone : .decision,
                 title: request.title, detail: request.cwd, agent: request.agent,
                 command: request.command, risk: request.risk.rawValue,
                 sessionId: request.sessionId, createdAt: request.createdAt,
@@ -75,7 +76,7 @@ extension AppModel {
 
     /// Mirror the current human-attention layer and bounded task state to Watch.
     func pushToWatch(force: Bool = false) {
-        let approvals = pending.map {
+        let approvals = pending.filter { $0.kind != "question" }.map {
             WatchApproval(id: $0.requestId, agent: $0.agent, title: $0.title,
                           command: $0.command, risk: $0.risk.rawValue, cwd: $0.cwd,
                           sessionId: $0.sessionId,

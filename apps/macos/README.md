@@ -54,7 +54,7 @@ repository is MIT licensed. See [third-party notices](../ios/THIRD_PARTY_NOTICES
 
 ## Purchase and Store preparation
 
-The proposed US one-time Mac License is $39.99, using verified StoreKit 2
+The confirmed US one-time Mac License price is $39.99, using verified StoreKit 2
 non-consumable purchases and Restore Purchases. Personal subscriptions are
 optional and use the same product IDs as iPhone. Direct address discovery or
 fully self-hosted relay operation needs no Personal subscription. See

@@ -127,7 +127,7 @@ struct TaskComposerRoutePicker: View {
                 accessibility: workspace.isEmpty ? L("Choose folder") : workspace
             )
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityLabel("Workspace, \(workspace.isEmpty ? L("Choose folder") : workspace)")
         .accessibilityIdentifier("composer.workspace")
         .frame(maxWidth: .infinity)

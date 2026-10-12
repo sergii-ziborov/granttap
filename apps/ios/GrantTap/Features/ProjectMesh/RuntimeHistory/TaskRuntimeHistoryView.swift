@@ -64,7 +64,7 @@ extension TaskRouteView {
             } label: {
                 runtimeContent(event, chatAvailable: true)
             }
-            .buttonStyle(.plain)
+            .pointerButtonStyle()
         } else {
             runtimeContent(event, chatAvailable: false)
         }

@@ -41,30 +41,16 @@ extension AppModel {
         connectionRegistry = candidate
     }
 
-    /// Merge QR-linked computers into passkey recovery without changing room routing.
+    /// Reuse an existing QR machine grant without manufacturing a second account
+    /// machine. MCP enrollment owns machine registration and its stable identity.
     func linkLocalComputersToAccount(_ session: GrantTapAccountSession,
                                      transport: URLSession = .shared) async throws {
         for computer in connectionRegistry.connections where !computer.pairing.isHub {
             if computer.accountReference != nil {
-                // A recovered Mac identity is authoritative for an older QR room.
-                // Never register that room again or send its stale credential back.
                 continue
             }
-            if let existing = computer.accountCredential {
-                if existing.accountId != session.accountId { continue }
-                sendAccountLink(existing, roomId: computer.id)
-                continue
-            }
-            let credential = try await AccountRecovery.register(computer, session: session,
-                                                                transport: transport)
-            let candidate = ConnectionRegistryLogic.noteAccountLink(
-                connectionRegistry, roomId: computer.id,
-                peerPublicKey: computer.pairing.peerPublicKey, credential: credential
-            )
-            guard candidate != connectionRegistry, PairedConnectionStore.save(candidate) else {
-                throw AccountBridgeError.storage
-            }
-            connectionRegistry = candidate
+            guard let credential = computer.accountCredential,
+                  credential.accountId == session.accountId else { continue }
             sendAccountLink(credential, roomId: computer.id)
         }
     }

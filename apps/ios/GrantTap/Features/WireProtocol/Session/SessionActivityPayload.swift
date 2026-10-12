@@ -24,7 +24,7 @@ struct SessionActivity: Codable, Equatable {
         self.agent = agent
         self.state = state
         self.threadId = threadId
-        self.entries = entries
+        self.entries = entries.compactMap { CodexTranscriptContext.visibleEntry($0, agent: agent) }
         self.generatedAt = generatedAt
         self.history = history
     }
@@ -34,7 +34,8 @@ struct SessionActivity: Codable, Equatable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         type = (try? c.decode(String.self, forKey: .type)) ?? "session.activity"
         sessionId = try c.decode(String.self, forKey: .sessionId)
-        agent = (try? c.decode(String.self, forKey: .agent)) ?? "codex"
+        let provider = (try? c.decode(String.self, forKey: .agent)) ?? "codex"
+        agent = provider
         state = (try? c.decode(String.self, forKey: .state)) ?? "idle"
         threadId = try? c.decode(String.self, forKey: .threadId)
         history = try? c.decode(TranscriptHistoryPage.self, forKey: .history)
@@ -46,12 +47,15 @@ struct SessionActivity: Codable, Equatable {
             generatedAt = Date().timeIntervalSince1970 * 1000
         }
         if let all = try? c.decode([ActivityEntry].self, forKey: .entries) {
-            entries = all.filter(Self.isVisible)
+            entries = all.compactMap { CodexTranscriptContext.visibleEntry($0, agent: provider) }
+                .filter(Self.isVisible)
         } else if var nested = try? c.nestedUnkeyedContainer(forKey: .entries) {
             var kept: [ActivityEntry] = []
             while !nested.isAtEnd {
                 guard let element = try? nested.superDecoder() else { break }
-                if let item = try? ActivityEntry(from: element), Self.isVisible(item) {
+                if let decoded = try? ActivityEntry(from: element),
+                   let item = CodexTranscriptContext.visibleEntry(decoded, agent: provider),
+                   Self.isVisible(item) {
                     kept.append(item)
                 }
             }

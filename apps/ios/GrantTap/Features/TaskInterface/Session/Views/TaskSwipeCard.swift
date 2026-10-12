@@ -36,6 +36,7 @@ struct TaskSwipeCard<Content: View>: View {
             .accessibilityHidden(revealed != id)
             content
                 .contentShape(Rectangle())
+                .pointerFeedback(cornerRadius: Theme.radius)
                 .onTapGesture {
                     if revealed == id { revealed = nil }
                     else { open() }
@@ -73,6 +74,6 @@ struct TaskSwipeCard<Content: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(color)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
     }
 }

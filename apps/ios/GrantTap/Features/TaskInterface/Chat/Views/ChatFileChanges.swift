@@ -51,7 +51,7 @@ struct ChatFileChangesCard: View {
                     .padding(.horizontal, 12).padding(.vertical, 8)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .accessibilityIdentifier("chat.changes.file.\(file.path)")
             }
             if files.count > 3 {

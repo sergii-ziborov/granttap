@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ChatCacheView: View {
     @EnvironmentObject private var model: AppModel
-    @State private var bytes = SessionActivityPersistence.bytes
+    @State private var bytes = LocalReplicaCache.bytes
     @State private var confirmClear = false
 
     var body: some View {
@@ -15,7 +15,7 @@ struct ChatCacheView: View {
             } header: {
                 Text(L("GrantTap chat history"))
             } footer: {
-                Text(L("Fetched history stays on this Mac until cleared. iPhone keeps at least the two latest user requests. Clearing this copy does not delete provider conversations or device connections."))
+                Text(L("Messages from active chats, pictures and Mesh are saved on this device. Earlier messages download automatically while connected. Saved content remains readable offline until you clear it."))
             }
             #if targetEnvironment(macCatalyst)
             if let reader = model.localMCPReader {
@@ -29,16 +29,16 @@ struct ChatCacheView: View {
             #endif
         }
         .pageNavigationTitle(L("Chat history & cache"))
-        .onAppear { bytes = SessionActivityPersistence.bytes }
+        .onAppear { bytes = LocalReplicaCache.bytes }
         .confirmationDialog(L("Clear local chat cache?"), isPresented: $confirmClear,
                             titleVisibility: .visible) {
             Button(L("Clear cache"), role: .destructive) {
                 model.clearLocalSessionCache()
-                bytes = SessionActivityPersistence.bytes
+                bytes = LocalReplicaCache.bytes
             }
             Button(L("Cancel"), role: .cancel) {}
         } message: {
-            Text(L("Only GrantTap’s saved copy is cleared. Provider history and linked devices remain available."))
+            Text(L("Deletes saved messages, pictures and Mesh from this device. Keys, device connections and provider history are kept. New updates download again when connected."))
         }
     }
 }

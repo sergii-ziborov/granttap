@@ -117,6 +117,11 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     /// Present an approval as an actionable, time-sensitive notification.
     func present(_ req: ApprovalRequest, roomId: String? = nil) {
+        if req.kind == "question" {
+            present(HumanAttentionItem(id: req.requestId, kind: .question, action: .openPhone,
+                title: req.title, agent: req.agent, sessionId: req.sessionId, createdAt: req.createdAt), roomId: roomId)
+            return
+        }
         if presentedIds.contains(req.requestId) { return }
         presentedIds.insert(req.requestId)
 

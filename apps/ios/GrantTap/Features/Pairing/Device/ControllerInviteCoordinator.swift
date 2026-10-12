@@ -22,18 +22,18 @@ final class ControllerInviteCoordinator: ObservableObject {
     @Published private(set) var error: String?
     @Published private(set) var publishing = false
 
-    func start(using model: AppModel) {
+    func start(using model: AppModel, roomId: String? = nil) {
         bundleURI = nil
         error = nil
         omittedComputerNames = model.connectionRegistry.connections.filter {
             !$0.pairing.isHub &&
-                (model.snapshotForConnection($0).phase != .live
-                 || model.relaysByRoom[$0.id] == nil)
+                (roomId == nil || $0.id == roomId) &&
+                model.relaysByRoom[$0.id]?.task == nil
         }.map(\.displayName).sorted()
         entries = model.connectionRegistry.connections.compactMap { connection in
             guard !connection.pairing.isHub,
-                  model.snapshotForConnection(connection).phase == .live,
-                  model.relaysByRoom[connection.id] != nil else { return nil }
+                  roomId == nil || connection.id == roomId,
+                  model.relaysByRoom[connection.id]?.task != nil else { return nil }
             return Entry(room: connection.id, name: connection.displayName,
                          requestId: UUID().uuidString.lowercased(),
                          relay: connection.pairing.relayUrl)
@@ -45,6 +45,13 @@ final class ControllerInviteCoordinator: ObservableObject {
             model.relaysByRoom[entry.room]?.send(payload: ControllerPairRequest(
                 requestId: entry.requestId, createdAt: Date().timeIntervalSince1970 * 1_000
             ), ttl: 60)
+            Task {
+                try? await Task.sleep(nanoseconds: 20_000_000_000)
+                if let index = entries.firstIndex(where: { $0.requestId == entry.requestId }),
+                   entries[index].uri == nil, entries[index].error == nil {
+                    entries[index].error = L("No response from this computer. Retry when GrantTap MCP is online.")
+                }
+            }
         }
     }
 
@@ -65,12 +72,13 @@ final class ControllerInviteCoordinator: ObservableObject {
     }
 
     var readyToPublish: Bool {
-        !entries.isEmpty && entries.allSatisfy { $0.uri != nil }
+        entries.contains(where: { $0.uri != nil })
+            && entries.allSatisfy { $0.uri != nil || $0.error != nil }
     }
 
     func publish() async {
         guard readyToPublish, !publishing,
-              let relay = entries.first?.relay else { return }
+              let relay = entries.first(where: { $0.uri != nil })?.relay else { return }
         publishing = true
         error = nil
         defer { publishing = false }

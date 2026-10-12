@@ -5,6 +5,14 @@ import UIKit
 extension AppModel {
     func start() {
         #if DEBUG
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CONNECTION_LIST"] == "1" {
+            ConnectionListFixture.apply(to: self)
+            return
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_INVITE_SCOPES"] != nil {
+            InviteScopeFixture.apply(to: self)
+            return
+        }
         if ProcessInfo.processInfo.environment["GRANTTAP_DEMO"] == "1" {
             // Demo must not activate WCSession. On Simulator it can starve UI work.
             startDemo()
@@ -12,9 +20,8 @@ extension AppModel {
         }
         #endif
         WatchBridge.shared.start()
-        loadConnectionRegistry()
+        restoreLocalReplica()
         startAccountSpaceSync()
-        loadCachedSessionCatalogIfNeeded()
         if !demoMode,
            sessions.contains(where: { Self.isGrantTapDemoSessionId($0.sessionId) })
             || sessionHistory.contains(where: { Self.isGrantTapDemoSessionId($0.sessionId) }) {
@@ -49,7 +56,8 @@ extension AppModel {
         }
         connectedDebounceTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: disconnectDelayNanoseconds)
-            guard !Task.isCancelled, self.relay?.task == nil else { return }
+            guard !Task.isCancelled,
+                  !self.roomRuntime.values.contains(where: \.socketUp) else { return }
             self.connected = false
             self.objectWillChange.send()
             self.pushToWatch()

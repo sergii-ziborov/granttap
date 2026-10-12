@@ -19,6 +19,7 @@ extension AppModel {
     struct RoomRuntime: Equatable {
         var socketUp = false
         var socketUpSince: Double = 0
+        var disconnectedAt: Double = 0
         var lastHeartbeatAt: Double = 0
     }
 

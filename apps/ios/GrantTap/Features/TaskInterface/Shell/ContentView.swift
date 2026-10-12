@@ -221,12 +221,7 @@ struct ContentView: View {
             #endif
         }
         .onChange(of: model.sessionToOpen) { _ in openRequestedSession(from: model.sessions) }
-        .onReceive(SubscriptionStore.shared.$entitlement) { _ in
-            #if !DEBUG
-            for client in model.relaysByRoom.values { client.forceReconnect() }
-            #endif
-        }
-        .onReceive(SubscriptionStore.shared.$betaRelayAccess) { _ in
+        .onReceive(SubscriptionStore.shared.transportAccessChanges) { _ in
             #if !DEBUG
             for client in model.relaysByRoom.values { client.forceReconnect() }
             #endif

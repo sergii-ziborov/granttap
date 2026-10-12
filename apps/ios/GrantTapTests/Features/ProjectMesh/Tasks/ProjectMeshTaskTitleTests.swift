@@ -63,4 +63,54 @@ final class ProjectMeshTaskTitleTests: XCTestCase {
             ProjectMeshTaskTitle.text(task("   "), session: nil), L("Untitled Task")
         )
     }
+
+    func testChatNamesHideMarkdownSyntaxWhilePreservingTheWords() {
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable("**Connect GrantTap**"), "Connect GrantTap")
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable("## Restore _offline_ chats"), "Restore offline chats")
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable("[GrantTap](https://granttap.com) connection"),
+                       "GrantTap connection")
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable("C++ and C#"), "C++ and C#")
+    }
+
+    func testSelectedPageMetadataIsNeverAChatName() {
+        XCTAssertNil(ProjectMeshTaskTitle.presentable("{\"page_id\":null}"))
+        XCTAssertNil(ProjectMeshTaskTitle.presentable(
+            "<external_codex_apps_open_page>{\"page_id\":null}</external_codex_apps_open_page>"))
+    }
+}
+
+@MainActor
+extension ProjectMeshTaskTitleTests {
+    func testThinCatalogDoesNotEraseAnExistingChatName() {
+        XCTAssertEqual(ProjectMeshTaskTitle.text(task("Published task name"), session: session(title: nil)),
+                       "Published task name")
+        let named = SessionInfo(sessionId: "named-chat", agent: "codex", title: "Repair images",
+            state: "working", startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0)
+        var thin = named
+        thin.title = nil
+        let retained = AppModel.retainingCapabilities(incoming: thin, previous: named)
+        XCTAssertEqual(retained.displayTitle, "Repair images")
+        let model = AppModel()
+        model.sessions = [thin]
+        XCTAssertEqual(TaskChatView(session: named, modelOverride: model).currentSession.displayTitle,
+                       "Repair images")
+    }
+    func testReceivedRealMessageRecoversMissingNameAndPersistsItOffline() {
+        let previous = SessionCatalogCache.load()
+        defer {
+            SessionCatalogCache.clear()
+            if let previous { SessionCatalogCache.save(previous, retainingPreviousHistory: false) }
+        }
+        let model = AppModel()
+        model.sessions = [.init(sessionId: "recovered-name", agent: "codex", title: nil,
+            state: "working", startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0)]
+        model.adoptTranscriptTitle(.init(sessionId: "recovered-name", agent: "codex", state: "working",
+            entries: [.init(id: "request", kind: "user", text: "**Restore images**", createdAt: 1)], generatedAt: 2))
+        XCTAssertEqual(model.sessions.first?.displayTitle, "Restore images")
+        XCTAssertEqual(SessionCatalogCache.load()?.sessions.first?.title, "Restore images")
+        model.adoptTranscriptTitle(.init(sessionId: "recovered-name", agent: "codex", state: "working",
+            entries: [.init(id: "later", kind: "user", text: "A later message", createdAt: 3)], generatedAt: 3))
+        XCTAssertEqual(model.sessions.first?.displayTitle, "Restore images")
+    }
+
 }

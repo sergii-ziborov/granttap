@@ -38,6 +38,15 @@ struct SettingsView: View {
 
             SettingsSecuritySection()
 
+            Section {
+                NavigationLink {
+                    ChatCacheView().environmentObject(model)
+                } label: {
+                    Label(L("Chat history & cache"), systemImage: "externaldrive")
+                }
+                .accessibilityIdentifier("settings.chat-cache")
+            }
+
             Section(L("Subscription")) {
                 #if targetEnvironment(macCatalyst)
                 NavigationLink {

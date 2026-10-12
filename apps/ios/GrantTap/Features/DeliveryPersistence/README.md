@@ -17,12 +17,13 @@ recovery regressions are covered by `GrantTapTests/AppRuntimeTests.swift`.
 retention and navigation. Child-agent messages are excluded, and image/file-only
 requests count. Adjacent attachment fragments at the same native timestamp belong
 to their text request; separate text requests stay separate even at equal times.
-The phone's ordinary 300-row limit expands to retain the two most
-recent user requests and all intervening replies. If trimming discards older
-rows, the native cursor is discarded too, so it cannot silently skip a gap.
+Every received message and page remains on both iPhone and Mac until an explicit
+cache clear. The former 60-chat / 300-row phone eviction is removed. Native
+history cursors survive relaunch, so automatic backfill resumes at the oldest
+saved page without dropping earlier turns.
 
-`Session/TranscriptArchive.swift` retains full fetched Mac transcripts in separate
-files with hashed session ids, atomic writes and platform file protection. It
-retains native history cursors, survives relaunch and rejects mismatched records.
-The cache can be measured and explicitly cleared without deleting native-provider
-logs, credentials or pairings. Tests are in `GrantTapTests/Features/DeliveryPersistence`.
+`Session/TranscriptArchive.swift` stores protected per-conversation files with
+hashed identifiers and atomic writes. It rejects mismatched records. The offline
+replication queue and scoped picture storage are owned by `../OfflineReplica`.
+Cache cleanup preserves provider logs, credentials, pending deliveries and pairings.
+Tests are in `GrantTapTests/Features/DeliveryPersistence` and `Features/OfflineReplica`.

@@ -2,7 +2,7 @@ import SwiftUI
 
 extension TaskChatView {
     @ViewBuilder
-    func transcriptRows(_ proxy: ScrollViewProxy) -> some View {
+    func transcriptRows(_ proxy: ScrollViewProxy, viewportHeight: CGFloat) -> some View {
         let phase = ChatTranscriptPhase.resolve(
             hasContent: !visibleTimeline.isEmpty,
             connected: model.connected,
@@ -20,7 +20,15 @@ extension TaskChatView {
                     })
             }
             agentThreads(proxy)
-        } else if phase == .disconnected {
+        } else {
+            transcriptPlaceholder(phase)
+                .frame(maxWidth: .infinity, minHeight: max(0, viewportHeight - 32))
+        }
+    }
+
+    @ViewBuilder
+    private func transcriptPlaceholder(_ phase: ChatTranscriptPhase) -> some View {
+        if phase == .disconnected {
             #if targetEnvironment(macCatalyst)
             if model.usesLocalMCP(for: currentSession) {
                 if localActivityError {

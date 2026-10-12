@@ -12,7 +12,9 @@ final class TaskHistoryPagingTests: XCTestCase {
 
     func testHistoryPagesKeepOlderRowsAcrossStatusRefreshAndRejectWrongRoom() {
         let model = AppModel()
-        model.connectionRegistry.preferredId = "preferred-room"
+        model.connectionRegistry = ConnectionRegistryLogic.upsert(.empty,
+            pairing: PairingFixture.pairing(room: "preferred-room"))
+        model.sessionSourceRooms = [:]
         model.sessionHistory = [session("new", at: 30)]
         model.historyPagingByRoom["preferred-room"] = HistoryPagingState(
             pendingRequestId: "00000000-0000-4000-8000-000000000001"

@@ -9,4 +9,4 @@ own task-row presentation.
 
 Public implementation entry point: `HumanAttentionPipeline.swift`.
 
-Repository quality and security rules: [`../../../../../AGENTS.md`](../../../../../AGENTS.md).
+Repository quality and security rules: [public source](https://github.com/sergii-ziborov/granttap).

@@ -11,7 +11,7 @@ extension AttachmentMenuButton {
                 .background(Theme.surface, in: Circle())
                 .overlay(Circle().stroke(Theme.line, lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityLabel(L("Add to this message"))
         .popover(isPresented: $showMacAttachmentPopover,
                  attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
@@ -73,7 +73,7 @@ extension AttachmentMenuButton {
                 .padding(.vertical, 7)
                 .padding(.horizontal, 10)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
     }
 }
 #endif

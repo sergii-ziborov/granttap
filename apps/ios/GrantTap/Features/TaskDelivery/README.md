@@ -35,4 +35,4 @@ The shared UI lives in `TaskInterface/Chat/Queue`; queue tests live in
 
 Persistence and retry compatibility remain in `Delivery.swift` and
 `MessageOutbox.swift` while those large legacy files are split. Tests live in
-`GrantTapTests/Features/TaskRouting`. See [`AGENTS.md`](../../../../../AGENTS.md).
+`GrantTapTests/Features/TaskRouting`. See [public source](https://github.com/sergii-ziborov/granttap).

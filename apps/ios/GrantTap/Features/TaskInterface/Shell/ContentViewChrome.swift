@@ -60,12 +60,29 @@ extension ContentView {
     }
 
     var connectionBadge: some View {
-        Button { showConnectionDetail = true } label: {
+        Button {
+            showConnectionDetail = true
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["GRANTTAP_TEST_DIAGNOSTICS"] == "1" {
+                model.append("Opened computer connection overview")
+            }
+            #endif
+        } label: {
             HStack(spacing: 5) {
                 Circle().fill(model.connectionSnapshot.statusColor).frame(width: 7, height: 7)
-                Text(model.connectionSnapshot.statusTitle).font(.system(size: 11, weight: .semibold))
+                let computers = model.connectionOverview
+                let live = computers.filter { model.snapshotForConnection($0).phase == .live }.count
+                Text(computers.count > 1
+                     ? "\(live)/\(computers.count) \(L("Live"))"
+                     : model.connectionSnapshot.statusTitle)
+                    .font(.system(size: 11, weight: .semibold))
             }
         }
         .foregroundStyle(Theme.ink)
+        .accessibilityIdentifier("connection.overview")
+        #if DEBUG
+        .accessibilityValue(ProcessInfo.processInfo.environment["GRANTTAP_TEST_DIAGNOSTICS"] == "1"
+                            ? model.nowReplicaTestStatus : "")
+        #endif
     }
 }

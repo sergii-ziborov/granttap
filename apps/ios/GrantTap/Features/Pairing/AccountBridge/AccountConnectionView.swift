@@ -91,9 +91,9 @@ struct AccountConnectionView: View {
                 Text(String(format: L("Account %@"), String(session.accountId.prefix(8))))
                     .font(.caption).foregroundStyle(Theme.muted)
                 Button(L("Use a different passkey")) {
-                    onAccountSignedOut?()
                     GrantTapAccountAPI.clearSession()
                     self.session = nil
+                    onAccountSignedOut?()
                 }.disabled(busy)
                 Link(L("Manage Apple subscription"),
                      destination: URL(string: "https://apps.apple.com/account/subscriptions")!)

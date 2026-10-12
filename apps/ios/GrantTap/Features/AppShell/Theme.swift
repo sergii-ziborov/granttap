@@ -190,6 +190,8 @@ struct FilledButton: ButtonStyle {
                 isEnabled ? tint : Theme.disabledFill,
                 in: RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous)
             )
+            .pointerFeedback(cornerRadius: Theme.radiusSmall, isPressed: configuration.isPressed,
+                             color: textColor)
             .opacity(configuration.isPressed && isEnabled ? 0.82 : 1)
             .scaleEffect(configuration.isPressed && isEnabled ? 0.985 : 1)
     }
@@ -210,6 +212,7 @@ struct OutlineButton: ButtonStyle {
                 RoundedRectangle(cornerRadius: Theme.radiusSmall, style: .continuous)
                     .stroke(isEnabled ? tint.opacity(0.45) : Theme.disabledFill, lineWidth: 1.5)
             )
+            .pointerFeedback(cornerRadius: Theme.radiusSmall, isPressed: configuration.isPressed)
             .opacity(configuration.isPressed && isEnabled ? 0.6 : 1)
     }
 }

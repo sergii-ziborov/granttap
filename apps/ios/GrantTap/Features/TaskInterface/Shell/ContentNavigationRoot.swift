@@ -45,7 +45,7 @@ extension ContentView {
             #if targetEnvironment(macCatalyst)
             if !desktopLicense.license.permitsLocalControl
                 && selectedTab != .settings && selectedTab != .devices {
-                DesktopLicenseView(store: desktopLicense)
+                DesktopLicenseView(store: desktopLicense, onBack: { selectMacTab(.devices) })
             } else if macLocalMCP.isReady || model.pairing != nil || model.demoMode
                         || selectedTab == .settings || selectedTab == .devices {
                 personalTabs
@@ -74,7 +74,10 @@ extension ContentView {
         .navigationBarHidden(security.showsLockUI)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                if !security.showsLockUI, model.pairing != nil || model.demoMode { connectionBadge }
+                if !security.showsLockUI,
+                   !model.connectionOverview.isEmpty || GrantTapAccountAPI.session != nil || model.demoMode {
+                    connectionBadge
+                }
             }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if !security.showsLockUI {

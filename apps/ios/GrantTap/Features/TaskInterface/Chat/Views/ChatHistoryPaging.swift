@@ -56,7 +56,12 @@ extension TaskChatView {
         } else { historyScrollAnchor = topVisibleTranscriptRow }
         pendingHistoryCursor = cursor
         #if DEBUG
-        if DemoTranscriptHistory.load(cursor: cursor, sessionId: chatSessionId, model: model) { return }
+        if DemoTranscriptHistory.load(cursor: cursor, sessionId: chatSessionId, model: model) {
+            // The fixture replies synchronously. SwiftUI can coalesce the
+            // history changes and skip onChange between consecutive pages.
+            DispatchQueue.main.async { historyArrived(proxy) }
+            return
+        }
         #endif
         #if targetEnvironment(macCatalyst)
         if model.usesLocalMCP(for: currentSession) {

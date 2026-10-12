@@ -47,7 +47,7 @@ struct ProjectRestrictionsView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .buttonStyle(.plain)
+                        .pointerButtonStyle()
                         Toggle(preset.name ?? preset.kind, isOn: ruleBinding(preset))
                             .labelsHidden()
                     }
@@ -69,7 +69,7 @@ struct ProjectRestrictionsView: View {
                                 .foregroundStyle(Theme.muted)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .pointerButtonStyle()
                     .disabled(scope == "sync_from_repo")
                 }
                 .onDelete { offsets in

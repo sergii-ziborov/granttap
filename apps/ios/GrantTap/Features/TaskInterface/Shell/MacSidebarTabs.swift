@@ -4,7 +4,14 @@ import UIKit
 
 extension ContentView {
     func refreshMacLocal() async {
-        guard !model.demoMode, desktopLicense.license.permitsLocalControl else { return }
+        guard !model.demoMode else { return }
+        if case .betaTrial(let expiry) = desktopLicense.license, expiry <= Date() {
+            await desktopLicense.refresh()
+        }
+        if !desktopLicense.license.permitsLocalControl {
+            await macLocalMCP.probeStatus()
+            return
+        }
         model.localMCPReader = macLocalMCP
         await macLocalMCP.refresh()
         guard !model.demoMode else { return }
@@ -107,10 +114,8 @@ extension ContentView {
                 .padding(.horizontal, 12)
                 .frame(height: 36)
                 .foregroundStyle(Theme.ink)
-                .background(selectedTab == tab ? Theme.codex.opacity(0.18) : Color.clear,
-                            in: RoundedRectangle(cornerRadius: 9))
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle(selected: selectedTab == tab)
         .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
         .accessibilityIdentifier("sidebar.\(String(describing: tab))")
     }
@@ -133,7 +138,7 @@ extension ContentView {
                 .frame(height: 36)
                 .foregroundStyle(Theme.ink)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityIdentifier(title == L("New Mesh") ? "sidebar.new-mesh" : "sidebar.settings")
     }
 }

@@ -6,8 +6,8 @@ import WebKit
 struct ProjectGraphView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
-    @State private var pending = false
-    @State private var feedback: String?
+    private var pending: Bool { model.projectGraphRequests[snapshot.projectId]?.pending == true }
+    private var feedback: String? { model.projectGraphRequests[snapshot.projectId]?.result.message }
     #if targetEnvironment(macCatalyst)
     @State private var macMode: MacGraphMode = .components
     @State private var selectedRepositoryId: String?
@@ -38,14 +38,7 @@ struct ProjectGraphView: View {
             #endif
             await model.observeProjectInsights(projectId: snapshot.projectId)
         }
-        .onChange(of: reports) { _ in
-            if pending && reports.contains(where: { $0.analysisStatus != "UNAVAILABLE" }) {
-                pending = false
-                feedback = L("Computer analysis report received.")
-            } else if pending && !reports.isEmpty {
-                feedback = L("Analysis reported an unavailable repository. Waiting for another computer or retry.")
-            }
-        }
+
     }
 
     @ViewBuilder private var graphContent: some View {
@@ -63,7 +56,7 @@ struct ProjectGraphView: View {
             }
             .pickerStyle(.segmented).padding(.horizontal)
             if let feedback { Text(feedback).font(.caption).foregroundStyle(Theme.muted) }
-            if pending { ProgressView(L("Building architecture…")) }
+            if pending { ProgressView(L("Building architecture…")).accessibilityIdentifier("project.graph.progress") }
             switch macMode {
             case .components: macComponents
             case .repositories: ProjectRepositoryNetworkView(snapshot: currentSnapshot)
@@ -92,7 +85,7 @@ struct ProjectGraphView: View {
                 if let feedback {
                     Text(feedback).font(.caption).foregroundStyle(pending ? Theme.muted : .orange)
                 }
-                if pending { ProgressView(L("Building architecture…")) }
+                if pending { ProgressView(L("Building architecture…")).accessibilityIdentifier("project.graph.progress") }
                 ForEach(reports) { report in
                     ProjectArchitectureDiagram(
                         report: report,
@@ -153,8 +146,6 @@ struct ProjectGraphView: View {
                     .font(.caption).foregroundStyle(Theme.muted)
             }
             buildButton
-            if let feedback { Text(feedback).font(.caption).foregroundStyle(Theme.muted) }
-            if pending { ProgressView(L("Building architecture…")) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
@@ -163,21 +154,7 @@ struct ProjectGraphView: View {
 
     private var buildButton: some View {
         Button {
-            pending = true
-            feedback = L("Building architecture…")
-            Task {
-                let result = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId)
-                feedback = result.message
-                pending = result == .requested
-                if pending {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
-                        if pending {
-                            pending = false
-                            feedback = L("No analysis report arrived. Check the computer and repository binding in Health.")
-                        }
-                    }
-                }
-            }
+            Task { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
         } label: {
             Label(L("Build architecture now"), systemImage: "arrow.clockwise")
         }

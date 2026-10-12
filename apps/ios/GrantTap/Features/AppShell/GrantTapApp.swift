@@ -5,6 +5,16 @@ enum AppRuntime {
     static var isRunningUnitTests: Bool {
         ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
+
+    static func usesIsolatedUIFixture(environment: [String: String] = ProcessInfo.processInfo.environment) -> Bool {
+        #if DEBUG
+        return environment["GRANTTAP_DEMO"] == "1"
+            || environment["GRANTTAP_TEST_CONNECTION_LIST"] == "1"
+            || environment["GRANTTAP_TEST_INVITE_SCOPES"] != nil
+        #else
+        return false
+        #endif
+    }
 }
 
 @main
@@ -41,6 +51,16 @@ struct AppLifecycleDependencies {
         registerRemoteNotifications: { $0.registerForRemoteNotifications() },
         startServices: {
             Task { @MainActor in
+                #if DEBUG
+                if ProcessInfo.processInfo.environment["GRANTTAP_TEST_DIAGNOSTICS"] == "1" {
+                    UIApplication.shared.isIdleTimerDisabled = true
+                }
+                #endif
+                if AppRuntime.usesIsolatedUIFixture() {
+                    AppModel.shared.start()
+                    return
+                }
+                AppModel.shared.restoreLocalReplica()
                 await SubscriptionStore.shared.prepareTransport()
                 AppModel.shared.start()
                 await SubscriptionStore.shared.loadStorefront()

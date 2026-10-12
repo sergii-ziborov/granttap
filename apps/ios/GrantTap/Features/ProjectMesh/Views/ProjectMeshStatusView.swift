@@ -3,7 +3,7 @@ import SwiftUI
 struct ProjectMeshStatusView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
-    @State private var refreshing = false
+    private var refreshing: Bool { model.projectGraphRequests[snapshot.projectId]?.pending == true }
     @State private var toast: String?
     @State private var towerReport: ProjectRepositoryGraph?
 
@@ -75,10 +75,8 @@ struct ProjectMeshStatusView: View {
                     }
                 }
                 Button {
-                    refreshing = true
                     Task {
                         toast = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId).message
-                        refreshing = false
                     }
                 } label: {
                     HStack {
@@ -88,6 +86,9 @@ struct ProjectMeshStatusView: View {
                 }
                 .disabled(refreshing)
                 .accessibilityIdentifier("health.code-towers.refresh")
+                if let request = model.projectGraphRequests[snapshot.projectId] {
+                    Text(request.result.message).font(.caption).foregroundStyle(Theme.muted)
+                }
                 NavigationLink(L("Open graph and analysis status")) {
                     ProjectGraphView(snapshot: snapshot, model: model)
                 }
@@ -165,7 +166,7 @@ struct ProjectMeshStatusView: View {
         .pageNavigationTitle(L("Health"))
         .transientToast($toast)
         .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
-        .refreshable { await model.refreshProjectInsights(projectId: snapshot.projectId, requestRemote: true) }
+        .refreshable { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
         .fullScreenCover(item: $towerReport) { report in
             if let map = report.codeMap {
                 ProjectTowersFullScreen(

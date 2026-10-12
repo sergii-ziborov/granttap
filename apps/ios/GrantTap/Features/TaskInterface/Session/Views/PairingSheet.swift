@@ -226,7 +226,9 @@ struct PairingSheet: View {
     /// Accepts a pairing QR/deep-link or pasted pairing file.
     func apply(_ text: String) {
         error = nil
-        if purpose == .computer, let bundle = ControllerNetworkTransfer.bundleLink(from: text) {
+        if purpose == .computer, let code = GrantTapAccountAPI.deviceInviteCode(from: text) {
+            connectAccount(code)
+        } else if purpose == .computer, let bundle = ControllerNetworkTransfer.bundleLink(from: text) {
             connectControllerNetwork(bundle)
         } else if let link = Pairing.secureLink(fromURI: text) {
             connect(link)
@@ -249,6 +251,23 @@ struct PairingSheet: View {
         }
     }
 
+    private func connectAccount(_ code: String) {
+        guard GrantTapAccountAPI.session == nil else {
+            error = L("This device is already in an Account Mesh. Sign out before joining another account.")
+            return
+        }
+        busy = true
+        Task {
+            do {
+                try await AccountDeviceEnrollment.join(code, model: modelOverride ?? model)
+                busy = false
+                finishPairing()
+            } catch {
+                busy = false
+                self.error = L("This Account Mesh QR expired or could not be used. Show a new QR on the trusted device.")
+            }
+        }
+    }
     private func connectControllerNetwork(_ link: Pairing.SecureLink) {
         busy = true
         Task {

@@ -6,6 +6,8 @@ struct SettingsConnectionSection: View {
     var onInviteController: () -> Void
     var onForgetAll: () -> Void
     var localComputer: String?
+    var accountId: String?
+    var accountMachineIds: Set<String>
 
     @State private var busyRoom: String?
     @State private var unlinkRoom: String?
@@ -15,6 +17,8 @@ struct SettingsConnectionSection: View {
         onInviteController: @escaping () -> Void = {},
         onForgetAll: @escaping () -> Void,
         localComputer: String? = nil,
+        accountId: String? = nil,
+        accountMachineIds: Set<String> = [],
         busyRoom: String? = nil,
         unlinkRoom: String? = nil
     ) {
@@ -22,18 +26,28 @@ struct SettingsConnectionSection: View {
         self.onInviteController = onInviteController
         self.onForgetAll = onForgetAll
         self.localComputer = localComputer
+        self.accountId = accountId
+        self.accountMachineIds = accountMachineIds
         _busyRoom = State(initialValue: busyRoom)
         _unlinkRoom = State(initialValue: unlinkRoom)
     }
 
-    private var links: [LinkedComputer] { model.connectionRegistry.connections }
-    private var hasOwnComputer: Bool { links.contains { !$0.pairing.isHub } }
+    private var links: [LinkedComputer] {
+        let visible = model.accountVisibleRooms()
+        return AccountDeviceCatalog.otherConnections(in: model.connectionRegistry,
+            accountId: accountId, machineIds: accountMachineIds).filter {
+            $0.pairing.isHub || visible.contains($0.id)
+        }
+    }
+    private var hasOwnComputer: Bool {
+        model.connectionRegistry.connections.contains { !$0.pairing.isHub }
+    }
 
     var body: some View {
         Section {
             if model.demoMode {
                 demoRow
-            } else if links.isEmpty {
+            } else if links.isEmpty && accountMachineIds.isEmpty {
                 if let localComputer { localRow(localComputer) }
                 else { emptyRow }
             } else {
@@ -48,7 +62,7 @@ struct SettingsConnectionSection: View {
             .foregroundStyle(Theme.ink)
             .disabled(model.demoMode)
 
-            if hasOwnComputer {
+            if hasOwnComputer || accountId != nil {
                 Button { onInviteController() } label: {
                     Label(L("Add another iPhone or iPad (Show QR)"), systemImage: "qrcode")
                 }
@@ -60,9 +74,10 @@ struct SettingsConnectionSection: View {
                 Button(L("Unlink all computers"), role: .destructive, action: onForgetAll)
             }
         } header: {
-            Text(L("On this device"))
+            Text(links.isEmpty ? L("Connect")
+                 : accountId == nil ? L("Connections") : L("Other connections"))
         } footer: {
-            Text(L("These computers can run Tasks in your Account Mesh. Each chat and Project Mesh keeps its own computer route."))
+            Text(L("Each MCP computer contributes Tasks to your Account Mesh. A Task keeps its computer route; Project Meshes may span computers."))
         }
         .confirmationDialog(
             L("Unlink this computer?"),
@@ -123,13 +138,16 @@ struct SettingsConnectionSection: View {
     @ViewBuilder
     private func connectionCard(_ conn: LinkedComputer) -> some View {
         let snap = model.snapshotForConnection(conn)
+        let unresolvedQR = accountId != nil && !conn.pairing.isHub
+            && conn.linkedMachineId == nil && conn.displayName.hasPrefix("PC ")
+        let title = unresolvedQR ? L("Unverified QR connection") : conn.displayName
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center, spacing: 10) {
                 Circle()
                     .fill(snap.statusColor)
                     .frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(conn.displayName)
+                    Text(title)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Theme.ink)
                     Text(snap.statusTitle)
@@ -182,7 +200,7 @@ struct SettingsConnectionSection: View {
         }
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(conn.displayName). \(snap.statusTitle)")
+        .accessibilityLabel("\(title). \(snap.statusTitle)")
     }
 
     func unlinkSelected(using target: AppModel? = nil) {

@@ -3,7 +3,7 @@ import Foundation
 struct ActivityEntry: Codable, Identifiable, Equatable {
     let id: String
     let kind: String              // "user" | "message" | "tool" | "final" | "status"
-    let text: String
+    var text: String
     let createdAt: Double
     var toolName: String? = nil
     var mcpServer: String? = nil

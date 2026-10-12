@@ -5,11 +5,12 @@ import SceneKit
 struct ProjectArchitectureScene: UIViewRepresentable {
     let report: ProjectRepositoryGraph
     @Binding var selectedId: String?
+    var viewport: CGSize = .zero
 
     func makeUIView(context: Context) -> SCNView {
         let view = SCNView()
         view.backgroundColor = UIColor(Theme.bg)
-        view.scene = Self.scene(for: report)
+        view.scene = Self.scene(for: report, viewport: viewport)
         view.pointOfView = view.scene?.rootNode.childNode(withName: "report-camera", recursively: false)
         view.allowsCameraControl = true
         view.defaultCameraController.interactionMode = .orbitTurntable
@@ -22,6 +23,7 @@ struct ProjectArchitectureScene: UIViewRepresentable {
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
         context.coordinator.view = view
+        view.delegate = context.coordinator
         context.coordinator.primeStaticFrame()
         return view
     }
@@ -35,27 +37,35 @@ struct ProjectArchitectureScene: UIViewRepresentable {
             let id = String((node.name ?? "").dropFirst("report:".count))
             node.opacity = selectedId == nil || neighborhood.contains(id) ? 1 : 0.24
         }
+        context.coordinator.fit(viewport: viewport)
         context.coordinator.focus(on: selectedId)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
-    final class Coordinator: NSObject {
+    @MainActor final class Coordinator: NSObject, SCNSceneRendererDelegate {
         var parent: ProjectArchitectureScene
         weak var view: SCNView?
-        private var staticFrameTask: Task<Void, Never>?
+        private var renderUntil: TimeInterval = 0
         private var focusedId: String?
+        private var fittedSize: CGSize = .zero
 
         init(parent: ProjectArchitectureScene) { self.parent = parent }
 
         @MainActor func primeStaticFrame() {
-            staticFrameTask?.cancel()
-            staticFrameTask = Task { @MainActor [weak self] in
-                try? await Task.sleep(nanoseconds: 180_000_000)
-                guard !Task.isCancelled, let view = self?.view else { return }
+            view?.rendersContinuously = true
+            view?.isPlaying = true
+            renderUntil = Date.timeIntervalSinceReferenceDate + 0.45
+        }
+
+        nonisolated func renderer(_ renderer: any SCNSceneRenderer, didRenderScene scene: SCNScene,
+                                  atTime time: TimeInterval) {
+            Task { @MainActor [weak self] in
+                guard let self, Date.timeIntervalSinceReferenceDate >= self.renderUntil,
+                      let view = self.view, view.window != nil,
+                      view.bounds.width > 0, view.bounds.height > 0 else { return }
                 view.rendersContinuously = false
                 view.isPlaying = false
-                view.setNeedsDisplay()
             }
         }
 
@@ -70,17 +80,36 @@ struct ProjectArchitectureScene: UIViewRepresentable {
             }
         }
 
+        func fit(viewport: CGSize, force: Bool = false) {
+            guard viewport.width > 0, viewport.height > 0,
+                  force || viewport != fittedSize, let view, let camera = view.pointOfView else { return }
+            fittedSize = viewport
+            let points = ProjectArchitectureScene.positions(for: parent.report).values.map {
+                SIMD3<Float>($0.x, $0.y, $0.z)
+            }
+            let frame = ProjectArchitectureViewport.frame(points: points, size: viewport)
+            let center = SCNVector3(frame.center.x, frame.center.y, frame.center.z)
+            camera.position = SCNVector3(center.x, center.y, center.z + frame.distance)
+            camera.look(at: center)
+            view.defaultCameraController.target = center
+            primeStaticFrame()
+        }
+
         func focus(on id: String?) {
             guard focusedId != id else { return }
             focusedId = id
-            guard let id, let view,
+            guard let id else { fit(viewport: fittedSize, force: true); return }
+            guard let view,
                   let target = view.scene?.rootNode.childNode(withName: "report:\(id)", recursively: false)?.position,
                   let camera = view.pointOfView else { return }
             SCNTransaction.begin()
             SCNTransaction.animationDuration = 0.35
-            camera.position = SCNVector3(target.x, target.y, target.z + 27)
+            let aspect = Float(max(parent.viewport.width, 1) / max(parent.viewport.height, 1))
+            camera.position = SCNVector3(target.x, target.y, target.z + max(18, 12 / aspect))
+            view.defaultCameraController.target = target
             camera.look(at: target)
             SCNTransaction.commit()
+            primeStaticFrame()
         }
     }
 
@@ -88,24 +117,20 @@ struct ProjectArchitectureScene: UIViewRepresentable {
         ProjectArchitectureLayout.positions(for: report)
     }
 
-    private static func scene(for report: ProjectRepositoryGraph) -> SCNScene {
+    private static func scene(for report: ProjectRepositoryGraph, viewport: CGSize) -> SCNScene {
         let scene = SCNScene()
         scene.background.contents = UIColor(Theme.bg)
         let positions = positions(for: report)
-        let xs = positions.values.map(\.x)
-        let ys = positions.values.map(\.y)
-        let minX = xs.min() ?? -8
-        let maxX = xs.max() ?? 8
-        let minY = ys.min() ?? -8
-        let maxY = ys.max() ?? 8
-        let center = SCNVector3((minX + maxX) / 2, (minY + maxY) / 2, 0)
-        let maxRadius = positions.values.map { sqrt($0.x * $0.x + $0.y * $0.y + $0.z * $0.z) }.max() ?? 8
+        let frame = ProjectArchitectureViewport.frame(points: positions.values.map {
+            SIMD3<Float>($0.x, $0.y, $0.z)
+        }, size: viewport)
+        let center = SCNVector3(frame.center.x, frame.center.y, frame.center.z)
         let camera = SCNNode()
         camera.name = "report-camera"
         camera.camera = SCNCamera()
         camera.camera?.zFar = 2_000
         camera.camera?.fieldOfView = 57
-        camera.position = SCNVector3(center.x, center.y, max(48, maxRadius * 4.5))
+        camera.position = SCNVector3(center.x, center.y, center.z + frame.distance)
         camera.look(at: center)
         scene.rootNode.addChildNode(camera)
 
@@ -140,7 +165,7 @@ struct ProjectArchitectureScene: UIViewRepresentable {
             let sphere = SCNSphere(radius: node.kind == "workspace" ? 1.25 : 0.85)
             sphere.segmentCount = 12
             let material = SCNMaterial()
-            material.diffuse.contents = color(for: node.kind)
+            material.diffuse.contents = UIColor(ProjectArchitectureStyle.color(node.kind))
             material.lightingModel = .constant
             sphere.materials = [material]
             let visual = SCNNode(geometry: sphere)
@@ -155,21 +180,16 @@ struct ProjectArchitectureScene: UIViewRepresentable {
                 label.firstMaterial?.diffuse.contents = UIColor(Theme.ink)
                 label.firstMaterial?.lightingModel = .constant
                 let title = SCNNode(geometry: label)
-                let labelX = position.x > (minX + maxX) / 2 + (maxX - minX) * 0.25
-                    ? position.x - Float(text.count) * 0.42 - 1 : position.x + 1
-                title.position = SCNVector3(labelX, position.y - 0.3, position.z)
+                let (minimum, maximum) = label.boundingBox
+                // Place the top of the actual glyph bounds below the sphere.
+                title.pivot = SCNMatrix4MakeTranslation((minimum.x + maximum.x) / 2, maximum.y, 0)
+                title.name = visual.name
+                title.position = SCNVector3(0, -Float(sphere.radius) - 0.6, 0)
                 title.constraints = [SCNBillboardConstraint()]
-                scene.rootNode.addChildNode(title)
+                visual.addChildNode(title)
             }
         }
         return scene
     }
 
-    private static func color(for kind: String) -> UIColor {
-        switch kind {
-        case "workspace": return UIColor(Theme.ok)
-        case "package": return UIColor(Theme.riskMed)
-        default: return UIColor(Theme.codex)
-        }
-    }
 }

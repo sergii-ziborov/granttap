@@ -2,7 +2,15 @@ import Foundation
 import SwiftUI
 
 extension AppModel {
-    /// Aggregate status for the home header pill (preferred computer).
+    /// One visible route per MCP computer; QR and passkey rooms of the same
+    /// verified machine remain one list item.
+    var connectionOverview: [LinkedComputer] {
+        let rooms = accountVisibleRooms()
+        return connectionRegistry.connections.filter { rooms.contains($0.id) }
+            .sorted { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
+    }
+
+    /// Account status reflects any publishing MCP device, not a default route.
     var connectionSnapshot: ConnectionSnapshot {
         if demoMode {
             return ConnectionSnapshot(
@@ -23,6 +31,12 @@ extension AppModel {
                 roomShort: nil,
                 catalogAgeSeconds: nil
             )
+        }
+        let visibleRooms = accountVisibleRooms()
+        if let live = connectionRegistry.connections.first(where: {
+            visibleRooms.contains($0.id) && snapshotForConnection($0).phase == .live
+        }) {
+            return snapshotForConnection(live)
         }
         return snapshotForConnection(preferred)
     }

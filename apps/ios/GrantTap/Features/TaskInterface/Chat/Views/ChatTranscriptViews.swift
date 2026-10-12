@@ -120,7 +120,7 @@ struct AgentThreadTranscript: View {
                 }
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .pointerButtonStyle()
 
             if expanded {
                 Divider().overlay(Theme.line).padding(.vertical, 10)

@@ -24,7 +24,13 @@ enum ChatPinnedUserMessage {
     }
 
     static func topVisibleRow(_ positions: [ChatRowPosition], viewportHeight: CGFloat) -> String? {
-        positions.filter { $0.maxY > 0 && $0.minY < viewportHeight }
+        // A few points of the preceding row can remain above a scrollTo(.top)
+        // destination on Mac. Do not treat that clipped tail as the request
+        // being read, or the jump anchor is immediately cleared.
+        positions.filter {
+            $0.maxY > 0 && $0.minY < viewportHeight &&
+                ($0.minY >= 0 || $0.maxY > min(32, viewportHeight * 0.2))
+        }
             .min { $0.minY < $1.minY }?.id
     }
 

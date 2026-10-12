@@ -47,7 +47,11 @@ extension AppModel {
         let preferredChanged = previousPreferredId != nextRegistry.preferredId
             || previousPreferredPeer != nextRegistry.preferred?.pairing.peerPublicKey
         if preferredChanged {
+            #if targetEnvironment(macCatalyst)
             clearRemoteCatalogForPreferSwitch(reason: "pair-\(p.room.prefix(8))")
+            #else
+            refreshAccountDeviceCatalog()
+            #endif
         } else {
             pruneSessionSourceRoomsToLinkedRooms()
         }
@@ -94,6 +98,7 @@ extension AppModel {
     }
 
     func unlinkConnection(roomId: String) {
+        approvalDecisionQueue.removeRoom(roomId)
         let wasPreferred = connectionRegistry.preferredId == roomId
         let removedRequestIds = Set(
             requestSourceRoom.compactMap { $0.value == roomId ? $0.key : nil }
@@ -133,6 +138,7 @@ extension AppModel {
         relaysByRoom[roomId]?.disconnect()
         relaysByRoom[roomId] = nil
         roomRuntime[roomId] = nil
+        accountDeviceCatalogs[roomId] = nil
         // Keep request→room tombstones: any still-visible card must fail closed
         // instead of falling through to a different linked computer.
         connectionRegistry = ConnectionRegistryLogic.remove(connectionRegistry, roomId: roomId)
@@ -141,9 +147,16 @@ extension AppModel {
             clearLinkLocalState()
         } else {
             if wasPreferred {
+                #if targetEnvironment(macCatalyst)
                 clearRemoteCatalogForPreferSwitch(reason: "unlink-\(roomId.prefix(8))")
+                #else
+                refreshAccountDeviceCatalog()
+                #endif
             } else {
                 pruneSessionSourceRoomsToLinkedRooms()
+                #if !targetEnvironment(macCatalyst)
+                refreshAccountDeviceCatalog()
+                #endif
             }
             restartAllRelays()
         }
@@ -160,7 +173,11 @@ extension AppModel {
         // Drop stale Active/SQLite from the previous Prefer-for-chats room so
         // code-blob / foreign ghosts cannot linger until the new Mac publishes.
         if previous != roomId {
+            #if targetEnvironment(macCatalyst)
             clearRemoteCatalogForPreferSwitch(reason: "prefer-\(roomId.prefix(8))")
+            #else
+            refreshAccountDeviceCatalog()
+            #endif
         }
         // Preferred owns catalog — rebind `relay` without dropping other sockets.
         relay = relaysByRoom[roomId]

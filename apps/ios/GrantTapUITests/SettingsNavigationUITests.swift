@@ -8,6 +8,7 @@ final class SettingsNavigationUITests: XCTestCase {
         app.launch()
         let settings = app.buttons["Settings"].firstMatch
         XCTAssertTrue(settings.waitForExistence(timeout: 10))
+        reveal(settings, in: app)
         settings.tap()
 
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
@@ -33,5 +34,18 @@ final class SettingsNavigationUITests: XCTestCase {
         for _ in 0..<8 where !element.isHittable { app.swipeUp() }
         XCTAssertTrue(element.waitForExistence(timeout: 5))
         XCTAssertTrue(element.isHittable)
+        // A tap during List deceleration stops scrolling instead of opening
+        // the row. Wait for the visible row to settle before exercising it.
+        var previousFrame = CGRect.null
+        var stableSince = Date()
+        let settled = expectation(for: NSPredicate { _, _ in
+            let frame = element.frame
+            if frame != previousFrame {
+                previousFrame = frame
+                stableSince = Date()
+            }
+            return element.isHittable && Date().timeIntervalSince(stableSince) >= 0.5
+        }, evaluatedWith: element)
+        wait(for: [settled], timeout: 5)
     }
 }

@@ -14,10 +14,14 @@ parsing, and Keychain storage.
   for recovery with machine-scoped credentials sent through their encrypted
   rooms; chat and Mesh ownership stay bound to their original rooms.
 - `Device/ControllerInviteCoordinator.swift` requests a separate, expiring
-  controller credential from each Live linked computer. The trusted phone
-  publishes their encrypted one-use links as a second QR through the relay.
-  `ControllerNetworkTransfer.swift` opens that QR on a new iPhone or iPad and
-  validates every computer before storing the new connections together.
+  controller credential from each selected linked computer. One-computer QR
+  grants only that computer; a direct network QR bundles currently reachable
+  computers and omits those that cannot issue a key. Bundles are bounded at 32.
+- The authenticated Account Mesh QR is a separate five-minute, single-use code
+  issued by the account service. Redeeming it creates a new device session;
+  AccountSpaceSync then discovers every online MCP computer without copying
+  session tokens or pairing keys into the QR. Project Mesh invites continue to
+  use the existing role-limited MemberInviteSheet.
 
 `Device/ComputerLinkEnrollment.swift` opens a one-use computer link or an
 iPhone device-network invitation and saves through the additive registry.

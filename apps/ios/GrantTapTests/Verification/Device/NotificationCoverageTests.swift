@@ -178,6 +178,13 @@ final class NotificationCoverageTests: XCTestCase {
     @MainActor
     func testDefaultResponseRoutesDecisionWakeAndNoopThroughAnIsolatedModel() async {
         let model = AppModel()
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        model.approvalDecisionQueue = ApprovalDecisionQueue(url: folder.appendingPathComponent("queue.json"))
+        model.connectionRegistry = .empty
+        model.relaysByRoom = [:]
+        model.requestSourceRoom = [:]
+        model.pending = []
         NotificationManager.performDefaultResponse(.none, model: model)
         NotificationManager.performDefaultResponse(
             .wake(focusedRequestId: "focus"), model: model
@@ -199,6 +206,8 @@ final class NotificationCoverageTests: XCTestCase {
         for _ in 0..<5 { await Task.yield() }
         XCTAssertEqual(model.focusedApprovalId, "focus")
         XCTAssertTrue(model.log.contains { $0.contains("decision.send failed") })
+        XCTAssertTrue(model.approvalDecisionQueue.entries.isEmpty)
+        XCTAssertNil(model.approvalDecisionsInFlight["decision"])
     }
 
     private func request(id: String) -> ApprovalRequest {

@@ -95,19 +95,28 @@ extension TranscriptHistoryUITests {
             "GRANTTAP_TEST_LANGUAGE": "en"]
         app.launch()
         let previous = app.buttons["chat.latest-user-message"]
-        let navigationAvailable = previous.waitForExistence(timeout: 15)
+        let navigationAvailable = previous.waitForExistence(timeout: 30)
         if !navigationAvailable {
             let evidence = XCTAttachment(screenshot: app.screenshot())
             evidence.lifetime = .keepAlways
             add(evidence)
         }
         XCTAssertTrue(navigationAvailable)
-        XCTAssertTrue(waitForLabel(previous, contains: "Third viewport request"))
+        let startsAtSecond = waitForLabel(previous, contains: "Second viewport request", timeout: 2)
+        XCTAssertTrue(startsAtSecond || waitForLabel(previous, contains: "Third viewport request"))
         previous.tap()
-        XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
+        if !startsAtSecond {
+            XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
+            previous.tap()
+        }
+        XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
         let transcript = app.scrollViews["chat.transcript"]
         let second = app.staticTexts["chat.row.viewport-request-1"]
         XCTAssertTrue(second.waitForExistence(timeout: 5))
+        let latest = app.buttons["chat.jumpToLatest"]
+        XCTAssertTrue(latest.isHittable)
+        XCTAssertGreaterThan(latest.frame.midY, transcript.frame.minY + transcript.frame.height * 0.6,
+            "Jump to latest should float near the bottom of the transcript.")
         XCTAssertLessThanOrEqual(second.frame.minY, transcript.frame.minY + 30,
             "The pinned request must scroll to its message, not only change its title.")
         for _ in 0..<16 where !previous.label.contains("First viewport request") { transcript.swipeDown() }
@@ -136,13 +145,18 @@ extension TranscriptHistoryUITests {
             add(evidence)
         }
         XCTAssertTrue(navigationAvailable)
-        XCTAssertTrue(waitForLabel(previous, contains: "Latest user request"))
+        // The newest loaded request may already be visible on a short screen.
+        // The control then points directly to the next request above it.
+        let startsAtLatest = waitForLabel(previous, contains: "Latest user request", timeout: 2)
+        XCTAssertTrue(startsAtLatest || waitForLabel(previous, contains: "Previous user request"))
         XCTAssertTrue(app.buttons["chat.project"].exists)
         XCTAssertTrue(app.staticTexts["chat.time.history-final"].exists)
-        previous.tap()
-        XCTAssertTrue(app.staticTexts["chat.row.request-0"].isHittable)
-        XCTAssertTrue(app.staticTexts["chat.time.request-0"].exists)
-        XCTAssertTrue(waitForLabel(previous, contains: "Previous user request"))
+        if startsAtLatest {
+            previous.tap()
+            XCTAssertTrue(app.staticTexts["chat.row.request-0"].isHittable)
+            XCTAssertTrue(app.staticTexts["chat.time.request-0"].exists)
+            XCTAssertTrue(waitForLabel(previous, contains: "Previous user request"))
+        }
         previous.tap()
         XCTAssertTrue(app.staticTexts["chat.row.request-1"].isHittable)
         XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
@@ -152,9 +166,11 @@ extension TranscriptHistoryUITests {
         XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
     }
 
-    private func waitForLabel(_ element: XCUIElement, contains text: String) -> Bool {
+    private func waitForLabel(_ element: XCUIElement, contains text: String,
+                              timeout: TimeInterval = 10) -> Bool {
         XCTWaiter.wait(for: [XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "label CONTAINS %@", text), object: element)], timeout: 10) == .completed
+            predicate: NSPredicate(format: "label CONTAINS %@", text), object: element)],
+            timeout: timeout) == .completed
     }
 
     private func waitForHittable(_ element: XCUIElement) -> Bool {

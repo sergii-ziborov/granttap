@@ -96,11 +96,15 @@ struct TaskChatView: View {
     var chatSessionId: String { model.resolvedSessionId(session.sessionId) }
 
     var currentSession: SessionInfo {
-        model.sessions.first(where: { $0.sessionId == chatSessionId })
+        var current = model.sessions.first(where: { $0.sessionId == chatSessionId })
             ?? model.sessionHistory.first(where: { $0.sessionId == chatSessionId })
             ?? model.archivedSessions[chatSessionId]
             ?? model.sessions.first(where: { $0.sessionId == session.sessionId })
             ?? session
+        if ProjectMeshTaskTitle.presentable(current.title ?? "") == nil {
+            current.title = ProjectMeshTaskTitle.presentable(session.title ?? "")
+        }
+        return current
     }
 
     var entries: [ActivityEntry] {

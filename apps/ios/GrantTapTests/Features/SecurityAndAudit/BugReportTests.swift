@@ -91,4 +91,49 @@ final class BugReportTests: XCTestCase {
         XCTAssertFalse(built.build.isEmpty)
         XCTAssertFalse(DiagnosticsReport.containsSecret(built.text))
     }
+
+    func testRequestedDiagnosticsRemainWritableAfterAChatGrant() throws {
+        let oldEnvironment = ProcessInfo.processInfo.environment["GRANTTAP_TEST_DIAGNOSTICS"]
+        setenv("GRANTTAP_TEST_DIAGNOSTICS", "1", 1)
+        defer {
+            if let oldEnvironment { setenv("GRANTTAP_TEST_DIAGNOSTICS", oldEnvironment, 1) }
+            else { unsetenv("GRANTTAP_TEST_DIAGNOSTICS") }
+        }
+        let report = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("GrantTapConnectionDiagnostics.txt")
+        let previous = try? Data(contentsOf: report)
+        defer {
+            if let previous { try? previous.write(to: report) }
+            else { try? FileManager.default.removeItem(at: report) }
+        }
+        let model = AppModel()
+        let client = RelayClient(pairing: PairingFixture.pairing(room: "diagnostics"))
+        client.wireDiagnosticCounts = ["grant-saved": 1, "scoped-opened": 1]
+        model.relaysByRoom[client.pairing.room] = client
+        model.saveRequestedDiagnostics()
+        let written = try String(contentsOf: report, encoding: .utf8)
+        XCTAssertTrue(written.contains("grant-saved"))
+        XCTAssertFalse(DiagnosticsReport.containsSecret(written))
+    }
+
+    func testReadinessRequiresCurrentCatalogAndEveryCurrentHistoryHead() {
+        let model = AppModel()
+        model.sessions = []
+        model.activities = [:]
+        XCTAssertEqual(model.nowReplicaTestStatus, "waiting")
+        let now = Date().timeIntervalSince1970 * 1_000
+        let chat = SessionInfo(sessionId: "readiness", agent: "codex", state: "working",
+            startedAt: now - 10, lastActivityAt: now, tokensSession: 0, tokensLastTurn: 0)
+        model.sessions = [chat]
+        model.lastSessionsGeneratedAt = now
+        XCTAssertEqual(model.nowReplicaTestStatus, "waiting")
+        model.activities = [chat.sessionId: .init(sessionId: chat.sessionId, agent: "codex",
+            state: "working", entries: [], generatedAt: now - 1, history: .init(hasMore: false))]
+        XCTAssertEqual(model.nowReplicaTestStatus, "waiting")
+        model.activities = [chat.sessionId: .init(sessionId: chat.sessionId, agent: "codex",
+            state: "working", entries: [], generatedAt: now, history: .init(hasMore: false))]
+        XCTAssertEqual(model.nowReplicaTestStatus, "ready")
+        model.lastSessionsGeneratedAt = now - 100_000
+        XCTAssertEqual(model.nowReplicaTestStatus, "waiting")
+    }
 }

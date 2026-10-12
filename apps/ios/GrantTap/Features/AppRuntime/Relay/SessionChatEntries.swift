@@ -41,6 +41,7 @@ extension AppModel {
             )
         }
         activities = next
+        if !demoMode { SessionActivityPersistence.save(next) }
         pushToWatch()
     }
 
@@ -64,8 +65,9 @@ extension AppModel {
                     byId.removeValue(forKey: old.id)
                 }
             }
-            if incoming.generatedAt >= existing.generatedAt || byId[entry.id] == nil {
-                byId[entry.id] = SessionActivityTelemetry.retaining(entry, from: byId[entry.id])
+            if incoming.generatedAt >= existing.generatedAt || byId[entry.id] == nil || incoming.history != nil {
+                let retained = retainingDownloadedText(entry, from: byId[entry.id])
+                byId[entry.id] = SessionActivityTelemetry.retaining(retained, from: byId[entry.id])
             }
             incomingOrder[entry.id] = index
         }
@@ -76,6 +78,9 @@ extension AppModel {
             byId[entry.id] = entry
         }
         let isOlderPage = incoming.history?.requestedCursor != nil
+        let reconnectGap = !isOlderPage && existing.history?.hasMore == false
+            && incoming.history?.hasMore == true && !incoming.entries.isEmpty
+            && Set(existing.entries.map(\.id)).isDisjoint(with: incoming.entries.map(\.id))
         let orderedIds = isOlderPage
             ? incoming.entries.map(\.id) + existing.entries.filter { incomingOrder[$0.id] == nil }.map(\.id)
             : existing.entries.filter { incomingOrder[$0.id] == nil }.map(\.id) + incoming.entries.map(\.id)
@@ -95,20 +100,23 @@ extension AppModel {
             sessionId: incoming.sessionId,
             agent: incoming.agent.isEmpty ? existing.agent : incoming.agent,
             state: state,
-            // Preserve pages while reading; phone persistence trims only at request boundaries.
-            entries: retainedActivityEntries(merged, hasHistory: incoming.history != nil || existing.history != nil),
+            // Native pages remain available after closing the chat and after restart.
+            entries: merged,
             generatedAt: generatedAt,
-            history: isOlderPage || existing.history == nil ? incoming.history : existing.history
+            history: isOlderPage || reconnectGap || existing.history == nil ? incoming.history : existing.history
         )
     }
 
-    private static func retainedActivityEntries(_ entries: [ActivityEntry], hasHistory: Bool) -> [ActivityEntry] {
-        #if targetEnvironment(macCatalyst)
-        return entries
-        #else
-        return hasHistory ? entries : TranscriptRequestBoundary.retainedEntries(
-            entries, limit: SessionActivityPersistence.maxEntriesPerSession)
-        #endif
+    private static func retainingDownloadedText(_ incoming: ActivityEntry, from previous: ActivityEntry?) -> ActivityEntry {
+        guard let previous, incoming.id == previous.id, incoming.kind == previous.kind else { return incoming }
+        var retained = incoming
+        if ["user", "message", "final"].contains(incoming.kind),
+           previous.text.count > incoming.text.count, previous.text.hasPrefix(incoming.text) {
+            retained.text = previous.text
+        }
+        retained.images = incoming.images ?? previous.images
+        retained.attachments = incoming.attachments ?? previous.attachments
+        return retained
     }
 
     /// Old window-relative ids and native ids can describe the same visible block.

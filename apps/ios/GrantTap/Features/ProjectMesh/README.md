@@ -102,4 +102,15 @@ separate worktree under the same Task; its receipt changes the owner. The same
 agent on the same computer is allowed only with a different model.
 
 Tests live in `GrantTapTests/Features/ProjectMesh`. See the repository
-[`AGENTS.md`](../../../../../AGENTS.md) for the product and quality contract.
+[public source](https://github.com/sergii-ziborov/granttap) for the product and quality contract.
+
+### Architecture inspection
+
+The full received Weavatrix report uses a viewport-fitted 3D scene. Rotation,
+pinch, reset, component search and the complete inventory work on received
+facts without another model request. Selecting a component highlights its
+neighbours. Component details show directed relations and observed evidence
+counts; the report information sheet explains colours, revision, versions and
+partial scope. COMPLETE describes analysis inputs, not universal dependency
+knowledge. Received reports remain available through the offline replica.
+Camera framing and information-sheet navigation are covered by feature tests.

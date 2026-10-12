@@ -29,7 +29,8 @@ extension TaskChatView {
         #if targetEnvironment(macCatalyst)
         .navigationBarHidden(true)
         #else
-        .navigationTitle(currentSession.displayTitle)
+        .navigationTitle(ProjectMeshTaskTitle.presentable(currentSession.displayTitle)
+                         ?? L("Untitled Task"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { chatToolbar }
         #endif
@@ -54,21 +55,14 @@ extension TaskChatView {
     private var chatTranscript: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    latestUserMessageButton(proxy)
-                    jumpToLatestButton(proxy)
-                        .opacity(chatIsAtBottom || visibleTimeline.isEmpty ? 0 : 1)
-                        .disabled(chatIsAtBottom || visibleTimeline.isEmpty)
-                        .accessibilityHidden(chatIsAtBottom || visibleTimeline.isEmpty)
-                }
-                .background(Theme.surface)
+                latestUserMessageButton(proxy)
                 GeometryReader { viewport in
                     ScrollView {
                         // Measured heights prevent lazy row estimates from
                         // repeatedly undoing an upward transcript pan.
                         VStack(alignment: .leading, spacing: 14) {
                             olderMessagesHeader(proxy)
-                            transcriptRows(proxy)
+                            transcriptRows(proxy, viewportHeight: viewport.size.height)
                             DeliveryStatusList(
                                 deliveries: model.orphanDeliveries(for: chatSessionId)
                             )
@@ -93,7 +87,7 @@ extension TaskChatView {
                     .accessibilityIdentifier("chat.transcript")
                     .coordinateSpace(name: "chat-transcript")
                     .onPreferenceChange(ChatHistoryHeightKey.self) { height in
-                        transcriptFitsViewport = height <= viewport.size.height
+                        transcriptFitsViewport = height > 0 && height <= viewport.size.height
                         if transcriptFitsViewport { chatIsAtBottom = true }
                     }
                     .onPreferenceChange(ChatHistoryPositionKey.self) { position in
@@ -116,6 +110,12 @@ extension TaskChatView {
                         }
                         let atBottom = position <= viewport.size.height + 36
                         if chatIsAtBottom != atBottom { chatIsAtBottom = atBottom }
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        if !chatIsAtBottom && !visibleTimeline.isEmpty {
+                            jumpToLatestButton(proxy)
+                                .padding(.bottom, 16)
+                        }
                     }
                 }
             }
@@ -156,7 +156,7 @@ extension TaskChatView {
                 .padding(.top, rootEntries.isEmpty ? 0 : 6)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .pointerButtonStyle()
             .id("agent-threads")
             .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
 

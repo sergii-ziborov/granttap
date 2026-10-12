@@ -55,6 +55,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     /// Reconnection: without this a single relay hiccup left the app showing
     /// "офлайн" until it was restarted by hand.
     var wantsConnection = false
+    var initialConnectionStartedAt: TimeInterval?
     var retryDelay: TimeInterval = 1
     let maxRetryDelay: TimeInterval = 15
     var reconnectScheduled = false
@@ -77,8 +78,11 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onApprovalsStatus: ((ApprovalsStatus) -> Void)?
     var onAgentEvent: ((AgentEvent) -> Void)?
     var onSessions: ((SessionsStatus) -> Void)?
+    var onConfigCommandResult: ((ConfigCommandResult) -> Void)?
+    var latestConfigEpoch: String?
     var onSessionsHistoryPage: ((SessionsHistoryPage) -> Void)?
     var onActivity: ((SessionActivity) -> Void)?
+    var onImageChunk: ((SessionImageChunk) -> Void)?
     var onCapabilityUsage: ((CapabilityUsageStatus) -> Void)?
     var onCapabilityCatalog: ((CapabilityCatalogStatus) -> Void)?
     var onCompactResult: ((SessionCompactResult) -> Void)?
@@ -101,6 +105,11 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     /// Machine → phone: who is making this computer work right now.
     var onMachineLoad: ((MachineLoad) -> Void)?
     var onConnectionChange: ((Bool) -> Void)?
+    #if DEBUG
+    var wireDiagnosticCounts: [String: Int] = [:]
+    var wireDiagnosticReportedAt: TimeInterval = 0
+    var onWireDiagnosticChange: (() -> Void)?
+    #endif
 
     /// Which side of the room this client is. A phone paired with a computer
     /// is the phone; a phone that invited another phone speaks to it as the
@@ -116,10 +125,32 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         self.sessionKeys = SessionKeyVault.load(room: pairing.room)
     }
 
+    /// Debug evidence contains counters only, never packet contents or keys.
+    func noteWireDiagnostic(_ stage: String) {
+        #if DEBUG
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.wireDiagnosticCounts[stage, default: 0] += 1
+            let now = Date().timeIntervalSince1970
+            guard now - self.wireDiagnosticReportedAt >= 1 else { return }
+            self.wireDiagnosticReportedAt = now
+            self.onWireDiagnosticChange?()
+        }
+        #endif
+    }
+
     func connect() {
+        if !wantsConnection { initialConnectionStartedAt = Date().timeIntervalSince1970 }
         wantsConnection = true
         startEndpointPolling()
         openSocket()
+    }
+
+    /// Give the saved authenticated route its first handshake before rekeying.
+    /// Repeated reconnects cannot extend this bounded startup window.
+    func awaitingInitialPeer(now: TimeInterval = Date().timeIntervalSince1970) -> Bool {
+        guard wantsConnection, let started = initialConnectionStartedAt else { return false }
+        return now >= started && now - started < 30
     }
 
     func openResolvedSocket(_ address: String) {
@@ -153,6 +184,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
 
     func disconnect() {
         wantsConnection = false
+        initialConnectionStartedAt = nil
         endpointLookup?.cancel()
         endpointPolling?.cancel()
         endpointPolling = nil

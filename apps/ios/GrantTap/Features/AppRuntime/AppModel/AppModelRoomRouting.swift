@@ -47,7 +47,7 @@ extension AppModel {
         let resolved = resolvedSessionId(trimmed)
         var rooms = Set(sessionSourceRooms[trimmed] ?? [])
         rooms.formUnion(sessionSourceRooms[resolved] ?? [])
-        rooms.formIntersection(connectionRegistry.connections.map(\.id))
+        rooms.formIntersection(accountVisibleRooms())
         switch rooms.count {
         case 0: return .unknown
         case 1: return .exact(rooms.first!)
@@ -69,9 +69,10 @@ extension AppModel {
         case .ambiguous:
             return false
         case .unknown:
-            let legacyRoom = connectionRegistry.preferredId
-                ?? (connectionRegistry.connections.count == 1
-                    ? connectionRegistry.connections.first?.id : nil)
+            let visible = accountVisibleRooms()
+            let legacyRoom = connectionRegistry.preferredId.flatMap {
+                visible.contains($0) ? $0 : nil
+            } ?? (visible.count == 1 ? visible.first : nil)
             return legacyRoom == room
         }
     }
@@ -87,8 +88,8 @@ extension AppModel {
         }
         // Legacy local state can be migrated only when there is exactly one
         // possible destination. With 2+ rooms, fail closed.
-        guard connectionRegistry.connections.count == 1,
-              let room = connectionRegistry.connections.first?.id else { return nil }
+        let visible = accountVisibleRooms()
+        guard visible.count == 1, let room = visible.first else { return nil }
         rememberSessionSourceRoom(room, sessionId: sessionId)
         return relaysByRoom[room]
     }
@@ -277,6 +278,7 @@ extension AppModel {
     }
 
     func clearDecisionInFlight(_ requestId: String) {
+        removeQueuedApprovalDecision(requestId)
         approvalDecisionsInFlight[requestId] = nil
         approvalDecisionSessionScope[requestId] = nil
     }

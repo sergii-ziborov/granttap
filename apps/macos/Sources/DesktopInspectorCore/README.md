@@ -21,4 +21,4 @@ policy revision returned in the same inspector read; stale endpoint receipts
 are not displayed as current coverage.
 
 Tests live in `../../Tests/DesktopInspectorCoreTests`. See the [desktop module](../../README.md)
-and repository [AGENTS.md](../../../../AGENTS.md).
+and repository [public source](https://github.com/sergii-ziborov/granttap).

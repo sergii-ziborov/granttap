@@ -14,6 +14,10 @@ extension AppModel {
         pending = AppModelDemoFixtures.approvals(at: now)
         questions = AppModelDemoFixtures.questions(at: now)
         #if DEBUG
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CLAUDE_QUESTIONS"] == "1" {
+            pending = [AppModelDemoFixtures.claudeQuestion(at: now)]
+            questions = []
+        }
         // Deterministic clean task-list capture. This is never compiled into
         // release builds and keeps the normal interactive demo unchanged.
         if ProcessInfo.processInfo.environment["GRANTTAP_CAPTURE_TASKS"] == "1" {

@@ -26,6 +26,10 @@ struct MacLocalMCPSettingsSection: View {
                 if let error = access.lastError { Text(error).foregroundStyle(Theme.riskHigh) }
                 Label(computer, systemImage: "desktopcomputer")
                     .foregroundStyle(Theme.ok)
+                if reader.status?.accountLinkSaved == true {
+                    Label(L("MCP account link saved"), systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(Theme.ok)
+                }
                 Text(L("GrantTap MCP is running on this Mac."))
                     .foregroundStyle(Theme.muted)
                 NavigationLink {
@@ -35,12 +39,6 @@ struct MacLocalMCPSettingsSection: View {
                 }
                 .accessibilityIdentifier("settings.computer-activity")
                 NavigationLink {
-                    ChatCacheView().environmentObject(model)
-                } label: {
-                    Label(L("Chat history & cache"), systemImage: "externaldrive")
-                }
-                .accessibilityIdentifier("settings.chat-cache")
-                NavigationLink {
                     MacProviderHooksView(reader: reader)
                 } label: {
                     Label(L("Codex hooks"), systemImage: "checkmark.shield")
@@ -49,9 +47,14 @@ struct MacLocalMCPSettingsSection: View {
                         .font(.caption).foregroundStyle(Theme.muted)
                 }
                 .accessibilityIdentifier("settings.codex-hooks")
+            } else if !reader.hasCheckedLocalMCP {
+                Label(L("Checking GrantTap MCP on this Mac…"), systemImage: "desktopcomputer")
             } else {
-                Label(L("GrantTap MCP is unavailable"), systemImage: "desktopcomputer.trianglebadge.exclamationmark")
-                Link(L("Install GrantTap MCP"), destination: installURL)
+                Label(L("Cannot reach the local GrantTap MCP service"),
+                      systemImage: "desktopcomputer.trianglebadge.exclamationmark")
+                Button(L("Check again")) { Task { await reader.probeStatus() } }
+                    .disabled(reader.refreshing)
+                Link(L("Set up GrantTap MCP"), destination: installURL)
             }
         }
 
@@ -70,7 +73,7 @@ struct MacLocalMCPSettingsSection: View {
             } label: {
                 Label(L("Connect iPhone or iPad"), systemImage: "iphone.and.arrow.forward")
             }
-            .disabled(computer == nil)
+            .disabled(!reader.isReady)
             .accessibilityIdentifier("settings.connect-iphone")
             NavigationLink {
                 MacComputerLinkView(model: model)
@@ -83,7 +86,7 @@ struct MacLocalMCPSettingsSection: View {
             } label: {
                 Label(L("Connection mode & own relay"), systemImage: "network")
             }
-            .disabled(computer == nil)
+            .disabled(!reader.isReady)
             .accessibilityIdentifier("settings.device-network")
             ForEach(model.connectionRegistry.connections.filter { !$0.pairing.isHub }) { connection in
                 CompatLabeledContent(connection.displayName,

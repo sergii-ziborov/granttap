@@ -52,6 +52,15 @@ final class EndpointDirectoryTests: XCTestCase {
         XCTAssertEqual(own, pairing.relayUrl)
     }
 
+    func testUnavailableEndpointFailsClosed() async {
+        var request = URLRequest(url: URL(string: "http://127.0.0.1:1/endpoint")!)
+        request.timeoutInterval = 1
+        do {
+            _ = try await DeviceEndpointDirectory.boundedFetch(request)
+            XCTFail("A missing direct endpoint cannot silently become a relay")
+        } catch { }
+    }
+
     private func identity() throws -> (Pairing, String) {
         let phone = try NaclBox.keyPair(), mac = try NaclBox.keyPair()
         return (Pairing(relayUrl: Pairing.currentRelaySocket, room: String(repeating: "a", count: 32),

@@ -3,6 +3,32 @@ import XCTest
 
 extension AppRuntimeTests {
     @MainActor
+    func testAccountDeviceCatalogCombinesEveryConnectedMachine() {
+        let model = AppModel()
+        let now = Date().timeIntervalSince1970 * 1_000
+        let first = "account-machine-a", second = "account-machine-b"
+        model.connectionRegistry = ConnectionRegistryLogic.upsert(
+            ConnectionRegistryLogic.upsert(.empty, pairing: testPairing(room: first)),
+            pairing: testPairing(room: second), prefer: false)
+        let a = catalogEdgeSession("task-a", at: now)
+        let b = catalogEdgeSession("task-b", at: now)
+        model.applySessionsStatus(SessionsStatus(machine: "A", sessions: [a],
+            tokensRecent: 0, tokenWindowHours: 12, generatedAt: now), fromRoom: first)
+        model.applySessionsStatus(SessionsStatus(machine: "B", sessions: [b],
+            tokensRecent: 0, tokenWindowHours: 12, generatedAt: now), fromRoom: second)
+
+        XCTAssertEqual(Set(model.sessions.map(\.sessionId)), ["task-a", "task-b"])
+        XCTAssertEqual(model.sourceRoom(forSessionId: "task-a"), first)
+        XCTAssertEqual(model.sourceRoom(forSessionId: "task-b"), second)
+        XCTAssertEqual(model.connectionRegistry.preferredId, first)
+
+        model.applySessionsStatus(SessionsStatus(machine: "A", sessions: [],
+            tokensRecent: 0, tokenWindowHours: 12, generatedAt: now + 1), fromRoom: first)
+        XCTAssertEqual(model.sessions.map(\.sessionId), ["task-b"])
+        XCTAssertEqual(model.sourceRoom(forSessionId: "task-b"), second)
+    }
+
+    @MainActor
     func testChatRouteRejectsAmbiguousAndRemovedOwners() {
         let model = AppModel()
         var registry = ConnectionRegistryLogic.upsert(

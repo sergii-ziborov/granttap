@@ -9,22 +9,22 @@ final class MacRemoteCatalogTests: XCTestCase {
         var live = session("pc-live")
         live.shellAllowed = true
         let history = session("pc-history")
-        model.captureMacRemoteCatalog(status([live], history: [history]), fromRoom: "test-room")
-        model.captureMacRemoteCatalog(status([session("pc-live")]), fromRoom: "test-room")
-        XCTAssertEqual(model.macRemoteCatalogs["test-room"]?.history, [history])
-        XCTAssertEqual(model.macRemoteCatalogs["test-room"]?.sessions.first?.shellAllowed, true)
+        model.captureAccountDeviceCatalog(status([live], history: [history]), fromRoom: "test-room")
+        model.captureAccountDeviceCatalog(status([session("pc-live")]), fromRoom: "test-room")
+        XCTAssertEqual(model.accountDeviceCatalogs["test-room"]?.history, [history])
+        XCTAssertEqual(model.accountDeviceCatalogs["test-room"]?.sessions.first?.shellAllowed, true)
         var otherTask = session("pc-live")
         otherTask.taskId = "another-task"
-        model.captureMacRemoteCatalog(status([otherTask]), fromRoom: "test-room")
-        XCTAssertNil(model.macRemoteCatalogs["test-room"]?.sessions.first?.shellAllowed)
+        model.captureAccountDeviceCatalog(status([otherTask]), fromRoom: "test-room")
+        XCTAssertNil(model.accountDeviceCatalogs["test-room"]?.sessions.first?.shellAllowed)
     }
 
     func testUnknownRoomAndDemoRowsNeverEnterCombinedCatalog() {
         let model = model()
-        model.captureMacRemoteCatalog(status([session("pc-live")]), fromRoom: "removed-room")
-        XCTAssertNil(model.macRemoteCatalogs["removed-room"])
-        model.captureMacRemoteCatalog(status([session("granttap-codex-demo")]), fromRoom: "test-room")
-        XCTAssertTrue(model.macRemoteCatalogs["test-room"]?.sessions.isEmpty == true)
+        model.captureAccountDeviceCatalog(status([session("pc-live")]), fromRoom: "removed-room")
+        XCTAssertNil(model.accountDeviceCatalogs["removed-room"])
+        model.captureAccountDeviceCatalog(status([session("granttap-codex-demo")]), fromRoom: "test-room")
+        XCTAssertTrue(model.accountDeviceCatalogs["test-room"]?.sessions.isEmpty == true)
     }
 
     private func model() -> AppModel {

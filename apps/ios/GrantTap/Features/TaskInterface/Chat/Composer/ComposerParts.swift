@@ -23,7 +23,7 @@ struct AttachmentThumbnails: View {
                                 do { preview = try AttachmentPreviewFile(attachment) }
                                 catch { previewError = error.localizedDescription }
                             } label: { thumbnail(attachment) }
-                            .buttonStyle(.plain)
+                            .pointerButtonStyle()
                             .accessibilityLabel(String(format: L("Preview %@"), attachment.name))
                             .accessibilityIdentifier("attachment.preview.\(attachment.name)")
                             Button {
@@ -36,7 +36,7 @@ struct AttachmentThumbnails: View {
                                     .background(Theme.surface.opacity(0.94), in: Circle())
                                     .overlay(Circle().stroke(Theme.line, lineWidth: 1))
                             }
-                            .buttonStyle(.plain)
+                            .pointerButtonStyle()
                             .padding(3)
                             .accessibilityLabel(String(format: L("Remove %@"), attachment.name))
                         }

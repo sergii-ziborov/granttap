@@ -58,7 +58,7 @@ enum ControllerNetworkTransfer {
             return try await URLSession.shared.data(for: request)
         }
     ) async throws -> String {
-        guard (1...16).contains(uris.count),
+        guard (1...32).contains(uris.count),
               uris.allSatisfy({ Pairing.secureLink(fromURI: $0) != nil }),
               let base = Pairing.normalizedPairingHTTPBase(relay) else {
             throw TransferError.invalidCode
@@ -106,7 +106,7 @@ enum ControllerNetworkTransfer {
         guard let blob, let plain = Crypto.openWithTransferKey(
             nonceB64: blob.nonce, boxB64: blob.box, key: link.transferKey
         ), let bundle = try? JSONDecoder().decode(Bundle.self, from: plain),
-              bundle.v == 1, (1...16).contains(bundle.links.count) else {
+              bundle.v == 1, (1...32).contains(bundle.links.count) else {
             throw TransferError.invalidCode
         }
         var pairings: [Pairing] = []

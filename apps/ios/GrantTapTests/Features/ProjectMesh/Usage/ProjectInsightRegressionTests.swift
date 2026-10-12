@@ -2,6 +2,75 @@ import XCTest
 @testable import GrantTap
 
 final class ProjectInsightRegressionTests: XCTestCase {
+    func testGraphBuildWaitsForAFreshReportThenFinishesEvenOnFailure() {
+        let request = ProjectGraphRequest(createdAt: 10)
+        var old = snapshot(at: 9)
+        XCTAssertTrue(request.receiving(old).pending, "plain Mesh updates do not confirm analysis")
+        old.repositoryGraphs = [report(status: "COMPLETE", nodes: 4)]
+        XCTAssertTrue(request.receiving(old).pending, "old reports cannot confirm a new build")
+        var fresh = snapshot(at: 11)
+        fresh.repositoryGraphs = old.repositoryGraphs
+        fresh.graphAnalysisRequestId = request.requestId
+        let completed = request.receiving(fresh)
+        XCTAssertFalse(completed.pending)
+        XCTAssertEqual(completed.result, .completed)
+        fresh.repositoryGraphs = [report(status: "UNAVAILABLE", nodes: 0)]
+        XCTAssertEqual(request.receiving(fresh).result, .failed)
+        XCTAssertFalse(request.receiving(fresh).pending)
+        XCTAssertEqual(completed.receiving(fresh), completed)
+    }
+
+    func testRoutineGraphSnapshotCannotConfirmAnExplicitRebuild() {
+        let request = ProjectGraphRequest(createdAt: 0)
+        var update = snapshot()
+        update.repositoryGraphs = [report(status: "COMPLETE", nodes: 4)]
+        XCTAssertTrue(request.receiving(update).pending,
+            "a routine publication of a cached report is not a rebuild acknowledgement")
+    }
+
+    func testMissingOrChangedArchitectureRequiresAutomaticBuild() {
+        var mesh = snapshot()
+        XCTAssertFalse(ProjectInsightReports.needsAnalysis(mesh))
+        mesh.bindings = [.init(bindingId: "bound", projectId: "p", endpointId: "mac", repositoryId: "repo",
+            displayName: "Repository", available: true, revision: "sha")]
+        XCTAssertTrue(ProjectInsightReports.needsAnalysis(mesh))
+        mesh.repositoryGraphs = [report(status: "COMPLETE", nodes: 4)]
+        XCTAssertFalse(ProjectInsightReports.needsAnalysis(mesh))
+        mesh.bindings?[0].revision = "changed"
+        XCTAssertTrue(ProjectInsightReports.needsAnalysis(mesh))
+        mesh.bindings = [.init(bindingId: "bound", projectId: "p", endpointId: "mac", repositoryId: "repo",
+            displayName: "Repository", available: false, revision: "changed")]
+        XCTAssertFalse(ProjectInsightReports.needsAnalysis(mesh))
+    }
+
+    @MainActor
+    func testAutomaticGraphRequestCoalescesAndEndsWhenNoRouteIsAvailable() async {
+        let model = AppModel()
+        model.relaysByRoom = [:]
+        model.meshProjectSourceRooms = [:]
+        model.meshSnapshots = ["p": snapshot()]
+        let absent = await model.requestProjectGraphAnalysis(projectId: "absent")
+        XCTAssertEqual(absent, .noRoute)
+        let missingRoute = await model.requestProjectGraphAnalysis(projectId: "p")
+        XCTAssertEqual(missingRoute, .noRoute)
+        XCTAssertFalse(model.projectGraphRequests["p"]?.pending ?? true)
+        model.projectGraphRequests["p"] = .init(createdAt: 1)
+        let coalesced = await model.requestProjectGraphAnalysis(projectId: "p")
+        XCTAssertEqual(coalesced, .requested)
+        model.projectGraphRequests = [:]
+        model.projectGraphAttemptAt = [:]
+        var mesh = snapshot()
+        mesh.bindings = [.init(bindingId: "bound", projectId: "p", endpointId: "mac", repositoryId: "repo",
+            displayName: "Repository", available: true, revision: "sha")]
+        model.meshSnapshots = ["p": mesh]
+        model.ensureProjectGraphAnalysis(projectId: "p")
+        for _ in 0..<50 { await Task.yield() }
+        XCTAssertNotNil(model.projectGraphAttemptAt["p"])
+        XCTAssertEqual(model.projectGraphRequests["p"]?.result, .noRoute)
+        model.ensureProjectGraphAnalysis(projectId: "p")
+        XCTAssertFalse(model.projectGraphRequests["p"]?.pending ?? true)
+    }
+
     func testRepeatedRepositoryReportsAreCountedOnceAndACompleteReportWins() {
         var mesh = snapshot()
         let complete = report(status: "COMPLETE", nodes: 4)
@@ -133,10 +202,10 @@ final class ProjectInsightRegressionTests: XCTestCase {
               state: state, startedAt: 1, lastActivityAt: at, tokensSession: 0, tokensLastTurn: 0)
     }
 
-    private func snapshot() -> ProjectMeshSnapshot {
+    private func snapshot(at: Double = 1) -> ProjectMeshSnapshot {
         .init(type: "mesh.snapshot", sessionId: "p", projectId: "p",
               project: .init(projectId: "p", name: "Repository", canonicalRepositoryId: "repo", createdAt: 1),
-              tasks: [], executions: [], claims: [], dependencies: [], events: [], generatedAt: 1)
+              tasks: [], executions: [], claims: [], dependencies: [], events: [], generatedAt: at)
     }
 
     private func report(status: String, nodes: Int) -> ProjectRepositoryGraph {

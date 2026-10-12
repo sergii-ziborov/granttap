@@ -21,6 +21,20 @@ struct AutoAcceptSessionSet: Codable {
     let sessionId: String
     /// nil clears the per-session override (inherit device default).
     let level: String?
+    var authorizeProjectAsk: Bool? = nil
+    var expectedPolicyRevision: Int? = nil
+    var approvalRequestId: String? = nil
+}
+
+struct ConfigCommandResult: Decodable {
+    let type: String
+    let operationId: String
+    let ok: Bool
+    let reason: String?
+    let sessionId: String?
+    let level: String?
+    let revision: Int?
+    let createdAt: Double
 }
 
 struct AutoAcceptProjectSet: Codable {
@@ -77,12 +91,12 @@ struct PayloadKind: Codable { let type: String }
 
 enum Payloads {
     static func decision(_ requestId: String, _ decision: String, by: String,
-                         sessionId: String?) -> ApprovalDecision {
+                         sessionId: String?, note: String? = nil) -> ApprovalDecision {
         ApprovalDecision(
             type: "approval.decision",
             requestId: requestId,
             decision: decision,
-            note: nil,
+            note: note,
             decidedBy: by,
             sessionId: sessionId,
             decidedAt: Date().timeIntervalSince1970 * 1000

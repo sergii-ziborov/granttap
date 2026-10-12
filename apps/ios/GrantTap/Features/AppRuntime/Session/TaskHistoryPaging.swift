@@ -48,6 +48,7 @@ extension AppModel {
         guard room == (connectionRegistry.preferredId ?? relay?.pairing.room),
               var state = historyPagingByRoom[room],
               state.pendingRequestId == page.requestId else { return }
+        rememberSessionSourceRooms(room, sessionIds: page.sessions.map(\.sessionId))
         state.pendingRequestId = nil
         if page.resetRequired == true {
             state = HistoryPagingState()

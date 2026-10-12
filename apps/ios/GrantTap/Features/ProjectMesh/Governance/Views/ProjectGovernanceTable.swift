@@ -19,7 +19,7 @@ struct ProjectGovernanceEffectCells: View {
                         .frame(width: ProjectGovernanceTable.cellWidth, height: 32)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .disabled(!enabled)
                 .accessibilityLabel(ProjectGovernancePresentation.effectLabel(effect))
                 .accessibilityAddTraits(selected == effect ? .isSelected : [])

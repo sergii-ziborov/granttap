@@ -13,6 +13,12 @@ extension AppModel {
             ),
             at: now
         )
+        if let request = projectGraphRequests[snapshot.projectId] {
+            projectGraphRequests[snapshot.projectId] = request.receiving(snapshot)
+        }
+        if sessions.contains(where: { $0.projectId == snapshot.projectId }) {
+            ensureProjectGraphAnalysis(projectId: snapshot.projectId)
+        }
         if newSourceRoom { flushProjectCapabilityRequests(projectId: snapshot.projectId) }
         for stale in ProjectMeshLogic.staleIdentities(
             in: meshSnapshots, besides: snapshot,

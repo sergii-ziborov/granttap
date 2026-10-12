@@ -7,5 +7,5 @@ an offline computer look active.
 
 The durable delivery route is owned by `MessageOutbox.swift`; compact new-task
 controls are in [`../TaskComposer`](../TaskComposer/README.md). Tests live in
-`GrantTapTests/Features/TaskRouting`. See [`AGENTS.md`](../../../../../AGENTS.md)
+`GrantTapTests/Features/TaskRouting`. See [public source](https://github.com/sergii-ziborov/granttap)
 for repository architecture and quality rules.

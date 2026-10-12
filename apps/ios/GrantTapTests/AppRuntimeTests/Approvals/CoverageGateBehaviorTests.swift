@@ -90,7 +90,7 @@ extension AppRuntimeTests {
         model.connectionRegistry = ConnectionRegistryLogic.upsert(
             .empty, pairing: testPairing(room: "room-a")
         )
-        let stub = "phone-stub"
+        let stub = "phone-stub-" + UUID().uuidString
         model.localOnlySessionIds = [stub]
         model.sessions = [stubSession(id: stub, at: 1)]
         model.deliveries = [existingSessionDelivery(

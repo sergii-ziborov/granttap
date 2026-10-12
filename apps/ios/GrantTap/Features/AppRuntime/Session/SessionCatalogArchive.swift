@@ -66,6 +66,10 @@ extension AppModel {
     static func retainingCapabilities(incoming: SessionInfo, previous: SessionInfo?) -> SessionInfo {
         guard let previous else { return incoming }
         var next = incoming
+        if ProjectMeshTaskTitle.presentable(next.title ?? "") == nil,
+           ProjectMeshTaskTitle.presentable(previous.title ?? "") != nil {
+            next.title = previous.title
+        }
         let incomingSkills = next.skills ?? []
         if incomingSkills.isEmpty, let kept = previous.skills, !kept.isEmpty {
             next.skills = kept
@@ -86,7 +90,8 @@ extension AppModel {
         var byId: [String: SessionInfo] = [:]
         let room = connectionRegistry.preferredId ?? relay?.pairing.room ?? ""
         let paged = historyPagingByRoom[room]?.sessions ?? []
-        for session in sessionHistory + paged where !archivedSessionIds.contains(session.sessionId) {
+        for session in sessionHistory + paged + Array(replicaSessionIndex.values)
+        where !archivedSessionIds.contains(session.sessionId) && isReplicaSessionVisible(session) {
             if activeIds.contains(session.sessionId) { continue }
             if let previous = byId[session.sessionId], previous.lastActivityAt > session.lastActivityAt { continue }
             byId[session.sessionId] = session

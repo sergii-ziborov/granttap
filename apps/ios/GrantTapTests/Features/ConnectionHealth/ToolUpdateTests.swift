@@ -96,6 +96,9 @@ extension AppRuntimeTests {
         )
         model.receive(failed, fromRoom: "room-a")
         RenderProbe.render(ConnectionDetailSheet().environmentObject(model))
+        RenderProbe.render(NavigationView {
+            ComputerConnectionDetailView(roomId: "room-a").environmentObject(model)
+        })
 
         model.relaysByRoom["room-a"] = RelayClient(pairing: testPairing(room: "room-a"))
         XCTAssertNotNil(model.updateTool(agent: "grok", room: "room-a"),

@@ -4,6 +4,7 @@ import SwiftUI
 
 struct DesktopLicenseView: View {
     @ObservedObject var store: DesktopLicenseStore = .shared
+    var onBack: (() -> Void)? = nil
 
     var body: some View {
         List {
@@ -15,10 +16,19 @@ struct DesktopLicenseView: View {
                 case .evaluation:
                     Label(L("Development evaluation"), systemImage: "hammer")
                     Text(L("This development build is for evaluation. It is not a production purchase."))
+                case .betaTrial(let expiry):
+                    Label(L("TestFlight evaluation"), systemImage: "clock")
+                    Text(String(format: L("This build is available until %@. A new TestFlight build starts a new 7-day evaluation."),
+                                expiry.formatted(date: .abbreviated, time: .omitted)))
+                        .font(.footnote).foregroundStyle(Theme.muted)
                 case .notPurchased:
                     Text(L("A Mac license unlocks local agent control and your own relay. A hosted-service subscription is optional."))
+                    Button(L("Verify TestFlight evaluation")) {
+                        Task { await store.verifyBetaTrial() }
+                    }
                 }
-                if store.distribution == .inAppUnlock, store.license != .purchased {
+                if store.distribution == .inAppUnlock,
+                   store.license == .notPurchased || store.license == .evaluation {
                     if let product = store.product {
                         Button {
                             Task { await store.purchase() }
@@ -51,7 +61,7 @@ struct DesktopLicenseView: View {
                 Section { Text(error).foregroundStyle(Theme.riskHigh) }
             }
         }
-        .pageNavigationTitle(L("Mac license"))
+        .pageNavigationTitle(L("Mac license"), onBack: onBack)
         .accessibilityIdentifier("license.page")
         .disabled(store.purchasing)
         .overlay { if store.purchasing { ProgressView() } }

@@ -14,7 +14,7 @@ extension ContentView {
             Button { open(item) } label: {
                 TaskListCard(item: item, route: ownerRoute(item))
             }
-            .buttonStyle(.plain)
+            .pointerButtonStyle()
             .accessibilityIdentifier("task.\(item.id)")
         }
     }

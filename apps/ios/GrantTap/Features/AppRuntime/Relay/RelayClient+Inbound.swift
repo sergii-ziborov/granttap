@@ -10,6 +10,7 @@ extension RelayClient {
             guard self.task === socket else { return }
             switch result {
             case .failure:
+                self.noteWireDiagnostic("receive-failed")
                 DispatchQueue.main.async {
                     guard self.task === socket else { return }
                     self.task = nil
@@ -24,6 +25,7 @@ extension RelayClient {
     }
 
     func handle(_ text: String) {
+        noteWireDiagnostic("envelope")
         guard let data = text.data(using: .utf8),
               let env = try? JSONDecoder().decode(Envelope.self, from: data),
               env.v == 1,
@@ -36,6 +38,7 @@ extension RelayClient {
                                       mySecretKeyB64: pairing.mySecretKey),
               let kind = try? JSONDecoder().decode(PayloadKind.self, from: plain)
         else { return }
+        noteWireDiagnostic("authenticated")
 
         let fingerprint = SHA256.hash(data: Data("\(env.nonce).\(env.box)".utf8))
             .map { String(format: "%02x", $0) }
@@ -50,6 +53,7 @@ extension RelayClient {
         if kind.type == "session.key.grant",
            let grant = try? JSONDecoder().decode(SessionKeyGrant.self, from: plain) {
             accepted = acceptSessionKeyGrant(grant, room: env.room)
+            noteWireDiagnostic(accepted ? "grant-saved" : "grant-rejected")
             if accepted { grantedSessionId = grant.sessionId }
         } else if kind.type == "session.sealed",
                   let wrapper = try? JSONDecoder().decode(SessionSealed.self, from: plain),
@@ -58,10 +62,12 @@ extension RelayClient {
                                                           boxB64: wrapper.box, key: key),
                   Self.hasExactSessionScope(inner, sessionId: wrapper.sessionId) {
             accepted = handlePlain(inner, scopedSessionId: wrapper.sessionId)
+            noteWireDiagnostic("scoped-opened")
         } else {
             accepted = handlePlain(plain)
         }
-        guard accepted else { return }
+        guard accepted else { noteWireDiagnostic("payload-rejected"); return }
+        noteWireDiagnostic("payload-accepted")
         rememberCiphertext(fingerprint)
         acknowledge(env.deliveryId)
         if let grantedSessionId {
@@ -113,12 +119,18 @@ extension RelayClient {
         case "agent.event": return deliver(AgentEvent.self, plain, to: onAgentEvent)
         case "sessions.status":
             guard let status = Self.decodeSessionsStatus(plain), let callback = onSessions else { return false }
-            DispatchQueue.main.async { callback(status) }
+            DispatchQueue.main.async {
+                if let epoch = status.instanceEpoch { self.latestConfigEpoch = epoch }
+                callback(status)
+            }
             return true
+        case "config.command.result": return deliver(ConfigCommandResult.self, plain, to: onConfigCommandResult)
         case "sessions.history.page":
             return deliver(SessionsHistoryPage.self, plain, to: onSessionsHistoryPage) { $0.isWellFormed }
         case "session.activity", "sessions.activity", "session.events":
             return deliver(SessionActivity.self, plain, to: onActivity)
+        case "session.image.chunk":
+            return deliver(SessionImageChunk.self, plain, to: onImageChunk) { $0.isWellFormed }
         case "capability.usage.status": return deliver(CapabilityUsageStatus.self, plain, to: onCapabilityUsage)
         case "capability.catalog.status": return deliver(CapabilityCatalogStatus.self, plain, to: onCapabilityCatalog)
         case "session.compact.result": return deliver(SessionCompactResult.self, plain, to: onCompactResult)

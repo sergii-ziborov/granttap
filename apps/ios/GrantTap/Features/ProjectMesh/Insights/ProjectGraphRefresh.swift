@@ -45,3 +45,20 @@ struct ProjectGraphRefreshPlan: Equatable {
         return rooms.isEmpty ? .completed : .requested
     }
 }
+
+
+struct ProjectGraphRequest: Equatable {
+    let createdAt: Double
+    let requestId = UUID().uuidString
+    var pending = true
+    var result: ProjectGraphRefreshResult = .requested
+
+    func receiving(_ snapshot: ProjectMeshSnapshot) -> Self {
+        guard pending, snapshot.graphAnalysisRequestId == requestId, snapshot.repositoryGraphs != nil else { return self }
+        var next = self
+        next.pending = false
+        next.result = ProjectInsightReports.reports(snapshot).contains { $0.analysisStatus != "UNAVAILABLE" }
+            ? .completed : .failed
+        return next
+    }
+}

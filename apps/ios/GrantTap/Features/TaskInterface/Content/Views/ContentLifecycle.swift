@@ -3,6 +3,12 @@ import SwiftUI
 extension ContentView {
     func handleAppear() {
         #if DEBUG
+        // UI fixtures must not wait for an App Store receipt or network startup.
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CONNECTION_LIST"] == "1" {
+            ConnectionListFixture.apply(to: model)
+        } else if ProcessInfo.processInfo.environment["GRANTTAP_TEST_INVITE_SCOPES"] != nil {
+            InviteScopeFixture.apply(to: model)
+        }
         if ProcessInfo.processInfo.environment["GRANTTAP_E2E_RESET_ARCHIVE"] == "1" {
             model.archivedSessionIds = []
             model.archivedSessions = [:]

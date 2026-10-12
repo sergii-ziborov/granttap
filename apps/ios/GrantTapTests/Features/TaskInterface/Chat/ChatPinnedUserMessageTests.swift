@@ -27,6 +27,22 @@ final class ChatPinnedUserMessageTests: XCTestCase {
         ]
         XCTAssertEqual(ChatPinnedUserMessage.topVisibleRow(frames, viewportHeight: 100), "reading")
     }
+
+    func testClippedPreviousRowDoesNotUndoRequestJumpAtTop() {
+        let frames = [
+            ChatRowPosition(id: "previous-reply", minY: -80, maxY: 12),
+            ChatRowPosition(id: "selected-request", minY: 16, maxY: 76),
+        ]
+        XCTAssertEqual(ChatPinnedUserMessage.topVisibleRow(frames, viewportHeight: 500), "selected-request")
+    }
+
+    func testShortFullyVisibleRowRemainsTheReadingPosition() {
+        let frames = [
+            ChatRowPosition(id: "short-request", minY: 0, maxY: 22),
+            ChatRowPosition(id: "answer", minY: 24, maxY: 120),
+        ]
+        XCTAssertEqual(ChatPinnedUserMessage.topVisibleRow(frames, viewportHeight: 500), "short-request")
+    }
 }
 
 

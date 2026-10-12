@@ -14,7 +14,7 @@ final class AccountSpaceSyncTests: XCTestCase {
             try await model.synchronizeAccountSpace(session, loadComputers: { _ in [machine] },
                 recover: { _, _ in [] }, currentAccountId: { session.accountId })
             XCTFail("An offered computer without a usable encrypted route needs a retry")
-        } catch AccountBridgeError.unavailable { }
+        } catch AccountBridgeError.recoveryFailed { }
     }
 
     @MainActor

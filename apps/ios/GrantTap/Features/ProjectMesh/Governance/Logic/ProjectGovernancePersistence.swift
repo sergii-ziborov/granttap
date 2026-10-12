@@ -40,9 +40,9 @@ enum ProjectGovernancePersistence {
             try FileManager.default.createDirectory(
                 at: target.deletingLastPathComponent(), withIntermediateDirectories: true
             )
-            try data.write(to: target, options: [.atomic, .completeFileProtection])
+            try data.write(to: target, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
             var values = URLResourceValues()
-            values.isExcludedFromBackup = true
+            values.isExcludedFromBackup = false
             var mutable = target
             try mutable.setResourceValues(values)
         } catch {}

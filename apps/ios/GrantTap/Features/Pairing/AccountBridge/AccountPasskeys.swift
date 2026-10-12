@@ -8,7 +8,7 @@ struct GrantTapAccountSession: Codable {
 }
 
 enum AccountBridgeError: LocalizedError {
-    case invalidResponse, unavailable, expired, storage
+    case invalidResponse, unavailable, expired, storage, recoveryFailed
 
     var errorDescription: String? {
         switch self {
@@ -16,6 +16,7 @@ enum AccountBridgeError: LocalizedError {
         case .unavailable: return L("The GrantTap account service is unavailable.")
         case .expired: return L("This sign-in expired. Try again.")
         case .storage: return L("The account session could not be saved on this device.")
+        case .recoveryFailed: return L("The secure chat link could not be recovered.")
         }
     }
 
@@ -35,11 +36,69 @@ enum GrantTapAccountAPI {
     private static let keychainService = "com.ziborov.granttap.account-session"
 
     static var session: GrantTapAccountSession? {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_INVITE_SCOPES"] == "account" {
+            return GrantTapAccountSession(accountId: "00000000-0000-4000-8000-000000000001",
+                                          token: String(repeating: "t", count: 43))
+        }
+        #endif
         guard let data = KeychainPairing.load(service: keychainService) else { return nil }
         return try? JSONDecoder().decode(GrantTapAccountSession.self, from: data)
     }
 
     static func clearSession() { KeychainPairing.remove(service: keychainService) }
+
+    static func deviceInviteURI(code: String) -> String {
+        "granttap://account?v=1&code=\(code)"
+    }
+
+    static func deviceInviteCode(from uri: String) -> String? {
+        guard uri.utf8.count < 256, let components = URLComponents(string: uri),
+              components.scheme == "granttap", components.host == "account",
+              let items = components.queryItems, items.count == 2,
+              items.first(where: { $0.name == "v" })?.value == "1",
+              let code = items.first(where: { $0.name == "code" })?.value,
+              code.count == 43,
+              code.range(of: "^[A-Za-z0-9_-]{43}$", options: .regularExpression) != nil
+        else { return nil }
+        return code
+    }
+
+    static func issueDeviceInvite(_ session: GrantTapAccountSession,
+                                  transport: URLSession = .shared) async throws -> String {
+        let result = try await json("device-invites", method: "POST", body: [:],
+                                    token: session.token, transport: transport)
+        guard let code = result["code"] as? String,
+              let expiry = (result["expiresAt"] as? NSNumber)?.doubleValue,
+              expiry > 0,
+              deviceInviteCode(from: deviceInviteURI(code: code)) != nil else {
+            throw AccountBridgeError.invalidResponse
+        }
+        return deviceInviteURI(code: code)
+    }
+
+    static func redeemDeviceInvite(_ code: String,
+                                   transport: URLSession = .shared,
+                                   store: ((GrantTapAccountSession) -> Bool)? = nil)
+        async throws -> GrantTapAccountSession {
+        guard deviceInviteCode(from: deviceInviteURI(code: code)) != nil else {
+            throw AccountBridgeError.invalidResponse
+        }
+        let result = try await json("device-invites/redeem", method: "POST",
+                                    body: ["code": code], transport: transport)
+        guard let accountId = result["accountId"] as? String,
+              UUID(uuidString: accountId) != nil,
+              let token = result["token"] as? String, token.count == 43 else {
+            throw AccountBridgeError.invalidResponse
+        }
+        let joined = GrantTapAccountSession(accountId: accountId, token: token)
+        let saved = try store?(joined) ?? KeychainPairing.save(
+            JSONEncoder().encode(joined), service: keychainService)
+        guard saved else {
+            throw AccountBridgeError.storage
+        }
+        return joined
+    }
 
     static func deleteAccount(_ session: GrantTapAccountSession,
                               transport: URLSession = .shared) async throws {

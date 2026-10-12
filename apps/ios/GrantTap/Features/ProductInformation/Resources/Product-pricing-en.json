@@ -1,6 +1,6 @@
 {
   "title": "Pricing and subscriptions",
-  "updated": "2026-09-28",
+  "updated": "2026-10-12",
   "intro": "Start with a 7-day free trial. Personal is priced by how many computers you link — $1.99 for up to two, $3.99 for five, $5.99 for ten, $9.99 for fifteen per month — billed through Apple's App Store. Agents on each computer are unlimited.",
   "sections": [
     {
@@ -22,7 +22,7 @@
     {
       "heading": "Mac license and no-subscription mode",
       "paragraphs": [
-        "GrantTap Mac is being prepared for a one-time $39.99 US Mac License purchase. This is a proposed launch price; the actual App Store purchase sheet controls availability and local price. A Mac license remains valid when Personal ends.",
+        "GrantTap Mac is being prepared for a one-time $39.99 US Mac License purchase. The confirmed US launch price is $39.99; the App Store purchase sheet controls availability and local price. A Mac license remains valid when Personal ends.",
         "Licensed Mac local control and own-relay operation require no Personal subscription. Direct mode uses only a short-lived encrypted address directory; self-hosted mode uses your endpoint for pairing and delivery without that directory. Supply a reachable TLS endpoint or VPN. This does not open router ports or guarantee background notifications."
       ]
     },
@@ -44,6 +44,12 @@
           "label": "Privacy Policy",
           "href": "/privacy"
         }
+      ]
+    },
+    {
+      "heading": "One account across computers",
+      "paragraphs": [
+        "Sign in with your GrantTap passkey before purchasing Personal. The verified plan belongs to that account on each connected computer. QR local/own-relay use and Demo remain account-free."
       ]
     }
   ]

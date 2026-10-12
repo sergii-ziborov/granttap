@@ -37,7 +37,8 @@ enum AccountRecovery {
 
     static func connect(_ computer: AccountComputer,
                         session: GrantTapAccountSession, transport: URLSession = .shared,
-                        pollDelayNanoseconds: UInt64 = 2_000_000_000) async throws -> Pairing {
+                        pollDelayNanoseconds: UInt64 = 2_000_000_000,
+                        maxPollAttempts: Int = 75) async throws -> Pairing {
         let key = try NaclBox.keyPair()
         let request = try await GrantTapAccountAPI.json(
             "machines/\(computer.id)/requests", method: "POST",
@@ -46,7 +47,7 @@ enum AccountRecovery {
         guard let id = request["id"] as? String, UUID(uuidString: id) != nil else {
             throw AccountBridgeError.invalidResponse
         }
-        for _ in 0..<75 {
+        for _ in 0..<maxPollAttempts {
             try Task.checkCancellation()
             try await Task.sleep(nanoseconds: pollDelayNanoseconds)
             let result = try await GrantTapAccountAPI.json("requests/\(id)", token: session.token,

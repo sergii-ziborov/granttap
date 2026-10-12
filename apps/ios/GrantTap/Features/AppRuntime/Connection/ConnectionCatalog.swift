@@ -32,10 +32,9 @@ extension AppModel {
         _ = PairedConnectionStore.save(connectionRegistry)
         pairing = connectionRegistry.preferred?.pairing
 
+        captureAccountDeviceCatalog(status, fromRoom: room)
         let preferred = connectionRegistry.preferredId
         #if targetEnvironment(macCatalyst)
-        captureMacRemoteCatalog(status, fromRoom: room)
-        #endif
         if preferred == nil || preferred == room {
             applySessionsStatus(status, sourceNamespace: room)
         } else {
@@ -45,9 +44,14 @@ extension AppModel {
             objectWillChange.send()
             finishBackgroundWake(.newData)
         }
-        #if targetEnvironment(macCatalyst)
         refreshMacCombinedCatalog()
+        #else
+        applySessionsStatus(status, sourceNamespace: room,
+                            visibleCatalog: accountVisibleCatalog())
         #endif
+        for request in pending where requestSourceRoom[request.requestId] == room {
+            ensureApprovalChat(request, fromRoom: room)
+        }
     }
 
     /// Liveness evidence, kept separate from catalog content on purpose: the
@@ -79,12 +83,14 @@ extension AppModel {
             case .ambiguous:
                 return nil
             case .unknown:
-                guard connectionRegistry.connections.count == 1,
-                      let only = connectionRegistry.connections.first else { return nil }
-                room = only.id
+                let visible = accountVisibleRooms()
+                guard visible.count == 1, let only = visible.first else { return nil }
+                room = only
             }
         } else {
-            guard let preferred = connectionRegistry.preferred else { return nil }
+            let visible = accountVisibleRooms()
+            guard let preferred = connectionRegistry.preferred,
+                  visible.contains(preferred.id) else { return nil }
             room = preferred.id
         }
         guard let connection = connectionRegistry.connections.first(where: { $0.id == room }) else {
@@ -117,16 +123,15 @@ extension AppModel {
         guard phase == .macOffline || phase == .needRepair else { return }
         let before = sessions.count + sessionHistory.count
         sessions = sessions.filter {
-            localOnlySessionIds.contains($0.sessionId)
+            (localOnlySessionIds.contains($0.sessionId) || activities[$0.sessionId] != nil)
                 && !Self.isGrantTapDemoSessionId($0.sessionId)
                 && !Self.isCodeBlobCatalogTitle(sessionId: $0.sessionId, title: $0.title)
         }
         sessionHistory = Self.filterRealCatalogSessions(sessionHistory, allowDemo: false)
             .filter { !Self.isCodeBlobCatalogTitle(sessionId: $0.sessionId, title: $0.title) }
-        // History from a dead preferred room is also stale — clear it.
+        // A missing computer cannot revoke the device's already received copy.
         if phase == .needRepair || !isMacCatalogFresh {
-            sessionHistory = []
-            SessionCatalogCache.clear()
+            sessionHistory = sessionHistory.filter { activities[$0.sessionId] != nil }
         }
         let after = sessions.count + sessionHistory.count
         if before != after {
@@ -157,6 +162,7 @@ extension AppModel {
     }
 
     func clearLinkLocalState() {
+        for room in Set(approvalDecisionQueue.entries.map(\.roomId)) { approvalDecisionQueue.removeRoom(room) }
         relay?.disconnect()
         for client in relaysByRoom.values { client.disconnect() }
         relaysByRoom.removeAll()
@@ -170,6 +176,7 @@ extension AppModel {
         UserDefaults.standard.removeObject(forKey: "granttap.request-source-rooms")
         clearApprovalConvergenceState()
         sessionSourceRooms.removeAll()
+        accountDeviceCatalogs.removeAll()
         UserDefaults.standard.removeObject(forKey: "granttap.session-source-rooms")
         relay = nil
         pairing = nil
@@ -214,24 +221,9 @@ extension AppModel {
         let catalogAt = conn.lastCatalogAt
         let now = Date().timeIntervalSince1970 * 1000
         let age: Int? = catalogAt > 0 ? Int(max(0, (now - catalogAt) / 1000)) : nil
-        // A slow catalog is not a dead computer. Either kind of evidence proves
-        // the publisher is alive; both must be inside the freshness window, so
-        // a computer that truly went away still fails closed.
-        let window = ConnectionSnapshot.macFreshnessSeconds * 1000
-        let catalogFresh = catalogAt > 0 && (now - catalogAt) < window
-        let heartbeatFresh = rt.lastHeartbeatAt > 0 && (now - rt.lastHeartbeatAt) < window
-        let fresh = catalogFresh || heartbeatFresh
-        let phase: ConnectionPhase
-        if !rt.socketUp {
-            phase = .phoneOffline
-        } else if fresh {
-            phase = .live
-        } else if catalogAt <= 0, rt.socketUpSince > 0,
-                  now - rt.socketUpSince >= 180_000 {
-            phase = .needRepair
-        } else {
-            phase = .macOffline
-        }
+        let phase = ConnectionFreshness.phase(socketUp: rt.socketUp,
+            disconnectedAt: rt.disconnectedAt, heartbeatAt: rt.lastHeartbeatAt,
+            catalogAt: catalogAt, socketUpSince: rt.socketUpSince, now: now)
         let room = conn.id
         let short = room.count > 10 ? String(room.prefix(8)) + "…" : room
         return ConnectionSnapshot(

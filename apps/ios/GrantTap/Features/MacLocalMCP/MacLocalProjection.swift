@@ -10,7 +10,7 @@ enum MacLocalProjection {
         let local = Dictionary(uniqueKeysWithValues: snapshots.map { id, fresh in
             (id, ProjectInsightReports.retainingEnrichment(fresh, from: model.meshSnapshots[id]))
         })
-        let linked = Set(model.connectionRegistry.connections.map(\.id))
+        let linked = model.accountVisibleRooms()
         let remoteProjects = Set(model.meshProjectSourceRooms.compactMap { id, rooms in
             rooms.intersection(linked).isEmpty ? nil : id
         })
@@ -54,8 +54,8 @@ enum MacLocalProjection {
         let remoteIds = Set(model.sessionSourceRooms.compactMap { id, rooms in
             Set(rooms).intersection(linked).isEmpty ? nil : id
         })
-        let cachedRooms = Set(model.macRemoteCatalogs.keys).intersection(linked)
-        let cached = cachedRooms.sorted().compactMap { model.macRemoteCatalogs[$0] }
+        let cachedRooms = Set(model.accountDeviceCatalogs.keys).intersection(linked)
+        let cached = cachedRooms.sorted().compactMap { model.accountDeviceCatalogs[$0] }
         let remoteLive = AppModel.deduplicatedSessions(cached.flatMap(\.sessions))
         let remoteHistory = AppModel.deduplicatedSessions(cached.flatMap { $0.history ?? [] })
         func awaitingReport(_ item: SessionInfo) -> Bool {
@@ -73,6 +73,13 @@ enum MacLocalProjection {
                 && !executionIsOpen($0, in: executions) },
             current: currentHistory, remoteSessionIds: remoteIds).filter { !liveIds.contains($0.sessionId) }
         model.resumeChatQueues(observed: sessions, localOnly: true)
+        model.persistMeshState()
+        if !model.demoMode {
+            SessionCatalogCache.save(.init(sessions: model.sessions, history: model.sessionHistory,
+                machine: model.machineName, tokensRecent: model.tokensRecent,
+                tokenWindowHours: model.tokenWindowHours, generatedAt: Date().timeIntervalSince1970 * 1_000))
+        }
+        model.syncOfflineConversations()
     }
 
     static func apply(_ activity: MacLocalTaskActivity, for session: SessionInfo,
@@ -102,7 +109,10 @@ enum MacLocalProjection {
         model.activities[session.sessionId] = model.activities[session.sessionId].map {
             AppModel.mergeActivity(existing: $0, incoming: incoming)
         } ?? incoming
-        SessionActivityPersistence.save(model.activities)
+        if let saved = model.activities[session.sessionId] {
+            SessionActivityPersistence.save([session.sessionId: saved])
+        }
+        model.replicaActivityArrived(incoming)
     }
 
     private static func executionIsOpen(_ session: SessionInfo,

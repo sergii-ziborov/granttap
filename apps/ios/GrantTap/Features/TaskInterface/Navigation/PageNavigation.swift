@@ -71,7 +71,7 @@ struct MacPageHeader<Actions: View>: View {
                 .allowsHitTesting(false)
                 .accessibilityAddTraits(.isHeader)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 16)
         .frame(height: 40)

@@ -196,7 +196,7 @@ extension AppRuntimeTests {
     }
 
     @MainActor
-    func testSecondaryRelayConnectionChangeDoesNotReplacePreferredState() {
+    func testSecondaryRelayConnectionMakesAccountReachableWithoutChangingPreferred() {
         let model = AppModel()
         let first = coveragePairing(label: "d", name: "Preferred")
         let second = coveragePairing(label: "e", name: "Secondary")
@@ -210,9 +210,11 @@ extension AppRuntimeTests {
         model.relaysByRoom = [first.room: preferred, second.room: secondary]
         model.applyRoomConnectionChange(true, client: secondary)
         XCTAssertTrue(model.roomRuntime[second.room]?.socketUp == true)
-        XCTAssertFalse(model.connected)
+        XCTAssertTrue(model.connected)
+        XCTAssertEqual(model.connectionRegistry.preferredId, first.room)
         model.applyRoomConnectionChange(false, client: secondary)
         XCTAssertFalse(model.roomRuntime[second.room]?.socketUp == true)
+        XCTAssertFalse(model.connected)
     }
 
     func coveragePairing(label: Character, name: String) -> Pairing {

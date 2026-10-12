@@ -1,6 +1,6 @@
 # Task Composer
 
-Parent index: [`AGENTS.md`](../../../../../AGENTS.md)
+Parent index: [public source](https://github.com/sergii-ziborov/granttap)
 
 [`TaskComposerRouteModel.swift`](Routes/TaskComposerRouteModel.swift) owns the bounded
 provider/computer/workspace labels and honest computer availability tone.

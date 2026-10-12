@@ -3,6 +3,13 @@ import XCTest
 @testable import GrantTap
 
 final class AppDelegateCoverageTests: XCTestCase {
+    func testFixturesSkipAccountStorePromptsButPhysicalDiagnosticsDoNot() {
+        XCTAssertTrue(AppRuntime.usesIsolatedUIFixture(environment: ["GRANTTAP_DEMO": "1"]))
+        XCTAssertTrue(AppRuntime.usesIsolatedUIFixture(environment: ["GRANTTAP_TEST_CONNECTION_LIST": "1"]))
+        XCTAssertTrue(AppRuntime.usesIsolatedUIFixture(environment: ["GRANTTAP_TEST_INVITE_SCOPES": "computer"]))
+        XCTAssertFalse(AppRuntime.usesIsolatedUIFixture(environment: ["GRANTTAP_TEST_DIAGNOSTICS": "1"]))
+        XCTAssertFalse(AppRuntime.usesIsolatedUIFixture(environment: [:]))
+    }
     func testLaunchGuardAndEveryLifecycleCallbackUseInjectedBoundaries() {
         var runningTests = true
         var categories = 0

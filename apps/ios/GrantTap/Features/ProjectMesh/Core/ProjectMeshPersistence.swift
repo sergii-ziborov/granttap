@@ -91,9 +91,9 @@ enum ProjectMeshPersistence {
             try FileManager.default.createDirectory(
                 at: url.deletingLastPathComponent(), withIntermediateDirectories: true
             )
-            try data.write(to: url, options: [.atomic, .completeFileProtection])
+            try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
             var values = URLResourceValues()
-            values.isExcludedFromBackup = true
+            values.isExcludedFromBackup = false
             var protectedURL = url
             try protectedURL.setResourceValues(values)
         } catch {

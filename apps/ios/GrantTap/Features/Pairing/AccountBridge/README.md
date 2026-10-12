@@ -1,15 +1,20 @@
 # AccountBridge
 
-[Engineering index](../../../../../../AGENTS.md) · Public entry: `AccountConnectionView.swift`
+[public source](https://github.com/sergii-ziborov/granttap) · Public entry: `AccountConnectionView.swift`
 
 A passkey authenticates one Personal account, which contains many Project Meshes.
 It does not select a computer or change a Task's route. A new passkey creates a
-new account; the same passkey returns to the existing account. QR pairings on the
-device are linked to that account only after authentication, without replacing
-their relay rooms.
+new account; the same passkey returns to the existing account. QR pairings stay
+local until their Mac's MCP identity is verified; signing in on the phone does
+not manufacture a second account machine for an old QR room.
 When a passkey recovers the same Mac as an older QR room, its machine identity
 replaces the stale QR credential. An old QR room with no recent chat catalog
-is recovered automatically when account sync sees that Mac online. The
+is recovered automatically when account sync sees that Mac online and its
+saved encrypted route has no fresh authenticated liveness evidence. A live
+route keeps its phone key while the catalog is delayed. On startup the saved
+route gets 30 seconds for its first handshake before automatic recovery may
+issue another controller key; retries cannot extend that window. Explicit
+Reconnect bypasses the window. The
 encrypted offer refreshes the phone key in the existing room; successful
 recovery retires the QR credential so relaunches do not issue more keys.
 Reconnect can request another offer if that route needs repair.

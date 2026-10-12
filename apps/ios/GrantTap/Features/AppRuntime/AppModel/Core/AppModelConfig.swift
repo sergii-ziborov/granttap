@@ -29,6 +29,11 @@ extension AppModel {
 
     func autoAcceptLevel(for sessionId: String) -> String {
         if autoAcceptPaused { return "ask" }
+        if let project = (sessions + sessionHistory).first(where: {
+            $0.sessionId == sessionId || $0.childThreads?.contains(where: { $0.threadId == sessionId }) == true
+        })?.projectId {
+            return autoAcceptBySession[sessionId] ?? autoAcceptByProject[project] ?? "ask"
+        }
         return autoAcceptBySession[sessionId] ?? autoAcceptDefault
     }
 
@@ -38,40 +43,6 @@ extension AppModel {
         relay?.sendConfig(autoAcceptDefault: level)
         AuditStore.shared.record("auto-accept", detail: "Default auto-accept set to \(level)")
     }
-
-    func setSessionAutoAccept(_ sessionId: String, _ level: String) {
-        guard Self.autoAcceptLevels.contains(level) else { return }
-        guard let sessionRelay = relayForSession(sessionId) else {
-            append("auto-accept blocked: ambiguous source room")
-            return
-        }
-        autoAcceptBySession[sessionId] = level
-        // Setting a per-chat level implies GrantTap should gate this chat.
-        if excludedSessions.contains(sessionId) {
-            excludedSessions.removeAll { $0 == sessionId }
-            sessionRelay.sendConfig(includeSession: sessionId)
-        }
-        sessionRelay.sendConfig(autoAcceptSessionId: sessionId, autoAcceptSessionLevel: level)
-        AuditStore.shared.record("auto-accept", detail: "Chat auto-accept set to \(level)")
-    }
-
-    func clearSessionAutoAccept(_ sessionId: String) {
-        guard let sessionRelay = relayForSession(sessionId) else {
-            append("auto-accept clear blocked: ambiguous source room")
-            return
-        }
-        autoAcceptBySession.removeValue(forKey: sessionId)
-        sessionRelay.sendConfig(autoAcceptSessionId: sessionId, clearAutoAcceptSession: true)
-        AuditStore.shared.record("auto-accept", detail: "Chat auto-accept cleared (uses default)")
-    }
-
-    func setAutoAcceptPaused(_ paused: Bool) {
-        autoAcceptPaused = paused
-        relay?.sendConfig(autoAcceptPaused: paused)
-        AuditStore.shared.record("auto-accept", detail: paused ? "Auto-accept paused" : "Auto-accept resumed")
-    }
-
-    static let autoAcceptLevels = ["ask", "safe", "except_push", "except_destructive", "full"]
 
     func setSessionAccess(_ sessionId: String, _ accessLevel: String) {
         guard ["read-only", "workspace", "full"].contains(accessLevel) else { return }

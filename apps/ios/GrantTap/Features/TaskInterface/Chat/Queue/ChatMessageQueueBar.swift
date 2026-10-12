@@ -31,7 +31,7 @@ struct ChatMessageQueueBar: View {
                     .padding(.horizontal, 16).frame(height: 30)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .accessibilityIdentifier("chat.queue")
             }
             .background(Theme.surface)
@@ -80,7 +80,7 @@ struct ChatMessageQueueBar: View {
             .accessibilityIdentifier("chat.queue.cancel.\(row.id)")
             .disabled(!ChatMessageQueuePolicy.canCancel(row))
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .padding(.horizontal, 16).frame(height: 60)
         .accessibilityElement(children: .contain)
     }

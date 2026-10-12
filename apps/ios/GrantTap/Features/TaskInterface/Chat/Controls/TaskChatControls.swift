@@ -82,7 +82,7 @@ extension TaskChatView {
                           systemImage: "point.3.connected.trianglepath.dotted")
                         .lineLimit(1)
                 }
-                .buttonStyle(.plain)
+                .pointerButtonStyle()
                 .accessibilityIdentifier("chat.project")
             } else {
                 Text(currentSession.projectGroupTitle).lineLimit(1)

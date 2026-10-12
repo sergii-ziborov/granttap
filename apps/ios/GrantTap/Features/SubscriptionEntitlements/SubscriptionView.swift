@@ -6,6 +6,7 @@ struct SubscriptionView: View {
     private static let appleSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
     @ObservedObject var store: SubscriptionStore
     private let offersOverride: [SubscriptionOffer]?
+    @State private var showAccount = false
 
     init(store: SubscriptionStore? = nil, offers: [SubscriptionOffer]? = nil) {
         self.store = store ?? .shared
@@ -30,6 +31,11 @@ struct SubscriptionView: View {
             }
 
             Section {
+                if store.currentAccountID() == nil {
+                    Button(L("Connect with passkey")) { showAccount = true }
+                    Text(L("Connect with passkey before subscribing so your computers share the same plan."))
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
                 if offers.isEmpty {
                     unavailableRow
                 } else {
@@ -56,6 +62,9 @@ struct SubscriptionView: View {
         }
         .pageNavigationTitle(L("Subscription"))
         .task { await store.start() }
+        .sheet(isPresented: $showAccount) {
+            AccountConnectionView(onAccountReady: { showAccount = false })
+        }
         .overlay {
             if store.purchaseInProgress { ProgressView().controlSize(.large) }
         }

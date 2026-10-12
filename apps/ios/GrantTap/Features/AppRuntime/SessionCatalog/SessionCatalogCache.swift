@@ -69,8 +69,16 @@ enum SessionCatalogCache {
         return snap
     }
 
-    static func save(_ snapshot: Snapshot, storageDirectory: URL? = nil) {
+    static func save(_ snapshot: Snapshot, storageDirectory: URL? = nil,
+                     retainingPreviousHistory: Bool = true) {
         guard !snapshot.sessions.isEmpty || !snapshot.history.isEmpty else { return }
+        let previous = retainingPreviousHistory
+            && FileManager.default.fileExists(atPath: dbURL(storageDirectory: storageDirectory).path)
+            ? load(storageDirectory: storageDirectory) : nil
+        let liveIds = Set(snapshot.sessions.map(\.sessionId))
+        var seen = liveIds
+        let retainedHistory = (snapshot.history + (previous?.sessions ?? []) + (previous?.history ?? []))
+            .filter { seen.insert($0.sessionId).inserted }
         guard let db = open(readonly: false, storageDirectory: storageDirectory) else { return }
         defer { sqlite3_close(db) }
 
@@ -96,7 +104,7 @@ enum SessionCatalogCache {
         for (i, s) in snapshot.sessions.enumerated() {
             insertSession(db, s, bucket: "live", sort: i)
         }
-        for (i, s) in snapshot.history.prefix(120).enumerated() {
+        for (i, s) in retainedHistory.enumerated() {
             insertSession(db, s, bucket: "history", sort: i)
         }
         exec(db, "COMMIT;")

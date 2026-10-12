@@ -5,6 +5,7 @@ struct ProjectMeshSnapshot: Codable, Equatable, Identifiable {
     let type: String
     let sessionId: String
     let projectId: String
+    var graphAnalysisRequestId: String? = nil
     var publisherEndpointId: String? = nil
     let project: ProjectMeshProject
     var bindings: [ProjectBindingSummary]? = nil

@@ -6,4 +6,4 @@ Project. `ProjectApprovalSection.swift` shows desired state beside each
 computer's independently reported actual state. A Mesh execution with no
 Project level falls back to ASK and never inherits a machine default.
 
-See the [engineering index](../../../../../../AGENTS.md) and [Project Mesh](../README.md).
+See the [public source](https://github.com/sergii-ziborov/granttap) and [Project Mesh](../README.md).

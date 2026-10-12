@@ -25,22 +25,6 @@ enum DangerLevel: String, Codable {
     case safe, caution, dangerous, destructive
 }
 
-struct ApprovalRequest: Codable, Identifiable {
-    let type: String              // "approval.request"
-    let requestId: String
-    let agent: String             // "claude" | "codex" | ...
-    let kind: String
-    let tool: String
-    let title: String
-    let command: String?
-    let cwd: String?
-    let sessionId: String?
-    let risk: Risk
-    let danger: DangerLevel?
-    let createdAt: Double
-    var id: String { requestId }
-}
-
 enum ActionRequestKind: String, Codable {
     case permission, yesNo = "yes_no", question, deliveryRetry = "delivery_retry"
 }
@@ -206,6 +190,7 @@ struct SessionsRefresh: Codable {
     let type: String              // "sessions.refresh"
     let createdAt: Double
     var graphProjectId: String? = nil
+    var graphAnalysisRequestId: String? = nil
 }
 
 struct SessionAccessSet: Codable {

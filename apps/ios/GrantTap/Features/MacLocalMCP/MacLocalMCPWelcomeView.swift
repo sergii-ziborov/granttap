@@ -50,7 +50,7 @@ struct MacLocalMCPWelcomeView: View {
                          ? (access.token == nil
                             ? L("GrantTap for Mac needs local access.")
                             : L("GrantTap MCP cannot read this Mac's Mesh yet."))
-                         : L("GrantTap MCP is unavailable on this Mac."))
+                         : L("Cannot reach the local GrantTap MCP service."))
                         .font(.system(size: 19, weight: .semibold))
                     Text(found
                          ? (access.token == nil

@@ -42,7 +42,7 @@ struct ProjectEnvironmentView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .buttonStyle(.plain)
+                        .pointerButtonStyle()
                         Spacer()
                         Button(role: .destructive) {
                             variables.removeAll { $0.key == item.key }

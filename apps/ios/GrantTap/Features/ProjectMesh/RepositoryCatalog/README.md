@@ -43,4 +43,4 @@ iPhone and iPad. The normal Mac client uses the same views; demo fixtures are
 used only in simulator test launches.
 
 See the [Project Mesh module](../README.md) and repository
-[engineering contract](../../../../../../AGENTS.md).
+[public source](https://github.com/sergii-ziborov/granttap).

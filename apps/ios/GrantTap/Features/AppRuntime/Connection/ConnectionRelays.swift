@@ -58,12 +58,17 @@ extension AppModel {
             CapabilityUsageStore.shared.merge(status.events, sourceNamespace: room)
             CapabilityTotalsStore.shared.apply(status.totals, fromRoom: room)
         }
+        client.onImageChunk = { [weak self] chunk in
+            guard let self, self.acceptsSessionPayload(sessionId: chunk.sessionId, fromRoom: room) else { return }
+            self.replicaImageTransfer.receive(chunk, fromRoom: room)
+        }
         client.onCapabilityCatalog = { status in
             CapabilityCatalogStore.shared.apply(status, fromRoom: room)
         }
         client.onSessions = { [weak self] status in
             self?.applySessionsStatus(status, fromRoom: room)
         }
+        attachAutomationReceipts(client, room: room)
         client.onSessionsHistoryPage = { [weak self] page in
             self?.receiveSessionsHistoryPage(page, fromRoom: room)
         }
@@ -104,6 +109,9 @@ extension AppModel {
     }
 
     private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
+        #if DEBUG
+        client.onWireDiagnosticChange = { [weak self] in self?.saveRequestedDiagnostics() }
+        #endif
         client.onMeshSnapshot = { [weak self] snapshot in
             self?.receive(snapshot, fromRoom: room)
         }
@@ -140,11 +148,19 @@ extension AppModel {
             var rt = roomRuntime[room] ?? RoomRuntime()
             if !rt.socketUp { rt.socketUpSince = Date().timeIntervalSince1970 * 1000 }
             rt.socketUp = true
+            rt.disconnectedAt = 0
             roomRuntime[room] = rt
         } else {
             var rt = roomRuntime[room] ?? RoomRuntime()
             rt.socketUp = false
+            let downAt = Date().timeIntervalSince1970 * 1_000
+            rt.disconnectedAt = downAt
             roomRuntime[room] = rt
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 1_800_000_000)
+                guard self?.roomRuntime[room]?.disconnectedAt == downAt else { return }
+                self?.objectWillChange.send()
+            }
         }
 
         let isPreferred = room == connectionRegistry.preferredId
@@ -152,9 +168,18 @@ extension AppModel {
         if isPreferred {
             applyConnectionChange(up, client: client)
         } else {
-            if up { retryQueuedDeliveries(forRoom: room) }
+            if up {
+                connected = true
+                nudgeMacSessionScan(via: client)
+                retryQueuedDeliveries(forRoom: room)
+            } else if !roomRuntime.values.contains(where: \.socketUp) {
+                connected = false
+            }
             objectWillChange.send()
         }
+        #if !targetEnvironment(macCatalyst)
+        refreshAccountDeviceCatalog()
+        #endif
         // A Governance edit written while this room was down is offered again
         // now, rather than being lost to whichever machine was awake.
         if up {

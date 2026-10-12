@@ -20,6 +20,7 @@ final class AppModel: ObservableObject {
     var accountSpaceSyncTask: Task<Void, Never>?
     var accountSpaceSyncGeneration: UUID?
     var lastAccountSpaceSyncAt: TimeInterval = 0
+    @Published var accountSpaceSyncError: String?
     @Published var demoMode = false
     @Published var connected = false
     /// Offline grace — brief WS blips must not flicker the Connected pill.
@@ -28,6 +29,7 @@ final class AppModel: ObservableObject {
     /// requestId → submitted decision. The card remains until the machine
     /// confirms with approval.resolved (or cancels it).
     @Published var approvalDecisionsInFlight: [String: String] = [:]
+    var approvalDecisionQueue = ApprovalDecisionQueue()
     /// Normalized session scope captured when a decision is submitted. Empty
     /// means the original request was intentionally unscoped.
     var approvalDecisionSessionScope: [String: String] = [:]
@@ -39,6 +41,15 @@ final class AppModel: ObservableObject {
     /// Restored from disk: a reopened chat shows what the phone already has
     /// instead of waiting on the Mac to re-send and decrypt it.
     @Published var activities: [String: SessionActivity] = SessionActivityPersistence.load()
+    var transcriptBackfill = TranscriptBackfill()
+    @Published var replicaSessionIndex: [String: SessionInfo] = [:]
+    @Published var replicaImagesRevision = 0
+    var replicaImageReads: [String: Task<Data, Error>] = [:]
+    var replicaImageQueue: [ReplicaImageJob] = []
+    var replicaImageTask: Task<Void, Never>?
+    var replicaGeneration = UUID()
+    let replicaImageTransfer = ReplicaImageTransfer()
+    var replicaImageRetryAt: [String: TimeInterval] = [:]
     @Published var providerHookReviews: [String: ProviderHookReviewProgress] = [:]
     @Published var agentIntegrations: [AgentIntegrationInfo] = []
     /// The same, per computer: a tool lives on one machine, and so does its update.
@@ -62,6 +73,10 @@ final class AppModel: ObservableObject {
         }
     }
     @Published var autoAcceptBySession: [String: String] = [:]
+    @Published var automationPending: [String: String] = [:]
+    @Published var automationErrors: [String: String] = [:]
+    var automationPrevious: [String: String] = [:]
+    var automationDesired: [String: String] = [:]
     @Published var autoAcceptPaused: Bool = false
     @Published var globalMcpDisabled: Set<String> = []
     @Published var globalSkillsDisabled: Set<String> = []
@@ -83,12 +98,15 @@ final class AppModel: ObservableObject {
     @Published var sessionControlResults: [String: SessionControlResult] = [:]
     /// Short status under the Sessions header after pull-to-refresh / tap refresh.
     @Published var refreshHint: String?
+    @Published var projectGraphRequests: [String: ProjectGraphRequest] = [:]
+    var projectGraphAttemptAt: [String: Double] = [:]
     @Published var meshSnapshots: [String: ProjectMeshSnapshot] = restoredMesh.snapshots
     /// Mesh scopes observed directly from this Mac's same-user MCP reader.
     @Published var localMeshProjectIds: Set<String> = []
+    /// Authenticated MCP catalogs from the device facets of this account.
+    var accountDeviceCatalogs: [String: SessionsStatus] = [:]
     #if targetEnvironment(macCatalyst)
     weak var localMCPReader: MacLocalMCPModel?
-    var macRemoteCatalogs: [String: SessionsStatus] = [:]
     #endif
     /// Bounded, in-memory projection of Engine history. No plaintext journal is
     /// written to the phone; opening a Task requests it under the Project key.

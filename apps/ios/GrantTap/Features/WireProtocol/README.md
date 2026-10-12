@@ -16,6 +16,11 @@ Decoder compatibility and malformed-wire behavior are covered in
 `GrantTapTests/SessionCatalogTests.swift` and `GrantTapTests/AppRuntimeTests.swift`.
 Run the shared `GrantTap` scheme to compile the iPhone, Watch, and XCTest targets.
 
+`Session/CodexTranscriptContext.swift` removes host-owned selected-Page blocks
+from Codex user rows. The same boundary applies to live payloads and restored
+offline archives, retaining actual requests, images, quoted markup, and ordinary
+JSON. Regression tests live in `GrantTapTests/Features/WireProtocol/`.
+
 `Session/ProviderHooks.swift` mirrors optional native hook metadata and scoped
 review requests/results. Older computer catalogs decode without these fields;
 configuration alone does not imply native trust, enabling, or confirmed usage.

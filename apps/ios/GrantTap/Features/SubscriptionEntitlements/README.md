@@ -9,17 +9,32 @@ The displayed ladder covers 2, 5, 10 and 15 computers; no 16+ tier is offered.
 `SubscriptionEntitlement.swift` reduces verified StoreKit state into the small
 policy state consumed by remote infrastructure. `SubscriptionStore.swift` is
 the StoreKit boundary. A verified sandbox app transaction grants temporary
-relay access for TestFlight testing without claiming a subscription; production
-still requires a verified subscription or a direct/self-hosted route.
-Launch resolves sandbox and verified receipt access before opening stored
-relay rooms. Product discovery continues afterward, then refreshes access
-with authoritative subscription status.
+relay access for TestFlight testing without claiming a subscription. A signed-in
+tester can also receive a time-limited account grant from the Hetzner account
+service when StoreKit cannot return an app transaction. The grant is bound to
+that account, expires, and is rechecked for revocation. Production without a
+grant still requires a verified subscription or a direct/self-hosted route.
+Devices retries account evidence before requesting an App Store refresh, then
+reconnects the affected account machine.
+Launch resolves verified account access first, then sandbox or receipt evidence
+when needed, before opening stored relay rooms. A valid account grant does not
+wait for a StoreKit app transaction; verified tester access does not wait for
+receipt discovery. Product and subscription status refresh continues after
+connection starts. Account grants are still checked for revocation and expiry.
 `SubscriptionStoreEvidence.swift` uses verified cached
 transactions when product discovery is unavailable; successfully reported
 status, including revocation and billing retry, takes precedence over that cache. `SubscriptionView.swift` renders localized StoreKit
 prices and links to the public Terms and Privacy pages.
 On Mac Catalyst, management opens Apple's subscriptions page; iPhone and iPad
 use the StoreKit management sheet.
+
+Personal purchases include the signed-in GrantTap account UUID as Apple's
+`appAccountToken`. A production receipt is sent to the account service for an
+independent Apple-signature check and stable computer admission. Sandbox
+purchases are not production subscriptions. Server outages never erase the
+locally verified StoreKit evidence or cached history. Existing purchases without
+an account binding require a verified ownership migration before hosted seats
+can be issued; the client does not silently attach someone else's receipt.
 
 Tests live in
 `GrantTapTests/Features/SubscriptionEntitlements/SubscriptionEntitlementTests.swift`.

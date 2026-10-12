@@ -30,7 +30,6 @@ struct ActivityRow: View {
     @EnvironmentObject private var model: AppModel
     @State private var previewImage: ImagePreview?
     @State private var previewFile: AttachmentPreviewFile?
-    @State private var localImage: UIImage?
     @State private var expanded: Bool
     let entry: ActivityEntry
     let accent: Color
@@ -178,24 +177,25 @@ struct ActivityRow: View {
         if let names = entry.attachments, !names.isEmpty {
             ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 8) {
-                    ForEach(names, id: \.self) { name in attachmentButton(name) }
+                    ForEach(names, id: \.self) { name in
+                        if name == "Image" { nativePicture } else { attachmentButton(name) }
+                    }
                 }
             }
-            .frame(height: attachmentRowHasImage(names) ? 220 : 44)
+            .frame(height: names.contains("Image") ? 280 : (attachmentRowHasImage(names) ? 220 : 44))
             .accessibilityIdentifier("chat.attachments.\(entry.id)")
         }
     }
 
     private func attachmentRowHasImage(_ names: [String]) -> Bool {
         names.contains {
-            ($0 == "Image" && localImage != nil)
+            ($0 == "Image")
                 || model.sentAttachmentImage(forEntryId: entry.id, name: $0) != nil
         }
     }
 
     private func attachmentButton(_ name: String) -> some View {
-        let image = (name == "Image" ? localImage : nil)
-            ?? model.sentAttachmentImage(forEntryId: entry.id, name: name)
+        let image = model.sentAttachmentImage(forEntryId: entry.id, name: name)
         let file = model.sentAttachment(forEntryId: entry.id, name: name)
         return Button {
             if let image { previewImage = ImagePreview(image: image) }
@@ -222,17 +222,9 @@ struct ActivityRow: View {
                     .contentShape(Rectangle())
             }
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityIdentifier("chat.attachment.\(entry.id).\(name)")
         .disabled(image == nil && file == nil)
-        #if targetEnvironment(macCatalyst)
-        .task(id: entry.id) {
-            guard name == "Image", model.localMCPReader?.status != nil,
-                  let reader = model.localMCPReader,
-                  let data = try? await reader.image(forEntryId: entry.id) else { return }
-            localImage = UIImage(data: data)
-        }
-        #endif
         #if DEBUG
         .onAppear {
             if ProcessInfo.processInfo.environment[
@@ -242,6 +234,17 @@ struct ActivityRow: View {
             }
         }
         #endif
+    }
+
+    private var nativePicture: some View {
+        MessageImageGallery(images: [.init(id: entry.id, name: L("Image"), markdown: "Image")],
+            cacheRevision: model.replicaImagesRevision) { _ in
+                guard let session = model.imageConversation(forEntryId: entry.id) else {
+                    throw MessageImageLoader.ImageError.unavailable
+                }
+                return try await model.messageImageData(sessionId: session, imageId: entry.id)
+            }
+            .frame(width: 240)
     }
 
     private var icon: String {

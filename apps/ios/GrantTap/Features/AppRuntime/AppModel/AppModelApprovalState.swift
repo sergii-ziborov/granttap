@@ -36,6 +36,11 @@ extension AppModel {
             return
         }
 
+        if let room {
+            noteAuthenticatedMachineActivity(fromRoom: room, generatedAt: req.createdAt)
+            ensureApprovalChat(req, fromRoom: room)
+            retryConfirmedApproval(req, fromRoom: room)
+        }
         // Only an exact requestId is a redelivery. Similar titles can be distinct
         // gates, including gates from different chats or computers.
         if let index = pending.firstIndex(where: { $0.requestId == req.requestId }) {
@@ -76,6 +81,9 @@ extension AppModel {
         let currentSession = pending.first(where: { $0.requestId == resolved.requestId })?.sessionId
             ?? questions.first(where: { $0.requestId == resolved.requestId })?.sessionId
             ?? approvalDecisionSessionScope[resolved.requestId]
+            ?? approvalDecisionQueue.entries.first {
+                $0.requestId == resolved.requestId && $0.roomId == room
+            }?.sessionId
         if let expectedSession = Self.normalizedApprovalSession(currentSession),
            Self.normalizedApprovalSession(resolved.sessionId) != expectedSession {
             append("resolved session mismatch ignored: \(resolved.requestId)")
@@ -102,6 +110,7 @@ extension AppModel {
     }
 
     func receive(_ status: ApprovalsStatus, fromRoom room: String) {
+        noteAuthenticatedMachineActivity(fromRoom: room, generatedAt: status.generatedAt)
         // Only the new explicit-coverage shape participates in ordering. A
         // legacy partial snapshot must not poison the persisted watermark.
         if status.covered != nil,
@@ -119,6 +128,8 @@ extension AppModel {
                     continue
                 }
                 pending[index] = request
+                ensureApprovalChat(request, fromRoom: room)
+                retryConfirmedApproval(request, fromRoom: room)
                 if requestSourceRoom[request.requestId] == nil {
                     rememberRequestSourceRoom(room, requestId: request.requestId)
                 }
@@ -146,6 +157,16 @@ extension AppModel {
         let coveredScopes = Set(covered.map {
             Self.approvalScopeKey($0.requestId, sessionId: $0.sessionId)
         })
+
+        for entry in approvalDecisionQueue.entries where entry.roomId == room {
+            let scope = Self.approvalScopeKey(entry.requestId, sessionId: entry.sessionId)
+            if entry.createdAt * 1_000 <= status.generatedAt,
+               coveredScopes.contains(scope), !incomingScopes.contains(scope) {
+                approvalDecisionQueue.remove(entry.requestId, roomId: room, sessionId: entry.sessionId)
+                clearDecisionInFlight(entry.requestId)
+                markApprovalTerminal(entry.requestId, room: room, sessionId: entry.sessionId)
+            }
+        }
 
         // Authority is exact and session-scoped. An unregistered producer's id
         // is absent from coveredScopes and therefore can never be wiped here.
@@ -189,6 +210,7 @@ extension AppModel {
         let currentSession = pending.first(where: { $0.requestId == id })?.sessionId
             ?? questions.first(where: { $0.requestId == id })?.sessionId
             ?? approvalDecisionSessionScope[id]
+            ?? approvalDecisionQueue.entries.first { $0.requestId == id && $0.roomId == room }?.sessionId
         markApprovalTerminal(id, room: room, sessionId: currentSession)
         recentlyCancelledIds[cancellationKey(id, room: room)] = Date()
         pending.removeAll { $0.requestId == id }
@@ -202,14 +224,18 @@ extension AppModel {
     }
 
     func clearAllPendingApprovals(reason: String, fromRoom room: String?) {
-        let ids = Set((pending.map(\.requestId) + questions.compactMap(\.requestId)).filter { id in
+        let queuedIds = Set(approvalDecisionQueue.entries.filter { room != nil && $0.roomId == room }
+            .map(\.requestId))
+        let ids = Set((pending.map(\.requestId) + questions.compactMap(\.requestId) + Array(queuedIds)).filter { id in
             guard let room else { return true }
-            return requestSourceRoom[id] == room
+            return requestSourceRoom[id] == room || (requestSourceRoom[id] == nil && queuedIds.contains(id))
         })
         for id in ids {
+            if let room, requestSourceRoom[id] == nil { rememberRequestSourceRoom(room, requestId: id) }
             let currentSession = pending.first(where: { $0.requestId == id })?.sessionId
                 ?? questions.first(where: { $0.requestId == id })?.sessionId
                 ?? approvalDecisionSessionScope[id]
+                ?? approvalDecisionQueue.entries.first { $0.requestId == id && $0.roomId == room }?.sessionId
             markApprovalTerminal(id, room: room, sessionId: currentSession)
             recentlyCancelledIds[cancellationKey(id, room: room)] = Date()
             clearDecisionInFlight(id)

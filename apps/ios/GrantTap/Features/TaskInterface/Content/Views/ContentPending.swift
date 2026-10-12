@@ -118,13 +118,16 @@ extension ContentView {
                 .card()
                 .overlay(focusedRing(req.requestId))
             } else {
-                ApprovalCard(
-                    req: req,
-                    isWaiting: model.approvalDecisionsInFlight[req.requestId] != nil,
-                    onApprove: { model.decide(req, "allow") },
-                    onDeny: { model.decide(req, "deny") }
-                )
-                .overlay(focusedRing(req.requestId))
+                VStack(alignment: .leading, spacing: 8) {
+                    ApprovalCard(
+                        req: req,
+                        isWaiting: model.approvalDecisionsInFlight[req.requestId] != nil,
+                        waitingMessage: model.approvalDecisionDeliveryMessage(req),
+                        onApprove: { model.decide(req, "allow") },
+                        onDeny: { model.decide(req, "deny") }
+                    )
+                    .overlay(focusedRing(req.requestId))
+                }
             }
         }
         ForEach(model.questions, id: \.requestId) { question in

@@ -42,7 +42,7 @@ extension TaskRouteView {
             } label: {
                 executionContent(execution, chatAvailable: true)
             }
-            .buttonStyle(.plain)
+            .pointerButtonStyle()
         } else {
             executionContent(execution, chatAvailable: false)
         }

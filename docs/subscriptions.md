@@ -1,12 +1,17 @@
 # Mac license and optional Personal subscription
 
-GrantTap Mac is prepared for a one-time **USD 39.99 Mac License** purchase.
-The proposed universal App Store configuration is a free download plus the
-non-consumable `com.ziborov.granttap.mac.license` unlock. This price is a launch
-proposal until the App Store Connect product is configured and approved. The
+GrantTap Mac uses a one-time **USD 39.99 Mac License** purchase.
+The universal App Store configuration is a free download plus the
+non-consumable `com.ziborov.granttap.mac.license` unlock. USD 39.99 is the
+confirmed US launch price; public purchase availability requires Apple approval. The
 native purchase sheet controls localized price, taxes and availability.
 A paid Mac purchase is independent of Personal; cancelling Personal does not
 remove the Mac license. Restore Purchases rechecks verified StoreKit evidence.
+TestFlight Mac builds have a separate seven-day evaluation of local control and
+own-relay features. It begins on first launch for each Apple app transaction
+and build; a new TestFlight build resets the evaluation. This is not a Mac
+purchase or a Personal subscription, and production App Store builds do not
+receive it.
 
 ## Personal
 
@@ -22,8 +27,14 @@ Product IDs: `com.ziborov.granttap.personal.solo.monthly`,
 `com.ziborov.granttap.personal.studio.monthly`. Keep them in one subscription group.
 Personal pays for managed encrypted relay delivery, bounded queues and supported
 APNs wake-up. It does not provide model tokens or an unrestricted web client.
-Verified StoreKit status determines client access; the relay's room credential
-is a transport credential, not a server-side Apple subscription receipt.
+Personal purchases are bound to the GrantTap passkey account through Apple's
+appAccountToken. The account service independently verifies production Apple
+signatures and atomically admits stable computer identities for the chosen
+2/5/10/15-seat plan. QR rooms and agent sessions do not consume extra seats.
+The commercial relay verifies short-lived signed admission independently; a
+room credential alone does not prove a paid entitlement. Own-relay mode does
+not use paid admission. Sandbox testing and operator-issued beta grants remain
+separate from production subscriptions. An outage never erases cached history.
 
 ## Without a subscription
 

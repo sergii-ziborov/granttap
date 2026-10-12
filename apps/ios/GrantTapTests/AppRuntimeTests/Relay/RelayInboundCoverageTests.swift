@@ -212,6 +212,13 @@ extension AppRuntimeTests {
         ))
         await fulfillment(of: [callbacks], timeout: 2)
         XCTAssertEqual(client.seenCiphertextOrder.count, 3)
+        XCTAssertEqual(client.wireDiagnosticCounts["grant-saved"], 1)
+        XCTAssertEqual(client.wireDiagnosticCounts["scoped-opened"], 1)
+        XCTAssertEqual(client.wireDiagnosticCounts["payload-accepted"], 3)
+        XCTAssertFalse(client.wireDiagnosticCounts.description.contains(transferKey))
+        XCTAssertFalse(client.wireDiagnosticCounts.description.contains("Sealed"))
+        XCTAssertFalse(DiagnosticsReport.containsSecret(client.wireDiagnosticCounts.description),
+                       "Safe counters must remain writable after receiving a chat grant")
     }
 
     func testEncryptedInboundRejectsUnauthenticatedEnvelopeVariants() throws {

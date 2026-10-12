@@ -30,7 +30,7 @@ struct ListeningMicButton: View {
             }
             .frame(width: 38, height: 38)
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityLabel(isRecording ? L("Stop listening") :
                             (isStarting ? L("Starting microphone…") : L("Start dictation")))
         .onAppear { updatePulse() }

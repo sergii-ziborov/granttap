@@ -2,13 +2,9 @@ import Foundation
 import OSLog
 
 /// The device’s protected copy of fetched transcript history.
-/// Mac keeps per-chat archives; phones retain complete boundaries for the two
-/// latest requests and ordinary recent rows. Cleanup is an explicit Settings action.
+/// Every fetched page stays on iPhone and Mac until explicitly cleared.
 enum SessionActivityPersistence {
-    /// Chats kept on disk, newest first. Older ones fall out rather than growing.
-    static let maxSessions = 60
-    /// The phone’s ordinary window, extended through its two latest requests.
-    /// Mac archives retain every fetched page until explicitly cleared.
+    /// Legacy window size; kept for migration/compatibility, never an eviction limit.
     static let maxEntriesPerSession = 300
 
     private static let filename = "session-activities.json"
@@ -16,37 +12,15 @@ enum SessionActivityPersistence {
                                        category: "persistence")
 
     static func load() -> [String: SessionActivity] {
-        guard let data = try? Data(contentsOf: fileURL),
-              let stored = try? JSONDecoder().decode([String: SessionActivity].self, from: data)
-        else {
-            #if targetEnvironment(macCatalyst)
-            return archive.load()
-            #else
-            return [:]
-            #endif
-        }
-        #if targetEnvironment(macCatalyst)
+        let stored = (try? Data(contentsOf: fileURL)).flatMap {
+            try? JSONDecoder().decode([String: SessionActivity].self, from: $0)
+        } ?? [:]
         return stored.merging(archive.load()) { _, saved in saved }
-        #else
-        return stored
-        #endif
     }
 
     static func save(_ activities: [String: SessionActivity]) {
         do {
-            #if targetEnvironment(macCatalyst)
             for activity in activities.values { try archive.save(activity) }
-            return
-            #else
-            let data = try JSONEncoder().encode(bounded(activities))
-            try FileManager.default.createDirectory(
-                at: directoryURL, withIntermediateDirectories: true
-            )
-            try data.write(
-                to: fileURL,
-                options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]
-            )
-            #endif
         } catch {
             logger.error(
                 "Transcript cache write failed (code: \((error as NSError).code, privacy: .public))"
@@ -54,28 +28,13 @@ enum SessionActivityPersistence {
         }
     }
 
-    /// Keep the most recent chats, and the most recent exchange within each.
+    /// Existing callers may still normalize a snapshot; normalization never evicts.
     static func bounded(_ activities: [String: SessionActivity]) -> [String: SessionActivity] {
-        let newest = activities.values
-            .sorted { $0.generatedAt > $1.generatedAt }
-            .prefix(maxSessions)
-        return Dictionary(uniqueKeysWithValues: newest.map { activity in
-            (activity.sessionId, trimmed(activity))
-        })
+        activities
     }
 
     static func trimmed(_ activity: SessionActivity) -> SessionActivity {
-        #if targetEnvironment(macCatalyst)
-        return activity
-        #else
-        let entries = TranscriptRequestBoundary.retainedEntries(activity.entries, limit: maxEntriesPerSession)
-        // A cursor preceding discarded rows would skip a gap. Refetch the latest
-        // native page on reopening, then walk backward from its valid cursor.
-        let history = entries.count == activity.entries.count ? activity.history : nil
-        return SessionActivity(type: activity.type, sessionId: activity.sessionId,
-            agent: activity.agent, state: activity.state, threadId: activity.threadId, entries: entries,
-            generatedAt: activity.generatedAt, history: history)
-        #endif
+        activity
     }
 
     static var bytes: Int64 {

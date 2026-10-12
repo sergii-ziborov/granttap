@@ -59,7 +59,7 @@ struct ActivityRunRow: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityIdentifier("chat.run.\(run.id)")
         .padding(.vertical, 2)
         .sheet(isPresented: $showSteps) {

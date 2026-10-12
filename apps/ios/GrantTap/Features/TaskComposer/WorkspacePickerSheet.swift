@@ -75,7 +75,7 @@ struct WorkspacePickerSheet: View {
                 }
             }
         }
-        .buttonStyle(.plain)
+        .pointerButtonStyle()
         .accessibilityIdentifier("workspace.\(path ?? "none")")
     }
 

@@ -5,6 +5,9 @@ It discovers the loopback status endpoint and uses the authenticated native
 desktop bridge for bounded Mesh, Task, conversation, image, usage, and capability
 operations. The MCP forwards those operations to its same-user Unix socket.
 The machine runtime remains in the sibling `granttap-mcp` repository.
+Devices probes the loopback status endpoint even while Mac control is locked.
+That probe never reads a workspace or grants access. A failed probe is shown
+as an unreachable service, since it cannot prove whether MCP is installed.
 Local Mac Task handoff uses `desktop.task_handoff` through that authenticated
 socket. The MCP checks the exact local Task owner before preparing the encrypted
 capsule. The Mac app displays a rejected or unavailable handoff on the sheet.
@@ -52,7 +55,7 @@ computer before choosing the local desktop bridge. Refreshing one computer canno
 replace another computer's list. Tests are in
 `GrantTapTests/Features/MacLocalMCP` and `GrantTapTests/Features/Pairing`.
 
-See [`AGENTS.md`](../../../../../AGENTS.md) for the repository contract.
+See [public source](https://github.com/sergii-ziborov/granttap) for the repository contract.
 
 Generated image references are advertised by the exact Task conversation and
 fetched with `desktop.task_image`. The client never reads provider transcripts

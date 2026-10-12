@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-/// Per-chat Mac archive: fetched pages remain available across app launches.
+/// Per-chat device archive: fetched pages remain available across app launches.
 /// Filenames are hashes of ids; malformed records cannot replace another chat.
 struct TranscriptArchive {
     let directory: URL

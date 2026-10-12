@@ -55,14 +55,17 @@ extension AppModel {
         }
         sessionEventRequestsAt = sessionEventRequestsAt.filter { liveIds.contains($0.key) }
         for id in liveIds {
+            guard let sourceRelay = relayForSession(id), let room = roomId(for: sourceRelay),
+                  roomRuntime[room]?.socketUp == true else { continue }
             if let last = sessionEventRequestsAt[id], now - last < Self.sessionPreloadIntervalMs {
                 continue
             }
             sessionEventRequestsAt[id] = now
-            let sourceRelay = relayForSession(id)
-            sourceRelay?.sendSubscription(sessionId: id, active: true)
-            sourceRelay?.requestSessionEvents(sessionId: id)
+            sourceRelay.sendSubscription(sessionId: id, active: true)
         }
+        // The bounded queue fetches current heads before older pages. Sending a
+        // second full-history request here flooded all chats at each catalog tick.
+        syncOfflineConversations(now: now)
     }
 
     /// Ask the computer for one agent conversation, whole. The chat's own
@@ -100,7 +103,7 @@ extension AppModel {
         if wasActive != isActive {
             if !isActive {
                 stopActivityHeartbeat(id)
-                if !preserveRemoteSubscription {
+                if !preserveRemoteSubscription && !sessions.contains(where: { resolvedSessionId($0.sessionId) == id }) {
                     sourceRelay?.sendSubscription(sessionId: id, active: false)
                 }
             }
@@ -140,38 +143,32 @@ extension AppModel {
         activityHeartbeatTasks.removeValue(forKey: sessionId)
     }
 
-    /// Pull-to-refresh: ask Mac to rescan chats now; wait for sessions.status or timeout.
+    /// Pull-to-refresh asks every MCP facet of this account for its catalog.
     func refreshSessions() async {
         guard !demoMode else {
             try? await Task.sleep(nanoseconds: 350_000_000)
             return
         }
-        // Prefer-for-chats room only — never refresh a non-preferred Mac catalog.
-        let preferredId = connectionRegistry.preferredId
-        let client = preferredId.flatMap { relaysByRoom[$0] } ?? relay
-        guard let client else {
+        let rooms = accountVisibleRooms()
+        let routes = rooms.sorted().compactMap { room in
+            relaysByRoom[room].map { (room, $0) }
+        }
+        guard !routes.isEmpty else {
             setRefreshHint(L("Not paired"))
             return
         }
-        if preferredId != nil { relay = client }
         let stamp = lastSessionsGeneratedAt
         setRefreshHint(L("Updating chats…"))
-        let recoverLink = ConnectionSnapshot.shouldRecoverCatalogLink(
-            for: connectionSnapshot.phase
-        )
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             let id = UUID()
             sessionRefreshWaiters[id] = continuation
-            if recoverLink {
-                refreshAfterConnect = true
-                setRefreshHint(L("Reconnecting…"))
-                client.forceReconnect(requestPeerRecovery: true)
-            } else if connected || (roomRuntime[preferredId ?? ""]?.socketUp == true) {
-                nudgeMacSessionScan(via: client)
-            } else {
-                refreshAfterConnect = true
-                setRefreshHint(L("Reconnecting…"))
-                client.forceReconnect()
+            for (room, client) in routes {
+                if roomRuntime[room]?.socketUp == true {
+                    nudgeMacSessionScan(via: client)
+                } else {
+                    refreshAfterConnect = true
+                    client.forceReconnect(requestPeerRecovery: true)
+                }
             }
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 4_000_000_000)
@@ -181,7 +178,7 @@ extension AppModel {
         if lastSessionsGeneratedAt != stamp {
             let n = sessions.count
             setRefreshHint(String(format: L("Updated · %d active"), n))
-        } else if connected {
+        } else if roomRuntime.values.contains(where: \.socketUp) {
             setRefreshHint(L("No update from Mac — is granttap monitor running?"))
         } else {
             setRefreshHint(L("Still offline"))
