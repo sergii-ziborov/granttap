@@ -31,7 +31,9 @@ extension AppModel {
         var mesh = AppModelDemoMeshFixtures.snapshot(at: now)
         #if DEBUG
         ChatMessageQueueFixture.apply(to: self, at: now)
-        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_GRAPH_LARGE"] == "1" {
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_TOWER_SECTIONS"] == "1" {
+            mesh.repositoryGraphs = [AppModelDemoMeshFixtures.scrollableArchitectureGraph()]
+        } else if ProcessInfo.processInfo.environment["GRANTTAP_TEST_GRAPH_LARGE"] == "1" {
             mesh.repositoryGraphs = [AppModelDemoMeshFixtures.largeArchitectureGraph()]
         } else if ProcessInfo.processInfo.environment["GRANTTAP_TEST_GRAPH"] == "1" {
             mesh.repositoryGraphs = [AppModelDemoMeshFixtures.architectureGraph()]

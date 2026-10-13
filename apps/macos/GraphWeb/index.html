@@ -6,6 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'">
   <title>Mesh graph</title>
   <link rel="stylesheet" href="scene.css">
+  <link rel="stylesheet" href="graph-ui.css">
   <style>
     html,body,#graph{width:100%;height:100%;margin:0;overflow:hidden;background:#060a10}
     #empty{display:grid;position:absolute;inset:0;place-items:center;color:#a2b7c7;font:15px -apple-system,sans-serif}
@@ -24,7 +25,8 @@
     };
     window.addEventListener('error', window.graphFailure);
     window.addEventListener('unhandledrejection', window.graphFailure);
-    window.setMeshReports = encoded => {
+    window.setMeshReports = (encoded, language = 'en') => {
+      document.documentElement.lang = language === 'ru' ? 'ru' : 'en';
       try { window.meshReports = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), c => c.charCodeAt(0)))); }
       catch { window.graphFailure(); return; }
       window.mountMeshGraph?.();

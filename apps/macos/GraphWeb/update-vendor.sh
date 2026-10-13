@@ -23,6 +23,28 @@ old = "dead?new THREE.Color(0xff1b4d):healthColor(meth.health)"
 new = "dead?new THREE.Color(0xff1b4d):meth.health==null?new THREE.Color(COL.doc):healthColor(meth.health)"
 assert old in source
 core.write_text(source.replace(old, new))
+source = core.read_text().replace('seg.userData.fileId=f.id;',
+    'seg.userData.fileId=f.id; seg.userData.methodIndex=f.segMats.length;')
+needle = 'return { destroy, pause, resume, getScene:'
+assert needle in source
+source = source.replace(needle, '''function focusNode(id) {
+    if (!nodeById[id]) return false;
+    focusApi.lockTarget(id);
+    return true;
+  }
+  function focusSection(id, index) {
+    const file = nodeById[id];
+    if (!file || !Number.isInteger(index) || !file.methods?.[index]) return false;
+    focusApi.enterElevation(id);
+    focusApi.selectMethod(index);
+    return true;
+  }
+  function stopCameraFlight() {
+    tween = null;
+    controls.enabled = true;
+  }
+  return { getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene:''')
+core.write_text(source)
 focus = root / "cb-focus.js"
 source = focus.read_text()
 source = source.replace("lab.innerHTML=labelTxt;", "lab.textContent=labelTxt;")
@@ -46,12 +68,41 @@ old = "$('#d-health').textContent='●'.repeat(pips)+'○'.repeat(5-pips);"
 new = "$('#d-health').textContent=(f.isExternal&&!(f.items||[]).length)||f.methods?.every(m=>m.health==null)?'—':'●'.repeat(pips)+'○'.repeat(5-pips);"
 assert old in source
 focus.write_text(source.replace(old, new))
+source = focus.read_text()
+needle = 'focusId=id; const f=nodeById[id];'
+assert needle in source
+source = source.replace(needle, needle + "\n    opts.onFileSelect?.({id:f.id});")
+focus.write_text(source)
 elevation = root / "cb-elevation.js"
 source = elevation.read_text()
 old = 'el.innerHTML=`<b style="color:#${it.hc}">${it.nm}</b>${it.sub?` ${it.sub}`:\'\'}`;'
 assert old in source
 new = "const name=document.createElement('b'); name.style.color='#'+it.hc; name.textContent=it.nm; el.append(name, document.createTextNode(it.sub?' '+it.sub:''));"
 elevation.write_text(source.replace(old, new))
+source = elevation.read_text()
+source = source.replace("hc:(m.dead?'ff1b4d':healthColor(m.health).getHexString())",
+    "hc:(m.dead?'ff1b4d':m.health==null?new THREE.Color(COL.doc).getHexString():healthColor(m.health).getHexString())")
+source = source.replace("${m.loc} loc &middot; ${Math.round((m.health||0)*100)}%",
+    "${m.kind||'section'} · L${m.line??'—'} · ${m.loc} LOC${m.health==null?'':' · '+Math.round(m.health*100)+'%'}")
+elevation.write_text(source)
+needle = 'path:f._path, fileId:f._fileId||null, file:f.name, name:m.name'
+assert needle in source
+elevation.write_text(source.replace(needle,
+    'id:f.id, repositoryId:f.repositoryId, symbolId:m.id, path:f._path, fileId:f._fileId||null, file:f.name, name:m.name'))
+interaction = root / "cb-input.js"
+source = interaction.read_text()
+needle = 'if (ph.length) { focusApi.lockTarget(ph[0].object.userData.fileId); return; }'
+assert needle in source
+source = source.replace(needle, '''if (ph.length) {
+      const hit = ph[0].object.userData;
+      focusApi.lockTarget(hit.fileId);
+      if (Number.isInteger(hit.methodIndex)) {
+        focusApi.enterElevation(hit.fileId);
+        focusApi.selectMethod(hit.methodIndex);
+      }
+      return;
+    }''')
+interaction.write_text(source)
 palette = root / "cb-palette.js"
 source = palette.read_text()
 old = "import: COL.edgeImport, call: COL.edgeCall"
@@ -62,13 +113,19 @@ source = template.read_text()
 needle = '<button type="button" class="row edge-toggle on" data-edge-type="io">'
 assert needle in source
 source = source.replace(needle, '<button type="button" class="row edge-toggle on" data-edge-type="relation"><span class="sw" style="color:var(--violet);background:var(--violet)"></span> OTHER RELATION</button>\\n    ' + needle)
-template.write_text(source)
+template.write_text(source.replace("DEAD · NO INBOUND", "NO INBOUND LINKS"))
 PY
 
 mkdir -p "$generated/three/addons/controls" "$generated/three/addons/renderers"
 bun build "$scratch/cyberboard/cb-core.js" --target browser --external three \
   --external 'three/*' --outfile "$generated/cb-core.js" >/dev/null
 cp "$source_root/vendor/three/three.module.js" "$generated/three/three.module.js"
+python3 - "$generated/three/three.module.js" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+path.write_bytes(path.read_bytes().replace(b' \t', b'\t'))
+PY
 cp "$source_root/vendor/three/addons/controls/OrbitControls.js" "$generated/three/addons/controls/OrbitControls.js"
 cp "$source_root/vendor/three/addons/renderers/CSS2DRenderer.js" "$generated/three/addons/renderers/CSS2DRenderer.js"
 cp "$source_root/styles/features/cyberboard/scene.css" "$generated/scene.css"

@@ -6,7 +6,7 @@ function sourceNodes(report) {
     return map.files.map(file => ({
       id: file.path, label: file.path.split('/').at(-1), path: file.path,
       module: `${report.repositoryId}/${file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '.'}`,
-      kind: 'file', lineCount: file.lineCount, symbols: file.symbols || [],
+      kind: 'file', lineCount: file.lineCount, language: file.language, symbols: file.symbols || [],
     }));
   }
   return (report.nodes || []).map(node => ({
@@ -31,11 +31,16 @@ export function boardData(reports) {
   const names = [...new Set(selected.flatMap(item => item.nodes.map(node => node.module)))].sort();
   const columns = Math.max(1, Math.ceil(Math.sqrt(names.length)));
   const layouts = new Map();
+  const largestHalf = Math.max(20, ...names.map(name => {
+    const count = selected.reduce((sum, item) => sum + item.nodes.filter(node => node.module === name).length, 0);
+    return Math.ceil(Math.sqrt(count)) * 9 + 8;
+  }));
+  const spacing = largestHalf * 2 + 26;
   names.forEach((name, index) => {
     const count = selected.reduce((sum, item) => sum + item.nodes.filter(node => node.module === name).length, 0);
     const grid = Math.ceil(Math.sqrt(count));
-    const cx = (index % columns - (columns - 1) / 2) * 110;
-    const cz = (Math.floor(index / columns) - (Math.ceil(names.length / columns) - 1) / 2) * 110;
+    const cx = (index % columns - (columns - 1) / 2) * spacing;
+    const cz = (Math.floor(index / columns) - (Math.ceil(names.length / columns) - 1) / 2) * spacing;
     layouts.set(name, { index, grid, cx, cz, position: 0 });
     modules.push({ name, n: count, _cx: cx, _cz: cz, _half: grid * 9 + 8, _g: grid });
   });
@@ -46,7 +51,7 @@ export function boardData(reports) {
       const position = layout.position++;
       const x = layout.cx + ((position % layout.grid) - (layout.grid - 1) / 2) * 16;
       const z = layout.cz + (Math.floor(position / layout.grid) - (layout.grid - 1) / 2) * 16;
-      const methods = node.symbols.map(symbol => ({ name: symbol.label,
+      const methods = node.symbols.map(symbol => ({ id: symbol.id, kind: symbol.kind, name: symbol.label,
         loc: Math.max(1, Number(symbol.lineCount) || 1), line: symbol.startLine, health: null }));
       if (!methods.length) methods.push({ name: 'Symbols unavailable',
         loc: Math.max(1, Number(node.lineCount) || 20), health: null });
@@ -55,6 +60,10 @@ export function boardData(reports) {
       if (!report.codeMap?.files?.length) componentIds.set(`${report.repositoryId}\u0000${node.id}`, id);
       files.push({ id, name: node.label, module: node.module, modIdx: layout.index,
         x, z, _path: node.path, _fileId: node.id, kind: node.kind, methods,
+        repositoryId: report.repositoryId, sourceRevision: report.sourceRevision,
+        analysisRevision: report.revision, analysisStatus: report.analysisStatus,
+        partial: report.truncated || report.codeMap?.truncated || report.analysisStatus !== 'COMPLETE',
+        language: node.language,
         unknownHealth: true, symbolsUnavailable: node.symbols.length === 0,
         loc: node.lineCount ?? null, height: methods.reduce((sum, method) => sum + method.loc * 0.085 + 0.45, 0),
         coverage: null, fanIn: 0, fanOut: 0 });
@@ -65,6 +74,10 @@ export function boardData(reports) {
       const id = files.length + exts.length;
       identities.set(`${report.repositoryId}\u0000${external.id}`, id);
       exts.push({ id, name: `${external.label} · ${report.repositoryId}`,
+        repositoryId: report.repositoryId, _path: external.id,
+        sourceRevision: report.sourceRevision, analysisRevision: report.revision,
+        analysisStatus: report.analysisStatus, partial: report.analysisStatus !== 'COMPLETE',
+        symbolsUnavailable: true,
         kind: external.kind, isExternal: true, modIdx: -1, color: 0x8fa7c7,
         x: -130 - Math.floor(exts.length / 8) * 18,
         z: (exts.length % 8 - 3.5) * 20, fanIn: 0, fanOut: 0, height: 7 });
@@ -76,6 +89,10 @@ export function boardData(reports) {
       const id = files.length + exts.length;
       componentIds.set(`${report.repositoryId}\u0000${node.id}`, id);
       exts.push({ id, name: `${node.label} · ${report.repositoryId}`,
+        repositoryId: report.repositoryId, _path: node.id,
+        sourceRevision: report.sourceRevision, analysisRevision: report.revision,
+        analysisStatus: report.analysisStatus, partial: report.analysisStatus !== 'COMPLETE',
+        symbolsUnavailable: true,
         kind: node.kind, isExternal: true, modIdx: -1,
         color: node.kind === 'service' ? 0x59d0a0 : 0xc38bff,
         x: -130 - Math.floor(exts.length / 8) * 18,
@@ -98,5 +115,6 @@ export function boardData(reports) {
     if (map?.files?.length) addRelations(map.roads || [], identities);
     addRelations(report.relations || [], componentIds, true);
   });
-  return { MODULES: modules, files, edges, exts, agent: null };
+  return { MODULES: modules, files, edges, exts, agent: null,
+    projectIds: [...new Set(selected.map(item => item.report.projectId).filter(Boolean))].sort() };
 }

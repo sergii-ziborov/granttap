@@ -7,7 +7,11 @@ The same Task, approval, conversation, Knowledge, Governance, member, and
 statistics views are compiled from `apps/ios/GrantTap` for all three devices.
 
 The Mac Graph screen uses a local `WKWebView` with Repo Lens Cyberboard and
-Three.js when the Mesh has repository analysis reports. The adapter combines
+Three.js when the Mesh has repository analysis reports. Its
+[interactive inspection controls](GraphWeb/README.md) provide scrollable labelled
+sections, file and symbol search, directed links, Health evidence, measured LOC
+highlight thresholds, camera views and full screen.
+The adapter combines
 permitted reports from linked repositories and displays their observed files,
 symbols, relations, and external services. Missing reports stay empty; it
 does not substitute the Repo Lens demonstration graph. The bundled renderer

@@ -1,9 +1,9 @@
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-core.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-core.js
 import * as THREE2 from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject as CSS2DObject3 } from "three/addons/renderers/CSS2DRenderer.js";
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-geometry.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-geometry.js
 import * as THREE from "three";
 var colorLuma = (hex) => {
   const c = new THREE.Color(hex);
@@ -113,7 +113,7 @@ function nodeLooksEntry(n) {
   return !!n.isEndpoint || mod === "(root)" || /(^|[\\/])(index|main|server|app|cli|cmd|bootstrap|entry|run|__main__|manage|wsgi|asgi)\.[a-z0-9]+$|(^|[\\/])(bin|cmd)[\\/]/i.test(path);
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-template.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-template.js
 var CYBERBOARD_TEMPLATE = `<div class="cb-root">
   <div class="cb-app"></div>
 
@@ -185,7 +185,7 @@ var CYBERBOARD_TEMPLATE = `<div class="cb-root">
   <div class="boot" id="boot">INITIALIZING&nbsp;DATASCAPE&hellip;</div>
 </div>`;
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-demo-data.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-demo-data.js
 function buildDemoData({ HEIGHT_PER_LOC, SEG_GAP, FILE_SPACING, TILE_SPACING, MOD_COLS, KCFG, showDocs }) {
   function mulberry32(a) {
     return function() {
@@ -347,7 +347,7 @@ function buildDemoData({ HEIGHT_PER_LOC, SEG_GAP, FILE_SPACING, TILE_SPACING, MO
   return { MODULES, files, edges, exts, agent };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-palette.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-palette.js
 function resolveCyberboardPalette({ THREE: THREE2, root, colorLuma: colorLuma2 }) {
   const probe = document.createElement("span");
   probe.style.cssText = "position:absolute;left:-9999px;top:-9999px;width:0;height:0;visibility:hidden";
@@ -426,7 +426,7 @@ function resolveCyberboardPalette({ THREE: THREE2, root, colorLuma: colorLuma2 }
   };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-flow.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-flow.js
 function createCyberboardFlow(ctx) {
   const {
     THREE: THREE2,
@@ -588,10 +588,10 @@ function createCyberboardFlow(ctx) {
   return { outEdges, sampleRoad, update };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-focus.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-focus.js
 import { CSS2DObject as CSS2DObject2 } from "three/addons/renderers/CSS2DRenderer.js";
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-elevation.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-elevation.js
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 function createCyberboardElevation(ctx) {
   const {
@@ -798,9 +798,9 @@ function createCyberboardElevation(ctx) {
       idx: i,
       seg: f.segMid[i],
       dead: !!m.dead,
-      hc: m.dead ? "ff1b4d" : healthColor(m.health).getHexString(),
+      hc: m.dead ? "ff1b4d" : m.health == null ? new THREE2.Color(COL.doc).getHexString() : healthColor(m.health).getHexString(),
       nm: m.name,
-      sub: m.dead ? "" : `${m.loc} loc &middot; ${Math.round((m.health || 0) * 100)}%`
+      sub: m.dead ? "" : `${m.kind || "section"} · L${m.line ?? "—"} · ${m.loc} LOC${m.health == null ? "" : " · " + Math.round(m.health * 100) + "%"}`
     }));
     const N = all.length, rail = _elevCodePanelOpen || N >= ELEV_OVERFLOW_AT, VIS = elevVisibleCount(f, N), overflow = rail && N > VIS;
     const colX = elevCalloutColumnX(f, N);
@@ -1116,6 +1116,9 @@ function createCyberboardElevation(ctx) {
     const cy = Math.max(8, f.height * 0.5);
     try {
       opts.onMethodOpen({
+        id: f.id,
+        repositoryId: f.repositoryId,
+        symbolId: m.id,
         path: f._path,
         fileId: f._fileId || null,
         file: f.name,
@@ -1293,7 +1296,7 @@ function createCyberboardElevation(ctx) {
   };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-focus.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-focus.js
 function createCyberboardFocus(ctx) {
   const {
     THREE: THREE2,
@@ -1605,6 +1608,7 @@ function createCyberboardFocus(ctx) {
     setHelp(false);
     focusId = id;
     const f = nodeById[id];
+    opts.onFileSelect?.({ id: f.id });
     setExpand(null);
     buildNeighbors(id);
     applyFocus(id);
@@ -2140,7 +2144,7 @@ function createCyberboardFocus(ctx) {
   };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-input.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-input.js
 function createCyberboardInput(ctx) {
   const {
     THREE: THREE2,
@@ -2223,7 +2227,12 @@ function createCyberboardInput(ctx) {
     ray.setFromCamera(mouse, camera);
     const ph = ray.intersectObjects(pickables, false);
     if (ph.length) {
-      focusApi.lockTarget(ph[0].object.userData.fileId);
+      const hit = ph[0].object.userData;
+      focusApi.lockTarget(hit.fileId);
+      if (Number.isInteger(hit.methodIndex)) {
+        focusApi.enterElevation(hit.fileId);
+        focusApi.selectMethod(hit.methodIndex);
+      }
       return;
     }
     if (activateEdge(pickEdgeByRay()))
@@ -2332,7 +2341,7 @@ function createCyberboardInput(ctx) {
   return { handleBoardTap, updatePan };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-router.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-router.js
 function createCyberboardRouter(ctx) {
   const {
     THREE: THREE2,
@@ -2974,7 +2983,7 @@ function createCyberboardRouter(ctx) {
   };
 }
 
-// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.lxlXY0NJQh/cyberboard/cb-core.js
+// ../../../../private/var/folders/vf/n8_5k0wj3md7j3g9_p_klfcm0000gn/T/tmp.zWnBp3OeWg/cyberboard/cb-core.js
 function createCyberboard(container, opts = {}) {
   container.innerHTML = CYBERBOARD_TEMPLATE;
   const root = container.querySelector(".cb-root");
@@ -3252,6 +3261,7 @@ function createCyberboard(container, opts = {}) {
       seg.renderOrder = 8;
       seg.position.y = y + hgt / 2;
       seg.userData.fileId = f.id;
+      seg.userData.methodIndex = f.segMats.length;
       grp.add(seg);
       if (!docSeg)
         pickables.push(seg);
@@ -3798,7 +3808,25 @@ function createCyberboard(container, opts = {}) {
   }
   if (router.getMergeParallel())
     router.relayout();
-  return { destroy, pause, resume, getScene: () => scene, getCamera: () => camera, selectMethod, selectItem, focusFile, setLoading, debugRouteStats };
+  function focusNode(id) {
+    if (!nodeById[id])
+      return false;
+    focusApi.lockTarget(id);
+    return true;
+  }
+  function focusSection(id, index) {
+    const file = nodeById[id];
+    if (!file || !Number.isInteger(index) || !file.methods?.[index])
+      return false;
+    focusApi.enterElevation(id);
+    focusApi.selectMethod(index);
+    return true;
+  }
+  function stopCameraFlight() {
+    tween = null;
+    controls.enabled = true;
+  }
+  return { getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene: () => scene, getCamera: () => camera, selectMethod, selectItem, focusFile, setLoading, debugRouteStats };
 }
 if (typeof window !== "undefined")
   window.createCyberboard = createCyberboard;

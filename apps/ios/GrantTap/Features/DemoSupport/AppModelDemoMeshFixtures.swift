@@ -80,6 +80,22 @@ enum AppModelDemoMeshFixtures {
     }
 
     #if DEBUG
+    static func scrollableArchitectureGraph() -> ProjectRepositoryGraph {
+        var report = architectureGraph()
+        guard let map = report.codeMap else { return report }
+        let files = map.files.map { file in
+            guard file.path.hasSuffix("HealthView.swift") else { return file }
+            return ProjectCodeMap.File(path: file.path, language: file.language, lineCount: 380,
+                symbols: (1...36).map { index in
+                    .init(id: "health-section-\(index)", label: "healthSection\(index)", kind: "function",
+                          startLine: index * 10, lineCount: 8)
+                })
+        }
+        report.codeMap = ProjectCodeMap(files: files, externals: map.externals, roads: map.roads,
+            totalFiles: map.totalFiles, totalExternals: map.totalExternals, truncated: false)
+        return report
+    }
+
     static func largeArchitectureGraph() -> ProjectRepositoryGraph {
         var report = architectureGraph()
         report.analysisStatus = "INCOMPLETE"

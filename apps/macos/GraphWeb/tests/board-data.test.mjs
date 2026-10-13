@@ -68,3 +68,25 @@ test('a file map retains architecture components and their evidenced service lin
     [[0, 1, 'io'], [2, 3, 'call']]);
   assert.equal(data.edges[1].payload, 3);
 });
+
+test('section selection retains repository, revision, symbol identity and kind', () => {
+  const data = boardData([{ repositoryId: 'repo', sourceRevision: 'commit-a', revision: 'analysis-a',
+    analysisStatus: 'INCOMPLETE', codeMap: { files: [{ path: 'src/file.swift', language: 'swift',
+      lineCount: 90, symbols: [{ id: 'symbol-1', label: 'run()', kind: 'function', startLine: 12, lineCount: 22 }],
+    }], roads: [], totalFiles: 1, truncated: false } }]);
+  const file = data.files[0];
+  assert.equal(file.repositoryId, 'repo');
+  assert.equal(file.sourceRevision, 'commit-a');
+  assert.equal(file.analysisStatus, 'INCOMPLETE');
+  assert.equal(file.methods[0].id, 'symbol-1');
+  assert.equal(file.methods[0].kind, 'function');
+  assert.equal(file.language, 'swift');
+});
+
+test('a large module leaves space for its neighbouring module plate', () => {
+  const files = Array.from({ length: 400 }, (_, i) => ({ path: `large/file${i}.swift`, symbols: [] }));
+  files.push({ path: 'small/only.swift', symbols: [] });
+  const data = boardData([{ repositoryId: 'repo', codeMap: { files, roads: [] } }]);
+  const [a, b] = data.MODULES;
+  assert.ok(Math.abs(a._cx - b._cx) >= a._half + b._half + 20);
+});

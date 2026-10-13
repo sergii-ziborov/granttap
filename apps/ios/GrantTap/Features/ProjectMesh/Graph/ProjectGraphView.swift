@@ -11,6 +11,8 @@ struct ProjectGraphView: View {
     @State private var selectedRepositoryId: String?
     @State private var selectedComponentId: String?
     @State private var webFailed = false
+    @State private var codeFullscreen = false
+    @State private var codeViewRevision = 0
     #endif
 
     private var reports: [ProjectRepositoryGraph] {
@@ -60,9 +62,21 @@ struct ProjectGraphView: View {
                         }.padding()
                     }
                 } else if reports.contains(where: { !$0.nodes.isEmpty || $0.codeMap?.files.isEmpty == false }) {
-                    MeshCyberboardView(reports: reports, failed: $webFailed)
+                    MeshCyberboardView(reports: reports, failed: $webFailed) { codeFullscreen = true }
+                        .id(codeViewRevision)
                 } else { Spacer(minLength: 0) }
             }
+        }
+        .fullScreenCover(isPresented: $codeFullscreen, onDismiss: { codeViewRevision += 1 }) {
+            MeshCyberboardView(reports: reports, failed: $webFailed) { codeFullscreen = false }
+                .ignoresSafeArea()
+                .overlay(alignment: .topTrailing) {
+                    Button { codeFullscreen = false } label: {
+                        Image(systemName: "arrow.down.right.and.arrow.up.left")
+                            .frame(width: 44, height: 44).background(.regularMaterial, in: Circle())
+                    }
+                    .accessibilityLabel(L("Exit full screen")).padding(12)
+                }
         }
         #else
         ScrollView {
@@ -131,6 +145,7 @@ struct ProjectGraphView: View {
 private struct MeshCyberboardView: UIViewRepresentable {
     let reports: [ProjectRepositoryGraph]
     @Binding var failed: Bool
+    var onFullscreen: () -> Void = {}
 
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
@@ -152,19 +167,22 @@ private struct MeshCyberboardView: UIViewRepresentable {
 
     func updateUIView(_ webView: WKWebView, context: Context) {
         context.coordinator.reports = reports
+        context.coordinator.onFullscreen = onFullscreen
         if !webView.isLoading { context.coordinator.deliver(to: webView) }
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(reports: reports, failed: $failed) }
+    func makeCoordinator() -> Coordinator { Coordinator(reports: reports, failed: $failed, onFullscreen: onFullscreen) }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var reports: [ProjectRepositoryGraph]
         @Binding var failed: Bool
         private var deliveredDigest: String?
+        var onFullscreen: () -> Void
 
-        init(reports: [ProjectRepositoryGraph], failed: Binding<Bool>) {
+        init(reports: [ProjectRepositoryGraph], failed: Binding<Bool>, onFullscreen: @escaping () -> Void) {
             self.reports = reports
             _failed = failed
+            self.onFullscreen = onFullscreen
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -181,6 +199,7 @@ private struct MeshCyberboardView: UIViewRepresentable {
         func userContentController(_ userContentController: WKUserContentController,
                                    didReceive message: WKScriptMessage) {
             if message.name == "graphStatus", message.body as? String == "failed" { failed = true }
+            if message.name == "graphStatus", message.body as? String == "fullscreen" { onFullscreen() }
         }
 
         func webView(
@@ -194,9 +213,10 @@ private struct MeshCyberboardView: UIViewRepresentable {
         func deliver(to webView: WKWebView) {
             guard let data = try? JSONEncoder().encode(reports) else { return }
             let payload = data.base64EncodedString()
-            guard deliveredDigest != payload else { return }
-            deliveredDigest = payload
-            webView.evaluateJavaScript("window.setMeshReports('\(payload)')") { _, error in
+            let digest = payload + AppLocale.code
+            guard deliveredDigest != digest else { return }
+            deliveredDigest = digest
+            webView.evaluateJavaScript("window.setMeshReports('\(payload)', '\(AppLocale.code)')") { _, error in
                 if error != nil { self.deliveredDigest = nil; self.failed = true }
             }
         }

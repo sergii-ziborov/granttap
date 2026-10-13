@@ -104,15 +104,14 @@ final class ProjectGraphUITests: XCTestCase {
         add(image)
         search.tap()
         search.typeText("HealthView")
-        let file = app.buttons.containing(.staticText, identifier: "apps/ios/GrantTap/HealthView.swift")
-            .firstMatch
+        let file = app.buttons["code-towers.file.apps/ios/GrantTap/HealthView.swift"]
         XCTAssertTrue(file.waitForExistence(timeout: 5))
         file.tap()
         XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].label.contains("HealthView.swift"))
         search.tap()
         search.typeText("Relay service")
-        let external = app.buttons.containing(.staticText, identifier: "Relay service").firstMatch
+        let external = app.buttons["code-towers.external.ext:relay"]
         XCTAssertTrue(external.waitForExistence(timeout: 5))
         external.tap()
         XCTAssertTrue(app.staticTexts["code-towers.inspector.external"].waitForExistence(timeout: 5))
@@ -141,8 +140,7 @@ final class ProjectGraphUITests: XCTestCase {
         XCTAssertTrue(search.waitForExistence(timeout: 10))
         search.tap()
         search.typeText("Source649")
-        let file = app.buttons.containing(.staticText, identifier:
-            "apps/ios/GrantTap/Features/Area25/Source649.swift").firstMatch
+        let file = app.buttons["code-towers.file.apps/ios/GrantTap/Features/Area25/Source649.swift"]
         XCTAssertTrue(file.waitForExistence(timeout: 10))
         file.tap()
         XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].waitForExistence(timeout: 10))

@@ -3092,7 +3092,7 @@ class Data3DTexture extends Texture {
 		// Users can still set in DataTexture3D directly.
 		//
 		//	const texture = new THREE.DataTexture3D( data, width, height, depth );
-		// 	texture.anisotropy = 16;
+		//	texture.anisotropy = 16;
 		//
 		// See #14839
 
@@ -3415,7 +3415,7 @@ class Quaternion {
 		const x = euler._x, y = euler._y, z = euler._z, order = euler._order;
 
 		// http://www.mathworks.com/matlabcentral/fileexchange/
-		// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
+		//	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
 		//	content/SpinCalc.m
 
 		const cos = Math.cos;
@@ -6676,9 +6676,9 @@ class Matrix4 {
 
 		}
 
-		te[ 0 ] = x;	te[ 4 ] = 0;	te[ 8 ] = a; 	te[ 12 ] = 0;
-		te[ 1 ] = 0;	te[ 5 ] = y;	te[ 9 ] = b; 	te[ 13 ] = 0;
-		te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = c; 	te[ 14 ] = d;
+		te[ 0 ] = x;	te[ 4 ] = 0;	te[ 8 ] = a;	te[ 12 ] = 0;
+		te[ 1 ] = 0;	te[ 5 ] = y;	te[ 9 ] = b;	te[ 13 ] = 0;
+		te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = c;	te[ 14 ] = d;
 		te[ 3 ] = 0;	te[ 7 ] = 0;	te[ 11 ] = - 1;	te[ 15 ] = 0;
 
 		return this;
@@ -6713,10 +6713,10 @@ class Matrix4 {
 
 		}
 
-		te[ 0 ] = 2 * w;	te[ 4 ] = 0;		te[ 8 ] = 0; 		te[ 12 ] = - x;
-		te[ 1 ] = 0; 		te[ 5 ] = 2 * h;	te[ 9 ] = 0; 		te[ 13 ] = - y;
-		te[ 2 ] = 0; 		te[ 6 ] = 0;		te[ 10 ] = zInv;	te[ 14 ] = - z;
-		te[ 3 ] = 0; 		te[ 7 ] = 0;		te[ 11 ] = 0;		te[ 15 ] = 1;
+		te[ 0 ] = 2 * w;	te[ 4 ] = 0;		te[ 8 ] = 0;		te[ 12 ] = - x;
+		te[ 1 ] = 0;		te[ 5 ] = 2 * h;	te[ 9 ] = 0;		te[ 13 ] = - y;
+		te[ 2 ] = 0;		te[ 6 ] = 0;		te[ 10 ] = zInv;	te[ 14 ] = - z;
+		te[ 3 ] = 0;		te[ 7 ] = 0;		te[ 11 ] = 0;		te[ 15 ] = 1;
 
 		return this;
 
@@ -18215,30 +18215,30 @@ class DepthTexture extends Texture {
  *
  * .setValue( gl, value, [textures] )
  *
- * 		uploads a uniform value(s)
- *  	the 'textures' parameter is needed for sampler uniforms
+ *		uploads a uniform value(s)
+ * 	the 'textures' parameter is needed for sampler uniforms
  *
  *
  * Static methods of the top-level container (textures factorizations):
  *
  * .upload( gl, seq, values, textures )
  *
- * 		sets uniforms in 'seq' to 'values[id].value'
+ *		sets uniforms in 'seq' to 'values[id].value'
  *
  * .seqWithValue( seq, values ) : filteredSeq
  *
- * 		filters 'seq' entries with corresponding entry in values
+ *		filters 'seq' entries with corresponding entry in values
  *
  *
  * Methods of the top-level container (textures factorizations):
  *
  * .setValue( gl, name, value, textures )
  *
- * 		sets uniform with  name 'name' to 'value'
+ *		sets uniform with  name 'name' to 'value'
  *
  * .setOptional( gl, obj, prop )
  *
- * 		like .set for an optional property of the object
+ *		like .set for an optional property of the object
  *
  */
 
@@ -19209,7 +19209,7 @@ class StructuredUniform {
 const RePathPart = /(\w+)(\])?(\[|\.)?/g;
 
 // extracts
-// 	- the identifier (member name or array index)
+//	- the identifier (member name or array index)
 //  - followed by an optional right bracket (found when array index)
 //  - followed by an optional left bracket or dot (type of subscript)
 //
@@ -37366,18 +37366,18 @@ class DodecahedronGeometry extends PolyhedronGeometry {
 		];
 
 		const indices = [
-			3, 11, 7, 	3, 7, 15, 	3, 15, 13,
-			7, 19, 17, 	7, 17, 6, 	7, 6, 15,
-			17, 4, 8, 	17, 8, 10, 	17, 10, 6,
-			8, 0, 16, 	8, 16, 2, 	8, 2, 10,
-			0, 12, 1, 	0, 1, 18, 	0, 18, 16,
-			6, 10, 2, 	6, 2, 13, 	6, 13, 15,
-			2, 16, 18, 	2, 18, 3, 	2, 3, 13,
-			18, 1, 9, 	18, 9, 11, 	18, 11, 3,
-			4, 14, 12, 	4, 12, 0, 	4, 0, 8,
-			11, 9, 5, 	11, 5, 19, 	11, 19, 7,
-			19, 5, 14, 	19, 14, 4, 	19, 4, 17,
-			1, 12, 14, 	1, 14, 5, 	1, 5, 9
+			3, 11, 7,	3, 7, 15,	3, 15, 13,
+			7, 19, 17,	7, 17, 6,	7, 6, 15,
+			17, 4, 8,	17, 8, 10,	17, 10, 6,
+			8, 0, 16,	8, 16, 2,	8, 2, 10,
+			0, 12, 1,	0, 1, 18,	0, 18, 16,
+			6, 10, 2,	6, 2, 13,	6, 13, 15,
+			2, 16, 18,	2, 18, 3,	2, 3, 13,
+			18, 1, 9,	18, 9, 11,	18, 11, 3,
+			4, 14, 12,	4, 12, 0,	4, 0, 8,
+			11, 9, 5,	11, 5, 19,	11, 19, 7,
+			19, 5, 14,	19, 14, 4,	19, 4, 17,
+			1, 12, 14,	1, 14, 5,	1, 5, 9
 		];
 
 		super( vertices, indices, radius, detail );
@@ -39330,16 +39330,16 @@ class IcosahedronGeometry extends PolyhedronGeometry {
 		const t = ( 1 + Math.sqrt( 5 ) ) / 2;
 
 		const vertices = [
-			- 1, t, 0, 	1, t, 0, 	- 1, - t, 0, 	1, - t, 0,
-			0, - 1, t, 	0, 1, t,	0, - 1, - t, 	0, 1, - t,
-			t, 0, - 1, 	t, 0, 1, 	- t, 0, - 1, 	- t, 0, 1
+			- 1, t, 0,	1, t, 0,	- 1, - t, 0,	1, - t, 0,
+			0, - 1, t,	0, 1, t,	0, - 1, - t,	0, 1, - t,
+			t, 0, - 1,	t, 0, 1,	- t, 0, - 1,	- t, 0, 1
 		];
 
 		const indices = [
-			0, 11, 5, 	0, 5, 1, 	0, 1, 7, 	0, 7, 10, 	0, 10, 11,
-			1, 5, 9, 	5, 11, 4,	11, 10, 2,	10, 7, 6,	7, 1, 8,
-			3, 9, 4, 	3, 4, 2,	3, 2, 6,	3, 6, 8,	3, 8, 9,
-			4, 9, 5, 	2, 4, 11,	6, 2, 10,	8, 6, 7,	9, 8, 1
+			0, 11, 5,	0, 5, 1,	0, 1, 7,	0, 7, 10,	0, 10, 11,
+			1, 5, 9,	5, 11, 4,	11, 10, 2,	10, 7, 6,	7, 1, 8,
+			3, 9, 4,	3, 4, 2,	3, 2, 6,	3, 6, 8,	3, 8, 9,
+			4, 9, 5,	2, 4, 11,	6, 2, 10,	8, 6, 7,	9, 8, 1
 		];
 
 		super( vertices, indices, radius, detail );
@@ -39366,8 +39366,8 @@ class OctahedronGeometry extends PolyhedronGeometry {
 	constructor( radius = 1, detail = 0 ) {
 
 		const vertices = [
-			1, 0, 0, 	- 1, 0, 0,	0, 1, 0,
-			0, - 1, 0, 	0, 0, 1,	0, 0, - 1
+			1, 0, 0,	- 1, 0, 0,	0, 1, 0,
+			0, - 1, 0,	0, 0, 1,	0, 0, - 1
 		];
 
 		const indices = [
@@ -39841,11 +39841,11 @@ class TetrahedronGeometry extends PolyhedronGeometry {
 	constructor( radius = 1, detail = 0 ) {
 
 		const vertices = [
-			1, 1, 1, 	- 1, - 1, 1, 	- 1, 1, - 1, 	1, - 1, - 1
+			1, 1, 1,	- 1, - 1, 1,	- 1, 1, - 1,	1, - 1, - 1
 		];
 
 		const indices = [
-			2, 1, 0, 	0, 3, 2,	1, 3, 0,	2, 3, 1
+			2, 1, 0,	0, 3, 2,	1, 3, 0,	2, 3, 1
 		];
 
 		super( vertices, indices, radius, detail );
@@ -41731,7 +41731,7 @@ const AnimationUtils = {
  *
  * References:
  *
- * 		http://www.oodesign.com/template-method-pattern.html
+ *		http://www.oodesign.com/template-method-pattern.html
  *
  */
 
@@ -41770,7 +41770,7 @@ class Interpolant {
 					//- See http://jsperf.com/comparison-to-undefined/3
 					//- slower code:
 					//-
-					//- 				if ( t >= t1 || t1 === undefined ) {
+					//-				if ( t >= t1 || t1 === undefined ) {
 					forward_scan: if ( ! ( t < t1 ) ) {
 
 						for ( let giveUpAt = i1 + 2; ; ) {
@@ -42068,7 +42068,7 @@ class CubicInterpolant extends Interpolant {
 			stride = this.valueSize,
 
 			o1 = i1 * stride,		o0 = o1 - stride,
-			oP = this._offsetPrev, 	oN = this._offsetNext,
+			oP = this._offsetPrev,	oN = this._offsetNext,
 			wP = this._weightPrev,	wN = this._weightNext,
 
 			p = ( t - t0 ) / ( t1 - t0 ),
@@ -49947,7 +49947,7 @@ class AnimationAction {
 
 			} else {
 
-				settings.endingEnd 	 = WrapAroundEnding;
+				settings.endingEnd	 = WrapAroundEnding;
 
 			}
 
@@ -50146,8 +50146,8 @@ class AnimationMixer extends EventDispatcher {
 		this._actionsByClip = {};
 		// inside:
 		// {
-		// 	knownActions: Array< AnimationAction > - used as prototypes
-		// 	actionByRoot: AnimationAction - lookup
+		//	knownActions: Array< AnimationAction > - used as prototypes
+		//	actionByRoot: AnimationAction - lookup
 		// }
 
 
@@ -51537,11 +51537,11 @@ class SpotLightHelper extends Object3D {
 		const geometry = new BufferGeometry();
 
 		const positions = [
-			0, 0, 0, 	0, 0, 1,
-			0, 0, 0, 	1, 0, 1,
+			0, 0, 0,	0, 0, 1,
+			0, 0, 0,	1, 0, 1,
 			0, 0, 0,	- 1, 0, 1,
-			0, 0, 0, 	0, 1, 1,
-			0, 0, 0, 	0, - 1, 1
+			0, 0, 0,	0, 1, 1,
+			0, 0, 0,	0, - 1, 1
 		];
 
 		for ( let i = 0, j = 1, l = 32; i < l; i ++, j ++ ) {
@@ -52110,7 +52110,7 @@ const _camera = /*@__PURE__*/ new Camera();
 /**
  *	- shows frustum, line of sight and up of the camera
  *	- suitable for fast updates
- * 	- based on frustum visualization in lightgl.js shadowmap example
+ *	- based on frustum visualization in lightgl.js shadowmap example
  *		https://github.com/evanw/lightgl.js/blob/master/tests/shadowmap.html
  */
 
@@ -52838,7 +52838,7 @@ class ShapePath {
 
 					}
 
-					if ( ( inPt.y < edgeLowPt.y ) || ( inPt.y > edgeHighPt.y ) ) 		continue;
+					if ( ( inPt.y < edgeLowPt.y ) || ( inPt.y > edgeHighPt.y ) )		continue;
 
 					if ( inPt.y === edgeLowPt.y ) {
 
@@ -52849,7 +52849,7 @@ class ShapePath {
 
 						const perpEdge = edgeDy * ( inPt.x - edgeLowPt.x ) - edgeDx * ( inPt.y - edgeLowPt.y );
 						if ( perpEdge === 0 )				return	true;		// inPt is on contour ?
-						if ( perpEdge < 0 ) 				continue;
+						if ( perpEdge < 0 )				continue;
 						inside = ! inside;		// true intersection left of inPt
 
 					}
@@ -52857,7 +52857,7 @@ class ShapePath {
 				} else {
 
 					// parallel or collinear
-					if ( inPt.y !== edgeLowPt.y ) 		continue;			// parallel
+					if ( inPt.y !== edgeLowPt.y )		continue;			// parallel
 					// edge lies on the same horizontal line as inPt
 					if ( ( ( edgeHighPt.x <= inPt.x ) && ( inPt.x <= edgeLowPt.x ) ) ||
 						 ( ( edgeLowPt.x <= inPt.x ) && ( inPt.x <= edgeHighPt.x ) ) )		return	true;	// inPt: Point on contour !

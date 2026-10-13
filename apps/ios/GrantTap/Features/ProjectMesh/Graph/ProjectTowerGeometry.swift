@@ -37,6 +37,7 @@ enum ProjectTowerGeometry {
         geometry.materials = colors.map { material(uiColor($0)) }
         let node = SCNNode(geometry: geometry)
         node.name = "tower:\(tower.id)"
+        node.categoryBitMask = 1
         node.position = SCNVector3(tower.x, 0, tower.z)
         return node
     }
@@ -47,7 +48,9 @@ enum ProjectTowerGeometry {
         let element = SCNGeometryElement(indices: points.indices.map(Int32.init), primitiveType: .line)
         let geometry = SCNGeometry(sources: [source], elements: [element])
         geometry.materials = [material(color, opacity: opacity)]
-        return SCNNode(geometry: geometry)
+        let node = SCNNode(geometry: geometry)
+        node.categoryBitMask = 2
+        return node
     }
 
     static func plate(_ plate: ProjectTowerPlate) -> SCNNode {
@@ -55,6 +58,7 @@ enum ProjectTowerGeometry {
         geometry.materials = [material(UIColor(red: 22/255, green: 27/255, blue: 38/255, alpha: 1),
                                        opacity: 0.92)]
         let node = SCNNode(geometry: geometry)
+        node.categoryBitMask = 2
         node.eulerAngles.x = -.pi / 2
         node.position = SCNVector3(plate.cx, 0.02, plate.cz)
         return node
@@ -66,6 +70,8 @@ enum ProjectTowerGeometry {
         text.flatness = 0.3
         text.materials = [material(color)]
         let node = SCNNode(geometry: text)
+        node.name = "label:\(value)"
+        node.categoryBitMask = 2
         node.scale = SCNVector3(0.34, 0.34, 0.34)
         node.position = SCNVector3(x, y, z)
         node.constraints = [SCNBillboardConstraint()]
