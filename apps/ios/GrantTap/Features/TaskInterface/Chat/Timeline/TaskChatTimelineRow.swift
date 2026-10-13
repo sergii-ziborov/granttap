@@ -20,7 +20,7 @@ extension TaskChatView {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(highlightedEntryId == entry.id ? accent.opacity(0.18) : .clear)
                 )
-                if !changes.isEmpty {
+                if !changes.isEmpty, entry.id != ChatFileChanges.currentReplyFinalId(entries: rootEntries) {
                     ChatFileChangesCard(files: changes, complete: entry.fileChangesComplete != false)
                         .padding(.horizontal, 6)
                 }

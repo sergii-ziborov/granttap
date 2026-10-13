@@ -58,10 +58,7 @@ extension AppModel {
             CapabilityUsageStore.shared.merge(status.events, sourceNamespace: room)
             CapabilityTotalsStore.shared.apply(status.totals, fromRoom: room)
         }
-        client.onImageChunk = { [weak self] chunk in
-            guard let self, self.acceptsSessionPayload(sessionId: chunk.sessionId, fromRoom: room) else { return }
-            self.replicaImageTransfer.receive(chunk, fromRoom: room)
-        }
+        attachReplicaReadCallbacks(client, room: room)
         client.onCapabilityCatalog = { status in
             CapabilityCatalogStore.shared.apply(status, fromRoom: room)
         }

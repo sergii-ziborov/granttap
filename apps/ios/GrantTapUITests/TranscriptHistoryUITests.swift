@@ -27,17 +27,17 @@ final class TranscriptHistoryUITests: XCTestCase {
         XCTAssertTrue(first.isHittable)
         XCTAssertFalse(app.buttons["chat.history.more"].exists)
         app.buttons["chat.jumpToLatest"].tap()
-        XCTAssertTrue(app.buttons["chat.changes.review"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["chat.work.files"].waitForExistence(timeout: 5))
     }
 
     func testChangedFilesExpandAndOpenDiff() {
         continueAfterFailure = false
         let app = launch()
-        let review = app.buttons["chat.changes.review"]
+        let review = app.buttons["chat.work.files"]
         XCTAssertTrue(review.waitForExistence(timeout: 15))
         for _ in 0..<8 where !review.isHittable { app.swipeUp() }
         review.tap()
-        let file = app.buttons["chat.changes.file./demo/file-7.swift"]
+        let file = app.buttons["chat.files.modified./demo/file-7.swift"]
         for _ in 0..<8 where !file.isHittable { app.swipeUp() }
         XCTAssertTrue(file.isHittable)
         file.tap()
@@ -56,12 +56,12 @@ final class TranscriptHistoryUITests: XCTestCase {
         XCTAssertLessThanOrEqual(long.frame.maxX, scroll.frame.maxX + 2)
         XCTAssertLessThan(short.frame.minX, initialX - 100)
         scroll.swipeRight()
-        app.buttons["Done"].tap()
-        XCTAssertTrue(review.waitForExistence(timeout: 5))
+        app.navigationBars["file-7.swift"].buttons["Done"].tap()
+        XCTAssertTrue(file.waitForExistence(timeout: 5))
         file.tap()
         XCTAssertTrue(short.waitForExistence(timeout: 5))
         XCTAssertEqual(short.frame.minX, initialX, accuracy: 2, "Reopening must restore the start of the file.")
-        app.buttons["Done"].tap()
+        app.navigationBars["file-7.swift"].buttons["Done"].tap()
     }
 
     func testCommandDetailsShowResourcesAndQualifyTokenAndCpuEstimates() {

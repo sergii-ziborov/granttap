@@ -21,3 +21,9 @@ progress indicator and explicit rebuild can be retried after a failed request.
 Explicit analysis responses carry a request receipt. Every controller waiting on
 the same coalesced build receives its own receipt. Routine cached reports cannot
 acknowledge an explicit rebuild; local Mac requests complete from their own RPC.
+
+Only real `COMPLETE`/`INCOMPLETE` analysis qualifies as architecture evidence.
+Legacy placeholders trigger an automatic build. Git source revision is separate
+from the Weavatrix content fingerprint. Mixed successful and unavailable
+repositories are reported as partial. Transport receipts and request waiting
+have deadlines; a matching late analysis can replace a timed-out request.

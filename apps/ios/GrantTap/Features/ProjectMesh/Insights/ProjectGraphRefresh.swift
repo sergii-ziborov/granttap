@@ -54,11 +54,13 @@ struct ProjectGraphRequest: Equatable {
     var result: ProjectGraphRefreshResult = .requested
 
     func receiving(_ snapshot: ProjectMeshSnapshot) -> Self {
-        guard pending, snapshot.graphAnalysisRequestId == requestId, snapshot.repositoryGraphs != nil else { return self }
+        guard (pending || result == .failed), snapshot.graphAnalysisRequestId == requestId,
+              snapshot.repositoryGraphs != nil else { return self }
         var next = self
         next.pending = false
-        next.result = ProjectInsightReports.reports(snapshot).contains { $0.analysisStatus != "UNAVAILABLE" }
-            ? .completed : .failed
+        let reports = ProjectInsightReports.reports(snapshot)
+        let valid = reports.filter(ProjectInsightReports.isAnalyzed).count
+        next.result = valid == 0 ? .failed : valid == reports.count ? .completed : .partial
         return next
     }
 }

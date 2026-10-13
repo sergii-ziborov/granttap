@@ -17,8 +17,9 @@ final class ProjectArchitectureInfoUITests: XCTestCase {
         open.tap()
         let info = app.buttons["architecture.info"]
         XCTAssertTrue(info.waitForExistence(timeout: 10))
-        XCTAssertTrue(graphIsVisible(app), "The graph must draw coloured components before inspection")
+        let graphVisible = graphIsVisible(app)
         capture(app, "Architecture graph overview")
+        XCTAssertTrue(graphVisible, "The graph must draw coloured components before inspection")
         info.tap()
         XCTAssertTrue(app.staticTexts["How to read this graph"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["demo-revision"].exists)
@@ -61,7 +62,10 @@ final class ProjectArchitectureInfoUITests: XCTestCase {
                 for x in 0..<width {
                     let offset = (y * width + x) * 4
                     let red = Int(pixels[offset]), green = Int(pixels[offset + 1]), blue = Int(pixels[offset + 2])
-                    if green > red + 25 && green > blue + 25 { coloured += 1 }
+                    // The dark palette's green is deliberately muted. Both
+                    // palettes must show a distinct green component, while
+                    // neutral backgrounds and labels remain excluded.
+                    if green > red + 12 && green > blue + 25 { coloured += 1 }
                 }
             }
             if coloured > 100 { return true }

@@ -1,12 +1,32 @@
 import SwiftUI
 
 enum ChatFileChanges {
+    static func currentReplyFinalId(entries: [ActivityEntry]) -> String? {
+        guard !entries.isEmpty else { return nil }
+        let start = entries.lastIndex(where: { $0.kind == "user" }) ?? 0
+        return entries[start...].last(where: { $0.kind == "final" })?.id
+    }
+
+    static func currentReply(entries: [ActivityEntry]) -> [RecordedFileChange] {
+        guard !entries.isEmpty else { return [] }
+        let start = entries.lastIndex(where: { $0.kind == "user" }) ?? 0
+        let reply = Array(entries[start...])
+        if let final = reply.last(where: { $0.kind == "final" }) {
+            return endingAt(final.id, entries: reply)
+        }
+        return coalesced(reply.flatMap { $0.fileChanges ?? [] })
+    }
+
     static func endingAt(_ finalId: String, entries: [ActivityEntry]) -> [RecordedFileChange] {
         guard let end = entries.firstIndex(where: { $0.id == finalId }) else { return [] }
         if let reported = entries[end].fileChanges { return reported }
         let start = entries[..<end].lastIndex(where: { $0.kind == "user" }) ?? 0
         let edits = entries[start...end].flatMap { $0.fileChanges ?? [] }
-        return Dictionary(grouping: edits, by: \.path).map { path, edits in
+        return coalesced(edits)
+    }
+
+    private static func coalesced(_ changes: [RecordedFileChange]) -> [RecordedFileChange] {
+        Dictionary(grouping: changes, by: \.path).map { path, edits in
             RecordedFileChange(path: path,
                 linesAdded: edits.reduce(0) { $0 + $1.linesAdded },
                 linesRemoved: edits.reduce(0) { $0 + $1.linesRemoved },

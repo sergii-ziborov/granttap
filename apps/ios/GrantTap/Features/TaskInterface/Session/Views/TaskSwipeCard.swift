@@ -23,11 +23,11 @@ struct TaskSwipeCard<Content: View>: View {
     var body: some View {
         ZStack(alignment: .trailing) {
             HStack(spacing: 0) {
-                action(L("Send"), icon: "arrowshape.turn.up.right", color: Theme.codex) {
+                action(L("Send"), icon: "arrowshape.turn.up.right", color: Theme.actionFill, ink: .white) {
                     revealed = nil
                     send()
                 }
-                action(L("Archive"), icon: "archivebox", color: Theme.muted) {
+                action(L("Archive"), icon: "archivebox", color: Theme.surface, ink: Theme.ink) {
                     revealed = nil
                     archive()
                 }
@@ -63,14 +63,14 @@ struct TaskSwipeCard<Content: View>: View {
         }
     }
 
-    private func action(_ title: String, icon: String, color: Color,
+    private func action(_ title: String, icon: String, color: Color, ink: Color,
                         perform: @escaping () -> Void) -> some View {
         Button(action: perform) {
             VStack(spacing: 5) {
                 Image(systemName: icon).font(.system(size: 18, weight: .medium))
                 Text(title).font(.system(size: 11, weight: .semibold))
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(ink)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(color)
         }

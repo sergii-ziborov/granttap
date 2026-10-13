@@ -25,7 +25,9 @@ their metadata. Cleanup replaces the SQLite rows within a transaction so a
 restart cannot lose the saved catalog between deleting and rewriting the file.
 
 Pictures use the existing authenticated, task-encrypted transport, in bounded
-chunks. Original validated bytes are retained in Application Support, scoped by
+chunks. Already known pictures enter that queue even while older transcript
+pages remain pending, so a long history cannot block offline picture storage.
+Original validated bytes are retained in Application Support, scoped by
 computer and conversation. Fetched Mesh snapshots and their routes also remain
 on device. No model call or agent-authored report participates in replication.
 

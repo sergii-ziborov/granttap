@@ -70,6 +70,7 @@ extension AppModel {
             questions = []
         }
         AttachmentPreviewFixture.applyScrollCapture(to: self, at: now)
+        ChatActivityRailFixture.apply(to: self, at: now)
         #endif
         agentIntegrations = [
             AgentIntegrationInfo(agent: "codex", installed: true, hookConfigured: true),

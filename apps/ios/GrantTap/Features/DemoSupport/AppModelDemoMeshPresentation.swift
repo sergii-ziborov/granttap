@@ -15,6 +15,7 @@ extension AppModel {
         }
         TurnModelPickerFixture.apply(to: self, at: now)
         RepositoryCatalogFixture.apply(to: self, at: now)
+        GraphBuildFixture.apply(to: self, mesh: &mesh, at: now)
         #endif
     }
 }

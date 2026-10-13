@@ -6,8 +6,6 @@ import WebKit
 struct ProjectGraphView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
-    private var pending: Bool { model.projectGraphRequests[snapshot.projectId]?.pending == true }
-    private var feedback: String? { model.projectGraphRequests[snapshot.projectId]?.result.message }
     #if targetEnvironment(macCatalyst)
     @State private var macMode: MacGraphMode = .components
     @State private var selectedRepositoryId: String?
@@ -44,19 +42,11 @@ struct ProjectGraphView: View {
     @ViewBuilder private var graphContent: some View {
         #if targetEnvironment(macCatalyst)
         VStack(spacing: 0) {
-            HStack {
-                Text(String(format: L("%d repository reports in this Mesh"), reports.count))
-                if reports.contains(where: \.truncated) { Text(L("Partial graph")) }
-                Spacer()
-                buildButton
-            }
-            .font(.caption).padding(.horizontal)
+            buildCard.padding()
             Picker(L("Graph view"), selection: $macMode) {
                 ForEach(MacGraphMode.allCases) { mode in Text(mode.title).tag(mode) }
             }
             .pickerStyle(.segmented).padding(.horizontal)
-            if let feedback { Text(feedback).font(.caption).foregroundStyle(Theme.muted) }
-            if pending { ProgressView(L("Building architecture…")).accessibilityIdentifier("project.graph.progress") }
             switch macMode {
             case .components: macComponents
             case .repositories: ProjectRepositoryNetworkView(snapshot: currentSnapshot)
@@ -71,21 +61,13 @@ struct ProjectGraphView: View {
                     }
                 } else if reports.contains(where: { !$0.nodes.isEmpty || $0.codeMap?.files.isEmpty == false }) {
                     MeshCyberboardView(reports: reports, failed: $webFailed)
-                } else { ScrollView { emptyState.padding() } }
+                } else { Spacer(minLength: 0) }
             }
         }
         #else
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 18) {
-                if reports.isEmpty {
-                    emptyState
-                } else {
-                    buildButton
-                }
-                if let feedback {
-                    Text(feedback).font(.caption).foregroundStyle(pending ? Theme.muted : .orange)
-                }
-                if pending { ProgressView(L("Building architecture…")).accessibilityIdentifier("project.graph.progress") }
+                buildCard
                 ForEach(reports) { report in
                     ProjectArchitectureDiagram(
                         report: report,
@@ -97,6 +79,7 @@ struct ProjectGraphView: View {
             }
             .padding()
         }
+        .refreshable { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
         #endif
     }
 
@@ -104,7 +87,6 @@ struct ProjectGraphView: View {
     private var macComponents: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                if reports.isEmpty { emptyState }
                 if let report = reports.first(where: {
                     $0.repositoryId == selectedRepositoryId && !$0.nodes.isEmpty
                 }) ?? reports.first(where: { !$0.nodes.isEmpty }) {
@@ -135,31 +117,13 @@ struct ProjectGraphView: View {
     }
     #endif
 
-    private var emptyState: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label(L("Architecture unavailable"), systemImage: "point.3.connected.trianglepath.dotted")
-                .font(.headline)
-            Text(L("No repository architecture report is available in this Mesh yet. Build it on a linked computer to see components and evidenced relations."))
-                .foregroundStyle(Theme.muted)
-            if currentSnapshot.backbone?.nodes.isEmpty == false {
-                Text(L("Mesh Backbone is present, but it does not replace a repository architecture analysis."))
-                    .font(.caption).foregroundStyle(Theme.muted)
-            }
-            buildButton
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(18)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18))
-    }
-
-    private var buildButton: some View {
-        Button {
+    private var buildCard: some View {
+        ProjectGraphBuildCard(
+            request: model.projectGraphRequests[snapshot.projectId], reports: reports,
+            needsAnalysis: ProjectInsightReports.needsAnalysis(currentSnapshot)
+        ) {
             Task { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
-        } label: {
-            Label(L("Build architecture now"), systemImage: "arrow.clockwise")
         }
-        .disabled(pending)
-        .accessibilityIdentifier("project.graph.analyze")
     }
 }
 

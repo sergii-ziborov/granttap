@@ -121,6 +121,7 @@ struct AgentThreadTranscript: View {
                 .contentShape(Rectangle())
             }
             .pointerButtonStyle()
+            .accessibilityIdentifier("thread.open.\(thread.threadId)")
 
             if expanded {
                 Divider().overlay(Theme.line).padding(.vertical, 10)

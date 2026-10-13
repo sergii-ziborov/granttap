@@ -3,8 +3,6 @@ import SwiftUI
 struct ProjectMeshStatusView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
-    private var refreshing: Bool { model.projectGraphRequests[snapshot.projectId]?.pending == true }
-    @State private var toast: String?
     @State private var towerReport: ProjectRepositoryGraph?
 
     private var currentSnapshot: ProjectMeshSnapshot {
@@ -33,66 +31,7 @@ struct ProjectMeshStatusView: View {
                         .font(.caption).foregroundStyle(.orange)
                 }
             }
-            Section(L("Weavatrix architecture")) {
-                let repositoryIds = Set(bindings.map(\.repositoryId)
-                    + [snapshot.project.canonicalRepositoryId]).sorted()
-                ForEach(repositoryIds, id: \.self) { repositoryId in
-                    let report = ProjectHealthDiagnostics.graphReport(
-                        for: repositoryId, snapshot: snapshot
-                    )
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(ProjectRepositories.repositoryLeaf(repositoryId))
-                        if repositoryIds.filter({ ProjectRepositories.repositoryLeaf($0)
-                            == ProjectRepositories.repositoryLeaf(repositoryId) }).count > 1 {
-                            Text(repositoryId).font(.caption2).foregroundStyle(Theme.muted)
-                        }
-                        Text(graphDetail(report))
-                            .font(.caption).foregroundStyle(report?.analysisStatus == "COMPLETE" ? Theme.muted : .orange)
-                        if let report, report.analysisStatus != "UNAVAILABLE" {
-                            Text("Weavatrix \(report.weavatrixVersion) · \(report.revision.prefix(12))")
-                                .font(.caption2).foregroundStyle(Theme.muted)
-                            if let map = report.codeMap, !map.files.isEmpty {
-                                Text("\(map.files.count)/\(map.totalFiles) \(L("files")) · \(map.roads.count) \(L("relations"))")
-                                    .font(.caption2).foregroundStyle(Theme.muted)
-                                if map.truncated {
-                                    Text(L("Partial map"))
-                                        .font(.caption2).foregroundStyle(.orange)
-                                }
-                            }
-                            if report.codeMap?.files.isEmpty == false {
-                                Button {
-                                    towerReport = report
-                                } label: {
-                                    Label(L("Open code towers full screen"),
-                                          systemImage: "building.2.crop.circle")
-                                }
-                                .accessibilityIdentifier("health.code-towers.\(repositoryId)")
-                            } else {
-                                Text(L("Code towers have not been reported. Rebuild architecture on an updated computer."))
-                                    .font(.caption).foregroundStyle(.orange)
-                            }
-                        }
-                    }
-                }
-                Button {
-                    Task {
-                        toast = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId).message
-                    }
-                } label: {
-                    HStack {
-                        Label(L("Build or refresh code towers"), systemImage: "arrow.clockwise")
-                        if refreshing { ProgressView() }
-                    }
-                }
-                .disabled(refreshing)
-                .accessibilityIdentifier("health.code-towers.refresh")
-                if let request = model.projectGraphRequests[snapshot.projectId] {
-                    Text(request.result.message).font(.caption).foregroundStyle(Theme.muted)
-                }
-                NavigationLink(L("Open graph and analysis status")) {
-                    ProjectGraphView(snapshot: snapshot, model: model)
-                }
-            }
+            architectureSection
             Section(L("Policy and execution")) {
                 if let policy = model.projectGovernance[snapshot.projectId] {
                     CompatLabeledContent(L("Reported policy revision"), value: "\(policy.revision)")
@@ -164,7 +103,6 @@ struct ProjectMeshStatusView: View {
             }
         }
         .pageNavigationTitle(L("Health"))
-        .transientToast($toast)
         .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
         .refreshable { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
         .fullScreenCover(item: $towerReport) { report in
@@ -175,6 +113,68 @@ struct ProjectMeshStatusView: View {
                                                                  in: currentSnapshot),
                     map: map
                 )
+            }
+        }
+    }
+
+    @ViewBuilder private var architectureSection: some View {
+        let snapshot = currentSnapshot
+        Section(L("Weavatrix architecture")) {
+            ProjectGraphBuildCard(
+                request: model.projectGraphRequests[snapshot.projectId],
+                reports: ProjectInsightReports.reports(snapshot),
+                needsAnalysis: ProjectInsightReports.needsAnalysis(snapshot),
+                actionIdentifier: "health.code-towers.refresh"
+            ) {
+                Task { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            NavigationLink {
+                ProjectGraphView(snapshot: snapshot, model: model)
+            } label: {
+                Label(L("Open graph and analysis status"),
+                      systemImage: "point.3.connected.trianglepath.dotted")
+            }
+            let repositoryIds = Set(bindings.map(\.repositoryId)
+                + [snapshot.project.canonicalRepositoryId]).sorted()
+            ForEach(repositoryIds, id: \.self) { repositoryId in
+                let report = ProjectHealthDiagnostics.graphReport(
+                    for: repositoryId, snapshot: snapshot
+                )
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(ProjectRepositories.repositoryLeaf(repositoryId))
+                    if repositoryIds.filter({ ProjectRepositories.repositoryLeaf($0)
+                        == ProjectRepositories.repositoryLeaf(repositoryId) }).count > 1 {
+                        Text(repositoryId).font(.caption2).foregroundStyle(Theme.muted)
+                    }
+                    Text(graphDetail(report))
+                        .font(.caption).foregroundStyle(report?.analysisStatus == "COMPLETE" ? Theme.muted : .orange)
+                    if let report, report.analysisStatus != "UNAVAILABLE" {
+                        Text("Weavatrix \(report.weavatrixVersion) · \(report.revision.prefix(12))")
+                            .font(.caption2).foregroundStyle(Theme.muted)
+                        if let map = report.codeMap, !map.files.isEmpty {
+                            Text("\(map.files.count)/\(map.totalFiles) \(L("files")) · \(map.roads.count) \(L("relations"))")
+                                .font(.caption2).foregroundStyle(Theme.muted)
+                            if map.truncated {
+                                Text(L("Partial map"))
+                                    .font(.caption2).foregroundStyle(.orange)
+                            }
+                        }
+                        if report.codeMap?.files.isEmpty == false {
+                            Button {
+                                towerReport = report
+                            } label: {
+                                Label(L("Open code towers full screen"),
+                                      systemImage: "building.2.crop.circle")
+                            }
+                            .accessibilityIdentifier("health.code-towers.\(repositoryId)")
+                        } else {
+                            Text(L("Code towers have not been reported. Rebuild architecture on an updated computer."))
+                                .font(.caption).foregroundStyle(.orange)
+                        }
+                    }
+                }
             }
         }
     }

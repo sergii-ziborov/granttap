@@ -1,5 +1,7 @@
 # Project Mesh
 
+[public source](https://github.com/sergii-ziborov/granttap) · [Graph interface](Graph/ProjectGraphView.swift)
+
 Project Mesh is the Apple client coordination layer above native coding-agent
 sessions. It keeps a stable Project and Task identity while Claude Code,
 Codex, Cursor, or Grok Build executions move between computers.
@@ -114,3 +116,11 @@ counts; the report information sheet explains colours, revision, versions and
 partial scope. COMPLETE describes analysis inputs, not universal dependency
 knowledge. Received reports remain available through the offline replica.
 Camera framing and information-sheet navigation are covered by feature tests.
+
+Graph and Health share `ProjectGraphBuildCard`: an empty report has a prominent
+build action, a pending request has one contained progress indicator, and a
+failed or disconnected request has an enabled retry action. Received reports
+remain inspectable during a refresh. The information sheet explains analysis on
+linked computers, repository revision checks, confirmed report receipt and
+offline access. The synthetic `ProjectGraphBuildUITests` exercise these states
+through the normal Mesh navigation in light and dark appearances.

@@ -131,6 +131,8 @@ extension RelayClient {
             return deliver(SessionActivity.self, plain, to: onActivity)
         case "session.image.chunk":
             return deliver(SessionImageChunk.self, plain, to: onImageChunk) { $0.isWellFormed }
+        case "session.workspace.result":
+            return deliver(TaskWorkspaceSnapshot.self, plain, to: onWorkspaceResult) { $0.isWellFormed }
         case "capability.usage.status": return deliver(CapabilityUsageStatus.self, plain, to: onCapabilityUsage)
         case "capability.catalog.status": return deliver(CapabilityCatalogStatus.self, plain, to: onCapabilityCatalog)
         case "session.compact.result": return deliver(SessionCompactResult.self, plain, to: onCompactResult)

@@ -19,6 +19,7 @@ enum Theme {
     static let line    = dynamic(light: hex(0xDED8CE), dark: hex(0x2E3239))
     static let disabledFill = dynamic(light: hex(0xDED8CE), dark: hex(0x343840))
     static let disabledInk  = dynamic(light: hex(0x5E5A52), dark: hex(0xC4C7CD))
+    static let actionFill   = dynamic(light: hex(0x151515), dark: hex(0x42464E))
 
     // MARK: agent identity
 

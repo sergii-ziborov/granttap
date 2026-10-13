@@ -138,7 +138,7 @@ extension TaskChatView {
 
     @ViewBuilder
     func agentThreads(_ proxy: ScrollViewProxy) -> some View {
-        if !childThreads.isEmpty {
+        if !childThreads.isEmpty && agentThreadsAreOpen {
             let open = agentThreadsAreOpen
             Button {
                 agentThreadsExpanded.toggle()
@@ -195,6 +195,8 @@ extension TaskChatView {
                 chatFocused = true
             }
             .environmentObject(model)
+            ChatActivityRail(model: model, session: currentSession,
+                             entries: entries, threads: childThreads)
             composer
         }
     }

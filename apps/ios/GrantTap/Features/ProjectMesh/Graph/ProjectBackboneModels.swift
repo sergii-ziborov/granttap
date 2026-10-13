@@ -52,6 +52,7 @@ struct ProjectRepositoryGraph: Codable, Equatable, Identifiable {
     let repositoryId: String
     let revision: String
     let weavatrixVersion: String
+    var sourceRevision: String? = nil
     var analysisId: String? = nil
     var analysisStatus: String? = nil
     var analysisErrorCode: String? = nil

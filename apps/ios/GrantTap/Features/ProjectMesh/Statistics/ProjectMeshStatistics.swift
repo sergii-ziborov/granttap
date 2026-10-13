@@ -31,7 +31,7 @@ struct ProjectMeshStatistics: Equatable {
     }
 
     static func make(_ snapshot: ProjectMeshSnapshot) -> ProjectMeshStatistics {
-        let reports = ProjectInsightReports.reports(snapshot).filter { $0.analysisStatus != "UNAVAILABLE" }
+        let reports = ProjectInsightReports.reports(snapshot).filter(ProjectInsightReports.isAnalyzed)
         let graphNodes = (snapshot.backbone?.nodes.count ?? 0)
             + reports.reduce(0) { $0 + $1.totalNodes }
         let graphRelations = (snapshot.backbone?.relations.count ?? 0)

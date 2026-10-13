@@ -10,6 +10,8 @@ Now and Tasks use the same `TaskSwipeCard`: swipe left on a Task to reveal
 list and the existing Hidden tasks view restores them. Send opens the Project
 Mesh handoff sheet for the current owner. A context menu exposes the same
 actions for pointer and keyboard users.
+Revealed actions use semantic action/surface colours with contrasting labels in
+both appearances; provider glyph colours never supply the Send background.
 
 On Mac, Settings is selected in the sidebar and uses the main navigation
 stack, including its child pages. `SettingsView` owns the shared content;

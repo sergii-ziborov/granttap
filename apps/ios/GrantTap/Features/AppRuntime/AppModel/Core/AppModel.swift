@@ -49,6 +49,7 @@ final class AppModel: ObservableObject {
     var replicaImageTask: Task<Void, Never>?
     var replicaGeneration = UUID()
     let replicaImageTransfer = ReplicaImageTransfer()
+    let taskWorkspaceReads = TaskWorkspaceReadBroker()
     var replicaImageRetryAt: [String: TimeInterval] = [:]
     @Published var providerHookReviews: [String: ProviderHookReviewProgress] = [:]
     @Published var agentIntegrations: [AgentIntegrationInfo] = []

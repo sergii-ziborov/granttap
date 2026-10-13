@@ -28,9 +28,8 @@ extension AppModel {
         let requests = transcriptBackfill.next(activeIds: Set(active.keys), activities: activities,
                                                available: available,
                                                versions: active.mapValues(\.lastActivityAt), now: now)
-        if requests.isEmpty {
-            for id in available { if let saved = activities[id] { enqueueReplicaImages(saved) } }
-        }
+        // Saved pictures must not wait for a long transcript backlog to finish.
+        for id in available { if let saved = activities[id] { enqueueReplicaImages(saved) } }
         for request in requests {
             #if targetEnvironment(macCatalyst)
             if let session = active[request.sessionId], usesLocalMCP(for: session),

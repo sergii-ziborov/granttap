@@ -169,6 +169,37 @@ final class ReplicaIntegrationTests: XCTestCase {
         XCTAssertTrue(model.replicaImageReads.isEmpty)
     }
 
+    func testCachedPicturesPrefetchWhileOlderTranscriptPagesRemainPending() async throws {
+        let (model, client) = connectedModel()
+        defer {
+            client.disconnect(); model.replicaImageTask?.cancel()
+            model.replicaImageTransfer.cancel(); ReplicaImageStore.shared.clear()
+        }
+        model.sessions = [chat("cached-first"), chat("second")]
+        for session in model.sessions {
+            model.rememberSessionSourceRoom(client.pairing.room, sessionId: session.sessionId)
+        }
+        model.activities = ["cached-first": pictureActivity("cached-first")]
+        model.syncOfflineConversations()
+        XCTAssertEqual(model.transcriptBackfill.pending.count, 2)
+        guard let request = try? await pendingImage(client) else {
+            XCTFail("Cached pictures must start downloading while transcript requests remain pending")
+            return
+        }
+        XCTAssertEqual(request.sessionId, "cached-first")
+        model.replicaImageTransfer.receive(.init(type: "session.image.chunk", sessionId: request.sessionId,
+            requestId: request.requestId, imageId: request.imageId, offset: 0, mimeType: "image/png",
+            totalBytes: png.count, dataBase64: png.base64EncodedString(), unavailable: nil), fromRoom: client.pairing.room)
+        for _ in 0..<500 where model.cachedMessageImage(sessionId: request.sessionId, imageId: request.imageId) == nil {
+            await Task.yield()
+        }
+        XCTAssertEqual(model.cachedMessageImage(sessionId: request.sessionId, imageId: request.imageId), png)
+        XCTAssertEqual(model.transcriptBackfill.pending.count, 2)
+        model.relaysByRoom = [:]
+        let offline = try await model.messageImageData(sessionId: request.sessionId, imageId: request.imageId)
+        XCTAssertEqual(offline, png)
+    }
+
     func testEncryptedPictureReplyIsValidatedThenSavedForOfflineUse() async throws {
         let (model, client) = connectedModel()
         defer { client.disconnect(); model.replicaImageTransfer.cancel(); ReplicaImageStore.shared.clear() }

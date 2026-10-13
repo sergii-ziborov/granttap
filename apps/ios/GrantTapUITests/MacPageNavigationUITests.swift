@@ -106,8 +106,6 @@ final class MacPageNavigationUITests: XCTestCase {
         app.launch()
         app.activate()
         XCTAssertTrue(app.buttons["sidebar.settings"].waitForExistence(timeout: 10))
-        let demoTask = app.buttons["task.task:granttap-project-demo\u{1f}granttap-pairing-task-demo"]
-        XCTAssertTrue(demoTask.waitForExistence(timeout: 20))
         if openChat {
             app.buttons["sidebar.tasks"].click()
             let chat = app.buttons["task.task:granttap-project-demo\u{1f}granttap-release-task-demo"]

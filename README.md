@@ -56,16 +56,17 @@ lapses.
 </p>
 
 <p align="center">
-  <img src="docs/images/mac-now.jpg" width="420" alt="GrantTap Now on Mac with sample tasks">
-  <img src="docs/images/mac-task.jpg" width="420" alt="GrantTap Task conversation on Mac">
+  <img src="docs/images/mac-now.png" width="420" alt="GrantTap Now on Mac with sample tasks">
+  <img src="docs/images/mac-task.png" width="420" alt="GrantTap Task conversation on Mac">
 </p>
 
 <p align="center"><em>Current iPhone, Mac and Apple Watch screens with deterministic sample tasks; no private user work is shown. The Mac images are from the signed SwiftUI Catalyst app.</em></p>
 
 The [Mac guide](apps/macos/README.md) explains local MCP authorization,
 Account Mesh and direct QR pairing. [Mac App Store screenshots](apps/macos/AppStore/Screenshots/en-US/Mac)
-show Now, Tasks, a conversation, Usage and Mesh. Mac build 180 passed Apple
-processing and is assigned to the internal TestFlight group. The public Mac
+show Now, Tasks, a conversation, Usage and Mesh. The iPhone and Mac beta builds
+are available to the internal TestFlight group after Apple processing and
+the full release gate. The public Mac
 App Store release is not yet available for purchase.
 
 ## Product shape
@@ -82,16 +83,32 @@ MESH      Governance · Members and computers · Load by computer · Also being 
 WATCH     Needs You · Active · Short reply · New voice task
 ```
 
-Task screens open directly into the visible timeline, which the phone keeps
-itself. Active Now conversations download in the background, including older
-pages and original pictures, while the app is running. Opening a chat reads
-its received local history first. Settings clears downloaded content while
-keeping sign-in, pairings and queued replies. Received chats and pictures have
-no automatic day-based expiry.
+The iPhone and Mac keep a protected local copy of every received transcript page,
+picture and Mesh snapshot. All active chats fetch their earlier pages automatically
+while the app can run; opening each chat is unnecessary. A lost connection keeps
+downloaded content readable, and reconnecting resumes incomplete history. Settings
+includes **Chat history & cache** to clear these copies without unlinking devices
+or deleting account keys and pending sends. The copy contains received content;
+it does not recreate a lost machine's working tree or provider process.
+
+Task screens open directly into the locally stored visible timeline.
+Files and Agents stay directly above the message composer. Files opens the
+current reply's recorded changes, added/removed counts and available diffs;
+All files browses the Task's checkout with paged previews. Received previews
+remain readable offline. Agents opens nested execution conversations within
+the same Task. A new file read still requires its computer and stays inside
+that execution's admitted checkout.
 Opening a Runtime entry opens the matching execution's chat.
 History shows the timestamp of the latest visible chat message when the
 provider records one. If that timestamp is unavailable, it labels the fallback
 as last activity rather than presenting a sync time as a message time.
+
+<p align="center">
+  <img src="docs/images/iphone-chat-work-summary.png" width="230" alt="Current reply Files and nested Agents above the composer">
+  <img src="docs/images/iphone-chat-files.png" width="230" alt="Saved Task checkout tree for offline inspection">
+</p>
+
+<p align="center"><em>Native build181 captures with deterministic sample data.</em></p>
 
 Capabilities are Project policy, not per-task switches. Skills, MCP servers and
 shell access are decided in Governance — for a whole kind or for one named
@@ -224,10 +241,15 @@ granttap setup
 
 Open **Devices** on iPhone, iPad, or Mac and create or join an Account Mesh with
 the same passkey. It exists on the relay before any computer is connected and
-can hold many Project Meshes and computers. When the local helper is installed,
-the Mac app links it to that Account Mesh; the MCP connection card can also
-join with the same passkey. Devices shows the linked computers and their real
-display names. A Task still follows its own selected computer route.
+can hold many independent or related Project Meshes. Each connected computer
+running GrantTap MCP contributes its own encrypted route and Task catalog to
+the account; iPhone combines those catalogs while replies stay pinned to the
+computer executing each Task. QR and passkey connect devices to this same
+account, rather than creating a second list of chats. A passkey sign-in in the
+Mac app links its local MCP to the account. If MCP was linked first, the Mac app
+can read that Mac's Tasks through local authorization; account-wide device
+management still requires a passkey sign-in by the person. Devices distinguishes
+a computer registered and online in the account from a chat link that is live.
 
 For a direct device link without an account, open the GrantTap connection card
 in a coding app, choose **Add a device**, and scan its one-time QR with iPhone
@@ -328,14 +350,6 @@ On Mac, **Help → GrantTap Help** and **GrantTap → About GrantTap** open page
 in the main application window. Settings on Mac, iPhone and iPad contains the
 same help, Terms, Privacy, licenses and pricing documents, readable offline.
 Purchase prices are loaded from StoreKit for the storefront. The US Mac launch
-plan is $39.99 once; optional Personal tiers are $1.99, $3.99, $5.99 and
+license is $39.99 once; optional Personal tiers are $1.99, $3.99, $5.99 and
 $9.99 monthly for up to 2, 5, 10 and 15 computers. See
 [subscriptions](docs/subscriptions.md).
-
-## Health and architecture
-
-Health and Graph share one rebuild state. Missing or changed active repository
-reports start automatically; a manual rebuild finishes only after the matching
-computer report arrives. One progress indicator represents that work. Components,
-relations and received Mesh snapshots remain available in the device replica.
-Repository identity mismatches are reported without merging another checkout.

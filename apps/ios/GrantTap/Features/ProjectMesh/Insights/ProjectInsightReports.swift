@@ -15,8 +15,8 @@ enum ProjectInsightReports {
                 return lhs == rhs ? left.offset < right.offset : lhs < rhs
             }?.element
         }.sorted {
-            let lhs = $0.analysisStatus != "UNAVAILABLE"
-            let rhs = $1.analysisStatus != "UNAVAILABLE"
+            let lhs = isAnalyzed($0)
+            let rhs = isAnalyzed($1)
             if lhs != rhs { return lhs }
             return $0.repositoryId < $1.repositoryId
         }
@@ -25,18 +25,22 @@ enum ProjectInsightReports {
     static func needsAnalysis(_ snapshot: ProjectMeshSnapshot) -> Bool {
         let reports = reports(snapshot)
         return (snapshot.bindings ?? []).filter(\.available).contains { binding in
-            !reports.contains { $0.repositoryId == binding.repositoryId && $0.analysisStatus != "UNAVAILABLE"
-                && (binding.revision == nil || $0.revision == binding.revision) }
+            !reports.contains { $0.repositoryId == binding.repositoryId && isAnalyzed($0)
+                && (binding.revision == nil || ($0.sourceRevision ?? $0.revision) == binding.revision) }
         }
     }
 
     static func hasEvidence(_ snapshot: ProjectMeshSnapshot) -> Bool {
-        snapshot.backbone != nil || reports(snapshot).contains { $0.analysisStatus != "UNAVAILABLE" }
+        snapshot.backbone != nil || reports(snapshot).contains(where: isAnalyzed)
+    }
+
+    static func isAnalyzed(_ report: ProjectRepositoryGraph) -> Bool {
+        report.analysisStatus == "COMPLETE" || report.analysisStatus == "INCOMPLETE"
     }
 
     private static func rank(_ report: ProjectRepositoryGraph, revisions: Set<String>) -> Int {
-        let valid = report.analysisStatus != "UNAVAILABLE"
-        let current = revisions.contains("\(report.repositoryId)\u{1f}\(report.revision)")
+        let valid = isAnalyzed(report)
+        let current = revisions.contains("\(report.repositoryId)\u{1f}\(report.sourceRevision ?? report.revision)")
         return (valid ? 8 : 0) + (current ? 4 : 0)
             + (report.analysisStatus == "COMPLETE" ? 2 : 0) + (report.codeMap != nil ? 1 : 0)
     }

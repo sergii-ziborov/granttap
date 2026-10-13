@@ -9,6 +9,7 @@ extension AppModel {
         projectGraphAttemptAt[projectId] = started
         let request = ProjectGraphRequest(createdAt: started)
         projectGraphRequests[projectId] = request
+        expireProjectGraphRequest(projectId, request: request)
         var localAvailable = false
         var localRoom: String?
         #if targetEnvironment(macCatalyst)
@@ -25,40 +26,46 @@ extension AppModel {
         let plan = ProjectGraphRefreshPlan.make(
             localProjectAvailable: localAvailable,
             sourceRooms: meshProjectSourceRooms[projectId] ?? [],
-            connectedRooms: Set(relaysByRoom.keys), localRoom: localRoom
+            connectedRooms: Set(roomRuntime.filter { $0.value.socketUp }.map(\.key)), localRoom: localRoom
         )
-        let result = await plan.execute(localRefresh: {
+        var localPartial = false
+        var result = await plan.execute(localRefresh: {
             #if targetEnvironment(macCatalyst)
             guard let reader = self.localMCPReader else { return false }
             let result = try await reader.enrichedMesh(projectId: projectId, refreshGraph: true)
             self.refreshMacCombinedCatalog()
-            return ProjectInsightReports.reports(result).contains { $0.analysisStatus != "UNAVAILABLE" }
+            let reports = ProjectInsightReports.reports(result)
+            let valid = reports.filter(ProjectInsightReports.isAnalyzed).count
+            localPartial = valid > 0 && valid < reports.count
+            return valid > 0
             #else
             return false
             #endif
         }, remoteRefresh: { room in
             guard let relay = self.relaysByRoom[room] else { throw URLError(.notConnectedToInternet) }
-            try await withCheckedThrowingContinuation { (completion: CheckedContinuation<Void, Error>) in
+            try await ProjectGraphDelivery().send { receipt in
                 relay.requestProjectGraphAnalysis(projectId, requestId: request.requestId) { error in
-                    if let error { completion.resume(throwing: error) } else { completion.resume() }
+                    receipt(error)
                 }
             }
         })
+        if localPartial && result == .completed { result = .partial }
         if projectGraphRequests[projectId]?.pending == false {
             return projectGraphRequests[projectId]?.result ?? result
         }
         projectGraphRequests[projectId]?.result = result
         projectGraphRequests[projectId]?.pending = result == .requested
-        if result == .requested {
-            Task { [weak self] in
-                try? await Task.sleep(nanoseconds: 150_000_000_000)
-                guard let self, self.projectGraphRequests[projectId]?.createdAt == started,
-                      self.projectGraphRequests[projectId]?.pending == true else { return }
-                self.projectGraphRequests[projectId]?.pending = false
-                self.projectGraphRequests[projectId]?.result = .failed
-            }
-        }
         return result
+    }
+
+    private func expireProjectGraphRequest(_ projectId: String, request: ProjectGraphRequest) {
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 150_000_000_000)
+            guard let self, self.projectGraphRequests[projectId]?.requestId == request.requestId,
+                  self.projectGraphRequests[projectId]?.pending == true else { return }
+            self.projectGraphRequests[projectId]?.pending = false
+            self.projectGraphRequests[projectId]?.result = .failed
+        }
     }
 
     /// Selected Mesh enrichment is asynchronous; keep observing until the view leaves.

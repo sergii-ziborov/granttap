@@ -13,6 +13,8 @@ extension AppModel {
         for read in replicaImageReads.values { read.cancel() }
         replicaImageReads = [:]
         replicaImageTransfer.cancel()
+        taskWorkspaceReads.cancel()
+        TaskWorkspaceStore.shared.clear()
         SessionCatalogCache.clear()
         SessionActivityPersistence.clear()
         ReplicaImageStore.shared.clear()

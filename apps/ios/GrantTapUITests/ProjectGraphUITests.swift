@@ -53,7 +53,8 @@ final class ProjectGraphUITests: XCTestCase {
         graph.tap()
 
         XCTAssertTrue(app.navigationBars["Graph"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Architecture unavailable"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.descendants(matching: .any)["project.graph.status"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["project.graph.analyze"].exists)
         XCTAssertFalse(app.staticTexts["Repository topology"].exists)
     }
 

@@ -83,6 +83,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onSessionsHistoryPage: ((SessionsHistoryPage) -> Void)?
     var onActivity: ((SessionActivity) -> Void)?
     var onImageChunk: ((SessionImageChunk) -> Void)?
+    var onWorkspaceResult: ((TaskWorkspaceSnapshot) -> Void)?
     var onCapabilityUsage: ((CapabilityUsageStatus) -> Void)?
     var onCapabilityCatalog: ((CapabilityCatalogStatus) -> Void)?
     var onCompactResult: ((SessionCompactResult) -> Void)?

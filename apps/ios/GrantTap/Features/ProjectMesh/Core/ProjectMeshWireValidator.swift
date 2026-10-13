@@ -44,7 +44,7 @@ enum ProjectMeshWireValidator {
 
     static func validSnapshot(_ data: Data) -> Bool {
         let allowed: Set<String> = [
-            "type", "sessionId", "projectId", "publisherEndpointId",
+            "type", "sessionId", "projectId", "publisherEndpointId", "graphAnalysisRequestId",
             "project", "tasks", "executions",
             "bindings", "peers", "claims", "dependencies", "events", "generatedAt",
             "skills", "incomplete", "execution", "restrictions", "environment", "modelCatalog",
@@ -78,6 +78,8 @@ enum ProjectMeshWireValidator {
     private static func validDecodedSnapshot(_ snapshot: ProjectMeshSnapshot, projectId sessionId: String) -> Bool {
         guard snapshot.publisherEndpointId == nil
                   || boundedString(snapshot.publisherEndpointId, max: 128) != nil,
+              snapshot.graphAnalysisRequestId == nil
+                  || boundedString(snapshot.graphAnalysisRequestId, max: 128) != nil,
               (snapshot.skills?.count ?? 0) <= 64,
               snapshot.publisherEndpointId == nil || snapshot.skills?.allSatisfy({
                   $0.endpointId == snapshot.publisherEndpointId
@@ -124,6 +126,8 @@ enum ProjectMeshWireValidator {
               snapshot.repositoryGraphs?.allSatisfy({
                   $0.projectId == sessionId && $0.nodes.count <= 256
                       && $0.relations.count <= 512
+                      && ($0.sourceRevision == nil
+                          || boundedString($0.sourceRevision, max: 256) != nil)
                       && ($0.codeMap?.valid() ?? true)
                       && validArchitectureHypotheses($0.architectureHypotheses)
                       && ($0.analysisStatus != "UNAVAILABLE" ||
