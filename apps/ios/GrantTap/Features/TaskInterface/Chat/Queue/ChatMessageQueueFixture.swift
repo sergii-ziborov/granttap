@@ -4,7 +4,7 @@ import Foundation
 enum ChatMessageQueueFixture {
     @MainActor static func apply(to model: AppModel, at now: Double) {
         guard ProcessInfo.processInfo.environment["GRANTTAP_DEMO"] == "1",
-              ["1", "failed"].contains(ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"]),
+              ["1", "failed", "relay"].contains(ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"]),
               let session = model.sessions.first(where: {
                   $0.sessionId == AppModelDemoFixtures.codexSessionId
               }) else { return }
@@ -21,6 +21,25 @@ enum ChatMessageQueueFixture {
                 attempts: 0, state: .queued, error: nil, nextRetryAt: nil,
                 chatQueue: ChatMessageQueueContext(waiting: true, transport: .relay,
                                                    taskId: session.taskId))
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "relay" {
+            model.deliveries = Array(model.deliveries.prefix(1))
+            let room = model.deliveries[0].roomId ?? "queue-demo-room"
+            if !model.connectionRegistry.connections.contains(where: { $0.id == room }) {
+                let pairing = Pairing(relayUrl: "wss://relay.test", room: room, role: "phone",
+                    deviceName: "Fixture", senderId: "fixture", myPublicKey: "",
+                    mySecretKey: "", peerPublicKey: "")
+                model.connectionRegistry = ConnectionRegistryLogic.upsert(model.connectionRegistry, pairing: pairing)
+            }
+            model.sessionSourceRooms[session.sessionId] = [room]
+            model.deliveries[0].roomId = room
+            model.deliveries[0].chatQueue?.relayManaged = true
+            model.deliveries[0].relayJob = RelayTaskQueueReservation(jobId: "queue-1", token: nil,
+                notBefore: now, expiresAt: now + 86_400_000, createdAt: now,
+                uploadAttempted: true, serverState: .queued)
+            if let index = model.connectionRegistry.connections.firstIndex(where: {
+                $0.id == model.deliveries[0].roomId
+            }) { model.connectionRegistry.connections[index].taskQueueImmediate = true }
         }
         if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "failed" {
             model.deliveries = Array(model.deliveries.prefix(1))

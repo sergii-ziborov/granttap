@@ -77,6 +77,17 @@ final class ProjectMeshTaskTitleTests: XCTestCase {
         XCTAssertNil(ProjectMeshTaskTitle.presentable(
             "<external_codex_apps_open_page>{\"page_id\":null}</external_codex_apps_open_page>"))
     }
+
+    func testPastedContentUsesItsVisibleHeadingInsteadOfTransportMetadata() {
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable(
+            "<pasted_content id=\"fixture\">\n## Commercial launch\nMore context\n</pasted_content>"),
+            "Commercial launch")
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable(
+            "<pasted_content id=\"fixture\">Repair the chat</pasted_content>"), "Repair the chat")
+        XCTAssertNil(ProjectMeshTaskTitle.presentable("<pasted_content id=\"fixture\">"))
+        XCTAssertNil(ProjectMeshTaskTitle.presentable("<pasted_content id=\"truncated"))
+        XCTAssertEqual(ProjectMeshTaskTitle.presentable("Fix <div> styles"), "Fix <div> styles")
+    }
 }
 
 @MainActor

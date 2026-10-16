@@ -2823,3 +2823,6 @@
 "Personal includes managed delivery and linked Mac clients. Mac Local remains valid when Personal ends; managed hosting is not part of the one-time purchase." = "Personal включает managed-доставку и связанные Mac-клиенты. Mac Local остаётся действительной после окончания Personal; managed-хостинг не входит в разовую покупку.";
 
 "Managed computers" = "Managed-компьютеры";
+
+"Sending now…" = "Отправка сейчас…";
+"Update MCP on this computer to send a queued message now." = "Обновите MCP на этом компьютере, чтобы отправить сообщение из очереди сейчас.";

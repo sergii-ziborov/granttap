@@ -5,12 +5,16 @@ extension AppModel {
     func requestRelayTaskQueueRestart(_ id: String) {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
               ChatMessageQueuePolicy.canCancel(deliveries[index]) else { return }
+        guard relayTaskQueueSupportsImmediate(deliveries[index]) else {
+            setRelayTaskQueueError(id, L("Update MCP on this computer to send a queued message now."))
+            return
+        }
         let now = floor(Date().timeIntervalSince1970 * 1_000)
         let state = deliveries[index].relayJob?.serverState
-        if (state == nil || state == .queued),
+        if deliveries[index].chatQueue?.sendImmediately == true, (state == nil || state == .queued),
            (deliveries[index].chatQueue?.notBefore ?? 0) <= now {
-            // An unconfirmed upload may already be committing. Retrying its
-            // immutable envelope preserves exactly-once admission and FIFO.
+            // This immutable operation already carries manual release. Reuse
+            // it when the upload response is lost instead of submitting twice.
             deliveries[index].error = nil
             deliveries[index].nextRetryAt = nil
             persistDeliveries()
@@ -19,8 +23,20 @@ extension AppModel {
         }
         deliveries[index].chatQueue?.cancelRequested = true
         deliveries[index].chatQueue?.restartAfterCancellation = true
+        if deliveries[index].relayJob?.uploadAttempted != true {
+            finishRelayTaskQueueCancellation(at: index)
+            resumeRelayTaskQueues(immediate: true)
+            return
+        }
         persistDeliveries()
         resumeRelayTaskQueues(immediate: true)
+    }
+
+    private func relayTaskQueueSupportsImmediate(_ row: OutgoingDelivery) -> Bool {
+        #if targetEnvironment(macCatalyst)
+        if row.chatQueue?.transport == .localMCP { return localMCPReader?.status?.taskQueueImmediate == true }
+        #endif
+        return connectionRegistry.connections.first(where: { $0.id == row.roomId })?.taskQueueImmediate == true
     }
 
     func reconcileRelayTaskQueueCancellation(_ id: String, transport: RelayTaskQueueTransport) async throws {
@@ -64,7 +80,7 @@ extension AppModel {
                 projectId: row.projectId, model: row.model, permissionMode: row.permissionMode, effort: row.effort,
                 createdAt: now, updatedAt: now, attempts: 0, state: .queued, error: nil, nextRetryAt: nil,
                 chatQueue: ChatMessageQueueContext(waiting: true, transport: row.chatQueue?.transport ?? .relay, taskId: row.chatQueue?.taskId,
-                    queuedAt: now, relayManaged: true, notBefore: now))
+                    queuedAt: now, relayManaged: true, notBefore: now, sendImmediately: true))
             deliveries = DeliveryPersistence.admit(replacement, into: deliveries).deliveries
             relayQueueNeedsSync = true
         }
@@ -77,8 +93,8 @@ enum RelayTaskQueueStatus {
         guard row.chatQueue?.relayManaged == true else { return nil }
         if row.chatQueue?.cancelRequested == true { return L("Waiting for relay cancellation") }
         return switch row.relayJob?.serverState {
-        case .none: L("Saving to relay…")
-        case .queued: L("Saved on relay")
+        case .none: row.chatQueue?.sendImmediately == true ? L("Sending now…") : L("Saving to relay…")
+        case .queued: row.chatQueue?.sendImmediately == true ? L("Sending now…") : L("Saved on relay")
         case .accepted: L("Accepted by computer")
         case .completed: L("Delivered")
         case .failed: L("Needs attention")

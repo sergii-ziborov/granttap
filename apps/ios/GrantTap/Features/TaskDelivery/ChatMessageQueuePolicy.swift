@@ -10,6 +10,7 @@ struct ChatMessageQueueContext: Codable, Equatable {
     var notBefore: Double? = nil
     var cancelRequested: Bool? = nil
     var restartAfterCancellation: Bool? = nil
+    var sendImmediately: Bool? = nil
 }
 
 enum ChatMessageQueuePolicy {

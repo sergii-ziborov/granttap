@@ -24,7 +24,14 @@ enum ProjectMeshTaskTitle {
 
     /// The opening line of a published title, when that line reads as a name.
     static func presentable(_ raw: String) -> String? {
-        let line = raw.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
+        var visible = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if visible.hasPrefix("<pasted_content") {
+            guard let opening = visible.range(of: #"^<pasted_content\b[^>]*>\s*"#,
+                                              options: .regularExpression) else { return nil }
+            visible = String(visible[opening.upperBound...])
+                .replacingOccurrences(of: "</pasted_content>", with: "")
+        }
+        let line = visible.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
         var trimmed = line.replacingOccurrences(
             of: #"^\[@[^]]+\]\(plugin://[^)]+\)\s*"#, with: "",
             options: .regularExpression

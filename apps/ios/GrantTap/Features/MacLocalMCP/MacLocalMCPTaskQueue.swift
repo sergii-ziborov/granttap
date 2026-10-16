@@ -30,6 +30,7 @@ extension MacLocalMCPModel {
                 input["text"] = row.text
                 input["created_at"] = floor(row.chatQueue?.queuedAt ?? row.createdAt)
                 input["not_before"] = floor(row.chatQueue?.notBefore ?? row.createdAt)
+                if row.chatQueue?.sendImmediately == true { input["delivery_mode"] = "immediate" }
                 if let batch { input["attachments_json"] = batch.manifest }
                 if let value = row.model { input["model"] = value }
                 if let value = row.effort { input["effort"] = value }

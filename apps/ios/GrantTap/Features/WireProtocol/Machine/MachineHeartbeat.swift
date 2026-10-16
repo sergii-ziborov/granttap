@@ -9,9 +9,10 @@ struct MachineHeartbeat: Decodable {
     let type: String
     let machine: String
     let createdAt: Double
+    let taskQueueImmediate: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case type, machine, createdAt
+        case type, machine, createdAt, taskQueueImmediate
     }
 
     init(from decoder: Decoder) throws {
@@ -19,11 +20,13 @@ struct MachineHeartbeat: Decodable {
         type = (try? container.decode(String.self, forKey: .type)) ?? "machine.heartbeat"
         machine = (try? container.decode(String.self, forKey: .machine)) ?? ""
         createdAt = (try? container.decode(Double.self, forKey: .createdAt)) ?? 0
+        taskQueueImmediate = try? container.decode(Bool.self, forKey: .taskQueueImmediate)
     }
 
-    init(machine: String, createdAt: Double) {
+    init(machine: String, createdAt: Double, taskQueueImmediate: Bool? = nil) {
         self.type = "machine.heartbeat"
         self.machine = machine
         self.createdAt = createdAt
+        self.taskQueueImmediate = taskQueueImmediate
     }
 }

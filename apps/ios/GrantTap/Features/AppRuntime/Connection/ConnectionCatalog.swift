@@ -63,6 +63,11 @@ extension AppModel {
         // able to claim liveness further into the future than it really is.
         runtime.lastHeartbeatAt = Date().timeIntervalSince1970 * 1_000
         roomRuntime[room] = runtime
+        if let index = connectionRegistry.connections.firstIndex(where: { $0.id == room }),
+           connectionRegistry.connections[index].taskQueueImmediate != beat.taskQueueImmediate {
+            connectionRegistry.connections[index].taskQueueImmediate = beat.taskQueueImmediate
+            _ = PairedConnectionStore.save(connectionRegistry)
+        }
         let machine = beat.machine.trimmingCharacters(in: .whitespacesAndNewlines)
         if room == connectionRegistry.preferredId, !machine.isEmpty, machineName.isEmpty {
             machineName = machine

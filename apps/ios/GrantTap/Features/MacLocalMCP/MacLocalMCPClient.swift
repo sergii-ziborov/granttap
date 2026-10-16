@@ -15,6 +15,7 @@ struct MacLocalMCPStatus: Decodable, Sendable {
     let phoneReachability: String?
     let desktopEngineSocket: String?
     var taskQueueAvailable: Bool? = nil
+    var taskQueueImmediate: Bool? = nil
     var taskControlsAvailable: Bool? = nil
     var providers: [MacProviderReadiness]? = nil
 }

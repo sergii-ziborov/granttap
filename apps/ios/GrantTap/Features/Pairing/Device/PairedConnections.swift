@@ -22,6 +22,7 @@ struct LinkedComputer: Codable, Equatable, Identifiable {
     var accountCredential: AccountMachineCredential? = nil
     var accountReference: AccountMachineReference? = nil
     var lastRecoveredAt: Double? = nil
+    var taskQueueImmediate: Bool? = nil
 
     var displayName: String {
         // "phone" is the role a pairing was minted with, not a name — and the
@@ -100,7 +101,8 @@ enum ConnectionRegistryLogic {
                 lastMachineName: samePeer ? existing.lastMachineName : "",
                 accountCredential: samePeer ? existing.accountCredential : nil,
                 accountReference: samePeer ? existing.accountReference : nil,
-                lastRecoveredAt: samePeer ? existing.lastRecoveredAt : nil
+                lastRecoveredAt: samePeer ? existing.lastRecoveredAt : nil,
+                taskQueueImmediate: samePeer ? existing.taskQueueImmediate : nil
             )
         } else {
             connections.append(LinkedComputer(

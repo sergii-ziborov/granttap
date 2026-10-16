@@ -74,8 +74,10 @@ extension AppModel {
             message.attachmentRefs = nil
             let due = row.chatQueue?.notBefore ?? row.createdAt
             let created = floor(row.chatQueue?.queuedAt ?? row.createdAt)
+            let sendImmediately = row.chatQueue?.sendImmediately == true
             let reservation = try await Task.detached(priority: .utility) {
-                let prepared = try RelayTaskQueueEncoding.prepare(message, pairing: pairing, notBefore: due, now: created)
+                let prepared = try RelayTaskQueueEncoding.prepare(message, pairing: pairing, notBefore: due,
+                    now: created, sendImmediately: sendImmediately)
                 return try RelayTaskQueueCipherStore.save(prepared)
             }.value
             guard let index = deliveries.firstIndex(where: { $0.id == id }) else { return }

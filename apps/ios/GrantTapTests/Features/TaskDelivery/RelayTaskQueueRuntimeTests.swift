@@ -16,6 +16,8 @@ final class RelayTaskQueueRuntimeTests: XCTestCase {
         model.activities = [:]
         model.localOnlySessionIds = []
         model.connectionRegistry = ConnectionRegistryLogic.upsert(.empty, pairing: pairing)
+        model.noteMachineHeartbeat(MachineHeartbeat(machine: "Fixture", createdAt: 1,
+            taskQueueImmediate: true), fromRoom: pairing.room)
         model.sessionSourceRooms = ["fixture-chat": [pairing.room]]
         let chat = SessionInfo(sessionId: "fixture-chat", agent: "codex", state: "working",
             startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0)
@@ -54,22 +56,24 @@ final class RelayTaskQueueRuntimeTests: XCTestCase {
         XCTAssertTrue(ChatMessageQueuePolicy.ready(model.deliveries, observed: [chat]).isEmpty)
     }
 
-    func testRetryingAnUnconfirmedUploadReusesItsCiphertextAndPosition() async throws {
+    func testSendNowResolvesAnUnconfirmedUploadBeforeCancellingItsImmutableOperation() async throws {
         let (model, session, _) = try fixture()
         let id = try XCTUnwrap(model.deliveries.first?.id)
         var bodies: [Data] = []
         RelayQueueURLProtocol.handle = { request in
             if let body = request.httpBody { bodies.append(body) }
+            if request.httpMethod == "DELETE" { return (200, Self.receipt(id, state: "cancelled")) }
             return (bodies.count == 1 ? 503 : 201, Self.receipt(id, state: "queued"))
         }
         await model.synchronizeRelayTaskQueues(session: session)
         model.sendChatQueuedMessageNow(id)
-        XCTAssertNotEqual(model.deliveries[0].chatQueue?.cancelRequested, true)
+        XCTAssertEqual(model.deliveries[0].chatQueue?.cancelRequested, true)
         await model.synchronizeRelayTaskQueues(session: session)
-        XCTAssertEqual(model.deliveries[0].id, id)
+        XCTAssertNotEqual(model.deliveries[0].id, id)
         XCTAssertEqual(bodies.count, 2)
         XCTAssertEqual(bodies.first, bodies.last)
-        XCTAssertEqual(model.deliveries[0].relayJob?.serverState, .queued)
+        XCTAssertNil(model.deliveries[0].relayJob)
+        XCTAssertEqual(model.deliveries[0].chatQueue?.sendImmediately, true)
     }
 
     func testRetryCancelsTheOldOperationBeforeCreatingASeparateAttemptWithTheSameImage() async throws {
@@ -91,7 +95,49 @@ final class RelayTaskQueueRuntimeTests: XCTestCase {
         XCTAssertEqual(methods, ["GET", "DELETE"])
         XCTAssertNotEqual(model.deliveries.first?.id, original)
         XCTAssertEqual(model.deliveries.first?.attachments.first?.data, "AQID")
+        XCTAssertEqual(model.deliveries.first?.chatQueue?.sendImmediately, true)
+        let restored = try JSONDecoder().decode(OutgoingDelivery.self,
+            from: JSONEncoder().encode(try XCTUnwrap(model.deliveries.first)))
+        XCTAssertEqual(restored.chatQueue?.sendImmediately, true)
         XCTAssertNil(model.deliveries.first?.relayJob)
+    }
+
+    func testSendNowCancelsAConfirmedWaitingJobBeforeReplacingIt() async throws {
+        let (model, session, _) = try fixture()
+        let original = try XCTUnwrap(model.deliveries.first?.id)
+        RelayQueueURLProtocol.handle = { _ in (201, Self.receipt(original, state: "queued")) }
+        await model.synchronizeRelayTaskQueues(session: session)
+        model.sendChatQueuedMessageNow(original)
+        XCTAssertEqual(model.deliveries.first?.chatQueue?.cancelRequested, true)
+        XCTAssertEqual(model.deliveries.first?.id, original)
+        var methods: [String] = []
+        RelayQueueURLProtocol.handle = { request in
+            methods.append(request.httpMethod ?? "")
+            return (200, Self.receipt(original, state: request.httpMethod == "DELETE" ? "cancelled" : "queued"))
+        }
+        await model.synchronizeRelayTaskQueues(session: session)
+        XCTAssertEqual(methods, ["GET", "DELETE"])
+        XCTAssertNotEqual(model.deliveries.first?.id, original)
+        XCTAssertEqual(model.deliveries.first?.attachments.first?.data, "AQID")
+    }
+
+    func testSendNowCannotReplayAnOperationAcceptedDuringCancellation() async throws {
+        let (model, session, _) = try fixture()
+        let original = try XCTUnwrap(model.deliveries.first?.id)
+        RelayQueueURLProtocol.handle = { _ in (201, Self.receipt(original, state: "queued")) }
+        await model.synchronizeRelayTaskQueues(session: session)
+        model.sendChatQueuedMessageNow(original)
+        var methods: [String] = []
+        RelayQueueURLProtocol.handle = { request in
+            methods.append(request.httpMethod ?? "")
+            return (200, Self.receipt(original, state: "accepted"))
+        }
+        await model.synchronizeRelayTaskQueues(session: session)
+        XCTAssertEqual(methods, ["GET"])
+        XCTAssertEqual(model.deliveries.count, 1)
+        XCTAssertEqual(model.deliveries.first?.id, original)
+        XCTAssertEqual(model.deliveries.first?.relayJob?.serverState, .accepted)
+        XCTAssertNotNil(model.deliveries.first?.error)
     }
 
     func testUnsentCancellationDoesNotUploadAnOperationJustToDeleteIt() async throws {
@@ -103,6 +149,19 @@ final class RelayTaskQueueRuntimeTests: XCTestCase {
         await model.synchronizeRelayTaskQueues(session: session)
         XCTAssertEqual(networkCalls, 0)
         XCTAssertTrue(model.deliveries.isEmpty)
+    }
+
+    func testSendNowKeepsTheExistingJobWhenTheComputerNeedsAnUpdate() async throws {
+        let (model, session, _) = try fixture()
+        let id = try XCTUnwrap(model.deliveries.first?.id)
+        RelayQueueURLProtocol.handle = { _ in (201, Self.receipt(id, state: "queued")) }
+        await model.synchronizeRelayTaskQueues(session: session)
+        model.connectionRegistry.connections[0].taskQueueImmediate = nil
+        model.sendChatQueuedMessageNow(id)
+        XCTAssertEqual(model.deliveries.first?.id, id)
+        XCTAssertNotEqual(model.deliveries.first?.chatQueue?.cancelRequested, true)
+        XCTAssertEqual(model.deliveries.first?.relayJob?.serverState, .queued)
+        XCTAssertNotNil(model.deliveries.first?.error)
     }
 
     func testARejectedRelayJobCannotBeEvictedWhileItStillBlocksQueuedFollowUps() throws {

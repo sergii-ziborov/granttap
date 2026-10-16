@@ -1,6 +1,21 @@
 import XCTest
 
 final class ChatMessageQueueUITests: XCTestCase {
+    func testSendNowOnSavedRelayJobShowsCancellationProgress() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
+            "GRANTTAP_TEST_CHAT_QUEUE": "relay", "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        XCTAssertTrue(app.buttons["chat.queue"].waitForExistence(timeout: 15))
+        app.buttons["chat.queue"].tap()
+        XCTAssertTrue(app.staticTexts["Saved on relay"].waitForExistence(timeout: 5))
+        app.buttons["chat.queue.send.queue-1"].tap()
+        XCTAssertTrue(app.staticTexts["Waiting for relay cancellation"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["chat.queue.send.queue-1"].isEnabled)
+        capture(app, "Send now confirms relay cancellation")
+    }
+
     func testFloatingQueueCanPreviewSendNowAndCancelWithoutOccupyingTranscript() {
         continueAfterFailure = false
         let app = XCUIApplication()

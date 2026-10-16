@@ -10,6 +10,7 @@ struct RelayQueuedTask: Codable {
     let expiresAt: Double
     let createdAt: Double
     let operation: UserMessage
+    var deliveryMode: String? = nil
 }
 
 enum RelayTaskJobState: String, Codable {

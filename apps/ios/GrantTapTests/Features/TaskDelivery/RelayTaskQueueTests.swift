@@ -12,7 +12,8 @@ final class RelayTaskQueueTests: XCTestCase {
         let image = UserAttachment(name: "photo.png", mimeType: "image/png", data: Data([1, 2, 3]).base64EncodedString())
         let message = Payloads.message("Synthetic queued task", messageId: "queue-fixture-01", agent: "codex", cwd: nil,
                                        sessionId: "fixture-chat", requestId: nil, attachments: [image])
-        let reservation = try RelayTaskQueueEncoding.prepare(message, pairing: pairing, notBefore: 1_000_100, now: 1_000_000)
+        let reservation = try RelayTaskQueueEncoding.prepare(message, pairing: pairing, notBefore: 1_000_100,
+            now: 1_000_000, sendImmediately: true)
         let body = try reservation.uploadBody()
         XCTAssertEqual(try reservation.uploadBody(), body, "Retries must preserve the same encrypted envelope.")
         let envelope = try XCTUnwrap(reservation.envelope)
@@ -20,6 +21,7 @@ final class RelayTaskQueueTests: XCTestCase {
             theirPublicKeyB64: pairing.myPublicKey, mySecretKeyB64: machine.secretKey.base64EncodedString()))
         let job = try JSONDecoder().decode(RelayQueuedTask.self, from: plain)
         XCTAssertEqual(job.notBefore, 1_000_100)
+        XCTAssertEqual(job.deliveryMode, "immediate")
         XCTAssertEqual(job.operation.attachments?.first?.data, image.data)
         XCTAssertEqual(job.operation.sessionId, job.sessionId)
         XCTAssertEqual(job.token.count, 64)
