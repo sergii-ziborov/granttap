@@ -237,6 +237,7 @@
 		3B5AC10DFD64C4CC6C0A58B5 /* ChatActivityRunTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9067C50789FE49AA3861BA24 /* ChatActivityRunTests.swift */; };
 		3BD646910A6A3BB480094983 /* TranscriptCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319F0517830A0E0F915208A1 /* TranscriptCacheTests.swift */; };
 		3D307D97A7F732267ABD3C59 /* KnowledgeWriteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2BC2DA9E2603E3CF1C0DF /* KnowledgeWriteCoordinator.swift */; };
+		3D49B9DB2B28C59C8FE8C541 /* RelayReconnectBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F945398592DCB9156CA79B /* RelayReconnectBackoffTests.swift */; };
 		3DB7151FBAE935A51F31301D /* TranscriptHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3448A88C22280E1C6077E265 /* TranscriptHistoryTests.swift */; };
 		3DD82FDE74B6667F078A037F /* WatchNewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D67A4FA261B9035A310F1B /* WatchNewTaskView.swift */; };
 		3E0C04079682073D8BC8ACD6 /* SessionActivityTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA48351D6F3CDBDAC7439BD /* SessionActivityTelemetry.swift */; };
@@ -423,6 +424,7 @@
 		6C257B4F4273A3B71FC9F055 /* MacControllerEnrollmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2A0C8FB1627A22AA6AE5CD /* MacControllerEnrollmentView.swift */; };
 		6CB950253D5B488DC97F7B72 /* ProjectUsageStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEAB7C6F9ED24B5AC04CC29 /* ProjectUsageStatsTests.swift */; };
 		6D27308B51A5BB451C30F3DB /* RepositoryFactsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1E1D67420DA35A772EE94 /* RepositoryFactsTests.swift */; };
+		6DEAE34BC3F44F06B0144980 /* ProjectMeshGraphMerge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1835D6F75C92FE2A4FC4C136 /* ProjectMeshGraphMerge.swift */; };
 		6DFE94D40622182AA2CDE603 /* CapabilityTranscriptLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D66EF89125E01E26B95E901 /* CapabilityTranscriptLink.swift */; };
 		6E4918778E54418DA5D55B60 /* RelayClient+Send.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC65193AC30299F283BF048 /* RelayClient+Send.swift */; };
 		6E503F7D23EC5F5847D02512 /* GrokBotInvite.swift in Sources */ = {isa = PBXBuildFile; fileRef = B118EAD87B3AC6F2C4F6A401 /* GrokBotInvite.swift */; };
@@ -532,6 +534,7 @@
 		862C58D999025B60E01A7C0A /* MacUsageNavigationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DACB6A533D4E775C013D1F53 /* MacUsageNavigationUITests.swift */; };
 		867CEB36B3859AA8BD755A4A /* AccountDeviceRoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014A06C6AC39695B5885949C /* AccountDeviceRoster.swift */; };
 		86B84648BE58625BDBF9B234 /* MemberLinkHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A1939BFC4A047CC85B0B18 /* MemberLinkHubTests.swift */; };
+		871CA6BDF5186DF93ADAE24C /* MeshHealthNoiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDFCB6DA48C253B14E42909 /* MeshHealthNoiseTests.swift */; };
 		873F5457C42FF4F26D866064 /* AccountSpaceSyncBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9652C1ACC5CC39B0123F5113 /* AccountSpaceSyncBoundaryTests.swift */; };
 		876F0A6E8D3F96FFFF3CCFFA /* UsageTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950B969E5A9622F99EADA9C2 /* UsageTimeline.swift */; };
 		87D1E20DBDED02BF165F78DF /* ProjectGraphUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF2A7313BC66CC76F9B5C69 /* ProjectGraphUITests.swift */; };
@@ -1159,6 +1162,7 @@
 		169F6DE3E0562288D5DBCC46 /* RepositoryMembershipMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryMembershipMerge.swift; sourceTree = "<group>"; };
 		177A760B32B8DF9544308C5D /* ContentNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentNavigation.swift; sourceTree = "<group>"; };
 		181E688DCFA40F59DAB5B649 /* ProjectStatisticsDiagrams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStatisticsDiagrams.swift; sourceTree = "<group>"; };
+		1835D6F75C92FE2A4FC4C136 /* ProjectMeshGraphMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectMeshGraphMerge.swift; sourceTree = "<group>"; };
 		188ECE82E91CE211D16A606A /* DeferredDeliveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeferredDeliveryTests.swift; sourceTree = "<group>"; };
 		19B459BB906C92B31661B75A /* ProjectInsightRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectInsightRegressionTests.swift; sourceTree = "<group>"; };
 		19FCCBFF4A15729D1AC8CF78 /* GrantTapWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrantTapWatchApp.swift; sourceTree = "<group>"; };
@@ -1719,6 +1723,7 @@
 		A842240D7AC2A0248DE77700 /* ConnectionCatalogEdgeCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionCatalogEdgeCoverageTests.swift; sourceTree = "<group>"; };
 		A8AAD952F46BD567479EF4DA /* PairingPurpose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingPurpose.swift; sourceTree = "<group>"; };
 		A9B737471B593BF1A2C6893A /* CapabilityCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapabilityCatalogTests.swift; sourceTree = "<group>"; };
+		A9F945398592DCB9156CA79B /* RelayReconnectBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayReconnectBackoffTests.swift; sourceTree = "<group>"; };
 		AA5C533331AB5C2C89BEFD4F /* ContentPending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPending.swift; sourceTree = "<group>"; };
 		AAA97C404BEB427E33DA401D /* ProjectSkillApproval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSkillApproval.swift; sourceTree = "<group>"; };
 		AB68C491A949FC61A63A427F /* UsageDemoFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageDemoFixtures.swift; sourceTree = "<group>"; };
@@ -1797,6 +1802,7 @@
 		BC8A99A947DEF0EB27E5EC9E /* MacTranscriptUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTranscriptUITests.swift; sourceTree = "<group>"; };
 		BC8B908A68CC42FDB9887C49 /* RepositoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryCatalogTests.swift; sourceTree = "<group>"; };
 		BCA05CEA9E1B72D264461B34 /* TaskChatSending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskChatSending.swift; sourceTree = "<group>"; };
+		BCDFCB6DA48C253B14E42909 /* MeshHealthNoiseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshHealthNoiseTests.swift; sourceTree = "<group>"; };
 		BD3BA5760B978713D6585A4E /* ProjectNetworkWire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectNetworkWire.swift; sourceTree = "<group>"; };
 		BD446F5AEA12774CE1E6BAB0 /* MemberInviteShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberInviteShareSheet.swift; sourceTree = "<group>"; };
 		BD63D0CD23779200F049F20D /* UsageBreakdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageBreakdownTests.swift; sourceTree = "<group>"; };
@@ -2705,6 +2711,7 @@
 			children = (
 				4E86083C6D5591005BB7BCAE /* CiphertextRecipientTests.swift */,
 				BDFE68012F635573895B01ED /* EndpointDirectoryTests.swift */,
+				A9F945398592DCB9156CA79B /* RelayReconnectBackoffTests.swift */,
 				5ADF9A385FFEC0B2C5FB42ED /* RelayReconnectRecoveryTests.swift */,
 			);
 			path = DeviceNetwork;
@@ -3477,6 +3484,7 @@
 			children = (
 				A22118F5E9240B5834CF6E99 /* GraphDeliveryTests.swift */,
 				FBC016617DEFD1D8B4DBFFA6 /* GraphProvenanceTests.swift */,
+				BCDFCB6DA48C253B14E42909 /* MeshHealthNoiseTests.swift */,
 				19B459BB906C92B31661B75A /* ProjectInsightRegressionTests.swift */,
 				561507EA9793E56BEEE876D1 /* ProjectLiveResourcesTests.swift */,
 				CF761C690D133AA571106F94 /* ProjectUsageDrillInTests.swift */,
@@ -3540,6 +3548,7 @@
 			isa = PBXGroup;
 			children = (
 				EC8B92659938667492B7A55C /* ProjectMeshCapabilityMerge.swift */,
+				1835D6F75C92FE2A4FC4C136 /* ProjectMeshGraphMerge.swift */,
 				C16FC2C0D00814F572E754CC /* ProjectMeshIdentityMerge.swift */,
 				8EC788DBE13F8AB25675A700 /* ProjectMeshRevisionPreference.swift */,
 			);
@@ -5391,6 +5400,7 @@
 				2B8B91C19F9639F369B68033 /* ProjectMeshBindingVisibility.swift in Sources */,
 				8C9168365CF94E0D68BB21B1 /* ProjectMeshCapabilityMerge.swift in Sources */,
 				FF0E2C97CB5F5A0CB2EEEE80 /* ProjectMeshConvergence.swift in Sources */,
+				6DEAE34BC3F44F06B0144980 /* ProjectMeshGraphMerge.swift in Sources */,
 				29D4F3AEAD6980D78D1F17C2 /* ProjectMeshIdentityMerge.swift in Sources */,
 				98CCF5365AAB7C93E276C2A1 /* ProjectMeshKnowledgeMerge.swift in Sources */,
 				03DFCFD2589908972D275842 /* ProjectMeshKnowledgeValidation.swift in Sources */,
@@ -5750,6 +5760,7 @@
 				DB35CCB8B5D1A6C40714C197 /* MemberHubFixture.swift in Sources */,
 				86B84648BE58625BDBF9B234 /* MemberLinkHubTests.swift in Sources */,
 				7FDD2825DF72405D2FA30EEC /* MemberLinkTests.swift in Sources */,
+				871CA6BDF5186DF93ADAE24C /* MeshHealthNoiseTests.swift in Sources */,
 				09C19E2346D66400261840AC /* MeshTaskPlacementTests.swift in Sources */,
 				0FEE17D855586F054AC2A2CB /* MessageImageContentTests.swift in Sources */,
 				C64D6B5E02AB67D6AA506522 /* MessageImageLoaderTests.swift in Sources */,
@@ -5836,6 +5847,7 @@
 				2286D974BAAEBE37F749CB6C /* ReceiptRecoveryTests.swift in Sources */,
 				283F92DEE5C131C98F78F58C /* RelayInboundCoverageTests.swift in Sources */,
 				EE9B8C5BBD6F7A711039DEE1 /* RelayLifecycleCoverageTests.swift in Sources */,
+				3D49B9DB2B28C59C8FE8C541 /* RelayReconnectBackoffTests.swift in Sources */,
 				E7670937453D7BA5E90243BE /* RelayReconnectRecoveryTests.swift in Sources */,
 				FB78486730B255B44B5A3049 /* RelaySessionQueueTests.swift in Sources */,
 				5233E9C996F2A1B3F53D4DB9 /* RelayTaskQueueRuntimeTests.swift in Sources */,
@@ -6147,7 +6159,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6180,7 +6192,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6267,7 +6279,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6354,7 +6366,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6392,7 +6404,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6509,7 +6521,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 197;
+				CURRENT_PROJECT_VERSION = 198;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;

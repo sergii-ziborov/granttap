@@ -190,7 +190,7 @@ struct ProjectMeshStatusView: View {
     private func graphDetail(_ report: ProjectRepositoryGraph?) -> String {
         guard let report else { return L("No architecture analysis reported for this repository.") }
         if report.analysisStatus == "UNAVAILABLE" {
-            return report.analysisErrorCode ?? L("Analysis unavailable")
+            return ProjectRepositoryGraph.unavailableReason(report.analysisErrorCode)
         }
         return "\(report.analysisStatus ?? L("Legacy report")) · \(report.totalNodes) components · \(report.totalRelations) relations"
     }

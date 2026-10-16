@@ -65,3 +65,23 @@ struct ProjectRepositoryGraph: Codable, Equatable, Identifiable {
     let truncated: Bool
     var id: String { repositoryId }
 }
+
+extension ProjectRepositoryGraph {
+    /// Why a computer has no Graph for a repository, in words a person can act on.
+    static func unavailableReason(_ code: String?) -> String {
+        switch code {
+        case "ENGINE_ADMISSION_UNAVAILABLE":
+            return L("The computer's project engine has not accepted this checkout yet. It retries on its next refresh.")
+        case "REPOSITORY_IDENTITY_MISMATCH":
+            return L("This Mesh's saved checkout now belongs to another repository. Review its computer binding.")
+        case "REPOSITORY_IDENTITY_UNVERIFIED":
+            return L("The bound checkout's repository identity could not be verified.")
+        case "REPOSITORY_NOT_BOUND":
+            return L("This computer did not verify a Mesh binding for this repository. Build architecture now to refresh its bindings and retry.")
+        case "REPOSITORY_NOT_LOCAL", "WEAVATRIX_REPOSITORY_REQUIRED":
+            return L("No local Git checkout is available for architecture analysis on this computer.")
+        default:
+            return L("Architecture analysis is unavailable on this computer.")
+        }
+    }
+}

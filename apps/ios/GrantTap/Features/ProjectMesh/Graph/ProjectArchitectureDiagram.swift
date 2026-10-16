@@ -82,7 +82,7 @@ struct ProjectArchitectureDiagram: View {
                     .foregroundStyle(report.analysisStatus == "COMPLETE" ? .green : .orange)
             }
             if report.analysisStatus == "UNAVAILABLE" {
-                Text(report.analysisErrorCode ?? "ENGINE_UNAVAILABLE")
+                Text(unavailableReason)
                     .font(.caption).foregroundStyle(.orange)
             } else {
                 Text("Weavatrix \(report.weavatrixVersion) · \(report.revision.prefix(12))")
@@ -99,18 +99,7 @@ struct ProjectArchitectureDiagram: View {
     }
 
     private var unavailableReason: String {
-        switch report.analysisErrorCode {
-        case "REPOSITORY_IDENTITY_MISMATCH":
-            return L("This Mesh's saved checkout now belongs to another repository. Review its computer binding.")
-        case "REPOSITORY_IDENTITY_UNVERIFIED":
-            return L("The bound checkout's repository identity could not be verified.")
-        case "REPOSITORY_NOT_BOUND":
-            return L("This computer did not verify a Mesh binding for this repository. Build architecture now to refresh its bindings and retry.")
-        case "REPOSITORY_NOT_LOCAL", "WEAVATRIX_REPOSITORY_REQUIRED":
-            return L("No local Git checkout is available for architecture analysis on this computer.")
-        default:
-            return L("Architecture analysis is unavailable on this computer.")
-        }
+        ProjectRepositoryGraph.unavailableReason(report.analysisErrorCode)
     }
 
     private var componentInventory: some View {

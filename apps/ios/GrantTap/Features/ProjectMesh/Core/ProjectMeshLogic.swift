@@ -78,11 +78,7 @@ enum ProjectMeshLogic {
         }
         merged.modelCatalog = catalogs.isEmpty ? nil : catalogs
         merged.backbone = incoming.backbone ?? current.backbone
-        let graphs = merge(current.repositoryGraphs ?? [], incoming.repositoryGraphs ?? [],
-                           key: \.repositoryId) { old, new in
-            incoming.generatedAt >= current.generatedAt ? new : old
-        }
-        merged.repositoryGraphs = graphs.isEmpty ? nil : graphs
+        merged.repositoryGraphs = ProjectMeshGraphMerge.merged(current: current, incoming: incoming)
         merged.repositoryDetails = ProjectRepositoryDetails.merging(current.repositoryDetails, incoming.repositoryDetails)
         let cortex = merge(current.cortex ?? [], incoming.cortex ?? [], key: \.endpointId) {
             $1.checkedAt >= $0.checkedAt ? $1 : $0

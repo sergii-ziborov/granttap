@@ -2829,3 +2829,4 @@
 
 "Sending now…" = "Отправка сейчас…";
 "Update MCP on this computer to send a queued message now." = "Обновите MCP на этом компьютере, чтобы отправить сообщение из очереди сейчас.";
+"The computer's project engine has not accepted this checkout yet. It retries on its next refresh." = "Движок проекта на компьютере ещё не принял этот checkout. Он повторит попытку при следующем обновлении.";

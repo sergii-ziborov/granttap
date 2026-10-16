@@ -57,6 +57,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var wantsConnection = false
     var initialConnectionStartedAt: TimeInterval?
     var retryDelay: TimeInterval = 1
+    var socketOpenedAt: TimeInterval?
     let maxRetryDelay: TimeInterval = 15
     var reconnectScheduled = false
     var reconnectGeneration: UUID?
@@ -241,7 +242,8 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
                     didOpenWithProtocol protocol: String?) {
         DispatchQueue.main.async {
             guard self.task === webSocketTask else { return }
-            self.retryDelay = 1          // connected again — reset the backoff
+            // The backoff resets only once this connection has stayed up.
+            self.noteSocketOpened()
             self.onConnectionChange?(true)
             let recoverPeer = self.recoverPeerOnNextHello
             self.recoverPeerOnNextHello = false
@@ -257,6 +259,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         DispatchQueue.main.async {
             guard self.task === webSocketTask else { return }
             self.task = nil
+            self.noteSocketClosed(closeCode: closeCode.rawValue)
             self.onConnectionChange?(false)
             self.scheduleReconnect()
         }

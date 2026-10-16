@@ -43,8 +43,17 @@ enum ProjectHealthDiagnostics {
     }
 
     static func graphRepositoryIds(_ snapshot: ProjectMeshSnapshot) -> [String] {
-        let ids = ProjectMeshLogic.visibleBindings(snapshot.bindings ?? []).map(\.repositoryId)
+        let bindings = snapshot.bindings ?? []
+        let reported = Set((snapshot.repositoryGraphs ?? []).map(\.repositoryId))
+        // A folder an agent ran in without Git is a workspace, not a repository
+        // with a missing Graph — unless its computer still reports about it.
+        let plainFolder = { (id: String) in
+            id.hasPrefix("local:") && !reported.contains(id) && bindings.contains { $0.repositoryId == id }
+                && bindings.allSatisfy { $0.repositoryId != id || ($0.revision ?? "").isEmpty }
+        }
+        let ids = ProjectMeshLogic.visibleBindings(bindings).map(\.repositoryId)
             + [snapshot.project.canonicalRepositoryId]
-        return Set(ids.map { RepositoryIdentityIndex.canonical($0, snapshots: [snapshot]) }).sorted()
+        return Set(ids.filter { !plainFolder($0) }
+            .map { RepositoryIdentityIndex.canonical($0, snapshots: [snapshot]) }).sorted()
     }
 }
