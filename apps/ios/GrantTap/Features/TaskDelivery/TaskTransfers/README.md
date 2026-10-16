@@ -16,6 +16,11 @@ and computer requirements. A ready local Mac MCP does not require a phone
 pairing merely to offer the transfer form; submission still uses the existing
 computer policy and readiness checks.
 
+`TaskCapsuleWireValidation` bounds every capsule the phone accepts, including a
+prepared transfer's title, `on_message` launch and context digest, so the
+destination's confirmation is not discarded on arrival. Rejoining a split Task
+keeps those fields and the receipt's prepared flag.
+
 `TaskHandoffOutcome` matches a new source request to the destination's validated
 receipt. `TaskHandoffConfirmationPoller` waits for that receipt and the destination
 catalog entry before opening the chat. An uncertain response keeps the operation

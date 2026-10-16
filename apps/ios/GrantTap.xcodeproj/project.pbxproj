@@ -403,6 +403,7 @@
 		68C267B54460857ABB283DCD /* ProjectMeshSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD95C7881F696131BC2B0170 /* ProjectMeshSnapshot.swift */; };
 		68FA039FAAE83885CA231CFD /* ProjectControllerDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD86BC8602DF8A557531F32 /* ProjectControllerDevice.swift */; };
 		6907144C3092F865A023013B /* ConnectionActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9CC20B129787F1FCBF8D6C /* ConnectionActionTests.swift */; };
+		6944A2A07B3B737CEAD338DC /* TaskCapsuleWireValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A9AFBB073BA4B5FE483D2E /* TaskCapsuleWireValidation.swift */; };
 		69C02BAAA93276F16C9DF28D /* AgentLoadDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251AB1402FEE90CC7C344372 /* AgentLoadDetailView.swift */; };
 		6A121FE0F06C3900F95AE99B /* TaskHandoffSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE915276687E35DEE28F85E2 /* TaskHandoffSheet.swift */; };
 		6A2D529ADC903A3D74189771 /* DesktopCatalogSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = E17C136B9D2ACCC5990BAC18 /* DesktopCatalogSources.swift */; };
@@ -1615,6 +1616,7 @@
 		8FBD48272A8B12FC9D0602C6 /* TaskHandoffResumedReadinessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskHandoffResumedReadinessTests.swift; sourceTree = "<group>"; };
 		9067C50789FE49AA3861BA24 /* ChatActivityRunTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatActivityRunTests.swift; sourceTree = "<group>"; };
 		90703F9E14C210D324BB79C4 /* DeliveryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryStore.swift; sourceTree = "<group>"; };
+		90A9AFBB073BA4B5FE483D2E /* TaskCapsuleWireValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCapsuleWireValidation.swift; sourceTree = "<group>"; };
 		912F264368E4D240B650EE7C /* ProjectTowerBrowserViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTowerBrowserViewTests.swift; sourceTree = "<group>"; };
 		9140B9B58CCF4527502592DA /* ProjectRepositoryDetailsValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRepositoryDetailsValidation.swift; sourceTree = "<group>"; };
 		918D1AC0D442428E6688D9A8 /* ProjectMeshRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectMeshRuntimeTests.swift; sourceTree = "<group>"; };
@@ -4008,6 +4010,7 @@
 				C2A71F4B58B2EA6E412CE01C /* tests */,
 				679AD1C0AF4AC0157F16137D /* AppModelTaskTransfers.swift */,
 				BB625B704397219775C5FD4B /* ChatTransferBanner.swift */,
+				90A9AFBB073BA4B5FE483D2E /* TaskCapsuleWireValidation.swift */,
 				C1BF973C3587C7D02F355CD7 /* TaskHandoffConfirmationPoller.swift */,
 				FB5BFB4AE9BBCB8F5DB22F60 /* TaskHandoffFixture.swift */,
 				ACD3136714071F2EB3165B7B /* TaskHandoffOutcome.swift */,
@@ -5550,6 +5553,7 @@
 				453907EF5763A3E87757C1D2 /* SubscriptionStoreEvidence.swift in Sources */,
 				CBBADDBF35BD0AD22597DBF0 /* SubscriptionStorefront.swift in Sources */,
 				A6E27D4E1855E5CDA21F6451 /* SubscriptionView.swift in Sources */,
+				6944A2A07B3B737CEAD338DC /* TaskCapsuleWireValidation.swift in Sources */,
 				8FAE5707D57556DAD4CD1B6A /* TaskChatCapabilityRows.swift in Sources */,
 				007BE707845937D67998229E /* TaskChatCapture.swift in Sources */,
 				108C3849DFA38C1B48A8AA40 /* TaskChatComposer.swift in Sources */,
@@ -6143,7 +6147,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6176,7 +6180,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6263,7 +6267,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6350,7 +6354,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6388,7 +6392,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6505,7 +6509,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 195;
+				CURRENT_PROJECT_VERSION = 196;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;

@@ -2,6 +2,22 @@ import XCTest
 @testable import GrantTap
 
 final class TaskHandoffOutcomeTests: XCTestCase {
+    func testPreparedGrokTransferSurvivesWireValidationAndConfirmation() throws {
+        var prepared = request()
+        prepared.payload.capsule?.title = "Existing task"
+        prepared.payload.capsule?.launch = "on_message"
+        prepared.payload.capsule?.contextHash = String(repeating: "b", count: 64)
+        let hash = try XCTUnwrap(ProjectMeshReceiptValidator.capsuleHash(prepared.payload.capsule!))
+        var confirmation = accepted()
+        confirmation.payload.receipt = .init(prepared: true, sourceSessionId: "source",
+            targetSessionId: "destination", taskId: "task", capsuleHash: hash, acceptedAt: 50)
+        let data = try JSONEncoder().encode(snapshot([prepared, confirmation]))
+        XCTAssertTrue(ProjectMeshWireValidator.validEvent(try JSONEncoder().encode(prepared)))
+        XCTAssertTrue(ProjectMeshWireValidator.validSnapshot(data))
+        let received = try JSONDecoder().decode(ProjectMeshSnapshot.self, from: data)
+        XCTAssertEqual(observe(received.events), .prepared("destination"))
+    }
+
     func testPreparationNeedsTheDestinationReceipt() {
         XCTAssertEqual(observe([request()]), .waiting)
         XCTAssertEqual(observe([request(), accepted()]), .prepared("destination"))

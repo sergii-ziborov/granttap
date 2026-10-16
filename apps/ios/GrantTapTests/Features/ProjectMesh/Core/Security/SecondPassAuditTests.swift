@@ -55,6 +55,28 @@ final class SecondPassAuditTests: XCTestCase {
         XCTAssertEqual(ProjectMeshLogic.rejoinSplitChats(apart), apart)
     }
 
+    func testARejoinedPreparedTransferKeepsItsLaunchAndItsPreparedReceipt() throws {
+        var input = try JSONDecoder().decode(Fixture.self, from: Data(SplitChatFixture.json.utf8)).input
+        let requestIndex = try XCTUnwrap(input.events.firstIndex { $0.eventType == "HANDOFF_REQUEST" })
+        let acceptedIndex = try XCTUnwrap(input.events.firstIndex { $0.eventType == "HANDOFF_ACCEPTED" })
+        let digest = String(repeating: "c", count: 64)
+        input.events[requestIndex].payload.capsule?.title = "Existing task"
+        input.events[requestIndex].payload.capsule?.launch = "on_message"
+        input.events[requestIndex].payload.capsule?.contextHash = digest
+        let hash = try XCTUnwrap(ProjectMeshReceiptValidator.capsuleHash(input.events[requestIndex].payload.capsule!))
+        let old = try XCTUnwrap(input.events[acceptedIndex].payload.receipt)
+        input.events[acceptedIndex].payload.receipt = ProjectHandoffReceipt(prepared: true,
+            sourceSessionId: old.sourceSessionId, sourceActorId: old.sourceActorId, targetSessionId: old.targetSessionId,
+            taskId: old.taskId, capsuleHash: hash, acceptedAt: old.acceptedAt)
+        let joined = ProjectMeshLogic.merged(current: nil, incoming: input, nowMs: now)
+        let capsule = try XCTUnwrap(joined.events.first { $0.eventType == "HANDOFF_REQUEST" }?.payload.capsule)
+        XCTAssertEqual([capsule.title, capsule.launch, capsule.contextHash], ["Existing task", "on_message", digest])
+        let accepted = try XCTUnwrap(joined.events.first { $0.eventType == "HANDOFF_ACCEPTED" })
+        let receipt = try XCTUnwrap(accepted.payload.receipt)
+        XCTAssertEqual(receipt.prepared, true, "a prepared transfer stays prepared when its Task is rejoined")
+        XCTAssertTrue(ProjectMeshReceiptValidator.valid(receipt, for: accepted, in: joined))
+    }
+
     func testNativeSessionIdsStaySeparateAcrossEndpointProviderAndProject() {
         let first = task("first", owner: "shared-native-id", revision: 1)
         let second = task("second", owner: "shared-native-id", revision: 1)

@@ -224,7 +224,7 @@ enum ProjectMeshLogic {
         return rescoped.map { event in
             guard let receipt = event.payload.receipt, let to = rehashed[receipt.capsuleHash.lowercased()] else { return event }
             var payload = event.payload
-            payload.receipt = ProjectHandoffReceipt(
+            payload.receipt = ProjectHandoffReceipt(prepared: receipt.prepared,
                 sourceSessionId: receipt.sourceSessionId, sourceActorId: receipt.sourceActorId,
                 targetSessionId: receipt.targetSessionId, taskId: receipt.taskId, capsuleHash: to, acceptedAt: receipt.acceptedAt
             )
@@ -241,7 +241,7 @@ enum ProjectMeshLogic {
             payload.claim = next
         }
         if let receipt = payload.receipt {
-            payload.receipt = ProjectHandoffReceipt(
+            payload.receipt = ProjectHandoffReceipt(prepared: receipt.prepared,
                 sourceSessionId: receipt.sourceSessionId, sourceActorId: receipt.sourceActorId,
                 targetSessionId: receipt.targetSessionId, taskId: target(receipt.taskId),
                 capsuleHash: receipt.capsuleHash, acceptedAt: receipt.acceptedAt
@@ -251,6 +251,7 @@ enum ProjectMeshLogic {
             var seen: Set<String> = []
             let dependencies = capsule.dependencies.map(target).filter { seen.insert($0).inserted && $0 != taskId }
             payload.capsule = TaskCapsule(
+                title: capsule.title, launch: capsule.launch, contextHash: capsule.contextHash,
                 taskId: target(capsule.taskId), goal: capsule.goal, currentStatus: capsule.currentStatus,
                 sourceProvider: capsule.sourceProvider, sourceActorId: capsule.sourceActorId,
                 sourceComputer: capsule.sourceComputer, targetProvider: capsule.targetProvider,
