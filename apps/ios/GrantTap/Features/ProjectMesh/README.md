@@ -91,12 +91,13 @@ execution closed by a handoff stays closed even while the native session it left
 behind keeps reporting itself.
 
 `TaskHandoffReadiness` runs the pre-flight before the button. A Task Capsule
-carries committed facts, so an execution reporting uncommitted work blocks the
-handoff here and again on its own computer rather than continuing the Task
-elsewhere from committed state alone. Overlapping resource claims, a missing
-destination, and a disabled target agent block it the same way; the destination
-verifies the commit itself when it accepts. A working tree the owning computer
-could not read blocks it too, because "we could not look" is not "clean".
+carries committed facts, so uncommitted work stays on the source computer while
+the Task continues elsewhere. That is the person's call: it is shown as a
+warning here and on its own computer, a checkpoint can take the work along, and
+the move is never refused for it. Overlapping resource claims, a missing
+destination, and a disabled target agent do block it; the destination verifies
+the commit itself when it accepts. A working tree the owning computer could not
+read is warned about the same way, because "we could not look" is not "clean".
 For a native chat resumed after an old execution close, readiness uses a newer
 checkout reading from the same task, provider and computer. The historical
 execution remains closed. Dirty work still requires a checkpoint.

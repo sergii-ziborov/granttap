@@ -18,7 +18,7 @@ final class TaskRouteReadinessTests: XCTestCase {
         super.tearDown()
     }
 
-    func testUncommittedWorkBlocksTheHandoffInsteadOfNarrowingIt() {
+    func testUncommittedWorkIsAWarningThatDoesNotBlockTheHandoff() {
         let model = AppModel()
         model.agentMeshPreferences = .defaults
         model.meshSnapshots = ["project": snapshot(uncommitted: true)]
@@ -31,14 +31,13 @@ final class TaskRouteReadinessTests: XCTestCase {
         )
         let checks = sheet.readinessChecks
         let workingTree = checks.first { $0.id == "workingTree" }
-        XCTAssertEqual(workingTree?.ready, false)
-        XCTAssertEqual(workingTree?.detail, TaskHandoffReadiness.uncommittedReason)
-        XCTAssertFalse(sheet.isReady)
-        XCTAssertFalse(sheet.isReadyForGrokBot)
-        XCTAssertFalse(sheet.performHandoff(targetRoom: "target", targetProvider: "codex"))
-        XCTAssertEqual(
-            TaskHandoffReadiness.blockedReason(checks), TaskHandoffReadiness.uncommittedReason
-        )
+        XCTAssertEqual(workingTree?.ready, true)
+        XCTAssertEqual(workingTree?.warning, true)
+        XCTAssertEqual(workingTree?.detail, TaskHandoffReadiness.uncommittedWarning)
+        XCTAssertTrue(sheet.isReady, "the person decides to leave uncommitted work behind")
+        XCTAssertTrue(sheet.isReadyForGrokBot)
+        XCTAssertNil(TaskHandoffReadiness.blockedReason(checks))
+        XCTAssertEqual(sheet.transferWarning, TaskHandoffReadiness.uncommittedWarning)
     }
 
     func testCleanTaskWithoutOverlapIsReadyAndClaimConflictsBlockIt() {

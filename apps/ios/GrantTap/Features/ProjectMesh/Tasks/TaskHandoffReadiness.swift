@@ -12,17 +12,18 @@ struct HandoffReadinessCheck: Identifiable, Equatable {
 
 /// Whether this Task may leave this computer at all.
 ///
-/// A Task Capsule carries committed facts, so uncommitted work would stay
-/// behind while the Task visibly continued elsewhere. That is refused here and
-/// again on the source computer rather than silently narrowing the handoff.
+/// A Task Capsule carries committed facts, so uncommitted work stays behind on
+/// the source computer while the Task continues elsewhere. That is the
+/// person's call: it is said out loud here and on the source computer, and a
+/// checkpoint can take the work along, but it never blocks the move.
 enum TaskHandoffReadiness {
-    static let uncommittedReason =
-        "This task has uncommitted changes. Commit or checkpoint them before moving the task."
+    static let uncommittedWarning =
+        "This task has uncommitted changes. They stay on the source computer; the next agent starts from the last commit."
 
-    /// An unread working tree blocks the move. Only a positive reading of a
-    /// clean checkout releases it, because "we could not look" is not "clean".
-    static let unreadableWorkingTreeReason =
-        "GrantTap could not read this working tree, so it cannot promise a commit carries everything."
+    /// "We could not look" is not "clean", so an unread tree is warned about
+    /// the same way rather than reported as nothing left behind.
+    static let unreadableWorkingTreeWarning =
+        "GrantTap could not read this working tree, so uncommitted changes may stay on the source computer."
 
     static func checks(
         session: SessionInfo,
@@ -41,17 +42,15 @@ enum TaskHandoffReadiness {
                     ? L("Selected")
                     : L("Link a second computer to move this task.")
             ),
-            // Uncommitted work is the usual reason a Task cannot leave. With a
-            // checkpoint the source computer commits it to a branch of its own
-            // first — local, never pushed — so the move no longer waits on a
-            // commit made by hand.
+            // Uncommitted work stays on the source computer unless a
+            // checkpoint commits it to a branch of its own first — local,
+            // never pushed. Either way the move goes ahead.
             HandoffReadinessCheck(
-                id: "workingTree", title: L("Working tree"),
-                ready: execution?.uncommitted == false || (checkpoint && execution?.uncommitted == true),
+                id: "workingTree", title: L("Working tree"), ready: true,
                 detail: checkpoint && execution?.uncommitted == true
                     ? L("Uncommitted work will be committed to a checkpoint branch before the move.")
                     : workingTreeDetail(execution),
-                warning: checkpoint && execution?.uncommitted == true
+                warning: execution?.uncommitted != false
             ),
             HandoffReadinessCheck(
                 id: "claims", title: L("Claims"), ready: conflict == nil,
@@ -106,8 +105,8 @@ enum TaskHandoffReadiness {
     private static func workingTreeDetail(_ execution: ExecutionSessionLink?) -> String {
         switch execution?.uncommitted {
         case false: return L("Clean")
-        case true: return L(uncommittedReason)
-        default: return L(unreadableWorkingTreeReason)
+        case true: return L(uncommittedWarning)
+        default: return L(unreadableWorkingTreeWarning)
         }
     }
 

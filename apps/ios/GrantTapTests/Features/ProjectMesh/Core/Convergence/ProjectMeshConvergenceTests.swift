@@ -90,18 +90,18 @@ final class ProjectMeshConvergenceTests: XCTestCase {
         XCTAssertNil(view.localSession, "the previous execution never becomes a route again")
     }
 
-    func testAWorkingTreeGrantTapCouldNotReadBlocksTheHandoff() {
+    func testAWorkingTreeGrantTapCouldNotReadIsWarnedAboutWithoutBlocking() {
         var unknown = ProjectMeshConvergenceFixtures.snapshot(generatedAt: now)
         unknown.executions[0].uncommitted = nil
-        let blocked = TaskHandoffReadiness.checks(
+        let warned = TaskHandoffReadiness.checks(
             session: ProjectMeshConvergenceFixtures.session(), snapshot: unknown,
             destinationSelected: true, targetProviderEnabled: true
         )
-        XCTAssertEqual(blocked.first { $0.id == "workingTree" }?.ready, false)
-        XCTAssertEqual(
-            TaskHandoffReadiness.blockedReason(blocked),
-            TaskHandoffReadiness.unreadableWorkingTreeReason
-        )
+        let row = warned.first { $0.id == "workingTree" }
+        XCTAssertEqual(row?.ready, true)
+        XCTAssertEqual(row?.warning, true)
+        XCTAssertEqual(row?.detail, TaskHandoffReadiness.unreadableWorkingTreeWarning)
+        XCTAssertNil(TaskHandoffReadiness.blockedReason(warned))
 
         var clean = ProjectMeshConvergenceFixtures.snapshot(generatedAt: now)
         clean.executions[0].uncommitted = false

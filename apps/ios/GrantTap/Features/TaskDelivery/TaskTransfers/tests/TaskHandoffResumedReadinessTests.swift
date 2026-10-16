@@ -8,14 +8,21 @@ final class TaskHandoffResumedReadinessTests: XCTestCase {
         model.meshSnapshots = ["project": snapshot(dirty: true)]
         let sheet = TaskHandoffSheet(session: session(), model: model)
         let check = checks(snapshot(dirty: true)).first { $0.id == "workingTree" }
-        XCTAssertEqual(check?.detail, TaskHandoffReadiness.uncommittedReason)
+        XCTAssertEqual(check?.detail, TaskHandoffReadiness.uncommittedWarning)
+        XCTAssertEqual(check?.warning, true)
         XCTAssertTrue(sheet.hasUncommittedWork)
-        XCTAssertFalse(TaskHandoffReadiness.isReady(checks(snapshot(dirty: true))))
+        XCTAssertEqual(sheet.transferWarning, TaskHandoffReadiness.uncommittedWarning)
+        XCTAssertTrue(TaskHandoffReadiness.isReady(checks(snapshot(dirty: true))),
+                      "uncommitted work is warned about, never a reason to refuse")
         XCTAssertTrue(TaskHandoffReadiness.isReady(checks(snapshot(dirty: true), checkpoint: true)))
     }
 
     func testResumedCleanChatCanTransferAfterOldExecutionClosure() {
         XCTAssertTrue(TaskHandoffReadiness.isReady(checks(snapshot(dirty: false))))
+        XCTAssertEqual(checks(snapshot(dirty: false)).first { $0.id == "workingTree" }?.warning, false)
+        let model = AppModel()
+        model.meshSnapshots = ["project": snapshot(dirty: false)]
+        XCTAssertNil(TaskHandoffSheet(session: session(), model: model).transferWarning)
     }
 
     func testOldClosedChatDoesNotUseHistoricalCheckoutReading() {
@@ -24,11 +31,12 @@ final class TaskHandoffResumedReadinessTests: XCTestCase {
         let rows = TaskHandoffReadiness.checks(session: chat, snapshot: snapshot(dirty: false),
             destinationSelected: true, targetProviderEnabled: true)
         XCTAssertEqual(rows.first { $0.id == "workingTree" }?.detail,
-                       TaskHandoffReadiness.unreadableWorkingTreeReason)
-        XCTAssertFalse(TaskHandoffReadiness.isReady(rows))
+                       TaskHandoffReadiness.unreadableWorkingTreeWarning)
+        XCTAssertEqual(rows.first { $0.id == "workingTree" }?.warning, true)
+        XCTAssertTrue(TaskHandoffReadiness.isReady(rows))
     }
 
-    func testAnotherComputerTaskOrProviderCannotMakeTheSourceReady() {
+    func testAnotherComputerTaskOrProviderNeverDescribesTheSource() {
         for change in 0..<3 {
             var state = snapshot(dirty: false)
             let row = state.executions[0]
@@ -36,14 +44,19 @@ final class TaskHandoffResumedReadinessTests: XCTestCase {
                 sessionId: row.sessionId, provider: change == 1 ? "grok" : row.provider,
                 computerId: change == 2 ? "other-mac" : row.computerId,
                 workspace: row.workspace, uncommitted: false, updatedAt: 40, startedAt: 1)]
-            XCTAssertFalse(TaskHandoffReadiness.isReady(checks(state)))
+            let reading = checks(state).first { $0.id == "workingTree" }
+            XCTAssertEqual(reading?.detail, TaskHandoffReadiness.unreadableWorkingTreeWarning)
+            XCTAssertEqual(reading?.warning, true)
         }
     }
 
-    func testMissingReadingsStillBlockCheckpoint() {
+    func testMissingReadingsAreWarnedAboutEvenWithACheckpoint() {
         var state = snapshot(dirty: false)
         state.executions[0].uncommitted = nil
-        XCTAssertFalse(TaskHandoffReadiness.isReady(checks(state, checkpoint: true)))
+        let row = checks(state, checkpoint: true).first { $0.id == "workingTree" }
+        XCTAssertEqual(row?.detail, TaskHandoffReadiness.unreadableWorkingTreeWarning)
+        XCTAssertEqual(row?.warning, true)
+        XCTAssertTrue(TaskHandoffReadiness.isReady(checks(state, checkpoint: true)))
     }
 
     private func checks(_ state: ProjectMeshSnapshot, checkpoint: Bool = false) -> [HandoffReadinessCheck] {

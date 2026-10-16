@@ -66,9 +66,9 @@ published back to the agent that asked.
 
 Before the handoff button, GrantTap shows a readiness pre-flight — destination,
 working tree, claims, target agent, commit. A checkout with uncommitted changes
-blocks the handoff on both the phone and the source computer, because a capsule
-carries committed facts and that work would otherwise stay behind while the Task
-appeared to continue elsewhere.
+is a warning on both the phone and the source computer: a capsule carries
+committed facts, so that work stays behind unless a checkpoint takes it along,
+and the person decides whether to move the Task anyway.
 
 **Settings → Agents & Mesh** owns the per-agent runtime gates for Claude Code,
 Codex, Cursor, and Grok Build plus the Mesh switch. Disabling an agent

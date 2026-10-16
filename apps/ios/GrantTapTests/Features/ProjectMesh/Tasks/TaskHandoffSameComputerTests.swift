@@ -73,7 +73,8 @@ final class TaskHandoffSameComputerTests: XCTestCase {
         XCTAssertEqual(sheet.defaultSelection.room, "source")
         XCTAssertEqual(sheet.defaultSelection.provider, "codex")
         XCTAssertTrue(sheet.hasUncommittedWork)
-        XCTAssertFalse(sheet.isReady, "uncommitted work still blocks a move within one computer")
+        XCTAssertTrue(sheet.isReady, "uncommitted work is a warning, not a block, within one computer too")
+        XCTAssertEqual(sheet.transferWarning, TaskHandoffReadiness.uncommittedWarning)
         RenderProbe.render(sheet)
 
         let capabilities = ChatCapabilitySheet(sessionId: "claude", session: session(), rows: [], accent: .red, model: model) { _ in }

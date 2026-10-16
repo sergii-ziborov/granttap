@@ -64,9 +64,9 @@ extension TaskRouteView {
             Text(Self.timingLine(execution)).font(.caption2).foregroundStyle(Theme.muted)
             if execution.endedAt == nil, execution.uncommitted != false {
                 Text(L(execution.uncommitted == true
-                       ? TaskHandoffReadiness.uncommittedReason
-                       : TaskHandoffReadiness.unreadableWorkingTreeReason))
-                    .font(.caption).foregroundStyle(Theme.riskHigh)
+                       ? TaskHandoffReadiness.uncommittedWarning
+                       : TaskHandoffReadiness.unreadableWorkingTreeWarning))
+                    .font(.caption).foregroundStyle(Theme.riskMed)
             }
             if chatAvailable {
                 Label(L("Open chat"), systemImage: "bubble.left.and.bubble.right")

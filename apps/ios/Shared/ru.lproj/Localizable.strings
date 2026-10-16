@@ -791,9 +791,9 @@
 "File writes" = "Запись файлов";
 "Deploy" = "Развёртывание";
 "Network" = "Сеть";
-/* Ordered convergence and fail-closed working-tree readings */
-"This task has uncommitted changes. Commit or checkpoint them before moving the task." = "В задаче есть незакоммиченные изменения. Закоммитьте или сделайте checkpoint перед переносом.";
-"GrantTap could not read this working tree, so it cannot promise a commit carries everything." = "GrantTap не смог прочитать рабочее дерево и не может гарантировать, что коммит заберёт все изменения.";
+/* Ordered convergence and working-tree warnings */
+"This task has uncommitted changes. They stay on the source computer; the next agent starts from the last commit." = "В задаче есть незакоммиченные изменения. Они останутся на исходном компьютере; следующий агент начнёт с последнего коммита.";
+"GrantTap could not read this working tree, so uncommitted changes may stay on the source computer." = "GrantTap не смог прочитать рабочее дерево, поэтому незакоммиченные изменения могут остаться на исходном компьютере.";
 /* Now keeps the last three days; older work stays in Tasks */
 "Last active" = "Активность";
 "%dd ago" = "%d дн назад";

@@ -26,7 +26,8 @@ receipt. `TaskHandoffConfirmationPoller` waits for that receipt and the destinat
 catalog entry before opening the chat. An uncertain response keeps the operation
 pending; checking again only reads its status and cannot submit a duplicate.
 
-The transfer footer stays visible while the form scrolls. A fresh checkout
-reading from a resumed native chat can offer a checkpoint even when its previous
-execution was closed. Missing readings still block preparation. Cancel closes the
-form; preparation failures remain visible there.
+The transfer footer stays visible while the form scrolls and states what the move
+leaves behind next to the action. A fresh checkout reading from a resumed native
+chat can offer a checkpoint even when its previous execution was closed.
+Uncommitted or unread work is a warning, never a block. Cancel closes the form;
+preparation failures remain visible there.

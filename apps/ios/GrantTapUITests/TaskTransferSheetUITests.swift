@@ -1,7 +1,7 @@
 import XCTest
 
 final class TaskTransferSheetUITests: XCTestCase {
-    func testResumedTaskOffersCheckpointAndFailedSubmissionKeepsTheSheetOpen() {
+    func testUncommittedWorkWarnsOffersCheckpointAndFailedSubmissionKeepsTheSheetOpen() {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_CAPTURE_TAB": "tasks",
@@ -17,9 +17,12 @@ final class TaskTransferSheetUITests: XCTestCase {
         XCTAssertEqual(app.buttons["handoff.close"].label, "Cancel")
         let prepare = app.buttons["handoff.submit"]
         XCTAssertTrue(prepare.exists)
-        XCTAssertFalse(prepare.isEnabled)
-        let reason = app.staticTexts["handoff.blockedReason"]
-        XCTAssertTrue(reason.label.contains("uncommitted changes"))
+        let warning = app.staticTexts["handoff.warning"]
+        XCTAssertTrue(warning.waitForExistence(timeout: 5))
+        XCTAssertTrue(warning.label.contains("uncommitted changes"))
+        XCTAssertTrue(prepare.isEnabled, "uncommitted work is warned about, never a block")
+        XCTAssertFalse(app.staticTexts["handoff.blockedReason"].exists)
+        capture(app, "Uncommitted work is a warning next to an enabled transfer")
         let checkpoint = app.switches["handoff.checkpoint"]
         let control = checkpoint.switches.firstMatch
         for _ in 0..<4 where !control.isHittable {
@@ -28,6 +31,7 @@ final class TaskTransferSheetUITests: XCTestCase {
         XCTAssertTrue(control.isHittable)
         control.tap()
         XCTAssertEqual(control.value as? String, "1")
+        XCTAssertTrue(warning.label.contains("checkpoint branch"))
         capture(app, "Checkpoint selected for resumed chat")
         let hierarchy = XCTAttachment(string: app.debugDescription)
         hierarchy.name = "Transfer controls after selecting checkpoint"
@@ -38,6 +42,7 @@ final class TaskTransferSheetUITests: XCTestCase {
         XCTAssertTrue(prepare.isHittable)
         capture(app, "Transfer action remains visible after scrolling")
         prepare.tap()
+        let reason = app.staticTexts["handoff.blockedReason"]
         let failed = expectation(for: NSPredicate(format: "label == %@", "The handoff was not accepted."),
                                  evaluatedWith: reason)
         wait(for: [failed], timeout: 10)

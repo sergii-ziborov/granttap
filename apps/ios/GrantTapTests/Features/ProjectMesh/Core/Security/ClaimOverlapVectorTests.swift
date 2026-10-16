@@ -90,7 +90,7 @@ final class ClaimOverlapVectorTests: XCTestCase {
     }
 
     /// Uncommitted work blocks a plain move and is released by a checkpoint.
-    func testACheckpointReleasesADirtyWorkingTreeAsAWarningNotABlock() {
+    func testADirtyWorkingTreeIsAWarningWithOrWithoutACheckpoint() {
         let session = SessionInfo(
             sessionId: "mine", agent: "claude", projectId: "project", taskId: "task-a",
             computerId: "MacBook", title: "A", state: "working",
@@ -109,8 +109,10 @@ final class ClaimOverlapVectorTests: XCTestCase {
         let plain = TaskHandoffReadiness.checks(
             session: session, snapshot: snapshot, destinationSelected: true, targetProviderEnabled: true
         )
-        XCTAssertEqual(plain.first { $0.id == "workingTree" }?.ready, false)
-        XCTAssertFalse(TaskHandoffReadiness.isReady(plain))
+        XCTAssertEqual(plain.first { $0.id == "workingTree" }?.ready, true)
+        XCTAssertEqual(plain.first { $0.id == "workingTree" }?.warning, true)
+        XCTAssertEqual(plain.first { $0.id == "workingTree" }?.detail, TaskHandoffReadiness.uncommittedWarning)
+        XCTAssertTrue(TaskHandoffReadiness.isReady(plain))
 
         let checkpointed = TaskHandoffReadiness.checks(
             session: session, snapshot: snapshot, destinationSelected: true, targetProviderEnabled: true,
