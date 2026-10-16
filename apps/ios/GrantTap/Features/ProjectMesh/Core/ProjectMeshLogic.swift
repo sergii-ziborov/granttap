@@ -1,6 +1,9 @@
 import Foundation
 
 enum ProjectMeshLogic {
+    static func requiresHandoffAuthorization(_ event: ProjectMeshEvent, locallyAuthorized: Bool) -> Bool {
+        event.eventType == "HANDOFF_REQUEST" && !locallyAuthorized && event.payload.capsule?.launch != "on_message"
+    }
     static func needsHuman(type: String, payload: ProjectMeshEventPayload) -> Bool {
         switch type {
         case "AGENT_QUESTION":
@@ -25,6 +28,8 @@ enum ProjectMeshLogic {
         sessionRooms: [String: String],
         computerRooms: [String: String]
     ) -> String? {
+        // Prepared transfers already use the durable computer transport. A phone never forwards them twice.
+        if event.eventType == "HANDOFF_REQUEST", event.payload.capsule?.launch == "on_message" { return nil }
         if let target = event.targetSessionId, let room = sessionRooms[target] { return room }
         if let computer = event.payload.capsule?.targetComputer {
             return computerRooms[computer]

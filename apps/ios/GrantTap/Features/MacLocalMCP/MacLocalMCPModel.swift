@@ -22,6 +22,8 @@ final class MacLocalMCPModel: ObservableObject {
     @Published var pendingAutoAcceptProjects: Set<String> = []
     @Published var pausedAutoAcceptProjects: Set<String> = []
     private var imageRoutes: [String: (projectId: String, taskId: String, cursor: String?)] = [:]
+    var taskPreferences: [String: MacTaskPreferences] = [:]
+    var taskCapabilities: [String: MacTaskCapabilities] = [:]
 
     var isReady: Bool { status?.desktopEngineSocket != nil && workspace != nil }
 

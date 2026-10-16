@@ -106,6 +106,7 @@ struct ComposerField: View {
         .focused(focus)
         .submitLabel(.send)
         .onSubmit(onSubmit)
+        .accessibilityIdentifier("composer.message")
         .padding(.horizontal, 4)
         .padding(.top, 2)
     }

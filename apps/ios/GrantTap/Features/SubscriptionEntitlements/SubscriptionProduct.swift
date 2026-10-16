@@ -1,23 +1,25 @@
 import Foundation
 
-/// The Personal subscription, priced by how many computers a person links.
-///
-/// Agents are never counted: a computer runs as many coding agents as it can,
-/// and charging per agent would price the product against the thing it exists
-/// to make easy. Only the remote service — relay, background wake, and the
-/// bounded server queue — is subscribed; local use is unaffected.
+/// Managed plans count publishing computers, not agents or Tasks.
+/// Local control and own-relay use have separate Mac Local rights.
 enum SubscriptionProduct: String, CaseIterable, Sendable {
     case solo = "com.ziborov.granttap.personal.solo.monthly"
     case personal = "com.ziborov.granttap.personal.monthly"
-    case fleet = "com.ziborov.granttap.personal.fleet.monthly"
     case studio = "com.ziborov.granttap.personal.studio.monthly"
 
-    /// Linked computers this tier allows. Agents per computer are unlimited.
+    var label: String {
+        switch self {
+        case .solo: "Personal"
+        case .personal: "Personal Plus"
+        case .studio: "Fleet"
+        }
+    }
+
+    /// Stable computers enabled to publish through the managed service.
     var seatLimit: Int {
         switch self {
         case .solo: 2
         case .personal: 5
-        case .fleet: 10
         case .studio: 15
         }
     }
@@ -38,6 +40,7 @@ struct SubscriptionOffer: Identifiable, Equatable {
     let id: String
     let displayName: String
     let displayPrice: String
+    var hasSevenDayTrial = false
 
     var product: SubscriptionProduct? { SubscriptionProduct(rawValue: id) }
     var seatLimit: Int { product?.seatLimit ?? 0 }

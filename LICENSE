@@ -1,5 +1,6 @@
 GrantTap Commercial Source License 1.0
 Effective September 28, 2026
+Clarified October 16, 2026
 
 Copyright (c) 2026 Serhii Ziborov. All rights reserved.
 
@@ -49,6 +50,6 @@ liability that applicable law does not allow to be limited.
 7. Earlier licenses. A copy validly received under a different license remains
 subject to that license. This version does not withdraw permissions previously
 granted for those copies. In particular, granttap-mcp remains separately
-licensed under MIT in its own repository.
+licensed under Apache License 2.0 in its own repository.
 
 For a commercial source license, contact sergii.ziborov@gmail.com.

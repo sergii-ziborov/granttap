@@ -110,8 +110,10 @@ final class UIActionCoverageTests: XCTestCase {
             model.turnOverrides.chatOverrides(session.sessionId).model,
             .gpt56Terra
         )
-        // Codex is not driven with an effort flag, so it is offered none.
-        XCTAssertTrue(TurnEffort.supported(by: session.agent).isEmpty)
+        // The selected effort must survive the same control bindings used by the composer.
+        overrides.effortBinding.wrappedValue = .high
+        XCTAssertEqual(model.turnOverrides.resolved(sessionId: session.sessionId, agent: session.agent)
+            .wire(for: session.agent).effort, "high")
 
         model.excludedSessions = [session.sessionId]
         XCTAssertEqual(sheet.approvalBinding.wrappedValue, .defaults)

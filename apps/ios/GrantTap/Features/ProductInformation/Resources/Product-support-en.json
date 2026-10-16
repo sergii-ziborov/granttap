@@ -1,30 +1,35 @@
 {
   "title": "Support",
-  "updated": "2026-10-05",
-  "intro": "Install the runtime, run setup, and authenticate the coding app. The one-time QR stays in the GrantTap connection card and is scanned on the phone — never in chat.",
+  "updated": "2026-10-16",
+  "intro": "Install GrantTap → connect an execution computer with GrantTap MCP → open your Task. This guide explains account passkeys, direct pairing, Mac access, connection modes and recovery.",
   "sections": [
     {
-      "heading": "Account Mesh and passkey",
+      "heading": "Account passkey and QR",
       "paragraphs": [
-        "Your Account Mesh exists on the relay after you create or sign in to a GrantTap account, even when it has no computers. It can contain many Projects and their Meshes; chats stay empty until a computer joins.",
-        "On iPhone, open Devices and sign in with passkey. Use the same passkey in GrantTap MCP to add this computer to the account. A QR is optional for a direct device link. Each Task keeps its own computer route."
-      ]
+        "An Account Mesh exists as soon as you create or sign in to your Personal account, even with no computer. It can contain many Projects and their Meshes. Use the same passkey in GrantTap MCP to add a computer. Every linked computer running MCP contributes its own Task catalog to the account; each Task keeps its computer route. On a trusted iPhone, Devices → Add another iPhone or iPad offers a five-minute, one-use Account Mesh QR for a new device. It creates a separate session and discovers all linked MCP computers, including computers added later.",
+        "The same screen can request a QR for one computer. A Project Mesh invite has its own role and permissions; it does not open the whole account. A GrantTap passkey is not Sign in with Apple. Apple Passwords can sync it through iCloud if you save it there.",
+        "On a Mac with the local GrantTap bridge, granttap.com/connect can request a fresh passkey assertion to approve one coding-app connection. The Mac must still authorize its local MCP bridge. You can review and revoke account devices in the account page."
+      ],
+      "image": {
+        "name": "help-devices",
+        "caption": "Devices: account passkey and direct QR are separate choices. Current app with a sample device name and no account credentials."
+      }
     },
     {
       "heading": "Mac app and device connections",
       "bullets": [
         "Open Help → GrantTap Help for built-in guides. GrantTap → About GrantTap shows the version, purchase options, Terms, Privacy and licenses. These documents remain readable offline.",
-        "In the Mac app, use Devices → Connect iPhone or iPad to display a one-time QR. On the phone or tablet, use Devices → Add a device (Scan QR).",
+        "In the Mac app, open Devices → Connect iPhone or iPad for a one-time QR. On the phone or tablet, open Devices → Add a device (Scan QR).",
         "To add a Mac or PC, choose Connect a computer by link and paste its one-time invitation. Existing device connections are preserved.",
-        "Install the separate MCP helper on this Mac. A release build needs Authorize local Mac access; provider hooks may also need review in Codex."
+        "Install MCP on each computer that runs coding agents. A Mac used only to manage linked computers does not need a local MCP. Local Mac control additionally requires approved local access."
       ]
     },
     {
       "heading": "Purchase, restore and connection modes",
       "paragraphs": [
-        "The launch Mac License is planned at $39.99 in the US; Apple supplies the actual local price and availability. Personal is optional: $1.99 / $3.99 / $5.99 / $9.99 per month for up to 2 / 5 / 10 / 15 computers, with the eligible trial shown by Apple. Model tokens are separate.",
+        "Planned US launch prices: Personal: $3.99 per month — up to 2 computers; Personal Plus: $6.99 per month — up to 5 computers; Fleet: $11.99 per month — up to 15 computers. Mac Local: $39.99 once. Apple’s purchase sheet controls availability, local pricing and any eligible trial. Models and AI tokens are separate.",
         "Use Restore purchases in Settings with the same Apple Account that made the purchase. Manage subscription opens Apple's controls. Deleting the app does not cancel a subscription.",
-        "A licensed Mac can use managed delivery with Personal, direct delivery using encrypted address discovery without Personal, or a fully self-hosted relay. Configure Devices → Device network → Connection mode & own relay. Direct and self-hosted delivery need a reachable TLS endpoint or VPN; an announced IP alone cannot cross NAT. You maintain your own server and backups. Background notifications require a suitable push service."
+        "Active Personal includes linked Mac managed access; no additional Mac Local purchase is required for that path. Mac Local opens local control and your own relay without a Personal subscription. Managed hosting is not part of the one-time purchase."
       ]
     },
     {
@@ -36,14 +41,19 @@
         "Open the GrantTap connection card in the coding app and choose Add a device. Scan its one-time QR in GrantTap on iPhone.",
         "Use Add another device for a second phone or Reconnect for the same phone. granttap.com/connect handles coding-app approval and observations, not the QR.",
         "Use granttap status for a read-only readiness summary."
-      ]
+      ],
+      "image": {
+        "name": "help-scan-qr",
+        "caption": "Add a device: scan a one-time invitation or use its secure text fallback. Empty setup screen; no live QR or token is shown."
+      }
     },
     {
       "heading": "Provider readiness",
       "bullets": [
         "Claude Code and Codex are the primary integrations.",
         "Codex may require you to trust the exact GrantTap hooks before restarting Codex.",
-        "Cursor is Beta. Install the GrantTap Marketplace listing, then granttap setup. Do not add GrantTap in Customize → MCPs.",
+        "For Cursor, install the GrantTap Marketplace listing, then run granttap setup. Its supported controls are described in the Cursor guide. Do not add GrantTap in Customize → MCPs.",
+        "Grok Build controls depend on what the installed local runtime exposes.",
         "Cursor Cloud · fetch failed is a leftover user HTTP MCP at 127.0.0.1:17342, or the unused cloud plugin source — not proof the phone is unpaired.",
         "A provider that is not installed is not an error."
       ]
@@ -51,12 +61,127 @@
     {
       "heading": "Pairing or delivery does not work",
       "bullets": [
+        "Check the task computer is awake, its MCP is running and the expected account or direct pairing is selected. Run granttap status before changing pairings.",
         "Confirm internet access and use a wss:// relay URL.",
-        "A website “seen” or Connected label is an observation, not Live. Live is visible in GrantTap after the helper and phone share a room.",
-        "A phone without a room adopts the computer's room. If already Live, it keeps its room and the computer joins it. Reconnect mints a QR for the same room.",
-        "Open GrantTap on the unlocked iPhone. A locked phone stays offline.",
+        "A website “seen” or account Online label confirms registration, not chat delivery. Chats are available after the phone has a secure link and receives that computer’s Task catalog.",
+        "The Account Mesh combines Tasks from all linked MCP computers. Reconnect repairs the affected computer link; it does not switch all chats to a default computer.",
         "Check iOS Notifications and Background App Refresh. APNs timing is controlled by Apple and cannot be guaranteed.",
         "Never send pairing tokens, room credentials, provider credentials, prompts, or repository paths in support messages."
+      ]
+    },
+    {
+      "heading": "Choosing managed, direct or own relay",
+      "paragraphs": [
+        "Managed mode uses GrantTap delivery and an active Personal entitlement on the same account. A linked Mac can act as a managed client without a separate Mac Local purchase. Only computers enabled to publish agent work use the plan’s computer allowance.",
+        "Mac Local is the separate one-time right for local Mac control and your own relay. Direct mode uses encrypted endpoint discovery; your own relay uses your endpoint. Neither mode makes a private computer reachable through NAT automatically. Supply a reachable TLS endpoint or a suitable VPN and maintain your server, updates and backups.",
+        "Push requires a working push service and Apple permissions. A custom relay address alone does not configure APNs or guarantee background delivery. Keep tokens and private endpoints out of support screenshots."
+      ]
+    },
+    {
+      "heading": "A second iPhone or iPad",
+      "paragraphs": [
+        "For your own linked clients, open Devices on a trusted signed-in device and choose Add another iPhone or iPad. Scan the account invitation on the new device before its displayed expiry. The new device gets its own revocable account session and discovers account computers.",
+        "A QR for one computer is a different operation. On Mac use Devices → Connect iPhone or iPad, then on the phone Devices → Add a device (Scan QR). For an existing device use Reconnect; do not create a new pairing as a routine repair.",
+        "Inviting another person to a Project Mesh grants the selected role and project access. It does not share your whole account, provider subscription, source-hosting credentials or Mac Local license."
+      ]
+    },
+    {
+      "heading": "Models, Effort and Usage",
+      "paragraphs": [
+        "Open the model control beside the composer. Select the provider-reported model and, when supported, its Effort level. These settings apply to the next message sent from GrantTap; unsupported levels are not added to a provider.",
+        "Subscription limits and reset times come from the provider account. Token and tool statistics are separate observed execution data in Usage. Missing or stale information is marked unknown; GrantTap is not the provider’s invoice. Your AI accounts and model charges remain separate."
+      ]
+    },
+    {
+      "heading": "Sending, queueing and scheduled work",
+      "paragraphs": [
+        "Open the intended Task and check its computer and provider before sending. Its route stays with that Task. A different active computer in Devices does not silently move an existing chat.",
+        "After the encrypted upload is confirmed, the relay can retain a queued request until its due time or expiry and deliver it when the target computer reconnects, even if the phone is closed. Before that confirmation, keep GrantTap connected so the local pending upload can finish. Queue limits, expiry, revocation and available provider operations still apply.",
+        "Use Queue to inspect, change the supported delivery time or cancel a waiting request. Retry acts on failed delivery; it is not proof the agent completed the work. If an acknowledgement is uncertain, inspect the Task before creating another copy of the same request."
+      ]
+    },
+    {
+      "heading": "Stopping work and attachments",
+      "paragraphs": [
+        "Stop is available for a provider-reported active execution that supports interruption. Closing the chat or locking a device does not stop the agent. Waiting messages have their own queue controls.",
+        "Keep the app connected until an attachment upload is confirmed. If a picture shows Retry, reopen it while the task computer and the authorized connection are available. A file preview requires workspace access on that Task’s computer. An edit request sent from GrantTap is applied through the supported computer/provider path; it is not an unconditional local overwrite."
+      ]
+    },
+    {
+      "heading": "Health and Graph",
+      "paragraphs": [
+        "Repository analysis runs on the execution computer and requires the installed GrantTap Engine. Keep both Apple clients and GrantTap MCP current; MCP 0.8.68 or newer supplies the repository and architecture contract used by recent clients.",
+        "In Mesh → Health, check the computer, repository binding and timestamp. Refresh requests new evidence; a cached snapshot is not a live connection. If a repository was moved or its remote changed, review that binding instead of deleting all pairings.",
+        "A graph can be incomplete when analysis is bounded or a language is unsupported. The plan does not turn missing evidence into a complete architecture report. Send sanitized error codes and versions to Support if a current report still fails."
+      ]
+    },
+    {
+      "heading": "Purchases confirmed but access not active",
+      "paragraphs": [
+        "Do not buy a second time after Apple confirms a purchase. Reconnect to the same GrantTap account, check internet access and use Restore purchases to retry verified purchase and account synchronization. Support can investigate a persistent activation error without your Apple password or payment-card details.",
+        "An Apple billing account and a GrantTap passkey account have different roles. Use the purchasing Apple Account for restoration and the intended GrantTap account for shared managed access. Ending Personal does not delete downloaded chats or revoke a purchased Mac Local license."
+      ]
+    },
+    {
+      "heading": "Apple Watch",
+      "paragraphs": [
+        "Install the companion through the paired iPhone. Watch displays synchronized work and sends supported quick decisions through that phone. It is not an independent coding computer or a separate paid plan.",
+        "Check the iPhone’s connection and Apple notification permissions first. APNs and Watch background timing are controlled by Apple. Decisions still require the request to be current and allowed by project and computer policy."
+      ]
+    },
+    {
+      "heading": "Approvals and safe access",
+      "paragraphs": [
+        "Task controls apply only to supported actions and the stated execution. A global capability deny still wins over task preferences and auto-accept. Full-access wording does not grant rights to another user’s computer or repository.",
+        "Never share a live QR, passkey recovery material, provider tokens or pairing credentials. Remove a lost device through the account/device controls. Forgetting a device and cancelling a subscription are different actions."
+      ]
+    },
+    {
+      "heading": "Choose managed publishing computers",
+      "paragraphs": [
+        "Open Subscription → Managed computers in the Apple app, or the Computers section of your GrantTap account on the website. Sign in with the same passkey. Turn publishing off to free a managed place without deleting the computer, its pairing or downloaded history. Heartbeats do not re-enable that choice; use the publishing control to enable the computer again. Previously issued relay access can last up to five minutes before expiring."
+      ],
+      "links": [
+        {
+          "label": "Manage computers",
+          "href": "/account#managed-computers"
+        }
+      ]
+    },
+    {
+      "heading": "What counts as a computer?",
+      "paragraphs": [
+        "One stable computer enabled to publish agent work through the managed service. Multiple agents and projects on it do not use extra seats. iPhone, iPad, Watch and controller-only Macs do not add execution-computer seats."
+      ]
+    },
+    {
+      "heading": "Do I need Personal and Mac Local?",
+      "paragraphs": [
+        "Not for managed mode. Active Personal provides managed access to your linked Mac. Mac Local is the separate one-time purchase for local control and your own relay."
+      ]
+    },
+    {
+      "heading": "Are AI models and tokens included?",
+      "paragraphs": [
+        "No. You use your own provider accounts and plans. GrantTap manages supported executions; it does not replace a model subscription."
+      ]
+    },
+    {
+      "heading": "What remains after cancellation?",
+      "paragraphs": [
+        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid."
+      ]
+    },
+    {
+      "heading": "Is Fleet a team plan?",
+      "paragraphs": [
+        "Fleet increases your managed-computer allowance. It is not an enterprise package, an SLA or a fifteen-person license. Supported Project Mesh collaboration remains available."
+      ]
+    },
+    {
+      "heading": "Do I pay separately for Apple Watch?",
+      "paragraphs": [
+        "No. Supported Watch actions work through your paired iPhone. The watch is not a standalone execution computer."
       ]
     },
     {

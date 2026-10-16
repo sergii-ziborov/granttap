@@ -1,6 +1,6 @@
 # Provider Identity
 
-Parent index: [public source](https://github.com/sergii-ziborov/granttap)
+Parent index: [`AGENTS.md`](../../../../../AGENTS.md)
 
 [`ProviderArtwork.swift`](ProviderArtwork.swift) is the single mapping from the
 canonical `AgentIdentity` IDs to project-owned Claude, Codex, Cursor,

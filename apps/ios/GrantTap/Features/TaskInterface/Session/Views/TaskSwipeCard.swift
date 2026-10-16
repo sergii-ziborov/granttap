@@ -27,10 +27,12 @@ struct TaskSwipeCard<Content: View>: View {
                     revealed = nil
                     send()
                 }
+                .accessibilityIdentifier("task.send.\(id)")
                 action(L("Archive"), icon: "archivebox", color: Theme.surface, ink: Theme.ink) {
                     revealed = nil
                     archive()
                 }
+                .accessibilityIdentifier("task.archive.\(id)")
             }
             .frame(width: 176)
             .accessibilityHidden(revealed != id)

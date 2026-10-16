@@ -6,9 +6,9 @@ extension AppRuntimeTests {
     func testExpiredProcessingRowBecomesVisibleFailureInsteadOfDisappearing() {
         let now = Date().timeIntervalSince1970 * 1000
         let model = AppModel()
-        var row = existingSessionDelivery(createdAt: now - 700_000)
-        row.processingAcknowledgedAt = now - 700_000
-        row.nextRetryAt = now - 370_000
+        var row = existingSessionDelivery(createdAt: now - 1_420_000)
+        row.processingAcknowledgedAt = now - 1_420_000
+        row.nextRetryAt = now - 730_000
         model.deliveries = [row]
 
         model.pruneStaleDeliveries()
@@ -263,15 +263,15 @@ extension AppRuntimeTests {
         row.processingAcknowledgedAt = now
         XCTAssertEqual(
             DeliveryOutboxPolicy.terminalDeadline(for: row),
-            now + 600_000
+            now + 1_320_000
         )
-        row.processingRetryStartedAt = now + 330_000
+        row.processingRetryStartedAt = now + 690_000
         XCTAssertEqual(
             DeliveryOutboxPolicy.terminalDeadline(for: row),
-            now + 600_000
+            now + 1_320_000
         )
 
-        XCTAssertEqual(DeliveryOutboxPolicy.maximumLocalRetentionMs, 720_000)
+        XCTAssertEqual(DeliveryOutboxPolicy.maximumLocalRetentionMs, 1_440_000)
         XCTAssertEqual(DeliveryOutboxPolicy.unacknowledgedRetentionMs, 120_000)
         XCTAssertEqual(DeliveryOutboxPolicy.userMessageRelayTTLSeconds, 2 * 60)
         XCTAssertEqual(

@@ -19,7 +19,7 @@ extension MacLocalMCPModel {
         var input: [String: Any] = [
             "project_id": projectId, "task_id": taskId, "session_id": session.sessionId,
             "target_provider": provider, "target_computer": computer,
-            "checkpoint": checkpoint, "push": push,
+            "checkpoint": checkpoint, "push": push, "prepare_only": true,
         ]
         if let targetModel { input["target_model"] = targetModel }
         if let comment, !comment.isEmpty { input["user_comment"] = comment }

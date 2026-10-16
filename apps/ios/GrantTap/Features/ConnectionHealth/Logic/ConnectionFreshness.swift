@@ -11,7 +11,13 @@ enum ConnectionFreshness {
         }
         if !socketUp {
             let blip = disconnectedAt > 0 && now >= disconnectedAt && now - disconnectedAt < 1_800
-            return fresh && blip ? .live : .phoneOffline
+            if blip {
+                if fresh { return .live }
+                if socketUpSince > 0 {
+                    return catalogAt <= 0 && now - socketUpSince >= 180_000 ? .needRepair : .macOffline
+                }
+            }
+            return .phoneOffline
         }
         if fresh { return .live }
         if catalogAt <= 0, socketUpSince > 0, now - socketUpSince >= 180_000 { return .needRepair }

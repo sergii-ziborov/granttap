@@ -50,6 +50,10 @@ enum MacLocalProjection {
                   let usage = usageBySession[
                     "\(execution.provider)\u{1f}\(execution.sessionId)"] else { return session }
             return usage.applying(to: session)
+        }.map { session in
+            guard session.computerId == endpointId else { return session }
+            let enriched = model.localMCPReader?.taskCapabilities[session.sessionId]?.applying(to: session) ?? session
+            return model.localMCPReader?.taskPreferences[session.sessionId]?.applying(to: enriched) ?? enriched
         }
         let remoteIds = Set(model.sessionSourceRooms.compactMap { id, rooms in
             Set(rooms).intersection(linked).isEmpty ? nil : id

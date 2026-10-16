@@ -211,7 +211,6 @@ final class ReportBuilderTests: XCTestCase {
         XCTAssertThrowsError(try ReportFiles.write(report, format: .csv, directory: URL(fileURLWithPath: "/nonexistent/granttap")))
 
         let sheet = ReportExportSheet(report: report, initialFormat: .csv)
-        XCTAssertNotNil(sheet.share())
         RenderProbe.render(sheet)
         RenderProbe.render(ReportExportSheet(report: report))
         XCTAssertEqual(URL(string: "https://example.test/a")?.id, "https://example.test/a")

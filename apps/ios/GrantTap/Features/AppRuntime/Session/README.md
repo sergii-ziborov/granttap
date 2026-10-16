@@ -15,5 +15,5 @@ capability settings remain scoped to their source. The module tests are in
 [`AppRuntimeTests/Connections`](../../../../GrantTapTests/AppRuntimeTests/Connections)
 and [`Verification/Device`](../../../../GrantTapTests/Verification/Device).
 
-See the repository [public source](https://github.com/sergii-ziborov/granttap) for the
+See the repository [engineering index](../../../../../../AGENTS.md) for the
 quality and security contract.

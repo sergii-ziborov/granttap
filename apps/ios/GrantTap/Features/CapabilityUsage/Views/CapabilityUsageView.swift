@@ -14,14 +14,6 @@ struct CapabilityUsageView: View {
         Date().timeIntervalSince1970 * 1000 - Double(period.rawValue) * 3_600_000
     }
 
-    private var periodEvents: [CapabilityUsageEvent] {
-        usageSummaries.events
-    }
-
-    private var periodSessions: [SessionInfo] {
-        (model.sessions + model.allSessionHistory).filter { $0.lastActivityAt >= cutoff }
-    }
-
     /// Totals for the selected period, when a computer published that window.
     private var overviewTotals: [CapabilityUsageTotal] {
         guard let days = period.publishedDays,
@@ -29,39 +21,35 @@ struct CapabilityUsageView: View {
         return totals.summaries(windowHours: window)
     }
 
-    private var periodSummary: UsagePeriodSummary {
-        UsagePeriodSummary(events: sourceEvents, totals: overviewTotals,
-                           since: cutoff, until: Date().timeIntervalSince1970 * 1_000)
-    }
-
-    private var usageSummaries: UsageSummaries {
-        periodSummary.tools(kind: kind, provider: provider)
-    }
-
-    private var summaries: [OperationalToolSummary] { usageSummaries.rows }
-
-    private var providers: [String] {
-        Array(Set(sourceEvents.compactMap(\.agent).map(AgentIdentity.normalize))).sorted()
-    }
-
     private var sourceEvents: [CapabilityUsageEvent] {
         model.demoMode ? usage.events + UsageDemoFixtures.events() : usage.events
     }
 
-    /// The most calls of one tool in flight at once, by tool row id.
-    var parallelByTool: [String: Int] { UsageConcurrency.maxParallelByName(periodEvents) }
-
-    /// Distinct skills run in the period, whichever filter is up.
-    private var skillsUsed: Set<String> {
-        Set(periodSummary.skills.map(\.name))
-    }
-
-    /// Those same skills as rows, so the figure opens into the calls it counted.
-    private var skillSummaries: [OperationalToolSummary] {
-        periodSummary.skills
+    /// Retained for callers outside body; rendered rows receive the shared map.
+    var parallelByTool: [String: Int] {
+        let since = cutoff
+        let events = sourceEvents.filter {
+            $0.createdAt >= since && kind.includes($0)
+                && (provider == "all" || AgentIdentity.normalize($0.agent ?? "") == provider)
+        }
+        return UsageConcurrency.maxParallelByName(events)
     }
 
     var body: some View {
+        let now = Date().timeIntervalSince1970 * 1_000
+        let since = now - Double(period.rawValue) * 3_600_000
+        let events = sourceEvents
+        let periodSummary = UsagePeriodSummary(events: events, totals: overviewTotals, since: since, until: now)
+        let overview = periodSummary.overview
+        let tools = periodSummary.tools(kind: kind, provider: provider)
+        let summaries = tools.rows
+        let skillSummaries = overview.rows.filter { $0.kind == .skill }
+        let periodSessions = (model.sessions + model.allSessionHistory).filter { $0.lastActivityAt >= since }
+        let providers = Array(Set(events.compactMap(\.agent).map(AgentIdentity.normalize))).sorted()
+        let parallelByTool = UsageConcurrency.maxParallelByName(tools.events)
+        let timeline = UsageTimeline.buckets(tools.events, since: now - 24 * 3_600_000, until: now)
+        let parallel = UsageConcurrency.buckets(tools.events, since: now - 24 * 3_600_000, until: now)
+        let shares = UsageBreakdown.shares(summaries)
         List {
             #if targetEnvironment(macCatalyst)
             if let error = model.localMCPReader?.usageError {
@@ -85,27 +73,29 @@ struct CapabilityUsageView: View {
                     UsageChatsView(title: L("Tokens"), sessions: periodSessions, order: .tokens)
                 }
                 // Skills were invisible unless the filter was flipped to them.
-                metricLink("Skills used", skillsUsed.count) {
+                metricLink("Skills used", Set(skillSummaries.map(\.name)).count) {
                     UsageToolListView(title: L("Skills used"), summaries: skillSummaries,
-                                      since: cutoff, until: periodSummary.until)
+                                      since: since, until: periodSummary.until)
                 }
                 metricLink("Waiting for you", model.pending.count + model.questions.count
                            + model.meshNeedsYouEvents.count) {
                     UsageWaitingView()
                 }
                 metricLink("Approvals", model.demoMode ? 6 : audit.events.filter {
-                    $0.createdAt >= cutoff && $0.action == "decision"
+                    $0.createdAt >= since && $0.action == "decision"
                 }.count) {
                     AuditLogView(audit: audit)
                 }
-                metricLink("Tool calls", periodSummary.overview.toolCalls) {
-                    UsageToolListView(title: L("Tool calls"), summaries: periodSummary.overview.rows,
-                                      since: cutoff, until: periodSummary.until)
+                metricLink("Tool calls", overview.toolCalls) {
+                    UsageToolListView(title: L("Tool calls"), summaries: overview.rows,
+                                      since: since, until: periodSummary.until)
                 }
                 metricLink("Active computers", activeComputerCount) {
                     UsageComputersView()
                 }
             }
+
+            ProviderUsageSection(model: model, sessions: periodSessions)
 
             Section {
                 Picker(L("Tools"), selection: $kind) {
@@ -123,10 +113,6 @@ struct CapabilityUsageView: View {
             }
 
             // When the period was busy, before what it was busy with.
-            let now = Date().timeIntervalSince1970 * 1_000
-            let timeline = UsageTimeline.buckets(
-                periodEvents, since: now - 24 * 3_600_000, until: now
-            )
             if !timeline.isEmpty {
                 Section {
                     UsageTimelineChart(buckets: timeline, accent: Theme.accent(for: "claude"))
@@ -136,7 +122,6 @@ struct CapabilityUsageView: View {
             }
 
             // When calls overlapped: the shape of a machine getting warm.
-            let parallel = UsageConcurrency.buckets(periodEvents, since: now - 24 * 3_600_000, until: now)
             if parallel.contains(where: { $0.calls > 1 }) {
                 Section {
                     UsageTimelineChart(buckets: parallel, accent: Theme.accent(for: "codex"))
@@ -148,9 +133,9 @@ struct CapabilityUsageView: View {
             }
 
             // Where the period actually went, before the list of names.
-            if !UsageBreakdown.shares(summaries).isEmpty {
+            if !shares.isEmpty {
                 Section {
-                    UsageBreakdownChart(shares: UsageBreakdown.shares(summaries))
+                    UsageBreakdownChart(shares: shares)
                 } header: {
                     Text(L("Where the time went"))
                 } footer: {
@@ -172,10 +157,10 @@ struct CapabilityUsageView: View {
                                 kind: summary.kind, name: summary.name,
                                 agent: provider == "all" ? nil : provider, modelName: nil,
                                 outcome: kind == .failed ? .error : nil,
-                                since: cutoff, until: periodSummary.until, summary: summary
+                                since: since, until: periodSummary.until, summary: summary
                             )
                         } label: {
-                            toolRow(summary)
+                            toolRow(summary, maxParallel: parallelByTool[summary.id] ?? 0)
                         }
                         .accessibilityIdentifier("usage.tool.\(summary.id)")
                     }
@@ -183,6 +168,7 @@ struct CapabilityUsageView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .refreshable { await model.refreshProviderMetadata() }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {

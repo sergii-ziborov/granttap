@@ -4,10 +4,10 @@ import Security
 /// The Keychain copy of the install id. It deliberately outlives app deletion:
 /// finding it without the container copy is what identifies a reinstall.
 enum InstallIdentityRecord {
-    static func load() -> String? {
+    static func load(service: String = InstallIdentity.service) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: InstallIdentity.service,
+            kSecAttrService as String: service,
             kSecAttrAccount as String: InstallIdentity.account,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
@@ -19,10 +19,10 @@ enum InstallIdentityRecord {
     }
 
     @discardableResult
-    static func save(_ id: String) -> Bool {
+    static func save(_ id: String, service: String = InstallIdentity.service) -> Bool {
         let identity: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: InstallIdentity.service,
+            kSecAttrService as String: service,
             kSecAttrAccount as String: InstallIdentity.account,
         ]
         let attributes: [String: Any] = [

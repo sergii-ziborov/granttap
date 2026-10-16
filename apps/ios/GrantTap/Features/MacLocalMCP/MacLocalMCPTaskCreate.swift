@@ -12,16 +12,17 @@ extension MacLocalMCPClient {
     static func createTask(
         socketPath: String, projectId: String, bindingId: String,
         endpointId: String, provider: String, text: String, model: String?,
-        attachments: [AttachmentDraft] = []
+        attachments: [AttachmentDraft] = [], effort: String? = nil, operationId: UUID = UUID()
     ) async throws -> MacLocalTaskCreateResult {
         let batch = attachments.isEmpty ? nil : try MacLocalAttachmentBatch(attachments)
         defer { batch?.remove() }
         var input = [
             "project_id": projectId, "binding_id": bindingId,
             "endpoint_id": endpointId, "provider": provider,
-            "text": text, "operation_id": UUID().uuidString.lowercased(),
+            "text": text, "operation_id": operationId.uuidString.lowercased(),
         ]
         if let model, !model.isEmpty { input["model"] = model }
+        if let effort { input["effort"] = effort }
         if let batch { input["attachments_json"] = batch.manifest }
         let data = try await read(socketPath: socketPath,
                                   operation: "desktop.task_create", input: input)
@@ -37,13 +38,15 @@ extension MacLocalMCPClient {
 extension MacLocalMCPModel {
     func createTask(
         projectId: String, bindingId: String, endpointId: String,
-        provider: String, text: String, model: String?, attachments: [AttachmentDraft] = []
+        provider: String, text: String, model: String?, attachments: [AttachmentDraft] = [], effort: String? = nil,
+        operationId: UUID = UUID()
     ) async throws -> MacLocalTaskCreateResult {
         guard let status, let socket = status.desktopEngineSocket,
               status.endpointId == endpointId else { throw MacLocalMCPError.unavailable }
         return try await MacLocalMCPClient.createTask(
             socketPath: socket, projectId: projectId, bindingId: bindingId,
-            endpointId: endpointId, provider: provider, text: text, model: model, attachments: attachments
+            endpointId: endpointId, provider: provider, text: text, model: model, attachments: attachments,
+            effort: effort, operationId: operationId
         )
     }
 }

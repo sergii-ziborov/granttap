@@ -33,13 +33,15 @@ extension ContentView {
     }
 
     var nowSessionsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            nowGroup("At Risk", tasks: atRiskTasks)
-            nowGroup("Working", tasks: activeNowTasks)
-            nowGroup("Open", tasks: openNowTasks)
-            nowGroup("Blocked", tasks: blockedTasks)
+        let tasks = currentTaskItems.map { ($0, health(for: $0)) }
+        return LazyVStack(alignment: .leading, spacing: 16) {
+            nowGroup("At Risk", tasks: tasks.filter { $0.1 != .needsYou && $0.1 != .blocked && $0.1 < .working }
+                .sorted { $0.1 == $1.1 ? $0.0.lastActivityAt > $1.0.lastActivityAt : $0.1 < $1.1 }.map(\.0))
+            nowGroup("Working", tasks: tasks.filter { $0.0.hasOpenExecution && $0.1 == .working }.map(\.0))
+            nowGroup("Open", tasks: tasks.filter { $0.0.hasOpenExecution && $0.1 == .idle }.map(\.0))
+            nowGroup("Blocked", tasks: tasks.filter { $0.1 == .blocked }.map(\.0))
             nowGroup("Recently Finished", tasks: recentTasks)
-            if activeTaskItems.isEmpty {
+            if tasks.isEmpty {
                 Text(emptySessionsHint)
                     .font(.system(size: 13))
                     .foregroundStyle(Theme.muted)
@@ -51,7 +53,7 @@ extension ContentView {
 
     @ViewBuilder func nowGroup(_ title: String, tasks: [TaskListItem]) -> some View {
         if !tasks.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            LazyVStack(alignment: .leading, spacing: 8) {
                 Eyebrow(text: title)
                 ForEach(tasks) { item in
                     taskActionCard(item)
@@ -61,7 +63,8 @@ extension ContentView {
     }
 
     var tasksSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let tasks = filteredTaskItems
+        return LazyVStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.muted)
                 TextField(L("Search tasks"), text: $sessionSearch)
@@ -82,7 +85,7 @@ extension ContentView {
                 if showHistory { model.loadMoreTaskHistoryIfNeeded() }
             }
 
-            if filteredTaskItems.isEmpty {
+            if tasks.isEmpty {
                 CompatEmptyState(
                     title: showArchivedSessions ? L("No history") : L("No active tasks"),
                     systemImage: showArchivedSessions ? "clock.arrow.circlepath" : "tray",
@@ -90,7 +93,7 @@ extension ContentView {
                 )
                 .frame(maxWidth: .infinity)
             } else {
-                ForEach(filteredTaskItems) { item in
+                ForEach(tasks) { item in
                     taskActionCard(item)
                 }
             }
@@ -206,6 +209,13 @@ extension ContentView {
     }
 
     func isIdleOrFinished(_ item: TaskListItem) -> Bool {
+        // An open execution in a known live state stays visible regardless of
+        // its attention badge. Computing that badge here rescanned usage and
+        // routes for every offscreen Task before the list could appear.
+        if item.hasOpenExecution {
+            if item.currentSession == nil { return item.isTerminal }
+            if let state = item.currentSession?.state, ["working", "idle", "waiting"].contains(state) { return false }
+        }
         let value = health(for: item)
         guard value == .idle else { return value == .finished }
         return !item.hasOpenExecution

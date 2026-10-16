@@ -3,6 +3,10 @@ import Foundation
 enum TaskDeliveryQueue {
     static let offlineRetentionMilliseconds: Double = 24 * 60 * 60 * 1_000
 
+    static func retentionAnchor(for delivery: OutgoingDelivery) -> Double {
+        delivery.transportAttemptStartedAt ?? delivery.manualRetryStartedAt ?? delivery.createdAt
+    }
+
     static func oldestFirst(_ deliveries: [OutgoingDelivery]) -> [OutgoingDelivery] {
         deliveries.sorted {
             let first = $0.chatQueue?.queuedAt ?? $0.createdAt

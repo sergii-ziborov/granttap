@@ -35,6 +35,12 @@ struct ProductDocument: Decodable, Equatable {
         let paragraphs: [String]?
         let bullets: [String]?
         let links: [DocumentLink]?
+        let image: Illustration?
+    }
+
+    struct Illustration: Decodable, Equatable {
+        let name: String
+        let caption: String
     }
 
     struct DocumentLink: Decodable, Equatable {

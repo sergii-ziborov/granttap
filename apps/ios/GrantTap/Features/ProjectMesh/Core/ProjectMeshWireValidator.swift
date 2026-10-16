@@ -49,7 +49,7 @@ enum ProjectMeshWireValidator {
             "bindings", "peers", "claims", "dependencies", "events", "generatedAt",
             "skills", "incomplete", "execution", "restrictions", "environment", "modelCatalog",
             "mcpServers", "capabilityRequests", "capabilityObservations",
-            "backbone", "repositoryGraphs", "cortex", "knowledge", "supersededKnowledgeRecordIds",
+            "backbone", "repositoryGraphs", "repositoryDetails", "cortex", "knowledge", "supersededKnowledgeRecordIds",
         ]
         guard data.count <= 256 * 1_024,
               let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -118,8 +118,11 @@ enum ProjectMeshWireValidator {
               Set((snapshot.capabilityObservations ?? []).map(\.id)).count
                   == (snapshot.capabilityObservations?.count ?? 0),
               (snapshot.modelCatalog?.count ?? 0) <= 32,
-              snapshot.modelCatalog?.allSatisfy({ $0.models.count <= 64 }) ?? true,
+              snapshot.modelCatalog?.allSatisfy({ $0.models.count <= 256 && ($0.accountUsage?.count ?? 0) <= 16
+                  && ($0.accountUsage?.allSatisfy(\.isValid) ?? true) }) ?? true,
               snapshot.backbone?.projectId == nil || snapshot.backbone?.projectId == sessionId,
+              ProjectRepositoryDetailsValidation.valid(snapshot.repositoryDetails, projectId: sessionId,
+                                                       publisher: snapshot.publisherEndpointId),
               (snapshot.backbone?.nodes.count ?? 0) <= 512,
               (snapshot.backbone?.relations.count ?? 0) <= 1_024,
               (snapshot.repositoryGraphs?.count ?? 0) <= 64,

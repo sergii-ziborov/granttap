@@ -6,11 +6,19 @@ struct ChatMessageQueueContext: Codable, Equatable {
     let transport: Transport
     let taskId: String?
     var queuedAt: Double? = nil
+    var relayManaged: Bool? = nil
+    var notBefore: Double? = nil
+    var cancelRequested: Bool? = nil
+    var restartAfterCancellation: Bool? = nil
 }
 
 enum ChatMessageQueuePolicy {
     static func canCancel(_ delivery: OutgoingDelivery) -> Bool {
-        delivery.chatQueue != nil && delivery.admissionRejected != true
+        if delivery.chatQueue?.relayManaged == true {
+            return delivery.relayJob?.serverState != .accepted && delivery.state != .delivered
+                && delivery.chatQueue?.cancelRequested != true
+        }
+        return delivery.chatQueue != nil && delivery.admissionRejected != true
             && ((delivery.state == .queued && delivery.attempts == 0
                 && delivery.processingAcknowledgedAt == nil)
                 || delivery.state == .failed)
@@ -27,7 +35,7 @@ enum ChatMessageQueuePolicy {
     static func ready(_ deliveries: [OutgoingDelivery], observed: [SessionInfo]) -> [String] {
         let ordered = TaskDeliveryQueue.oldestFirst(deliveries)
         return ordered.compactMap { row in
-            guard row.chatQueue?.waiting == true, row.state == .queued,
+            guard row.chatQueue?.waiting == true, row.chatQueue?.relayManaged != true, row.state == .queued,
                   row.admissionRejected != true,
                   let session = observed.first(where: {
                       $0.sessionId == row.sessionId && AgentIdentity.normalize($0.agent) == row.agent

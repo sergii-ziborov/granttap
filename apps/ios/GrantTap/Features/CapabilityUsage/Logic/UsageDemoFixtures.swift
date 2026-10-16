@@ -5,7 +5,12 @@ import Foundation
 enum UsageDemoFixtures {
     static func events(now: Double = Date().timeIntervalSince1970 * 1_000)
     -> [CapabilityUsageEvent] {
-        [
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_USAGE_LOAD"] == "1" {
+            return UsageNavigationFixture.events(now: now)
+        }
+        #endif
+        return [
             CapabilityUsageEvent(id: "demo-mcp-1", sourceId: "demo:mcp:1",
                                  agent: "codex", model: "gpt-6-sol", kind: .mcp,
                                  name: "github", sessionId: AppModelDemoFixtures.codexSessionId,

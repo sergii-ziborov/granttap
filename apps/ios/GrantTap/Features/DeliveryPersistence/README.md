@@ -23,7 +23,14 @@ history cursors survive relaunch, so automatic backfill resumes at the oldest
 saved page without dropping earlier turns.
 
 `Session/TranscriptArchive.swift` stores protected per-conversation files with
-hashed identifiers and atomic writes. It rejects mismatched records. The offline
+hashed identifiers and atomic writes. It rejects mismatched records.
+`TranscriptArchiveWriter` serializes encoding and disk writes on a utility queue,
+coalescing pending snapshots per chat without dropping another chat or an older
+page contained in the full snapshot. Reading and explicit cleanup wait for that
+queue, so cleared files cannot be resurrected by a pending write. iOS requests
+a bounded background task to finish queued writes before suspension. Remote-wake
+completion is acknowledged only after those writes finish, so the APNs lease
+does not end while a received page is still waiting to be saved. The offline
 replication queue and scoped picture storage are owned by `../OfflineReplica`.
 Cache cleanup preserves provider logs, credentials, pending deliveries and pairings.
 Tests are in `GrantTapTests/Features/DeliveryPersistence` and `Features/OfflineReplica`.

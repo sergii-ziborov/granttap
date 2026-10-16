@@ -14,13 +14,20 @@ struct TaskChatView: View {
     @State var highlightedEntryId: String?
     /// The agent conversations start folded, the way a run of CLI calls does.
     @State var agentThreadsExpanded = false
-    @State var draft = ""
+    @State var composerDraft = ChatComposerDraft()
+    var draft: String {
+        get { composerDraft.text }
+        nonmutating set { composerDraft.text = newValue }
+    }
+    var draftBinding: Binding<String> {
+        Binding(get: { composerDraft.text }, set: { composerDraft.text = $0 })
+    }
     @FocusState var chatFocused: Bool
     @State var attachments: [AttachmentDraft] = []
     @State var attachmentError: String?
     @State var selectedMcp: String?
     @State var selectedSkill: String?
-    @State private var retainedTimeline: RetainedChatContent<CombinedTaskTimelineItem>?
+    @State private var transcriptCache = ChatTranscriptCache()
     @State var chatIsAtBottom = true
     @State var transcriptFitsViewport = false
     @State var localActivityLoading = false
@@ -42,6 +49,8 @@ struct TaskChatView: View {
     @State var showCapabilities = false
     @State var showProjectMesh = false
     @State var showHandoff = false
+    @State var showTransferContinuation = false
+    @State var showSchedule = false
     @State var showReport = false
     @State var replyRequestId: String?
     @StateObject var dictator: Dictator
@@ -67,11 +76,11 @@ struct TaskChatView: View {
         self.focusEntryId = focusEntryId
         self.modelOverride = modelOverride
         self.onOpenMesh = onOpenMesh
-        _draft = State(initialValue: initialDraft)
+        _composerDraft = State(initialValue: ChatComposerDraft(text: initialDraft))
         #if DEBUG
         if ProcessInfo.processInfo.environment["GRANTTAP_DEMO"] == "1",
            ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "1" {
-            _draft = State(initialValue: "Next queued message")
+            _composerDraft = State(initialValue: ChatComposerDraft(text: "Next queued message"))
         }
         #endif
         _attachments = State(initialValue: initialAttachments)
@@ -114,7 +123,7 @@ struct TaskChatView: View {
     }
 
     var rootEntries: [ActivityEntry] {
-        entries.filter { $0.childThreadId == nil }
+        transcriptPresentation.rootEntries
     }
 
     /// Empty Mac ack stored — leave spinner (same path as applyActivity).
@@ -134,20 +143,37 @@ struct TaskChatView: View {
         return "\(chatSessionId.prefix(8))-\(entries.count)-\(Int(gen))"
     }
 
-    var visibleTimeline: [CombinedTaskTimelineItem] {
-        retainedTimeline?.visible(
-            current: combinedTimeline, sessionId: session.sessionId,
-            roomId: model.connectionRegistry.preferredId
-        ) ?? combinedTimeline
+    var visibleTimeline: [CombinedTaskTimelineItem] { transcriptPresentation.items }
+
+    var timelineRows: [ChatTimelineRow] { transcriptPresentation.rows }
+    var requestIndex: TranscriptRequestIndex { transcriptPresentation.requests }
+    var requestNavigation: ChatRequestNavigation { transcriptPresentation.navigation }
+
+    var transcriptRevision: ChatTranscriptRevision {
+        let executions = taskExecutionSessionIds
+        return ChatTranscriptRevision(meshEvents: model.meshEvents(forTaskId: currentSession.taskId),
+                               executions: executions,
+                               activityRevisions: (executions + [session.sessionId]).map { model.activityRevisions[$0] ?? 0 },
+                               threads: currentSession.childThreads ?? [],
+                               roomId: model.connectionRegistry.preferredId)
     }
 
-    func retainCurrentTranscript() {
-        let timeline = combinedTimeline
-        guard !timeline.isEmpty else { return }
-        retainedTimeline = RetainedChatContent(
-            sessionId: session.sessionId, roomId: model.connectionRegistry.preferredId,
-            items: timeline
-        )
+    func recordedChanges(for finalId: String) -> [RecordedFileChange] {
+        transcriptPresentation.replyChanges[finalId] ?? []
+    }
+
+    var currentReplyFinalId: String? { transcriptPresentation.currentFinalId }
+    var currentReplyFiles: [RecordedFileChange] { transcriptPresentation.currentFiles }
+    var preparedChildThreads: [ChildThreadDisplayRow] { transcriptPresentation.childThreads }
+
+    var transcriptPresentation: ChatTranscriptPresentation {
+        transcriptCache.value(sessionId: session.sessionId, revision: transcriptRevision) { retained in
+            let timeline = combinedTimeline
+            let threads = ChildThreadTree.rows(rootId: chatSessionId,
+                threads: currentSession.childThreads ?? [], activity: entries)
+            return ChatTranscriptPresentation(items: timeline.isEmpty ? retained : timeline,
+                                               entries: entries, childThreads: threads)
+        }
     }
 
     var body: some View { chatScreen }

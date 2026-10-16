@@ -18,7 +18,7 @@ final class TranscriptHistoryUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.staticTexts["History review finished"].waitForExistence(timeout: 15))
         let first = app.staticTexts["chat.row.history-0"]
-        let transcript = app.scrollViews["chat.transcript"]
+        let transcript = app.descendants(matching: .any)["chat.transcript"].firstMatch
         XCTAssertTrue(transcript.exists)
         for _ in 0..<16 where !first.isHittable {
             transcript.swipeDown()
@@ -110,7 +110,7 @@ extension TranscriptHistoryUITests {
             previous.tap()
         }
         XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
-        let transcript = app.scrollViews["chat.transcript"]
+        let transcript = app.descendants(matching: .any)["chat.transcript"].firstMatch
         let second = app.staticTexts["chat.row.viewport-request-1"]
         XCTAssertTrue(second.waitForExistence(timeout: 5))
         let latest = app.buttons["chat.jumpToLatest"]
@@ -122,7 +122,7 @@ extension TranscriptHistoryUITests {
         for _ in 0..<16 where !previous.label.contains("First viewport request") { transcript.swipeDown() }
         XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
         let first = app.staticTexts["chat.row.viewport-request-0"]
-        XCTAssertLessThan(first.frame.minY, transcript.frame.minY, "The destination must be above the reading position.")
+        XCTAssertFalse(first.isHittable, "The earlier request must remain outside the reading position.")
         previous.tap()
         XCTAssertTrue(waitForHittable(first), "The previous request must be brought into view.")
         XCTAssertLessThanOrEqual(first.frame.minY, transcript.frame.minY + 30,

@@ -116,6 +116,8 @@ final class ProjectTaskRepositoryGroupsTests: XCTestCase {
 
     func testTaskSectionsRenderWorkspaceAndRepositoryAndKeepOriginalTaskRoute() {
         let model = AppModel()
+        model.demoMode = true
+        let before = model.meshSnapshots
         var snapshot = workspace()
         snapshot.tasks = [task("stable", owner: "owner"), task("unknown")]
         snapshot.executions = [execution("stable", "owner", repo: "github.com/owner/a")]
@@ -123,7 +125,7 @@ final class ProjectTaskRepositoryGroupsTests: XCTestCase {
             List { ProjectRepositoryTaskSections(snapshot: snapshot, model: model) }
         })
         RenderProbe.render(NavigationView { ProjectMeshView(snapshot: snapshot, model: model) })
-        XCTAssertEqual(model.meshSnapshots.count, 0, "presentation does not create or move Projects")
+        XCTAssertEqual(model.meshSnapshots, before, "presentation does not create or move Projects")
     }
 
     func testWorkspaceRepositoryRowsAreObservationsWithoutReverseDependency() {

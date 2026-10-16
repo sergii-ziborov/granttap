@@ -1,6 +1,6 @@
 # AccountBridge
 
-[public source](https://github.com/sergii-ziborov/granttap) · Public entry: `AccountConnectionView.swift`
+[Engineering index](../../../../../../AGENTS.md) · Public entry: `AccountConnectionView.swift`
 
 A passkey authenticates one Personal account, which contains many Project Meshes.
 It does not select a computer or change a Task's route. A new passkey creates a

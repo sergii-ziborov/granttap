@@ -10,27 +10,37 @@ import SwiftUI
 struct ProjectsTabView: View {
     @ObservedObject var model: AppModel
     var onOpenSession: (SessionInfo) -> Void = { _ in }
+    var onCreateMesh: (() -> Void)? = nil
     @State private var renaming: ProjectListRow?
     @State private var forgetting: ProjectListRow?
     @State private var showHidden = false
     @State private var showJoin = false
     @State private var catalogTab = "mesh"
 
-    init(model: AppModel, onOpenSession: @escaping (SessionInfo) -> Void = { _ in }, showHidden: Bool = false) {
+    init(model: AppModel, onOpenSession: @escaping (SessionInfo) -> Void = { _ in }, showHidden: Bool = false,
+         onCreateMesh: (() -> Void)? = nil) {
         self.model = model
         self.onOpenSession = onOpenSession
+        self.onCreateMesh = onCreateMesh
         _showHidden = State(initialValue: showHidden)
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker(L("Mesh catalog"), selection: $catalogTab) {
-                Text(L("Mesh")).tag("mesh")
-                Text(L("Repositories")).tag("repositories")
+            HStack(spacing: 12) {
+                Picker(L("Mesh catalog"), selection: $catalogTab) {
+                    Text(L("Mesh")).tag("mesh")
+                    Text(L("Repositories")).tag("repositories")
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("projects.catalog-tabs")
+                if catalogTab == "mesh", let onCreateMesh {
+                    Button(action: onCreateMesh) { Label(L("New Mesh"), systemImage: "plus") }
+                        .pointerButtonStyle()
+                        .accessibilityIdentifier("projects.new-mesh")
+                }
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal, 16).padding(.vertical, 8)
-            .accessibilityIdentifier("projects.catalog-tabs")
             Divider()
             if catalogTab == "repositories" {
                 RepositoryCatalogListView(model: model, onOpenSession: onOpenSession)

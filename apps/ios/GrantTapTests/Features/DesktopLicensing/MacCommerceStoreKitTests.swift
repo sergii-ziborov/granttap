@@ -17,7 +17,7 @@ final class MacCommerceStoreKitTests: XCTestCase {
         return session
     }
 
-    func testStoreCatalogOffersTheMacLicenseAndAllThreePersonalTiers() async throws {
+    func testStoreCatalogOffersMacLocalAndThreeMonthlyPlans() async throws {
         let session = try session()
         defer { session.clearTransactions() }
         let ids = [DesktopLicense.productID] + SubscriptionProduct.allCases.map(\.rawValue)
@@ -25,9 +25,30 @@ final class MacCommerceStoreKitTests: XCTestCase {
         XCTAssertEqual(Set(products.map(\.id)), Set(ids))
         let prices = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0.price) })
         XCTAssertEqual(prices[DesktopLicense.productID], Decimal(string: "39.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.solo.rawValue], Decimal(string: "1.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.personal.rawValue], Decimal(string: "3.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.fleet.rawValue], Decimal(string: "5.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.solo.rawValue], Decimal(string: "3.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.personal.rawValue], Decimal(string: "6.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.studio.rawValue], Decimal(string: "11.99"))
+    }
+
+    func testSevenDayTrialUsesStoreKitEligibilityAndDoesNotRestartAfterPurchase() async throws {
+        let session = try session()
+        defer { session.clearTransactions() }
+        let store = SubscriptionStore(startObserving: false,
+            currentAccountID: { "12345678-1234-4123-8123-123456789012" })
+        await store.loadProducts()
+        XCTAssertEqual(store.offers.filter(\.hasSevenDayTrial).count, 3)
+        await store.purchase(offerID: SubscriptionProduct.solo.rawValue)
+        XCTAssertNil(store.lastError)
+        guard case .trial(let expires) = store.entitlement.state else {
+            XCTFail("An Apple trial receipt must be represented as a trial")
+            return
+        }
+        XCTAssertGreaterThan(expires.timeIntervalSinceNow, 6 * 86_400)
+        await store.loadProducts()
+        XCTAssertTrue(store.offers.allSatisfy { !$0.hasSevenDayTrial })
+        let reopened = SubscriptionStore(startObserving: false)
+        await reopened.refresh()
+        XCTAssertEqual(reopened.entitlement.state, .trial(expiresAt: expires))
     }
 
     func testActualStoreKitPurchaseSurvivesRestartAndRefundRevokesMacLicense() async throws {

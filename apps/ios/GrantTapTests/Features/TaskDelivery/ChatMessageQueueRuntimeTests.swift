@@ -28,7 +28,7 @@ extension AppRuntimeTests {
     }
 
     @MainActor
-    func testSendNowWithoutAComputerShowsFailureAndRetryKeepsOneBubble() throws {
+    func testRelayQueueWithoutAComputerRetainsRequestAndRetryDoesNotCreateABubble() async throws {
         let model = AppModel()
         model.deliveries = []
         model.activities = [:]
@@ -40,12 +40,16 @@ extension AppRuntimeTests {
         model.queueChatMessage("Next", to: session)
         let id = try XCTUnwrap(model.deliveries.first?.id)
         model.sendChatQueuedMessageNow(id)
-        XCTAssertEqual(model.deliveries.first?.state, .failed)
-        XCTAssertEqual(model.deliveries.first?.chatQueue?.waiting, false)
-        model.retryDelivery(id)
-        XCTAssertEqual(model.activities[session.sessionId]?.entries.count, 1)
+        await model.synchronizeRelayTaskQueues()
+        XCTAssertEqual(model.deliveries.first?.state, .queued)
+        XCTAssertEqual(model.deliveries.first?.chatQueue?.waiting, true)
+        XCTAssertNotNil(model.deliveries.first?.error)
+        model.sendChatQueuedMessageNow(id)
+        await model.synchronizeRelayTaskQueues()
+        XCTAssertTrue(model.activities[session.sessionId]?.entries.isEmpty ?? true)
         XCTAssertEqual(model.deliveries.first?.id, id)
         XCTAssertTrue(model.cancelChatQueuedMessage(id))
+        XCTAssertTrue(model.deliveries.isEmpty)
     }
 
     #if targetEnvironment(macCatalyst)

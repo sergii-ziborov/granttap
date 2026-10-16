@@ -66,6 +66,10 @@ final class RepositoryFactsTests: XCTestCase {
         target.tasks = []; target.executions = []
         XCTAssertEqual(MeshTaskPlacement.make(snapshots: [source, target], sessions: []).first?.projectId, "target")
         let model = AppModel()
+        model.demoMode = true
+        let previous = model.projectPreferences
+        model.projectPreferences = [:]
+        defer { model.projectPreferences = previous }
         model.meshSnapshots = [source.projectId: source, target.projectId: target]
         XCTAssertEqual(model.repositoryPlacedTasks(projectId: "target").map(\.task.taskId), ["stable"])
         XCTAssertTrue(model.repositoryPlacedTasks(projectId: "source").isEmpty)

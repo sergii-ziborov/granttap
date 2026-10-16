@@ -4,6 +4,7 @@ import UIKit
 
 extension AppModel {
     func retryQueuedDeliveries(forRoom roomId: String? = nil) {
+        resumeRelayTaskQueues()
         pruneStaleDeliveries()
         let now = Date().timeIntervalSince1970 * 1000
         for delivery in TaskDeliveryQueue.oldestFirst(deliveries)
@@ -61,7 +62,7 @@ extension AppModel {
                 continue
             }
             if now - deferredLifecycleAnchor(for: delivery)
-                    < DeliveryOutboxPolicy.unacknowledgedRetentionMs,
+                    < TaskDeliveryQueue.retentionMilliseconds(for: delivery),
                delivery.roomId.map(deliveryRoomIsUp) == true {
                 attemptDelivery(delivery.id)
             }
@@ -126,8 +127,9 @@ extension AppModel {
     func deferredLifecycleAnchor(for delivery: OutgoingDelivery) -> Double {
         // `false` is intentionally distinct from a legacy/nil value: it marks a
         // held row that was just released by native remap (or explicitly retried).
-        return delivery.awaitingSessionRemap == false
+        return delivery.transportAttemptStartedAt ?? delivery.manualRetryStartedAt ?? (delivery.awaitingSessionRemap == false
             ? delivery.updatedAt : delivery.createdAt
+        )
     }
 
     /// A dropped/replaced WebSocket may never deliver its pending completion.

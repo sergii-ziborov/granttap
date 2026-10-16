@@ -16,6 +16,7 @@ extension TaskChatView {
             macChatHeader
             #endif
             taskStatusStrip
+            transferBanner
             chatTranscript
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -34,21 +35,32 @@ extension TaskChatView {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { chatToolbar }
         #endif
+        .sheet(isPresented: $showSchedule) {
+            ChatScheduleSheet(onClose: { showSchedule = false }, onSchedule: { queueDraft(at: $0) })
+        }
         .sheet(isPresented: $showCapabilities) { capabilitiesSheet }
         .sheet(isPresented: $showHandoff) {
             TaskHandoffSheet(session: currentSession, model: model)
         }
         .sheet(isPresented: $showReport) {
-            ReportExportSheet(report: model.report(for: reportScope))
+            ReportExportSheet(report: model.report(for: reportScope), onClose: { showReport = false })
         }
         #if !targetEnvironment(macCatalyst)
         .sheet(isPresented: $showProjectMesh) { projectMeshSheet }
         #endif
         .onAppear(perform: chatAppeared)
         #if targetEnvironment(macCatalyst)
-        .task(id: chatSessionId) { await loadLocalConversation() }
+        .task(id: chatSessionId) {
+            await loadLocalConversation()
+            await model.refreshLocalTaskCapabilities(chatSessionId)
+        }
+        .task(id: chatSessionId) {
+            while !Task.isCancelled {
+                await model.refreshLocalTaskPreferences(chatSessionId)
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+            }
+        }
         #endif
-        .onChange(of: combinedTimeline.map(\.id)) { _ in retainCurrentTranscript() }
         .onDisappear(perform: chatDisappeared)
     }
 
@@ -57,64 +69,43 @@ extension TaskChatView {
             VStack(spacing: 0) {
                 latestUserMessageButton(proxy)
                 GeometryReader { viewport in
-                    ScrollView {
-                        // Measured heights prevent lazy row estimates from
-                        // repeatedly undoing an upward transcript pan.
-                        VStack(alignment: .leading, spacing: 14) {
-                            olderMessagesHeader(proxy)
-                            transcriptRows(proxy, viewportHeight: viewport.size.height)
-                            DeliveryStatusList(
-                                deliveries: model.orphanDeliveries(for: chatSessionId)
-                            )
-                            Color.clear.frame(height: 1)
-                                .background(GeometryReader { marker in
-                                    Color.clear.preference(
-                                        key: ChatBottomPositionKey.self,
-                                        value: marker.frame(in: .named("chat-transcript")).maxY
-                                    )
-                                })
-                                .id("chat-bottom")
-                        }
-                        .padding(16)
-                        .background(GeometryReader { content in
-                            Color.clear.preference(
-                                key: ChatHistoryPositionKey.self,
-                                value: content.frame(in: .named("chat-transcript")).minY
-                            )
-                            .preference(key: ChatHistoryHeightKey.self, value: content.size.height)
-                        })
+                    ChatTranscriptViewport(canvas: Theme.canvas(for: currentSession.agent),
+                        onBottomChanged: { atBottom in
+                            chatIsAtBottom = atBottom
+                            transcriptFitsViewport = atBottom && topVisibleTranscriptRow == timelineRows.first?.id
+                        }, onUserScroll: {
+                            if !historyAutoPagingReady { historyAutoPagingReady = true }
+                        }) {
+                        olderMessagesHeader(proxy)
+                        transcriptRows(proxy, viewportHeight: viewport.size.height)
+                        DeliveryStatusList(
+                            deliveries: model.orphanDeliveries(for: chatSessionId)
+                        )
+                        Color.clear.frame(height: 56)
+                            .id("chat-bottom")
                     }
                     .accessibilityIdentifier("chat.transcript")
                     .coordinateSpace(name: "chat-transcript")
-                    .onPreferenceChange(ChatHistoryHeightKey.self) { height in
-                        transcriptFitsViewport = height > 0 && height <= viewport.size.height
-                        if transcriptFitsViewport { chatIsAtBottom = true }
-                    }
-                    .onPreferenceChange(ChatHistoryPositionKey.self) { position in
-                        if !historyAutoPagingReady, let position, position < -100 {
-                            historyAutoPagingReady = true
-                        }
-                        if historyAutoPagingReady, let position, position >= -100, position < viewport.size.height,
-                           !chatIsAtBottom, !historyError { loadEarlierMessages(proxy) }
-                    }
                     .onPreferenceChange(ChatRowPositionKey.self) { positions in
                         guard let top = ChatPinnedUserMessage.topVisibleRow(
                             positions, viewportHeight: viewport.size.height
                         ) else { return }
                         updateTopTranscriptRow(top, proxy: proxy)
-                    }
-                    .onPreferenceChange(ChatBottomPositionKey.self) { position in
-                        guard let position else {
-                            if chatIsAtBottom && !visibleTimeline.isEmpty { chatIsAtBottom = false }
-                            return
+                        let first = positions.first { $0.id == timelineRows.first?.id }
+                        if historyAutoPagingReady, let first, first.minY >= -100,
+                           first.minY < viewport.size.height, !chatIsAtBottom, !historyError {
+                            loadEarlierMessages(proxy)
                         }
-                        let atBottom = position <= viewport.size.height + 36
-                        if chatIsAtBottom != atBottom { chatIsAtBottom = atBottom }
+                    }
+                    .overlay(alignment: .bottomLeading) {
+                        ChatActivityRail(model: model, session: currentSession,
+                            entries: entries, threads: childThreads, recordedFiles: currentReplyFiles)
+                            .padding(.bottom, 16)
                     }
                     .overlay(alignment: .bottomTrailing) {
                         if !chatIsAtBottom && !visibleTimeline.isEmpty {
                             jumpToLatestButton(proxy)
-                                .padding(.bottom, 16)
+                                .padding(.bottom, 72)
                         }
                     }
                 }
@@ -189,14 +180,11 @@ extension TaskChatView {
 
     private var chatComposerInset: some View {
         VStack(spacing: 0) {
-            ChatMessageQueueBar(session: currentSession).environmentObject(model)
             InChatApprovalsBar(sessionId: chatSessionId) { requestId in
                 replyRequestId = requestId
                 chatFocused = true
             }
             .environmentObject(model)
-            ChatActivityRail(model: model, session: currentSession,
-                             entries: entries, threads: childThreads)
             composer
         }
     }
@@ -220,6 +208,7 @@ extension TaskChatView {
             session: currentSession,
             rows: capabilityRows,
             accent: accent,
+            onClose: { showCapabilities = false },
             onToggle: toggleCapability
         ).environmentObject(model)
     }
@@ -263,7 +252,6 @@ extension TaskChatView {
     }
 
     private func chatAppeared() {
-        retainCurrentTranscript()
         model.subscribeSession(
             chatSessionId, active: true, source: "phone-chat:\(chatSessionId)"
         )

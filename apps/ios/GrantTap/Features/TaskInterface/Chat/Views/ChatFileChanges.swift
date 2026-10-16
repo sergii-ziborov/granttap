@@ -1,6 +1,18 @@
 import SwiftUI
 
 enum ChatFileChanges {
+    /// Index recorded reply changes in one pass over the transcript.
+    static func replies(in entries: [ActivityEntry]) -> [String: [RecordedFileChange]] {
+        var edits: [RecordedFileChange] = []
+        var replies: [String: [RecordedFileChange]] = [:]
+        for entry in entries {
+            if entry.kind == "user" { edits = [] }
+            edits.append(contentsOf: entry.fileChanges ?? [])
+            if entry.kind == "final" { replies[entry.id] = entry.fileChanges ?? coalesced(edits) }
+        }
+        return replies
+    }
+
     static func currentReplyFinalId(entries: [ActivityEntry]) -> String? {
         guard !entries.isEmpty else { return nil }
         let start = entries.lastIndex(where: { $0.kind == "user" }) ?? 0

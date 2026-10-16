@@ -5,6 +5,12 @@ purchase/restore/manage actions, and the subscription screen. It never receives
 chat text, agent credentials, pairing keys, or provider tokens.
 
 `SubscriptionProduct.swift` defines stable product identifiers and seat limits.
+`SubscriptionStorefront.swift` uses Apple's introductory offer and eligibility
+to show seven days free; it does not reset trial eligibility on a new build.
+`AccountSubscriptionGrant.swift` reads independently verified account access.
+The grant is bound to the signed-in session, lasts at most five minutes and
+cannot be extended by a network failure. A purchase on iPhone can authorize a
+linked Mac's managed relay connection without another trial or purchase.
 The displayed ladder covers 2, 5, 10 and 15 computers; no 16+ tier is offered.
 `SubscriptionEntitlement.swift` reduces verified StoreKit state into the small
 policy state consumed by remote infrastructure. `SubscriptionStore.swift` is
@@ -40,3 +46,8 @@ Tests live in
 `GrantTapTests/Features/SubscriptionEntitlements/SubscriptionEntitlementTests.swift`.
 The top-level architecture and public billing constraints are documented in
 `docs/subscriptions.md`.
+
+Transport change notifications carry effective permission changes only.
+Renewing the same grant, changing receipt metadata, or observing initial state
+does not tear down existing sockets. Revocation still revalidates every route.
+This behavior is shared by development and release builds.

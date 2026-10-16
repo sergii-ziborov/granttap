@@ -1,6 +1,6 @@
 # File review
 
-[public source](https://github.com/sergii-ziborov/granttap) · [Recorded diff interface](ChatFileReviewSheet.swift) · [Workspace contract](TaskWorkspaceModels.swift)
+[Engineering index](../../../../../../../AGENTS.md) · [Recorded diff interface](ChatFileReviewSheet.swift) · [Workspace contract](TaskWorkspaceModels.swift)
 
 `ChatFileReviewSheet` opens a recorded edit from the completed-reply file list.
 The full path and recorded added/removed counts stay above the diff. Mac uses
@@ -35,3 +35,17 @@ also cancels pending reads and preserves account identity.
 and persisted workspace pages. They exercise current-reply counters, diff
 opening, offline folder expansion, paged text and unavailable uncached folders.
 `ChatReplyChangesTests` cover edit coalescing and completed summary precedence.
+
+Files remains reachable without recorded edits or a reported folder. The root
+workspace owns its viewport so its first loading state is centered; expanded
+subfolders keep an inline loading state and cached entries remain visible.
+Files, Agents and the outbox queue float over the transcript with 44-point hit
+areas. Queue details open in a sheet, leaving the transcript height unchanged.
+
+The work rail scrolls across the full transcript width. The jump-to-latest
+shortcut sits above that rail, so it cannot cover the trailing agent control
+or consume a reserved strip beside the horizontal list.
+
+Complete file previews open the `../FileEditing` editor. Its public
+`AppModelTaskFileEdits.swift` entry submits proposed changes as a durable Task
+request; the original file is unchanged until the computer agent processes it.

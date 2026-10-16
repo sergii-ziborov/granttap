@@ -5,19 +5,21 @@ extension AppModel {
     func queueChatMessage(_ text: String, to session: SessionInfo,
                           attachments: [UserAttachment] = [],
                           preferredMcp: String? = nil, skill: String? = nil,
-                          overrides: TurnOverrides = .unchanged) -> Bool {
-        guard text.count <= 8_000,
+                          overrides: TurnOverrides = .unchanged, notBefore: Date? = nil) -> Bool {
+        guard transferNotice(for: session).map({ $0.continuedAt != nil }) ?? true,
+              text.count <= 8_000,
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 || !attachments.isEmpty else { return false }
         let now = Date().timeIntervalSince1970 * 1_000
         let transport: ChatMessageQueueContext.Transport
         #if targetEnvironment(macCatalyst)
-        transport = usesLocalMCP(for: session) ? .localMCP : .relay
+        transport = usesLocalTaskDelivery(for: session) ? .localMCP : .relay
         #else
         transport = .relay
         #endif
-        let options = overrides.wire(for: session.agent)
-        let candidate = OutgoingDelivery(
+        let options = overrides.wire(for: session.agent, catalog: turnModelCatalog(agent: session.agent, session: session),
+                                     currentModel: session.model)
+        var candidate = OutgoingDelivery(
             id: UUID().uuidString.lowercased(), text: text,
             agent: AgentIdentity.normalize(session.agent), cwd: nil,
             sessionId: resolvedSessionId(session.sessionId), requestId: nil,
@@ -31,9 +33,14 @@ extension AppModel {
             chatQueue: ChatMessageQueueContext(waiting: true, transport: transport,
                                                taskId: session.taskId, queuedAt: now)
         )
+        if !demoMode {
+            candidate.chatQueue?.relayManaged = true
+            candidate.chatQueue?.notBefore = floor((notBefore?.timeIntervalSince1970 ?? now / 1_000) * 1_000)
+        }
         let admission = DeliveryPersistence.admit(candidate, into: deliveries)
         deliveries = admission.deliveries
         if !demoMode { persistDeliveries() }
+        if admission.shouldSend { resumeRelayTaskQueues(immediate: true) }
         return admission.shouldSend
     }
 
@@ -54,6 +61,18 @@ extension AppModel {
     func cancelChatQueuedMessage(_ id: String) -> Bool {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
               ChatMessageQueuePolicy.canCancel(deliveries[index]) else { return false }
+        if deliveries[index].chatQueue?.relayManaged == true {
+            // Nothing can have reached the relay before the first upload is
+            // persisted. Such a row can be cancelled even without its route.
+            if deliveries[index].relayJob?.uploadAttempted != true {
+                finishRelayTaskQueueCancellation(at: index)
+                return true
+            }
+            deliveries[index].chatQueue?.cancelRequested = true
+            persistDeliveries()
+            resumeRelayTaskQueues(immediate: true)
+            return true
+        }
         deliveries.remove(at: index)
         if !demoMode { persistDeliveries() }
         return true
@@ -63,6 +82,10 @@ extension AppModel {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
               ChatMessageQueuePolicy.canCancel(deliveries[index]),
               deliveries[index].awaitingSessionRemap != true else { return }
+        if deliveries[index].chatQueue?.relayManaged == true {
+            requestRelayTaskQueueRestart(id)
+            return
+        }
         let now = Date().timeIntervalSince1970 * 1_000
         if deliveries[index].chatQueue?.queuedAt == nil {
             deliveries[index].chatQueue?.queuedAt = deliveries[index].createdAt
@@ -90,6 +113,7 @@ extension AppModel {
 
     func resumeChatQueues(observed sessions: [SessionInfo], fromRoom room: String? = nil,
                           localOnly: Bool = false) {
+        resumeRelayTaskQueues()
         #if targetEnvironment(macCatalyst)
         if localOnly { resumeLocalQueuedDeliveries() }
         #endif
@@ -110,12 +134,13 @@ extension AppModel {
             && row.roomId.flatMap { relaysByRoom[$0] } != nil
     }
 
-    private func appendQueuedMessageToTranscript(_ row: OutgoingDelivery) {
+    func appendQueuedMessageToTranscript(_ row: OutgoingDelivery) {
         guard let sessionId = row.sessionId else { return }
         let id = "local-user-\(row.id)"
         guard activities[sessionId]?.entries.contains(where: { $0.id == id }) != true else { return }
         appendLocalChatEntry(sessionId: sessionId, agent: row.agent ?? "codex",
                              entry: ActivityEntry(id: id, kind: "user", text: row.text,
-                                 createdAt: row.updatedAt, attachments: row.attachments.map(\.name)))
+                                 createdAt: row.updatedAt, attachments: row.attachments.map(\.name),
+                                 images: rememberSubmittedImages(row)))
     }
 }

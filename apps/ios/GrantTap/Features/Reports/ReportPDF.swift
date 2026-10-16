@@ -55,16 +55,19 @@ enum ReportPDF {
         }
 
         mutating func header() {
+            let titleHeight = min(84, Self.height(of: report.title, font: .boldSystemFont(ofSize: 22), width: width))
             draw(report.title, font: .boldSystemFont(ofSize: 22), color: Self.ink,
-                 rect: CGRect(x: margin, y: y, width: width, height: 30))
-            y += 30
+                 rect: CGRect(x: margin, y: y, width: width, height: titleHeight), wraps: true)
+            y += titleHeight + 8
+            let subtitleHeight = min(32, Self.height(of: report.subtitle, font: .systemFont(ofSize: 11), width: width))
             draw(report.subtitle, font: .systemFont(ofSize: 11), color: Self.muted,
-                 rect: CGRect(x: margin, y: y, width: width, height: 16))
-            y += 18
+                 rect: CGRect(x: margin, y: y, width: width, height: subtitleHeight), wraps: true)
+            y += subtitleHeight + 6
             let stamp = "\(L("Period")): \(report.periodLine)   ·   \(L("Generated")): \(ReportBuilder.stamp(report.generatedAt.timeIntervalSince1970 * 1_000))"
+            let stampHeight = Self.height(of: stamp, font: .systemFont(ofSize: 9), width: width)
             draw(stamp, font: .systemFont(ofSize: 9), color: Self.muted,
-                 rect: CGRect(x: margin, y: y, width: width, height: 14))
-            y += 20
+                 rect: CGRect(x: margin, y: y, width: width, height: stampHeight), wraps: true)
+            y += stampHeight + 8
             rule()
         }
 

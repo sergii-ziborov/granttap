@@ -1,5 +1,16 @@
 import Foundation
 
+enum InstallIdentityPlatform: Equatable {
+    case iOS, macCatalyst
+    static var current: Self {
+        #if targetEnvironment(macCatalyst)
+        return .macCatalyst
+        #else
+        return .iOS
+        #endif
+    }
+}
+
 /// Which launch this is, decided from the two copies of the install id.
 enum InstallState: Equatable {
     /// No id stored yet. An install that predates this build must keep the
@@ -15,8 +26,15 @@ enum InstallState: Equatable {
 enum InstallIdentityLogic {
     static func state(
         keychainId: String?, containerId: String?,
-        hasOwnedSecrets: Bool, hasLegacyContainerState: Bool
+        hasOwnedSecrets: Bool, hasLegacyContainerState: Bool,
+        platform: InstallIdentityPlatform = .iOS
     ) -> InstallState {
+        // Mac development and sandboxed distributions can have distinct
+        // defaults containers while sharing Keychain state. That is not proof
+        // of deletion and must never erase an existing local/account grant.
+        if platform == .macCatalyst {
+            return keychainId != nil && keychainId == containerId ? .unchanged : .adopted
+        }
         guard let keychainId else {
             // Builds shipped before install ids existed. Their App Support
             // directory survives an update, while deletion removes it and
@@ -40,12 +58,18 @@ struct InstallIdentityStores {
     var writeId: (String) -> Void
     var purgeOwnedSecrets: () -> Void
     var newId: () -> String
+    var platform: InstallIdentityPlatform = .iOS
 
-    static let live = InstallIdentityStores(
-        keychainId: { InstallIdentityRecord.load() },
-        containerId: { UserDefaults.standard.string(forKey: InstallIdentity.containerKey) },
+    static let live = persisted(defaults: .standard, service: InstallIdentity.service,
+                                prefix: OwnedKeychainItems.servicePrefix)
+
+    static func persisted(defaults: UserDefaults, service: String, prefix: String,
+                          platform: InstallIdentityPlatform = .current) -> Self {
+        Self(
+        keychainId: { InstallIdentityRecord.load(service: service) },
+        containerId: { defaults.string(forKey: InstallIdentity.containerKey) },
         hasOwnedSecrets: {
-            OwnedKeychainItems.services().contains { $0 != InstallIdentity.service }
+            OwnedKeychainItems.services(prefix: prefix).contains { $0 != service }
         },
         hasLegacyContainerState: { InstallIdentity.legacySupportDirectoryExists() },
         writeId: { id in
@@ -53,14 +77,14 @@ struct InstallIdentityStores {
             // back. Dying between the two writes then leaves a container id
             // with no Keychain copy, which adopts on the next launch. The
             // other order would report a reinstall and purge a healthy install.
-            let defaults = UserDefaults.standard
             defaults.set(id, forKey: InstallIdentity.containerKey)
             guard defaults.string(forKey: InstallIdentity.containerKey) == id else { return }
-            InstallIdentityRecord.save(id)
+            InstallIdentityRecord.save(id, service: service)
         },
-        purgeOwnedSecrets: { OwnedKeychainItems.removeAll() },
-        newId: { UUID().uuidString }
-    )
+        purgeOwnedSecrets: { OwnedKeychainItems.removeAll(prefix: prefix) },
+        newId: { UUID().uuidString }, platform: platform
+        )
+    }
 }
 
 /// iOS deletes the app container when the app is deleted but keeps Keychain
@@ -75,10 +99,12 @@ enum InstallIdentity {
 
     @discardableResult
     static func reconcile(stores: InstallIdentityStores = .live) -> InstallState {
+        let keychainId = stores.keychainId()
+        let containerId = stores.containerId()
         let state = InstallIdentityLogic.state(
-            keychainId: stores.keychainId(), containerId: stores.containerId(),
+            keychainId: keychainId, containerId: containerId,
             hasOwnedSecrets: stores.hasOwnedSecrets(),
-            hasLegacyContainerState: stores.hasLegacyContainerState()
+            hasLegacyContainerState: stores.hasLegacyContainerState(), platform: stores.platform
         )
         switch state {
         case .unchanged:
@@ -88,7 +114,11 @@ enum InstallIdentity {
         case .adopted:
             break
         }
-        stores.writeId(stores.newId())
+        // Adoption keeps any surviving marker, including when Keychain is
+        // temporarily unreadable. A new marker could make another build
+        // mistake a healthy installation for deletion when access returns.
+        let id = state == .adopted ? keychainId ?? containerId ?? stores.newId() : stores.newId()
+        stores.writeId(id)
         return state
     }
 

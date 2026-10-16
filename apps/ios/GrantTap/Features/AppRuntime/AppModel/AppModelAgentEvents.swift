@@ -18,7 +18,8 @@ extension AppModel {
     }
 
     private func consumeCompletedOriginDelivery(_ id: String) {
-        guard let index = deliveries.firstIndex(where: { $0.id == id }) else { return }
+        guard let index = deliveries.firstIndex(where: { $0.id == id }),
+              deliveries[index].chatQueue?.relayManaged != true else { return }
         if let generation = deliveries[index].attemptGeneration {
             liveDeliveryAttemptGenerations.remove(generation)
         }

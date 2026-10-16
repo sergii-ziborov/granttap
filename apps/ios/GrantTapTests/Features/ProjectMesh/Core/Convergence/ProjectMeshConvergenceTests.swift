@@ -158,4 +158,37 @@ final class ProjectMeshConvergenceTests: XCTestCase {
         fresher.updatedAt = now + 5
         XCTAssertEqual(ProjectMeshConvergence.preferred(live, fresher).uncommitted, true)
     }
+
+    func testExplicitContinuationReopensOnlyItsOwnBranch() {
+        var ended = ProjectMeshConvergenceFixtures.execution()
+        ended.endedAt = now + 10
+        var resumed = ProjectMeshConvergenceFixtures.execution()
+        resumed.continuedAt = now + 11
+        resumed.state = "working"
+        XCTAssertNil(ProjectMeshConvergence.preferred(ended, resumed).endedAt)
+        XCTAssertNil(ProjectMeshConvergence.preferred(resumed, ended).endedAt)
+        resumed.continuedAt = now + 9
+        XCTAssertEqual(ProjectMeshConvergence.preferred(ended, resumed).endedAt, now + 10)
+    }
+
+    func testACompletedBranchDoesNotFinishAnotherWorkingBranch() {
+        let model = AppModel()
+        model.demoMode = true
+        var snapshot = ProjectMeshConvergenceFixtures.snapshot(generatedAt: now)
+        snapshot.executions[0].state = "working"
+        snapshot.executions.append(.init(state: "working", taskId: "task", sessionId: "grok",
+            provider: "grok", computerId: "Other", workspace: "/other", startedAt: now))
+        model.meshSnapshots = ["project": snapshot]
+        let first = ProjectMeshEvent(type: "mesh.event", sessionId: "task", eventId: "complete-first",
+            projectId: "project", taskId: "task", sourceSessionId: "claude", targetSessionId: nil,
+            eventType: "TASK_COMPLETED", createdAt: now + 10, expiresAt: now + 60_000, payload: .init())
+        model.mergeMeshEvent(first, nowMs: now + 10)
+        XCTAssertEqual(model.meshSnapshots["project"]?.tasks.first?.state, "working")
+        XCTAssertEqual(model.meshSnapshots["project"]?.executions.first?.state, "idle")
+        let last = ProjectMeshEvent(type: "mesh.event", sessionId: "task", eventId: "complete-last",
+            projectId: "project", taskId: "task", sourceSessionId: "grok", targetSessionId: nil,
+            eventType: "TASK_COMPLETED", createdAt: now + 20, expiresAt: now + 60_000, payload: .init())
+        model.mergeMeshEvent(last, nowMs: now + 20)
+        XCTAssertEqual(model.meshSnapshots["project"]?.tasks.first?.state, "completed")
+    }
 }

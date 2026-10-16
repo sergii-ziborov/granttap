@@ -5,6 +5,9 @@ extension AppModel {
     func cachedTaskWorkspace(for session: SessionInfo, mode: String, path: String,
                              offset: Int = 0) -> TaskWorkspaceSnapshot? {
         guard workspaceReadAllowed(session, mode: mode, offset: offset) else { return nil }
+        #if DEBUG
+        if DemoWorkspaceRead.enabled(self) { return nil }
+        #endif
         return TaskWorkspaceStore.shared.load(scope: imageStorageScope(session.sessionId),
             sessionId: session.sessionId, mode: mode, path: path, offset: offset)
     }
@@ -19,6 +22,9 @@ extension AppModel {
             mode: mode, path: path, offset: offset, createdAt: Date().timeIntervalSince1970 * 1_000)
         let result: TaskWorkspaceSnapshot
         do {
+            #if DEBUG
+            if let fixture = try await DemoWorkspaceRead.read(query, model: self) { return fixture }
+            #endif
             #if targetEnvironment(macCatalyst)
             if usesLocalMCP(for: session), let reader = localMCPReader {
                 result = try await reader.workspacePreview(for: session, query: query)

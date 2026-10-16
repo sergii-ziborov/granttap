@@ -2,27 +2,25 @@ import SwiftUI
 
 extension TaskChatView {
     var latestUserEntry: ActivityEntry? {
-        ChatPinnedUserMessage.entry(in: ChatActivityGrouping.rows(visibleTimeline),
+        requestNavigation.entry(
             topRowId: chatIsAtBottom ? nil : topVisibleTranscriptRow)
     }
 
     var previousUserEntry: ActivityEntry? {
         if chatIsAtBottom || userMessageAnchor != nil {
-            let latest = TranscriptRequestBoundary.previous(in: rootEntries, before: nil)
+            let latest = requestIndex.previous(before: nil)
             let anchor = userMessageAnchor ?? (latestRequestIsVisibleAtTop ? latest?.id : nil)
-            return TranscriptRequestBoundary.previous(in: rootEntries, before: anchor)
+            return requestIndex.previous(before: anchor)
                 ?? (userMessageAnchor == nil ? latest : nil)
         }
-        return ChatPinnedUserMessage.navigationEntry(in: ChatActivityGrouping.rows(visibleTimeline),
+        return requestNavigation.navigationEntry(
             topRowId: topVisibleTranscriptRow, afterJump: userMessageAnchor)
     }
 
     private var latestRequestIsVisibleAtTop: Bool {
         guard let topVisibleTranscriptRow,
-              let top = rootEntries.first(where: { ChatScrollTarget.forEntry($0) == topVisibleTranscriptRow }),
-              TranscriptRequestBoundary.isRequest(top),
-              let latest = TranscriptRequestBoundary.previous(in: rootEntries, before: nil),
-              let request = TranscriptRequestBoundary.request(containing: top.id, in: rootEntries)
+              let request = requestNavigation.request(atRow: topVisibleTranscriptRow),
+              let latest = requestIndex.previous(before: nil)
         else { return false }
         return request.id == latest.id
     }
@@ -51,9 +49,9 @@ extension TaskChatView {
 
     private var previousRequestTitle: String {
         let first = transcriptHistory?.hasMore != true && !historyLoading && userMessageAnchor != nil
-            ? rootEntries.first { $0.id == userMessageAnchor } : nil
+            ? userMessageAnchor.flatMap { requestIndex.request(containing: $0) } : nil
         if let entry = previousUserEntry ?? first {
-            let text = entry.text.replacingOccurrences(of: "\n", with: " ")
+            let text = entry.text.prefix(240).replacingOccurrences(of: "\n", with: " ")
             return text.isEmpty ? L("Attachment") : text
         }
         if historyError { return L("Retry loading previous user message") }
@@ -70,7 +68,7 @@ extension TaskChatView {
                 if historyError { retryOrLoadEarlierMessages(proxy) }
                 else { loadEarlierMessages(proxy, automatic: true) }
             } else if let userMessageAnchor,
-                      let first = rootEntries.first(where: { $0.id == userMessageAnchor }) {
+                      let first = requestIndex.request(containing: userMessageAnchor) {
                 proxy.scrollTo(ChatScrollTarget.forEntry(first), anchor: .top)
             } else { retryTranscript() }
             return
@@ -98,7 +96,7 @@ extension TaskChatView {
 
     func ensurePreviousRequest(_ proxy: ScrollViewProxy) {
         guard historyReadingActive, !historyLoading, !historyError,
-              TranscriptRequestBoundary.needsEarlierPage(in: rootEntries,
+              requestIndex.needsEarlierPage(
                   before: userMessageAnchor ?? latestUserEntry?.id)
         else { return }
         loadEarlierMessages(proxy, automatic: true)
@@ -109,8 +107,8 @@ extension TaskChatView {
         topVisibleTranscriptRow = top
         if !requestJumpSettling, !chatIsAtBottom, let anchor = userMessageAnchor,
            let request = latestUserEntry,
-           let readingIndex = rootEntries.firstIndex(where: { $0.id == request.id }),
-           let anchorIndex = rootEntries.firstIndex(where: { $0.id == anchor }), readingIndex < anchorIndex {
+           let readingIndex = requestIndex.position(of: request.id),
+           let anchorIndex = requestIndex.position(of: anchor), readingIndex < anchorIndex {
             userMessageAnchor = nil
             ensurePreviousRequest(proxy)
         }

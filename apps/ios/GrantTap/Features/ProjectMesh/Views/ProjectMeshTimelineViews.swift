@@ -20,10 +20,10 @@ struct ProjectMeshNeedsYouCard: View {
                 Spacer(minLength: 0)
                 #endif
                 if event.eventType == "HANDOFF_REQUEST" {
-                    DecisionActionButton(title: L("Continue handoff"), tint: Theme.codex,
+                    DecisionActionButton(title: L("Continue handoff"), tint: Theme.codex, textColor: Theme.glyphInk(for: "codex"),
                                          action: onAuthorize)
                 } else {
-                    DecisionActionButton(title: L("Open task"), tint: Theme.codex,
+                    DecisionActionButton(title: L("Open task"), tint: Theme.codex, textColor: Theme.glyphInk(for: "codex"),
                                          action: onOpen)
                 }
                 DecisionActionButton(title: secondaryLabel, tint: Theme.ink,

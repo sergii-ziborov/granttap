@@ -14,6 +14,15 @@ final class PluralFormsTests: XCTestCase {
         XCTAssertEqual(LPlural(33, one: "%d chat", many: "%d chats"), "33 chats")
     }
 
+    func testRepeatedLabelsKeepLocaleResolutionWithinAFrame() {
+        setenv("GRANTTAP_TEST_LANGUAGE", "en", 1)
+        let start = ProcessInfo.processInfo.systemUptime
+        var characters = 0
+        for _ in 0..<2_000 { characters += L("Ready").count }
+        XCTAssertEqual(characters, 10_000)
+        XCTAssertLessThan(ProcessInfo.processInfo.systemUptime - start, 0.05)
+    }
+
     func testRussianCountsTheWayRussianDoes() {
         setenv("GRANTTAP_TEST_LANGUAGE", "ru", 1)
         let forms = [

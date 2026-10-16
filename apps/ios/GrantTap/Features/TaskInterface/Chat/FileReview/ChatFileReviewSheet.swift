@@ -1,11 +1,22 @@
 import SwiftUI
 
+@MainActor
 struct ChatFileReviewSheet: View {
     let file: RecordedFileChange
+    var model: AppModel? = nil
+    var session: SessionInfo? = nil
     let onClose: () -> Void
+    @State private var opensCurrentFile = false
+    @StateObject private var editSession = TaskFileEditSession()
+
+    private var workspacePath: String? {
+        guard let session else { return nil }
+        return TaskFileEditPath.relative(file.path, session: session)
+    }
 
     var body: some View {
-        CompatNavigationStack {
+        ChatSheetNavigation(title: URL(fileURLWithPath: file.path).lastPathComponent,
+            doneIdentifier: "chat.review.done", onClose: onClose) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top, spacing: 12) {
                     Text(file.path).font(Theme.mono(12)).textSelection(.enabled)
@@ -14,6 +25,11 @@ struct ChatFileReviewSheet: View {
                     DiffStatsBadge(added: file.linesAdded, removed: file.linesRemoved)
                 }
                 .padding(.horizontal, 16).padding(.vertical, 12)
+                if workspacePath != nil {
+                    Button(L("Open current file")) { opensCurrentFile = true }
+                        .padding(.horizontal, 16).padding(.bottom, 12)
+                        .accessibilityIdentifier("chat.review.open-current")
+                }
                 if file.diffTruncated == true {
                     Text(L("This diff exceeds the preview limit."))
                         .font(.caption).foregroundStyle(Theme.muted)
@@ -26,10 +42,10 @@ struct ChatFileReviewSheet: View {
             }
             .foregroundStyle(Theme.ink)
             .background(Theme.bg)
-            .navigationBarTitleDisplayMode(.inline)
-            .pageNavigationTitle(URL(fileURLWithPath: file.path).lastPathComponent,
-                showsBack: false, actionPlacement: .confirmationAction) {
-                Button(L("Done"), action: onClose)
+            .sheet(isPresented: $opensCurrentFile) {
+                if let model, let session, let path = workspacePath {
+                    ChatWorkspaceFileSheet(model: model, session: session, path: path, editSession: editSession) { opensCurrentFile = false }
+                }
             }
         }
     }

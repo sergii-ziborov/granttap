@@ -7,6 +7,8 @@ extension ContentView {
             if #available(iOS 16.0, *) {
                 NavigationStack(path: $macNavigationPath) {
                     navigationContent
+                        .onAppear { macNavigationRootVisible = true }
+                        .onDisappear { macNavigationRootVisible = false }
                         .navigationDestination(for: MacMainWindowRoute.self, destination: macDestination)
                 }
             } else {
@@ -44,12 +46,12 @@ extension ContentView {
             Theme.bg.ignoresSafeArea()
             #if targetEnvironment(macCatalyst)
             if !desktopLicense.license.permitsLocalControl
+                && !macRelayCompanionReady
                 && selectedTab != .settings && selectedTab != .devices {
                 DesktopLicenseView(store: desktopLicense, onBack: { selectMacTab(.devices) })
             } else if macLocalMCP.isReady || model.pairing != nil || model.demoMode
                         || selectedTab == .settings || selectedTab == .devices {
                 personalTabs
-                    .id(selectedTab)
             } else {
                 MacLocalMCPWelcomeView(
                     checked: macLocalMCP.hasCheckedLocalMCP,
@@ -88,4 +90,13 @@ extension ContentView {
         }
         #endif
     }
+
+    #if targetEnvironment(macCatalyst)
+    private var macRelayCompanionReady: Bool {
+        model.connectionRegistry.connections.contains { connection in
+            desktopLicense.license.permitsRelayCompanionInspection(linkedAccountID: connection.linkedAccountId,
+                currentAccountID: subscription.currentAccountID())
+        }
+    }
+    #endif
 }

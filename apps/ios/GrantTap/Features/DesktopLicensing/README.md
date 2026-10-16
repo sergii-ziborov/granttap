@@ -11,6 +11,11 @@ of Mac control and own-relay features. The first launch is recorded for the
 Apple app transaction and build number; installing a new TestFlight build
 starts a new evaluation. The record is local to the Mac and is never treated
 as a purchase. Production App Store transactions cannot enter this path.
+An account-linked Mac can use the managed relay as a companion while the same
+account has a verified Personal subscription. This route does not unlock local
+agent control or self-hosting; those still use the standalone Mac license.
+Paired account history remains inspectable when remote authorization expires;
+opening that view never renews transport or grants local control.
 If StoreKit evidence is unavailable at startup, the license screen offers an
 explicit App Store verification retry. A successful verified sandbox result
 keeps the evaluation available for that process while StoreKit is intermittent.

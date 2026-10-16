@@ -8,31 +8,6 @@ extension ContentView {
         selectedComposeSession.map { AgentIdentity.normalize($0.agent) } ?? composeAgent
     }
 
-    /// The model the next turn will use: this chat's own choice when the
-    /// composer is aimed at a chat, and the agent's default when a Task is
-    /// being started and there is no chat to inherit one from.
-    var newTaskModelBinding: Binding<TurnModel?> {
-        Binding(
-            get: {
-                guard let sessionId = selectedComposeSession?.sessionId else {
-                    return model.turnOverrides.agentDefaults(for: activeComposeAgent).model
-                }
-                return model.turnOverrides.chatOverrides(sessionId).model
-            },
-            set: { picked in
-                guard let sessionId = selectedComposeSession?.sessionId else {
-                    var current = model.turnOverrides.agentDefaults(for: activeComposeAgent)
-                    current.model = picked
-                    model.turnOverrides.setAgentDefaults(current, for: activeComposeAgent)
-                    return
-                }
-                var current = model.turnOverrides.chatOverrides(sessionId)
-                current.model = picked
-                model.turnOverrides.setChatOverrides(current, for: sessionId)
-            }
-        )
-    }
-
     var composeBar: some View {
         VStack(alignment: .leading, spacing: 7) {
             if selectedComposeSession != nil {
@@ -101,13 +76,15 @@ extension ContentView {
                 }
                 HStack(spacing: 8) {
                     AttachmentMenuButton(attachments: $attachments)
-                    ComposerModelPill(agent: activeComposeAgent, model: newTaskModelBinding,
+                    ComposerModelPill(agent: activeComposeAgent, model: newTaskModelBinding, effort: newTaskEffortBinding,
+                                      fallbackEffort: newTaskFallbackEffort,
                                       current: selectedComposeSession?.model,
                                       catalog: model.turnModelCatalog(agent: activeComposeAgent,
                                           session: selectedComposeSession, roomId: selectedNewTaskConnection?.id),
                                       fallback: selectedComposeSession == nil ? nil
                                           : model.turnOverrides.agentDefaults(for: activeComposeAgent).model?.id,
-                                      hasConversation: selectedComposeSession != nil)
+                                      hasConversation: selectedComposeSession != nil,
+                                      refresh: { await model.refreshProviderMetadata() })
                     Spacer(minLength: 4)
                     ListeningMicButton(isRecording: dictator.isRecording,
                                        isStarting: dictator.isStarting,
@@ -194,7 +171,8 @@ extension ContentView {
                           attachments: payloads,
                           attachmentRefs: model.attachmentRefs(for: attachments, room: composeRoom),
                           roomId: wasReply || composeSessionId != nil
-                            ? nil : selectedNewTaskConnection?.id)
+                            ? nil : selectedNewTaskConnection?.id,
+                          overrides: wasReply ? .unchanged : composedTurnOverrides)
         if let sessionId = model.sessionToOpen {
             if openedSession?.id != sessionId {
                 openedSession = OpenSession(id: sessionId)

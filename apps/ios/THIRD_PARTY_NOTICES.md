@@ -1,8 +1,11 @@
 # Third-party notices
 
 GrantTap for Mac, iPhone, iPad, and Apple Watch includes or interoperates with the
-following open-source software. The definitive license texts are shipped by
-Swift Package Manager or the corresponding npm package.
+following components. The Apple app bundles the full original notices for
+TweetNacl SwiftWrap 1.1.0 and Three.js r160 in About → Third-party notices,
+readable offline. Three.js is used only by the Mac graph viewer. The separate
+MCP and Engine distributions carry their own full versioned notices. Their
+source access does not grant rights to reserved first-party components.
 
 | Component | Purpose | License | Source |
 | --- | --- | --- | --- |
@@ -35,3 +38,16 @@ It requests storage and process metadata through SweepLoom’s MCP interface.
 SweepLoom code and its executable are not bundled in the Apple application;
 its installation retains the upstream license. GrantTap’s confirmed cache
 cleanup moves selected temporary files to the Mac Trash.
+
+## Distribution boundaries
+
+Apple system frameworks are supplied under Apple platform terms. The Apple
+apps do not bundle the Node runtime dependencies or the separate Engine binary.
+The helper and Engine retain their own dependency notices. Commercial GrantTap
+terms apply to first-party software and do not replace MIT, Apache, Unicode,
+Unlicense or other upstream grants. Current license summaries and full website
+dependency notices are available at https://granttap.com/licenses.
+
+The first-party Repo Lens Cyberboard renderer is incorporated under the explicit
+GrantTap commercial grant in `apps/macos/GraphWeb/REPO_LENS_LICENSE.txt`. It is
+not represented as MIT software; its Three.js dependency remains MIT.

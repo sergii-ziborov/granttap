@@ -74,7 +74,7 @@ struct ActivityRow: View {
         HStack(alignment: .top, spacing: 0) {
             Spacer(minLength: 32)
             VStack(alignment: .leading, spacing: 7) {
-                if !entry.text.isEmpty {
+                if !entry.text.isEmpty || entry.images?.isEmpty == false {
                     MessageImageContentView(entry: entry, compact: false)
                         .accessibilityIdentifier("chat.row.\(entry.id)")
                 }
@@ -174,7 +174,9 @@ struct ActivityRow: View {
     /// still holds is shown as the picture; one known only by name in a
     /// transcript says its name and opens nothing rather than a broken frame.
     @ViewBuilder private var attachments: some View {
-        if let names = entry.attachments, !names.isEmpty {
+        if let names = entry.attachments?.filter({ name in
+            !(entry.images ?? []).contains { $0.name == name }
+        }), !names.isEmpty {
             ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 8) {
                     ForEach(names, id: \.self) { name in

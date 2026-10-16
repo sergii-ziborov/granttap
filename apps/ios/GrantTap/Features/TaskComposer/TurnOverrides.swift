@@ -45,7 +45,7 @@ enum TurnPermissionMode: String, CaseIterable, Identifiable {
 
 /// How hard the model should work on a turn.
 enum TurnEffort: String, CaseIterable, Identifiable {
-    case low, medium, high, xhigh, max
+    case low, medium, high, xhigh, max, ultra
 
     var id: String { rawValue }
 
@@ -54,15 +54,20 @@ enum TurnEffort: String, CaseIterable, Identifiable {
         case .low: return L("Low")
         case .medium: return L("Medium")
         case .high: return L("High")
-        case .xhigh: return L("Very high")
+        case .xhigh: return L("Extra High")
         case .max: return L("Maximum")
+        case .ultra: return "Ultra"
         }
     }
 
-    /// Only Claude is driven with an effort flag here. Codex is not, so an
-    /// effort chosen for it must not travel as a value its CLI would reject.
+    /// Cursor encodes reasoning variants in its advertised model ID.
     static func supported(by agent: String) -> [TurnEffort] {
-        AgentIdentity.normalize(agent) == "claude" ? allCases : []
+        switch AgentIdentity.normalize(agent) {
+        case "codex": return allCases
+        case "claude": return [.low, .medium, .high, .xhigh, .max]
+        case "grok": return [.low, .medium, .high]
+        default: return []
+        }
     }
 }
 
@@ -85,9 +90,10 @@ struct TurnOverrides: Equatable {
     }
 
     /// Only send what the provider can actually act on.
-    func wire(for agent: String) -> (model: String?, permissionMode: String?, effort: String?) {
+    func wire(for agent: String, catalog: TurnModelCatalog? = nil, currentModel: String? = nil) -> (model: String?, permissionMode: String?, effort: String?) {
         let modes = TurnPermissionMode.supported(by: agent)
-        let efforts = TurnEffort.supported(by: agent)
+        let efforts = catalog?.efforts(for: model?.id ?? currentModel, agent: agent)
+            ?? TurnEffort.supported(by: agent)
         return (
             model.flatMap { $0.accepted(by: agent) ? $0.rawValue : nil },
             permissionMode.flatMap { modes.contains($0) ? $0.wireValue : nil },

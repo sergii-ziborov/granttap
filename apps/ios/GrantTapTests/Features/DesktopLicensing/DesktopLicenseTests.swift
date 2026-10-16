@@ -4,6 +4,22 @@ import XCTest
 final class DesktopLicenseTests: XCTestCase {
     let bundleID = "com.ziborov.granttap"
 
+    func testLicensedPhonePlanAllowsLinkedMacCompanionWithoutAnotherTrial() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let grant = AccountSubscriptionGrant(accountID: "owner", entitlement:
+            SubscriptionEntitlement(state: .trial(expiresAt: now.addingTimeInterval(604_800)),
+                product: .solo, seatLimit: 2), validatedUntil: now.addingTimeInterval(300))
+        let license = DesktopLicense.notPurchased
+        XCTAssertTrue(license.permitsRelayCompanionInspection(linkedAccountID: "owner", currentAccountID: "owner"))
+        XCTAssertFalse(license.permitsRelayCompanionInspection(linkedAccountID: nil, currentAccountID: "owner"))
+        XCTAssertFalse(license.permitsRelayCompanionInspection(linkedAccountID: "other", currentAccountID: "owner"))
+        XCTAssertFalse(grant.allowsTransport(accountID: "owner", now: now.addingTimeInterval(300)))
+        XCTAssertTrue(license.permitsRelayCompanionInspection(linkedAccountID: "owner", currentAccountID: "owner"),
+            "Cached conversation navigation remains available after the remote lease expires")
+        XCTAssertFalse(license.permitsLocalControl)
+        XCTAssertFalse(license.permitsOwnRelay)
+    }
+
     func testProductionRequiresVerifiedUnrevokedMacPurchase() {
         let valid = DesktopPurchaseEvidence(identifier: DesktopLicense.productID,
                                            verified: true, revoked: false, nonConsumable: true)

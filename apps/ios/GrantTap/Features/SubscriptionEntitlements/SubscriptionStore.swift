@@ -15,32 +15,24 @@ final class SubscriptionStore: ObservableObject {
         case loading, ready, notConfigured, failed(String)
     }
 
-    @Published private(set) var products: [Product] = []
+    @Published var products: [Product] = []
     @Published private(set) var entitlement: SubscriptionEntitlement = .unavailable
     @Published var betaRelayAccess = false
     @Published var accountBetaGrant: AccountBetaRelayGrant?
+    @Published var accountSubscriptionGrant: AccountSubscriptionGrant?
     @Published var betaVerificationError: String?
-    @Published private(set) var availability: Availability = .loading
+    @Published var availability: Availability = .loading
     @Published private(set) var purchaseInProgress = false
-    @Published private(set) var lastError: String?
-
-    /// Tiers the store returned, smallest first, so the paywall reads as a ladder.
-    var offers: [SubscriptionOffer] {
-        products
-            .map {
-                SubscriptionOffer(
-                    id: $0.id, displayName: $0.displayName, displayPrice: $0.displayPrice
-                )
-            }
-            .sorted { $0.seatLimit < $1.seatLimit }
-    }
+    @Published var trialEligibleProductIDs: Set<String> = []
+    @Published var lastError: String?
 
     private var observer: Task<Void, Never>?
-    private let productLoader: ProductLoader
+    let productLoader: ProductLoader
     private let snapshotLoader: SnapshotLoader
     let betaEnvironmentLoader: () async -> Bool
     let betaEnvironmentRefresh: () async throws -> Bool
     let accountBetaLoader: () async throws -> AccountBetaRelayGrant?
+    let accountSubscriptionLoader: () async throws -> AccountSubscriptionGrant?
     let currentAccountID: () -> String?
     let clock: () -> Date
     private let storeSync: StoreSync
@@ -73,6 +65,10 @@ final class SubscriptionStore: ObservableObject {
         accountBetaLoader: @escaping () async throws -> AccountBetaRelayGrant? = {
             try await AccountBetaRelayGrantAPI.load()
         },
+        accountSubscriptionLoader: @escaping () async throws -> AccountSubscriptionGrant? = {
+            guard !AppRuntime.isRunningUnitTests else { return nil }
+            return try await AccountSubscriptionGrantAPI.load()
+        },
         currentAccountID: @escaping () -> String? = { GrantTapAccountAPI.session?.accountId },
         clock: @escaping () -> Date = Date.init,
         storeSync: @escaping StoreSync = { try await AppStore.sync() },
@@ -88,15 +84,20 @@ final class SubscriptionStore: ObservableObject {
         self.betaEnvironmentLoader = betaEnvironmentLoader
         self.betaEnvironmentRefresh = betaEnvironmentRefresh
         self.accountBetaLoader = accountBetaLoader
+        self.accountSubscriptionLoader = accountSubscriptionLoader
         self.currentAccountID = currentAccountID
         self.clock = clock
         self.storeSync = storeSync
         self.manageSubscriptions = manageSubscriptions
         if startObserving {
             observer = Task { [weak self] in
-                for await _ in Transaction.updates {
+                for await result in Transaction.updates {
                     guard !Task.isCancelled else { return }
                     await self?.refresh()
+                    if case .verified(let transaction) = result,
+                       SubscriptionProduct(rawValue: transaction.productID) != nil {
+                        await transaction.finish()
+                    }
                 }
             }
         }
@@ -127,22 +128,16 @@ final class SubscriptionStore: ObservableObject {
     }
 
     var allowsManagedTransport: Bool {
-        betaRelayAccess || accountGrantAllowsTransport
+        betaRelayAccess || accountGrantAllowsTransport || accountSubscriptionAllowsTransport
             || entitlement.state.allowsRemoteInfrastructure
     }
 
-    func loadProducts() async {
-        availability = .loading
-        do {
-            products = try await productLoader()
-                .filter { SubscriptionProduct(rawValue: $0.id) != nil }
-            availability = products.isEmpty ? .notConfigured : .ready
-            lastError = nil
-        } catch {
-            products = []
-            availability = .failed(error.localizedDescription)
-            lastError = error.localizedDescription
-        }
+    var accountSubscriptionAllowsTransport: Bool {
+        accountSubscriptionGrant?.allowsTransport(accountID: currentAccountID(), now: clock()) == true
+    }
+
+    var effectiveEntitlement: SubscriptionEntitlement {
+        accountSubscriptionAllowsTransport ? accountSubscriptionGrant!.entitlement : entitlement
     }
 
     func refresh() async {
@@ -154,10 +149,12 @@ final class SubscriptionStore: ObservableObject {
         }
         do { try await SubscriptionReceiptSync.refresh() }
         catch { lastError = error.localizedDescription }
+        await refreshAccountSubscription()
     }
 
     func purchase(_ product: Product) async {
         purchaseInProgress = true
+        lastError = nil
         defer { purchaseInProgress = false }
         do {
             let accountToken = try ManagedPurchaseIdentity.token(for: currentAccountID())
@@ -165,7 +162,6 @@ final class SubscriptionStore: ObservableObject {
             case .success(.verified(let transaction)):
                 await transaction.finish()
                 await refresh()
-                lastError = nil
             case .success(.unverified):
                 lastError = L("The App Store could not verify this purchase.")
             case .pending:
@@ -190,11 +186,11 @@ final class SubscriptionStore: ObservableObject {
 
     func restore() async {
         purchaseInProgress = true
+        lastError = nil
         defer { purchaseInProgress = false }
         do {
             try await storeSync()
             await refresh()
-            lastError = nil
         } catch {
             lastError = error.localizedDescription
         }

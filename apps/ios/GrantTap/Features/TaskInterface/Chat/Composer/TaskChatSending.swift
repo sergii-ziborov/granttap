@@ -2,6 +2,7 @@ import SwiftUI
 
 extension TaskChatView {
     func sendImmediately() {
+        guard !transferRequiresConfirmation else { return }
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         if let requestId = replyRequestId {
             guard !text.isEmpty else { return }
@@ -14,23 +15,26 @@ extension TaskChatView {
         guard !text.isEmpty || !attachments.isEmpty else { return }
         guard chatSendAvailability?.blocksSending != true else { return }
         #if targetEnvironment(macCatalyst)
-        if let reader = model.localMCPReader, model.usesLocalMCP(for: currentSession) {
+        if let reader = model.localMCPReader, model.usesLocalTaskDelivery(for: currentSession) {
             guard !localSending else { return }
-            guard selectedMcp == nil, selectedSkill == nil else {
-                localSendError = L("Explicit MCP and skill routing is not available for local Task replies yet.")
-                return
-            }
             localSending = true
             localSendError = nil
             Task {
                 defer { localSending = false }
                 do {
                     let options = model.turnOverrides.resolved(sessionId: chatSessionId, agent: currentSession.agent)
+                    let wire = options.wire(for: currentSession.agent,
+                        catalog: model.turnModelCatalog(agent: currentSession.agent, session: currentSession),
+                        currentModel: currentSession.model)
                     let result = try await reader.send(text, to: currentSession, attachments: attachments,
-                        model: options.wire(for: currentSession.agent).model)
+                        model: wire.model,
+                        effort: wire.effort, preferredMcp: selectedMcp, skill: selectedSkill,
+                        permissionMode: wire.permissionMode)
                     if result.accepted {
                         draft = ""
                         attachments = []
+                        selectedMcp = nil
+                        selectedSkill = nil
                         await loadLocalConversation()
                     } else {
                         localSendError = result.error ?? L("Could not send to this Task.")
@@ -68,17 +72,15 @@ extension TaskChatView {
 
     var chatSendAvailability: TaskSendAvailability? {
         if suppressAvailabilityForDebugCapture || model.demoMode { return nil }
-        #if targetEnvironment(macCatalyst)
-        if model.usesLocalMCP(for: currentSession) {
-            return nil
-        }
-        #endif
         if currentSession.isPaused {
             return TaskSendAvailability(
-                message: L("Paused from this phone: the computer refuses its tool calls. Resume to send."),
+                message: L("This chat is paused. Resume to send."),
                 blocksSending: true
             )
         }
+        #if targetEnvironment(macCatalyst)
+        if model.usesLocalTaskDelivery(for: currentSession) { return nil }
+        #endif
         return TaskRoutePresentation.sendAvailability(
             agent: currentSession.agent,
             route: model.chatComputerRoute(forSessionId: chatSessionId)

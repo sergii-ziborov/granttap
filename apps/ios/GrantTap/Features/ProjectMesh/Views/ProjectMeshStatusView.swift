@@ -136,8 +136,7 @@ struct ProjectMeshStatusView: View {
                 Label(L("Open graph and analysis status"),
                       systemImage: "point.3.connected.trianglepath.dotted")
             }
-            let repositoryIds = Set(bindings.map(\.repositoryId)
-                + [snapshot.project.canonicalRepositoryId]).sorted()
+            let repositoryIds = ProjectHealthDiagnostics.graphRepositoryIds(snapshot)
             ForEach(repositoryIds, id: \.self) { repositoryId in
                 let report = ProjectHealthDiagnostics.graphReport(
                     for: repositoryId, snapshot: snapshot

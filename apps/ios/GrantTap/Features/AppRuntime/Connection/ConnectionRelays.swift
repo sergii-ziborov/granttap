@@ -98,6 +98,9 @@ extension AppModel {
             self.compactResults[result.sessionId] = result
             self.append(result.message)
         }
+        client.onTaskTransferContinueResult = { [weak self] result in
+            self?.receive(result, fromRoom: room)
+        }
         client.onSessionControlResult = { [weak self] result in
             self?.receive(result)
         }
@@ -106,6 +109,9 @@ extension AppModel {
     }
 
     private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
+        client.onProjectTransportAck = { [weak self] acknowledgement in
+            self?.computerNetwork.receive(acknowledgement, room: room)
+        }
         #if DEBUG
         client.onWireDiagnosticChange = { [weak self] in self?.saveRequestedDiagnostics() }
         #endif

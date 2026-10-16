@@ -14,6 +14,7 @@ extension TaskChatView {
                     Label(L("Resume and continue"), systemImage: "play.fill")
                 }
                 .disabled(controlPending)
+                .accessibilityIdentifier("chat.menu.resume")
             } else {
                 Button {
                     model.pauseSession(chatSessionId)
@@ -21,25 +22,29 @@ extension TaskChatView {
                     Label(L("Pause"), systemImage: "pause.fill")
                 }
                 .disabled(controlPending)
+                .accessibilityIdentifier("chat.menu.pause")
             }
             if canHandOff {
                 Button {
                     showHandoff = true
                 } label: {
-                    Label(L("Hand off to another agent or computer…"), systemImage: "arrow.right.arrow.left")
+                    Label(L("Transfer to…"), systemImage: "arrow.right.arrow.left")
                 }
+                .accessibilityIdentifier("chat.menu.transfer")
             }
             Button {
                 showReport = true
             } label: {
                 Label(L("Report (PDF or CSV)…"), systemImage: "doc.text")
             }
+            .accessibilityIdentifier("chat.menu.report")
             Divider()
             Button {
                 showCapabilities = true
             } label: {
                 Label(L("Task controls"), systemImage: "slider.horizontal.3")
             }
+            .accessibilityIdentifier("chat.menu.controls")
         } label: {
             Image(systemName: currentSession.isPaused ? "pause.circle.fill" : "ellipsis.circle")
                 .foregroundStyle(currentSession.isPaused ? Theme.riskMed : accent)
@@ -53,9 +58,7 @@ extension TaskChatView {
     /// A Task inside a Project can move: to another agent here, or to another
     /// computer of the Project.
     var canHandOff: Bool {
-        currentSession.projectId != nil && currentSession.taskId != nil
-            && ["claude", "codex"].contains(AgentIdentity.normalize(currentSession.agent))
-            && !model.connectionRegistry.connections.isEmpty
+        model.canOfferTaskTransfer(for: currentSession)
     }
 
     /// The report is about the Task when the chat belongs to one, so the other

@@ -250,7 +250,7 @@ struct TaskRouteView: View {
             }
             .sheet(isPresented: $showReport) {
                 if let task, let snapshot {
-                    ReportExportSheet(report: model.report(for: .task(snapshot, task)))
+                    ReportExportSheet(report: model.report(for: .task(snapshot, task)), onClose: { showReport = false })
                 }
             }
             .toolbar {

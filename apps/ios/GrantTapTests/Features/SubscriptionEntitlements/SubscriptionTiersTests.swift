@@ -6,15 +6,21 @@ import XCTest
 /// Tiers differ only by linked computers; agents per computer are never counted.
 @MainActor
 final class SubscriptionTiersTests: XCTestCase {
+    func testFirstCommercialLaunchHasOnlyThreeMonthlyComputerPlans() {
+        XCTAssertEqual(SubscriptionProduct.ordered.map(\.seatLimit), [2, 5, 15])
+        XCTAssertNil(SubscriptionProduct(rawValue: "com.ziborov.granttap.personal.fleet.monthly"))
+    }
+
     func testEveryTierIsPricedByComputersAndNeverByAgents() {
-        XCTAssertEqual(SubscriptionProduct.ordered.map(\.seatLimit), [2, 5, 10, 15])
+        XCTAssertEqual(SubscriptionProduct.ordered.map(\.seatLimit), [2, 5, 15])
         XCTAssertEqual(SubscriptionProduct.solo.summary,
                        String(format: L("Up to %d computers"), 2))
-        XCTAssertEqual(SubscriptionProduct.fleet.summary,
-                       String(format: L("Up to %d computers"), 10))
+        XCTAssertEqual(SubscriptionProduct.studio.summary,
+                       String(format: L("Up to %d computers"), 15))
         // Each tier is one App Store product; a missing one must not silently
         // resolve to another tier's limit.
-        XCTAssertEqual(Set(SubscriptionProduct.allCases.map(\.rawValue)).count, 4)
+        XCTAssertEqual(Set(SubscriptionProduct.allCases.map(\.rawValue)).count, 3)
+        XCTAssertEqual(SubscriptionProduct.ordered.map(\.label), ["Personal", "Personal Plus", "Fleet"])
         XCTAssertNil(SubscriptionOffer(id: "com.ziborov.granttap.unknown",
                                        displayName: "?", displayPrice: "?").product)
         XCTAssertEqual(SubscriptionOffer(id: "com.ziborov.granttap.unknown",
@@ -23,18 +29,18 @@ final class SubscriptionTiersTests: XCTestCase {
 
     func testThePaywallShowsTheLadderSmallestFirst() {
         let offers = [
-            SubscriptionOffer(id: SubscriptionProduct.fleet.rawValue,
-                              displayName: "Fleet", displayPrice: "$5.99"),
+            SubscriptionOffer(id: "com.ziborov.granttap.personal.fleet.monthly",
+                              displayName: "Retired", displayPrice: "$5.99"),
             SubscriptionOffer(id: SubscriptionProduct.solo.rawValue,
-                              displayName: "Solo", displayPrice: "$1.99"),
-            SubscriptionOffer(id: SubscriptionProduct.personal.rawValue,
                               displayName: "Personal", displayPrice: "$3.99"),
+            SubscriptionOffer(id: SubscriptionProduct.personal.rawValue,
+                              displayName: "Personal Plus", displayPrice: "$6.99"),
             SubscriptionOffer(id: SubscriptionProduct.studio.rawValue,
-                              displayName: "Studio", displayPrice: "$9.99"),
+                              displayName: "Fleet", displayPrice: "$11.99"),
         ]
         let view = SubscriptionView(store: SubscriptionStore(startObserving: false),
                                     offers: offers)
-        XCTAssertEqual(view.offersForDisplay.map(\.seatLimit), [2, 5, 10, 15])
+        XCTAssertEqual(view.offersForDisplay.map(\.seatLimit), [2, 5, 15])
         XCTAssertFalse(view.isCurrent(offers[0]), "no entitlement means no current plan")
         let frame = CGRect(x: 0, y: 0, width: 390, height: 700)
         let controller = UIHostingController(rootView: view)

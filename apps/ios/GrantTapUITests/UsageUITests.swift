@@ -1,6 +1,23 @@
 import XCTest
 
 final class UsageUITests: XCTestCase {
+    func testFourProviderUsageAndSubscriptionWindows() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_CAPTURE_TAB": "usage",
+                                 "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        let codex = app.buttons["usage.provider.codex"]
+        for _ in 0..<6 where !codex.isHittable { app.swipeUp() }
+        XCTAssertTrue(codex.waitForExistence(timeout: 5))
+        for provider in ["claude", "codex", "cursor", "grok"] {
+            XCTAssertTrue(app.buttons["usage.provider.\(provider)"].exists)
+        }
+        codex.tap()
+        XCTAssertTrue(app.staticTexts["77% remaining"].waitForExistence(timeout: 5))
+        add(XCTAttachment(screenshot: app.screenshot()))
+    }
+
     func testSkillFilterKeepsOverviewAndOpensUsageStatistics() {
         continueAfterFailure = false
         let app = XCUIApplication()

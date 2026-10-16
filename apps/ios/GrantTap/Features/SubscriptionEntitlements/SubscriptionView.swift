@@ -17,7 +17,8 @@ struct SubscriptionView: View {
 
     /// Smallest tier first, whether the tiers came from the store or a test.
     var offersForDisplay: [SubscriptionOffer] {
-        (offersOverride ?? store.offers).sorted { $0.seatLimit < $1.seatLimit }
+        (offersOverride ?? store.offers).filter { $0.product != nil }
+            .sorted { $0.seatLimit < $1.seatLimit }
     }
 
     var body: some View {
@@ -52,6 +53,10 @@ struct SubscriptionView: View {
             Section(L("Manage")) {
                 Button(L("Restore purchases")) { Task { await store.restore() } }
                 manageSubscriptionLink
+                if store.currentAccountID() != nil {
+                    Link(L("Managed computers"), destination: URL(string:
+                        "https://granttap.com/account\(AppLocale.code == "ru" ? "?lang=ru" : "")#managed-computers")!)
+                }
                 Link("Terms of Use", destination: URL(string: "https://granttap.com/terms")!)
                 Link("Privacy Policy", destination: URL(string: "https://granttap.com/privacy")!)
                 NavigationLink(L("Pricing and connection modes")) {
@@ -79,7 +84,7 @@ struct SubscriptionView: View {
     }
 
     @ViewBuilder var statusRow: some View {
-        switch store.entitlement.state {
+        switch store.effectiveEntitlement.state {
         case .trial(let expiry):
             Label("Free trial until \(expiry.formatted(date: .abbreviated, time: .omitted))",
                   systemImage: "clock.badge.checkmark")
@@ -118,7 +123,7 @@ struct SubscriptionView: View {
 
     /// Whether this tier is the one currently paid for.
     func isCurrent(_ offer: SubscriptionOffer) -> Bool {
-        store.entitlement.product?.rawValue == offer.id
+        store.effectiveEntitlement.product?.rawValue == offer.id
     }
 
     /// The smallest tier that still covers the computers already linked.
@@ -134,8 +139,8 @@ struct SubscriptionView: View {
                 Image(systemName: offer.seatLimit <= 2 ? "desktopcomputer" : "macpro.gen3")
                     .foregroundStyle(Theme.claude)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(offer.summary).font(.headline)
-                    Text(L("Unlimited agents on each"))
+                    Text(offer.product?.label ?? offer.displayName).font(.headline)
+                    Text(offer.summary)
                         .font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer(minLength: 6)
@@ -153,7 +158,9 @@ struct SubscriptionView: View {
                     .font(.caption).foregroundStyle(Theme.claude)
             }
 
-            Text("7-day free trial for eligible new subscribers; then \(offer.displayPrice) per month. Renews automatically until cancelled.")
+            Text(offer.hasSevenDayTrial
+                 ? String(format: L("7 days free, then %@ per month. Renews automatically until cancelled."), offer.displayPrice)
+                 : String(format: L("%@ per month. Renews automatically until cancelled."), offer.displayPrice))
                 .font(.caption).foregroundStyle(Theme.muted)
 
             if isCurrent(offer) {
@@ -167,7 +174,7 @@ struct SubscriptionView: View {
                     .accessibilityIdentifier("subscription.\(offer.id)")
                 #endif
             } else {
-                Button(L("Subscribe")) { subscribe(offer) }
+                Button(L(offer.hasSevenDayTrial ? "Start 7-day free trial" : "Subscribe")) { subscribe(offer) }
                     .buttonStyle(.borderedProminent)
                     .tint(Theme.claude)
                     .accessibilityIdentifier("subscription.\(offer.id)")

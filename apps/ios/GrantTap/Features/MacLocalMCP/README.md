@@ -55,7 +55,7 @@ computer before choosing the local desktop bridge. Refreshing one computer canno
 replace another computer's list. Tests are in
 `GrantTapTests/Features/MacLocalMCP` and `GrantTapTests/Features/Pairing`.
 
-See [public source](https://github.com/sergii-ziborov/granttap) for the repository contract.
+See [`AGENTS.md`](../../../../../AGENTS.md) for the repository contract.
 
 Generated image references are advertised by the exact Task conversation and
 fetched with `desktop.task_image`. The client never reads provider transcripts
@@ -105,3 +105,9 @@ wire model. Periodic lightweight catalog updates retain graph enrichment without
 requiring a Cortex report. Historical command measurements remain separate from
 live process readings. Native active chats also receive provider usage facts,
 without replacing fresher native totals with an older cached scan.
+
+`MacLocalTaskCommands` carries pause/resume, compaction and Task preferences through
+the authenticated desktop channel. The TaskControl feature applies confirmed rules
+and access without a phone or relay connection for an exact execution on this Mac.
+Immediate replies carry selected MCP, Skill and permission mode alongside model
+and effort. Remote executions retain their explicit computer route.

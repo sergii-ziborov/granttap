@@ -4,13 +4,16 @@ import XCTest
 
 extension AppRuntimeTests {
     @MainActor
-    func testBackgroundWakeCompletionAndEmptySnapshotCleanup() {
+    func testBackgroundWakeCompletionAndEmptySnapshotCleanup() async {
         let model = AppModel()
         var results: [UIBackgroundFetchResult] = []
-        model.handleRemoteWake { results.append($0) }
-        model.handleRemoteWake { results.append($0) }
+        let completed = expectation(description: "Both wake callbacks finish after persistence")
+        completed.expectedFulfillmentCount = 2
+        model.handleRemoteWake { results.append($0); completed.fulfill() }
+        model.handleRemoteWake { results.append($0); completed.fulfill() }
         XCTAssertEqual(model.backgroundWakeCompletions.count, 2)
         model.finishBackgroundWake(.newData)
+        await fulfillment(of: [completed], timeout: 3)
         XCTAssertEqual(results, [.newData, .newData])
         XCTAssertTrue(model.backgroundWakeCompletions.isEmpty)
         model.finishBackgroundWake(.noData)

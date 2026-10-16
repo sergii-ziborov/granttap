@@ -35,12 +35,23 @@ final class AppModel: ObservableObject {
     var approvalDecisionSessionScope: [String: String] = [:]
     @Published var questions: [AgentEvent] = []
     @Published var log: [String] = []
+    @Published var taskTransfers = TaskTransferProgress()
+    let computerNetwork = ProjectNetworkCoordinator()
     @Published var sessions: [SessionInfo] = []
     @Published var sessionHistory: [SessionInfo] = []
     @Published var historyPagingByRoom: [String: HistoryPagingState] = [:]
     /// Restored from disk: a reopened chat shows what the phone already has
     /// instead of waiting on the Mac to re-send and decrypt it.
-    @Published var activities: [String: SessionActivity] = SessionActivityPersistence.load()
+    var transcriptRevision: UInt64 = 0
+    let taskMeshEventIndex = TaskMeshEventIndex()
+    var activityRevisions: [String: UInt64] = [:]
+    @Published var activities: [String: SessionActivity] = SessionActivityPersistence.load() {
+        didSet {
+            for id in Set(activities.keys).union(oldValue.keys) where activities[id] != oldValue[id] {
+                activityRevisions[id, default: 0] &+= 1
+            }
+        }
+    }
     var transcriptBackfill = TranscriptBackfill()
     @Published var replicaSessionIndex: [String: SessionInfo] = [:]
     @Published var replicaImagesRevision = 0
@@ -85,6 +96,11 @@ final class AppModel: ObservableObject {
     @Published var sessionToOpen: String?
     /// Notification tap / remote wake — surface this Allow on the home pending list.
     @Published var focusedApprovalId: String?
+    var relayQueueLoop: Task<Void, Never>?
+    var relayQueueLoopGeneration: UUID?
+    var relayQueueDelay: Task<Void, Never>?
+    var relayQueueNeedsSync = false
+    var relayQueueSyncInProgress = false
     @Published var deliveries: [OutgoingDelivery] = DeliveryPersistence.load()
     @Published var archivedSessionIds: Set<String> = Set(
         UserDefaults.standard.stringArray(forKey: "granttap.archived-sessions") ?? []
@@ -101,7 +117,9 @@ final class AppModel: ObservableObject {
     @Published var refreshHint: String?
     @Published var projectGraphRequests: [String: ProjectGraphRequest] = [:]
     var projectGraphAttemptAt: [String: Double] = [:]
-    @Published var meshSnapshots: [String: ProjectMeshSnapshot] = restoredMesh.snapshots
+    @Published var meshSnapshots: [String: ProjectMeshSnapshot] = restoredMesh.snapshots {
+        didSet { transcriptRevision &+= 1 }
+    }
     /// Mesh scopes observed directly from this Mac's same-user MCP reader.
     @Published var localMeshProjectIds: Set<String> = []
     /// Authenticated MCP catalogs from the device facets of this account.
@@ -151,7 +169,9 @@ final class AppModel: ObservableObject {
             }
         }
     }
-    @Published var pendingMeshEvents: [ProjectMeshEvent] = restoredMesh.pendingEvents
+    @Published var pendingMeshEvents: [ProjectMeshEvent] = restoredMesh.pendingEvents {
+        didSet { transcriptRevision &+= 1 }
+    }
     @Published var meshAttentionStates: [String: ProjectMeshAttentionState] = restoredMesh.attentionStates
     @Published var agentMeshPreferences: AgentMeshPreferences = AgentMeshPreferencesStore.load()
     @Published var grokBotConnection: GrokBotEndpointConnection? = GrokBotEndpointStore.load()
@@ -209,6 +229,7 @@ final class AppModel: ObservableObject {
     var memberForwardedControls: [String: String] = [:]
     /// What the phone showed before a pause was asked for, to go back to.
     var sessionControlPrevious: [String: Bool] = [:]
+    var sessionControlRequestIds: [String: UUID] = [:]
     /// Why a release was refused, by claim, for the screen the claim is on.
     @Published var claimReleaseNotices: [String: String] = [:]
     var roomRuntime: [String: RoomRuntime] = [:]

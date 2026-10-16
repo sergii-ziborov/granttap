@@ -161,6 +161,8 @@ extension AppRuntimeTests {
         let model = AppModel()
         let transport = WatchSessionTransportSpy()
         let bridge = WatchBridge(transport: transport, model: model)
+        XCTAssertTrue(bridge.supportsSnapshots)
+        XCTAssertFalse(WatchBridge(transport: nil, model: model).supportsSnapshots)
         bridge.start()
         XCTAssertTrue(transport.delegate === bridge)
         XCTAssertEqual(transport.activationCount, 1)

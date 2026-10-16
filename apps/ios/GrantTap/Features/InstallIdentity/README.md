@@ -21,3 +21,13 @@ install starts. This also covers deleting Build 8 before first opening Build 9.
 
 `AppDelegate` reconciles before it starts services, so `AppModel.start()` reads
 the registry after any purge. See `GrantTapTests/Features/InstallIdentity`.
+
+On Mac Catalyst a different defaults container is not evidence of deletion:
+development and sandboxed distributions may share the Keychain. Mac launches
+adopt the existing shared marker without rotating it or purging credentials.
+This also keeps an older Mac build's matching marker valid. Isolated UI
+fixtures skip live reconciliation entirely. Persistence tests use a dedicated
+UserDefaults suite and Keychain service prefix, including the real round trip;
+they never rewrite the installed app's identity record.
+Adoption also preserves a surviving container marker when Keychain cannot be
+read, so a temporary access failure cannot manufacture a reinstall on next launch.

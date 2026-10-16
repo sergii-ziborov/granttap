@@ -167,7 +167,8 @@ extension ContentView {
                     #if targetEnvironment(macCatalyst)
                     Spacer(minLength: 0)
                     #endif
-                    DecisionActionButton(title: L("Retry"), tint: Theme.codex) {
+                    DecisionActionButton(title: L("Retry"), tint: Theme.codex,
+                                         textColor: Theme.glyphInk(for: "codex")) {
                         model.retryDelivery(delivery.id)
                     }
                     if let sessionId = delivery.sessionId,

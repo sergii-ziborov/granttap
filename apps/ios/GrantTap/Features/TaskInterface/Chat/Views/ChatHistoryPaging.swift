@@ -1,15 +1,5 @@
 import SwiftUI
 
-struct ChatHistoryPositionKey: PreferenceKey {
-    static var defaultValue: CGFloat? { nil }
-    static func reduce(value: inout CGFloat?, nextValue: () -> CGFloat?) { value = nextValue() ?? value }
-}
-
-struct ChatHistoryHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat { 0 }
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
 extension TaskChatView {
     var transcriptHistory: TranscriptHistoryPage? { model.activities[chatSessionId]?.history }
 

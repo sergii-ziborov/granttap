@@ -19,6 +19,7 @@ struct ProjectAdvertisedModel: Codable, Equatable, Identifiable {
     var label: String? = nil
     var description: String? = nil
     var priority: Int? = nil
+    var supportedEfforts: [String]? = nil
     let observedAt: Double
     var id: String { "\(endpointId):\(provider):\(modelId)" }
 }
@@ -29,6 +30,7 @@ struct ProjectEndpointModelCatalog: Codable, Equatable, Identifiable {
     var stale: Bool? = nil
     let models: [ProjectAdvertisedModel]
     var reason: String? = nil
+    var accountUsage: [ProviderAccountUsage]? = nil
     var id: String { endpointId }
 }
 

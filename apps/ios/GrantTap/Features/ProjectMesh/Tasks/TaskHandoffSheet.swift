@@ -29,7 +29,7 @@ struct TaskHandoffSheet: View {
 
     var sourceRoom: String? {
         #if targetEnvironment(macCatalyst)
-        if model.usesLocalMCP(for: session) { return "local-mcp" }
+        if model.usesLocalTaskDelivery(for: session) { return "local-mcp" }
         #endif
         return model.sourceRoom(forSessionId: session.sessionId)
     }
@@ -79,7 +79,7 @@ struct TaskHandoffSheet: View {
     }
 
     var body: some View {
-        CompatNavigationStack {
+        ChatSheetNavigation(title: L("Transfer to"), doneIdentifier: "handoff.close", onClose: { dismiss() }) {
             Form {
                 destinationSection
                 Section {
@@ -141,21 +141,20 @@ struct TaskHandoffSheet: View {
                     }
                 }
                 Section {
-                    Text(L("GrantTap sends a bounded encrypted Task Capsule: goal, git state, changed files, tests, dependencies, claims, remaining work, and explicit decisions. It never copies hidden reasoning."))
+                    Text(L("GrantTap prepares the destination with the visible conversation, available attachments and project facts. Incomplete context stops the transfer."))
                     Text(L("Use a separate branch or worktree on the destination computer. If no authorized checkout matches, the handoff fails safely in Needs You."))
                 }
                 if let handoffError {
                     Text(handoffError).foregroundStyle(Theme.riskHigh)
                 }
-                Button(L("Prepare and hand off"), action: submitHandoff)
+                Button(action: submitHandoff) {
+                    HStack(spacing: 10) {
+                        if submitting { ProgressView() }
+                        Text(L(submitting ? "Preparing transfer…" : "Prepare transfer"))
+                    }
+                }
                 .disabled(!isReady || sameAgentHere || userComment.count > 1_000 || submitting)
                 .accessibilityIdentifier("handoff.submit")
-            }
-            .navigationTitle(L("Task handoff"))
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L("Cancel")) { dismiss() }
-                }
             }
             .onAppear(perform: applyDefaults)
         }
@@ -182,7 +181,7 @@ struct TaskHandoffSheet: View {
                         ? L("The Task continues here in a new worktree from the last commit.")
                         : L("The other computer needs the commit: push the branch, or make sure it can fetch it."))
                 if !targetModel.isEmpty {
-                    Text(L("A new execution starts with Task context and your comment; native chat history is not copied."))
+                    Text(L("The destination keeps this Task’s title and visible conversation. Work starts with its first message."))
                 }
             }
         }

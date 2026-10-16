@@ -21,7 +21,8 @@ extension AppModel {
                 entry: ActivityEntry(
                     id: "local-user-\(messageId)", kind: "user",
                     text: candidate.text, createdAt: candidate.createdAt,
-                    attachments: candidate.attachments.map(\.name)
+                    attachments: candidate.attachments.map(\.name),
+                    images: rememberSubmittedImages(candidate)
                 )
             )
         }
@@ -103,9 +104,9 @@ extension AppModel {
                 }
                 ?? "codex"
         )
-        // Only send what this provider can act on; anything else is dropped
-        // here rather than travelling as a value the computer would ignore.
-        let wire = overrides.wire(for: effectiveAgent)
+        let wire = turnWireOverrides(overrides, agent: effectiveAgent,
+            session: resolvedIncoming.flatMap { knownSession(for: $0, preferredAgent: effectiveAgent) },
+            roomId: sourceRoom, modelId: model)
         let resolvedOverrides = (
             model: model ?? wire.model, permissionMode: wire.permissionMode, effort: wire.effort
         )

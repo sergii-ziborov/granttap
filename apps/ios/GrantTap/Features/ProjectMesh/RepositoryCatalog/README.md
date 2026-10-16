@@ -38,9 +38,12 @@ same computer-published data. Opening or refreshing a repository requests fresh
 details. Read-only Git commands run in the standalone MCP, never in Swift.
 
 Behavior tests: `GrantTapTests/Features/ProjectMesh/RepositoryCatalog`.
+Wire admission tests: `tests/RepositorySnapshotContractTests.swift`. Git facts
+share the architecture response and are checked for publisher/Project scope and
+bounded metadata before the snapshot can finish a pending build.
 UI navigation and Git/activity tests: `GrantTapUITests/RepositoryCatalogUITests.swift`, run on both
 iPhone and iPad. The normal Mac client uses the same views; demo fixtures are
 used only in simulator test launches.
 
 See the [Project Mesh module](../README.md) and repository
-[public source](https://github.com/sergii-ziborov/granttap).
+[engineering contract](../../../../../../AGENTS.md).

@@ -19,3 +19,26 @@ chat history they came from.
 
 Usage persistence is isolated in `../SecurityAndAudit/CapabilityUsageStore.swift`.
 Grouping and navigation are covered by `GrantTapTests/AppRuntimeTests.swift`.
+
+The shared `ProviderAccountUsage` projection renders independently reported
+subscription windows with freshness and reset times. All four provider model
+IDs remain provider-scoped. Usage model rows open the sessions they counted;
+missing limits are not reported as unlimited or zero use.
+
+## Rendering and navigation
+
+`UsageSummaries` is an immutable counted snapshot: rows, reported rollups and
+resource observations are merged once. Reading it while rendering never scans
+all observations again. The Usage screen builds one period/filter projection
+per render and shares the concurrency map between every tool row. Provider
+sessions are grouped once. Opening Usage consumes the existing live feed;
+explicit pull-to-refresh still refreshes metadata. The Mac's existing shell
+poll supplies automatic updates without restarting a full Mesh read on entry.
+Tool labels format in their own lazy row bodies, using one relative-date formatter,
+so entering the screen does not format the entire offscreen tool list.
+
+The modern Mac navigation host is retained when switching between root pages.
+Leaving a view-based drilldown explicitly resets it, since these destinations
+are absent from the typed chat/Mesh path. Clicking the current Usage root keeps
+its period and filters. `UsageRenderingPerformanceTests` covers the full retained
+feed; `MacUsageNavigationUITests` verifies loaded navigation and drilldown exit.

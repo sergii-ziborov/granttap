@@ -13,6 +13,10 @@ final class PasskeyConnectionUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Account Mesh"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Sign in with passkey"].exists)
         XCTAssertTrue(app.buttons["Add a device (Scan QR)"].exists)
+        let capture = XCTAttachment(screenshot: app.screenshot())
+        capture.name = "GrantTap Help Devices"
+        capture.lifetime = .keepAlways
+        add(capture)
     }
 
     func testAddingADeviceDoesNotContainAccountSignIn() {
@@ -28,5 +32,9 @@ final class PasskeyConnectionUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Add a device"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Scan QR"].exists)
         XCTAssertFalse(app.buttons["Sign in with passkey"].isHittable)
+        let capture = XCTAttachment(screenshot: app.screenshot())
+        capture.name = "GrantTap Help Scan QR"
+        capture.lifetime = .keepAlways
+        add(capture)
     }
 }

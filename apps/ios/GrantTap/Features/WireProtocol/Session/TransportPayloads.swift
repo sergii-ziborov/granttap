@@ -11,6 +11,7 @@ struct Envelope: Codable {
     var from: Role
     var to: String        // "machine" | "phone" | "all"
     var senderId: String
+    var recipientKeyId: String? = nil
     var deliveryId: String?
     var wake: Bool?
     var expiresAt: Double?

@@ -117,6 +117,16 @@ final class InstallIdentityTests: XCTestCase {
         XCTAssertEqual(probe.order, ["purge", "write"])
     }
 
+    func testAdoptionKeepsTheContainerMarkerWhenKeychainCannotBeRead() {
+        for platform in [InstallIdentityPlatform.iOS, .macCatalyst] {
+            let probe = Probe(keychainId: nil, containerId: "installed",
+                              hasOwnedSecrets: false, platform: platform)
+            XCTAssertEqual(InstallIdentity.reconcile(stores: probe.stores), .adopted)
+            XCTAssertEqual(probe.purges, 0)
+            XCTAssertEqual(probe.written, ["installed"])
+        }
+    }
+
     // MARK: Durable Keychain state
 
     func testPurgeRemovesEveryOwnedServiceIncludingPerRoomSessionKeys() {
@@ -164,17 +174,55 @@ final class InstallIdentityTests: XCTestCase {
         }
     }
 
-    func testTheLiveStoresRoundTripAnIdThroughBothCopiesContainerFirst() {
-        let stores = InstallIdentityStores.live
-        let previousContainer = stores.containerId()
-        let previousKeychain = stores.keychainId()
-        defer { restore(container: previousContainer, keychain: previousKeychain) }
+    func testPersistedStoresRoundTripAnIdThroughBothCopiesContainerFirst() {
+        let suite = ownPrefix + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let stores = InstallIdentityStores.persisted(defaults: defaults,
+            service: ownPrefix + "install", prefix: ownPrefix)
 
         stores.writeId("round-trip")
 
         XCTAssertEqual(stores.containerId(), "round-trip")
         XCTAssertEqual(stores.keychainId(), "round-trip")
         XCTAssertNotEqual(stores.newId(), stores.newId())
+    }
+
+    func testMacContainerChangesKeepDurableCredentialsAndConverge() {
+        let suite = ownPrefix + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let credential = ownPrefix + "desktop-access"
+        let stores = InstallIdentityStores.persisted(defaults: defaults,
+            service: ownPrefix + "install", prefix: ownPrefix, platform: .macCatalyst)
+        for container in [nil, "another-build"] as [String?] {
+            store("saved-local-grant", service: credential, account: "paired-device")
+            InstallIdentityRecord.save("original", service: ownPrefix + "install")
+            defaults.set(container, forKey: InstallIdentity.containerKey)
+            XCTAssertEqual(InstallIdentity.reconcile(stores: stores), .adopted)
+            XCTAssertEqual(stores.keychainId(), "original")
+            XCTAssertEqual(read(service: credential, account: "paired-device"), "saved-local-grant")
+            XCTAssertEqual(InstallIdentity.reconcile(stores: stores), .unchanged)
+        }
+    }
+
+    func testIsolatedUIFixturesNeverReconcileOrEraseAnExistingInstall() {
+        let suite = ownPrefix + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let credential = ownPrefix + "desktop-access"
+        let stores = InstallIdentityStores.persisted(defaults: defaults,
+            service: ownPrefix + "install", prefix: ownPrefix, platform: .iOS)
+        store("saved-local-grant", service: credential, account: "paired-device")
+        InstallIdentityRecord.save("original", service: ownPrefix + "install")
+        AppRuntime.reconcileInstall(environment: ["GRANTTAP_DEMO": "1"], using: {
+            _ = InstallIdentity.reconcile(stores: stores)
+        })
+        XCTAssertEqual(stores.keychainId(), "original")
+        XCTAssertNil(stores.containerId())
+        XCTAssertEqual(read(service: credential, account: "paired-device"), "saved-local-grant")
+        AppRuntime.reconcileInstall(environment: [:], using: { _ = InstallIdentity.reconcile(stores: stores) })
+        XCTAssertNil(read(service: credential, account: "paired-device"))
     }
 
     // MARK: Helpers
@@ -187,7 +235,8 @@ final class InstallIdentityTests: XCTestCase {
 
         init(
             keychainId: String?, containerId: String?,
-            hasOwnedSecrets: Bool = true, hasLegacyContainerState: Bool = false
+            hasOwnedSecrets: Bool = true, hasLegacyContainerState: Bool = false,
+            platform: InstallIdentityPlatform = .iOS
         ) {
             var record: (purge: () -> Void, write: (String) -> Void)?
             stores = InstallIdentityStores(
@@ -195,25 +244,12 @@ final class InstallIdentityTests: XCTestCase {
                 hasOwnedSecrets: { hasOwnedSecrets },
                 hasLegacyContainerState: { hasLegacyContainerState },
                 writeId: { record?.write($0) }, purgeOwnedSecrets: { record?.purge() },
-                newId: { "fresh" }
+                newId: { "fresh" }, platform: platform
             )
             record = (
                 purge: { [weak self] in self?.purges += 1; self?.order.append("purge") },
                 write: { [weak self] id in self?.written.append(id); self?.order.append("write") }
             )
-        }
-    }
-
-    private func restore(container: String?, keychain: String?) {
-        if let container {
-            UserDefaults.standard.set(container, forKey: InstallIdentity.containerKey)
-        } else {
-            UserDefaults.standard.removeObject(forKey: InstallIdentity.containerKey)
-        }
-        if let keychain {
-            InstallIdentityRecord.save(keychain)
-        } else {
-            remove(service: InstallIdentity.service, account: InstallIdentity.account)
         }
     }
 

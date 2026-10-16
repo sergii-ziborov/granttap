@@ -71,6 +71,7 @@ extension AppModel {
             pending = []
             questions = []
         }
+        DemoLongTranscript.apply(to: self, at: now)
         AttachmentPreviewFixture.applyScrollCapture(to: self, at: now)
         ChatActivityRailFixture.apply(to: self, at: now)
         #endif
@@ -88,11 +89,6 @@ extension AppModel {
         autoAcceptPaused = false
         log = [L("Demo mode: no command will be executed.")]
         #if DEBUG
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let gtKeys = ProcessInfo.processInfo.environment.keys.filter { $0.contains("GRANTTAP") }.sorted()
-        try? "keys=\(gtKeys) open=\(ProcessInfo.processInfo.environment["GRANTTAP_OPEN_SESSION"] ?? "nil")\n"
-            .write(to: docs.appendingPathComponent("granttap-open-debug.txt"),
-                   atomically: true, encoding: .utf8)
         if ProcessInfo.processInfo.environment["GRANTTAP_OPEN_SESSION"] != nil {
             sessionToOpen = sessionId
         }

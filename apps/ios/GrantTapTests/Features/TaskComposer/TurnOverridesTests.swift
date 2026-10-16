@@ -46,6 +46,9 @@ final class TurnOverridesTests: XCTestCase {
             XCTAssertNil(wire.model, "\(agent) takes no model alias")
             XCTAssertNil(wire.permissionMode, "\(agent) takes no permission mode")
         }
+        for (provider, id) in [("cursor", "composer-future"), ("grok", "grok-future")] {
+            XCTAssertEqual(TurnOverrides(model: TurnModel(rawValue: id)).wire(for: provider).model, id)
+        }
         XCTAssertNil(picked.wire(for: "codex").model, "a Claude alias is not a Codex model")
         XCTAssertEqual(
             TurnOverrides(model: .gpt56Terra, permissionMode: nil).wire(for: "codex").model,
@@ -80,25 +83,34 @@ final class TurnOverridesTests: XCTestCase {
         )
     }
 
-    func testEffortReachesOnlyTheProviderThatAcceptsIt() {
-        XCTAssertEqual(
-            TurnEffort.supported(by: "claude").map(\.rawValue),
-            ["low", "medium", "high", "xhigh", "max"]
-        )
-        // Codex is not driven with an effort flag here, so choosing one must not
-        // travel as a value its CLI would reject.
-        for agent in ["codex", "cursor", "grok"] {
-            XCTAssertTrue(TurnEffort.supported(by: agent).isEmpty, agent)
-            XCTAssertNil(
-                TurnOverrides(model: nil, permissionMode: nil, effort: .high)
-                    .wire(for: agent).effort, agent
-            )
+    func testEffortReachesProvidersThatAcceptIt() {
+        for provider in ["codex", "claude", "grok"] {
+            XCTAssertEqual(TurnOverrides(effort: .high).wire(for: provider).effort, "high")
         }
-        XCTAssertEqual(
-            TurnOverrides(model: nil, permissionMode: nil, effort: .xhigh)
-                .wire(for: "claude").effort, "xhigh"
-        )
-        XCTAssertNil(TurnOverrides.unchanged.wire(for: "claude").effort)
+        XCTAssertNotNil(TurnEffort(rawValue: "ultra"))
+        XCTAssertNil(TurnOverrides(effort: .high).wire(for: "cursor").effort)
+        XCTAssertNil(TurnOverrides.unchanged.wire(for: "codex").effort)
+    }
+
+    func testStoredChatEffortSurvivesRelaunchAndWinsOverProviderDefault() throws {
+        let suite = "GrantTap.effort.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = TurnOverrideStore(defaults: defaults)
+        store.setAgentDefaults(TurnOverrides(effort: .medium), for: "codex")
+        store.setChatOverrides(TurnOverrides(effort: .high), for: "chat-a")
+        let restored = TurnOverrideStore(defaults: defaults)
+        XCTAssertEqual(restored.resolved(sessionId: "chat-a", agent: "codex").wire(for: "codex").effort, "high")
+        XCTAssertEqual(restored.resolved(sessionId: "chat-b", agent: "codex").wire(for: "codex").effort, "medium")
+    }
+
+    func testCatalogFiltersEffortToTheSelectedNativeModelsLevels() {
+        let catalog = TurnModelCatalog(options: [TurnModelOption(model: .gpt56Terra,
+            label: "Test", detail: "Native", supportedEfforts: [.low, .high])])
+        XCTAssertEqual(catalog.efforts(for: TurnModel.gpt56Terra.id, agent: "codex"), [.low, .high])
+        XCTAssertEqual(catalog.efforts(for: nil, agent: "cursor"), [])
+        XCTAssertNil(TurnOverrides(model: .gpt56Terra, effort: .ultra).wire(for: "codex", catalog: catalog).effort)
+        XCTAssertEqual(TurnOverrides(model: .gpt56Terra, effort: .high).wire(for: "codex", catalog: catalog).effort, "high")
     }
 
     func testAChatsEffortFallsBackToTheGlobalDefault() {

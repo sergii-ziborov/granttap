@@ -5,6 +5,10 @@ extension AppModel {
     func setSessionAutoAccept(_ sessionId: String, _ level: String, authorizeProjectAsk: Bool = false,
                               expectedPolicyRevision: Int? = nil, approvalRequestId: String? = nil) {
         guard Self.autoAcceptLevels.contains(level) else { return }
+        var localChanges: [String: Any] = ["auto_accept_level": level, "authorize_project_ask": authorizeProjectAsk]
+        if let expectedPolicyRevision { localChanges["expected_policy_revision"] = expectedPolicyRevision }
+        if let approvalRequestId { localChanges["approval_request_id"] = approvalRequestId }
+        if sendLocalTaskPreferences(sessionId, changes: localChanges) { return }
         guard let sessionRelay = relayForSession(sessionId) else {
             append("auto-accept blocked: ambiguous source room")
             return
@@ -31,6 +35,7 @@ extension AppModel {
     }
 
     func clearSessionAutoAccept(_ sessionId: String) {
+        if sendLocalTaskPreferences(sessionId, changes: ["clear_auto_accept": true]) { return }
         guard let sessionRelay = relayForSession(sessionId) else {
             append("auto-accept clear blocked: ambiguous source room")
             return

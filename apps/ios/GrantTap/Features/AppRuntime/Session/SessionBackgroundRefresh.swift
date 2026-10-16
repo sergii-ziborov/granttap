@@ -21,9 +21,13 @@ extension AppModel {
     }
 
     func finishBackgroundWake(_ result: UIBackgroundFetchResult) {
-        let callbacks = backgroundWakeCompletions.values
+        let callbacks = Array(backgroundWakeCompletions.values)
         backgroundWakeCompletions.removeAll()
-        callbacks.forEach { $0(result) }
+        guard !callbacks.isEmpty else { return }
+        // The APNs lease must outlive asynchronous transcript writes.
+        SessionActivityPersistence.finish {
+            DispatchQueue.main.async { callbacks.forEach { $0(result) } }
+        }
     }
 
     /// Drop a stored empty transcript so Retry can show the spinner again

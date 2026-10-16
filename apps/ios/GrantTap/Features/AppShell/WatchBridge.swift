@@ -23,6 +23,7 @@ final class WatchBridge: NSObject, ObservableObject, WCSessionDelegate {
     private var delivered: WatchState?
     private let transport: WatchSessionTransport?
     private let model: AppModel
+    var supportsSnapshots: Bool { transport != nil }
 
     init(transport: WatchSessionTransport?, model: AppModel) {
         self.transport = transport

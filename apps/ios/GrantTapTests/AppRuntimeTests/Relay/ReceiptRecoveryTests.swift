@@ -23,8 +23,8 @@ extension AppRuntimeTests {
         let retryAt = try? XCTUnwrap(model.deliveries.first?.nextRetryAt)
         XCTAssertNotNil(retryAt)
         if let retryAt {
-            XCTAssertGreaterThanOrEqual(retryAt - now, 330_000)
-            XCTAssertLessThanOrEqual(retryAt - now, 331_000)
+            XCTAssertGreaterThanOrEqual(retryAt - now, 690_000)
+            XCTAssertLessThanOrEqual(retryAt - now, 691_000)
         }
     }
 

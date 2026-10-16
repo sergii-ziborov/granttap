@@ -60,7 +60,9 @@ struct ContentView: View {
     #if targetEnvironment(macCatalyst)
     @StateObject var macLocalMCP = MacLocalMCPModel()
     @ObservedObject var desktopLicense = DesktopLicenseStore.shared
+    @ObservedObject var subscription = SubscriptionStore.shared
     @State var macNavigationRevision = 0
+    @State var macNavigationRootVisible = true
     @State var macNavigationPath: [MacMainWindowRoute] = []
     @State var showNewMesh = false
     #endif
@@ -222,9 +224,7 @@ struct ContentView: View {
         }
         .onChange(of: model.sessionToOpen) { _ in openRequestedSession(from: model.sessions) }
         .onReceive(SubscriptionStore.shared.transportAccessChanges) { _ in
-            #if !DEBUG
             for client in model.relaysByRoom.values { client.forceReconnect() }
-            #endif
         }
         #if targetEnvironment(macCatalyst)
         .onReceive(NotificationCenter.default.publisher(for: ProductInformation.requested)) { notification in
@@ -234,7 +234,6 @@ struct ContentView: View {
         }
         .onChange(of: openedSession) { destination in
             navigateMacChat(destination)
-            loadMacLocalActivity(destination)
         }
         .onChange(of: macNavigationPath) { path in
             if let session = openedSession, !path.contains(.chat(session.id)) {

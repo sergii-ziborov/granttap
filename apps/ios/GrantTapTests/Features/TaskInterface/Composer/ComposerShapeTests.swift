@@ -58,12 +58,12 @@ final class ComposerShapeTests: XCTestCase {
     func testTheModelPillNamesTheChoiceAndTheSendButtonSaysWhatItWillDo() {
         var picked: TurnModel? = nil
         let binding = Binding(get: { picked }, set: { picked = $0 })
-        RenderProbe.render(ComposerModelPill(agent: "claude", model: binding), height: 60)
+        RenderProbe.render(ComposerModelPill(agent: "claude", model: binding, effort: .constant(nil)), height: 60)
         picked = TurnModel.supported(by: "claude").first
-        RenderProbe.render(ComposerModelPill(agent: "claude", model: binding), height: 60)
+        RenderProbe.render(ComposerModelPill(agent: "claude", model: binding, effort: .constant(nil)), height: 60)
         XCTAssertNotNil(picked)
         // An agent nobody has models for still draws, saying the agent's name.
-        RenderProbe.render(ComposerModelPill(agent: "grok_bot", model: .constant(nil)), height: 60)
+        RenderProbe.render(ComposerModelPill(agent: "grok_bot", model: .constant(nil), effort: .constant(nil)), height: 60)
 
         for action in [ComposerAction.send, .dismiss] {
             RenderProbe.render(

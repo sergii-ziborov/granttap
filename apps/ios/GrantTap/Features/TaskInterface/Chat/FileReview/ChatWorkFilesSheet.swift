@@ -4,6 +4,7 @@ struct ChatWorkFilesSheet: View {
     @ObservedObject var model: AppModel
     let session: SessionInfo
     let files: [RecordedFileChange]
+    let onClose: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @State private var mode: Mode
     @State private var selected: RecordedFileChange?
@@ -12,15 +13,18 @@ struct ChatWorkFilesSheet: View {
         case modified = "Modified", allFiles = "All files"
     }
 
-    init(model: AppModel, session: SessionInfo, files: [RecordedFileChange]) {
+    init(model: AppModel, session: SessionInfo, files: [RecordedFileChange],
+         onClose: (() -> Void)? = nil) {
         self.model = model
         self.session = session
         self.files = files
+        self.onClose = onClose
         _mode = State(initialValue: files.isEmpty ? .allFiles : .modified)
     }
 
     var body: some View {
-        CompatNavigationStack {
+        ChatSheetNavigation(title: L("Files"), doneIdentifier: "chat.files.done",
+            onClose: { if let onClose { onClose() } else { dismiss() } }) {
             VStack(spacing: 0) {
                 Picker(L("Files view"), selection: $mode) {
                     ForEach(Mode.allCases, id: \.self) { mode in
@@ -31,19 +35,14 @@ struct ChatWorkFilesSheet: View {
                 .accessibilityIdentifier("chat.files.mode")
                 if mode == .modified { modifiedFiles }
                 else {
-                    ScrollView {
-                        ChatWorkspaceDirectoryView(model: model, session: session, path: "")
-                            .padding(16)
-                    }
+                    ZStack { ChatWorkspaceDirectoryView(model: model, session: session, path: "") }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("chat.files.workspace.viewport")
                 }
             }
             .background(Theme.bg)
-            .navigationBarTitleDisplayMode(.inline)
-            .pageNavigationTitle(L("Files"), showsBack: false, actionPlacement: .confirmationAction) {
-                Button(L("Done")) { dismiss() }
-            }
             .sheet(item: $selected) { file in
-                ChatFileReviewSheet(file: file) { selected = nil }
+                ChatFileReviewSheet(file: file, model: model, session: session) { selected = nil }
             }
         }
     }

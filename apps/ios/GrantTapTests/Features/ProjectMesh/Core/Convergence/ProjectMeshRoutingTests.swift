@@ -112,6 +112,7 @@ extension ProjectMeshRuntimeTests {
         model.relaysByRoom = [sourcePairing.room: source, targetPairing.room: target]
         model.sessionSourceRooms["claude"] = [sourcePairing.room]
         model.sessionSourceRooms["codex"] = [targetPairing.room]
+        model.meshComputerRoomByEndpointId = ["MacBook": sourcePairing.room, "Workstation": targetPairing.room]
         var state = snapshot(generatedAt: now)
         let request = event(
             id: "handoff-authorized", type: "HANDOFF_REQUEST",

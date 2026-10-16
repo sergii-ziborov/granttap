@@ -45,7 +45,6 @@ extension AppModel {
         meshEventSourceRooms[event.eventId] = room
         meshProjectSourceRooms[event.projectId, default: []].insert(room)
         sessionSourceRooms[event.sourceSessionId] = [room]
-        mergeMeshEvent(event, nowMs: now)
         let expectedRoute = event.payload.capsule.map {
             Self.handoffRoute(provider: $0.targetProvider, computer: $0.targetComputer)
         }
@@ -55,7 +54,7 @@ extension AppModel {
             authorizedHandoffRoutes[event.taskId] = nil
             forwardMeshEventIfAddressed(event, fromRoom: room)
         }
-        let requiresAuthorization = event.eventType == "HANDOFF_REQUEST" && !locallyAuthorized
+        let requiresAuthorization = ProjectMeshLogic.requiresHandoffAuthorization(event, locallyAuthorized: locallyAuthorized)
         var attentionItem: HumanAttentionItem?
         if ProjectMeshLogic.needsHuman(type: event.eventType, payload: event.payload)
             || requiresAuthorization {
@@ -69,6 +68,9 @@ extension AppModel {
         } else if !locallyAuthorized {
             forwardMeshEventIfAddressed(event, fromRoom: room)
         }
+        var summary = event
+        summary.payload.transferContext = nil
+        mergeMeshEvent(summary, nowMs: now)
         if attentionItem == nil { meshEventSourceRooms[event.eventId] = nil }
         persistMeshState()
         objectWillChange.send()
@@ -120,7 +122,7 @@ extension AppModel {
             userComment: note,
             createdAt: Date().timeIntervalSince1970 * 1_000,
             checkpoint: checkpoint ? true : nil,
-            push: push ? true : nil
+            push: push ? true : nil, prepareOnly: true
         )
         authorizedHandoffRoutes[taskId] = Self.handoffRoute(
             provider: targetProvider, computer: targetComputer
@@ -186,9 +188,7 @@ extension AppModel {
 
     func meshEvents(forTaskId taskId: String?) -> [ProjectMeshEvent] {
         guard let taskId else { return [] }
-        return meshSnapshots.values.flatMap(\.events)
-            .filter { $0.taskId == taskId }
-            .sorted { $0.createdAt < $1.createdAt }
+        return taskMeshEventIndex.events(for: taskId, revision: transcriptRevision, snapshots: meshSnapshots)
     }
 
     func meshSnapshot(for projectId: String?) -> ProjectMeshSnapshot? {
@@ -199,9 +199,17 @@ extension AppModel {
         guard var snapshot = meshSnapshots[event.projectId] else { return }
         let known = snapshot.events
         snapshot.events = ProjectMeshLogic.compactEvents(known + [event], nowMs: nowMs)
+        if event.eventType == "TASK_COMPLETED",
+           let index = snapshot.executions.firstIndex(where: {
+               $0.taskId == event.taskId && $0.sessionId == event.sourceSessionId
+           }) {
+            snapshot.executions[index].state = "idle"
+            snapshot.executions[index].updatedAt = max(snapshot.executions[index].updatedAt ?? 0, event.createdAt)
+        }
         snapshot.tasks = snapshot.tasks.map { task in
             guard task.taskId == event.taskId else { return task }
-            return ProjectMeshConvergence.task(after: event, task: task, knownEvents: known) ?? task
+            return ProjectMeshConvergence.task(after: event, task: task, knownEvents: known,
+                                               executions: snapshot.executions) ?? task
         }
         meshSnapshots[event.projectId] = snapshot
     }

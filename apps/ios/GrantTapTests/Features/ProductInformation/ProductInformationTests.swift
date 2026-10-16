@@ -49,6 +49,38 @@ final class ProductInformationTests: XCTestCase {
         XCTAssertNil(ProductDocument.DocumentLink(label: "Invalid", href: "javascript:alert(1)").url)
     }
 
+    func testConnectionHelpIllustrationsAreAvailableOfflineAndPricingHasThreePlans() throws {
+        for language in ["en", "ru"] {
+            let help = try ProductDocument.load(.help, language: language)
+            let illustrations = help.sections.compactMap(\.image)
+            XCTAssertEqual(illustrations.map(\.name), ["help-devices", "help-scan-qr"])
+            for illustration in illustrations {
+                let image = try XCTUnwrap(UIImage(named: illustration.name))
+                XCTAssertGreaterThan(image.size.height, image.size.width)
+                RenderProbe.render(ProductHelpIllustration(illustration: illustration))
+            }
+            let pricing = try ProductDocument.load(.pricing, language: language)
+            XCTAssertEqual(Array(pricing.sections.prefix(3).map(\.heading)),
+                           ["Personal", "Personal Plus", "Fleet"])
+        }
+    }
+
+    func testOriginalBundledLicensesRetainTheirCopyrightAndPermissionGrants() throws {
+        let notices = try ThirdPartyNotices.load()
+        XCTAssertEqual(notices.map(\.id), ["tweetnacl-swiftwrap", "three-js"])
+        XCTAssertEqual(notices.map(\.version), ["1.1.0", "r160"])
+        XCTAssertTrue(notices[0].text.contains("Copyright (c) 2017 Bitmark"))
+        XCTAssertTrue(notices[1].text.contains("2010-2023 three.js authors"))
+        for notice in notices {
+            XCTAssertEqual(notice.license, "MIT")
+            XCTAssertTrue(notice.text.contains("Permission is hereby granted"))
+            XCTAssertEqual(notice.source.scheme, "https")
+            RenderProbe.render(ThirdPartyNoticeDetail(notice: notice), height: 1_100)
+        }
+        RenderProbe.render(CompatNavigationStack { ThirdPartyNoticesView() }, height: 1_100)
+        XCTAssertThrowsError(try ThirdPartyNotices.load(bundle: Bundle(for: Self.self)))
+    }
+
     func testMissingDocumentReportsAnErrorAndUnknownLanguageUsesEnglish() throws {
         XCTAssertThrowsError(try ProductDocument.load(.about))
         XCTAssertEqual(try ProductDocument.load(.terms, language: "fr"),

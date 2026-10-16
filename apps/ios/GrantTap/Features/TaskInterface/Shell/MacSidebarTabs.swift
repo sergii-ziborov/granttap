@@ -18,16 +18,6 @@ extension ContentView {
         MacLocalProjection.apply(macLocalMCP.meshSnapshots, to: model)
     }
 
-    func loadMacLocalActivity(_ destination: OpenSession?) {
-        guard let destination,
-              let session = model.sessions.first(where: { $0.sessionId == destination.id }),
-              model.usesLocalMCP(for: session) else { return }
-        Task {
-            guard let activity = try? await macLocalMCP.activity(for: session) else { return }
-            MacLocalProjection.apply(activity, for: session, to: model)
-        }
-    }
-
     var macSidebar: some View {
         VStack(alignment: .leading, spacing: 6) {
             sidebarTab(.now, L("Now"), "bolt.fill")
@@ -37,9 +27,6 @@ extension ContentView {
             sidebarTab(.devices, L("Devices"), "desktopcomputer")
 
             Divider().padding(.vertical, 12)
-            if selectedTab == .projects {
-                sidebarAction(L("New Mesh"), "plus") { showNewMesh = true }
-            }
             sidebarTab(.settings, L("Settings"), "gearshape")
         }
         .padding(12)
@@ -62,9 +49,9 @@ extension ContentView {
                     case .tasks:
                         tabScroll { tasksSection }
                     case .projects:
-                        ProjectsTabView(model: model) { session in
+                        ProjectsTabView(model: model, onOpenSession: { session in
                             model.sessionToOpen = session.sessionId
-                        }
+                        }, onCreateMesh: { showNewMesh = true })
                     case .usage:
                         CapabilityUsageView()
                     case .devices:
@@ -89,6 +76,14 @@ extension ContentView {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            #if DEBUG
+            .overlay(alignment: .topLeading) {
+                if MacTabFrameTiming.enabled {
+                    MacTabFrameProbe(tab: String(describing: selectedTab))
+                        .frame(width: 1, height: 1).allowsHitTesting(false)
+                }
+            }
+            #endif
         }
         .onAppear(perform: hideDuplicateMacWindowTitle)
         .onChange(of: selectedTab) { _ in hideDuplicateMacWindowTitle() }
@@ -121,26 +116,26 @@ extension ContentView {
     }
 
     func selectMacTab(_ tab: PersonalTab) {
-        macNavigationPath = []
-        openedSession = nil
-        model.sessionToOpen = nil
-        selectedTab = tab
-        macNavigationRevision += 1
+        // View-based drilldowns are not represented in the typed path. Reset
+        // only when leaving one, retaining the navigation host between roots.
+        let leavingDestination = !macNavigationRootVisible
+        guard selectedTab != tab || leavingDestination else { return }
+        #if DEBUG
+        MacTabFrameTiming.begin(String(describing: tab))
+        #endif
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            if !macNavigationPath.isEmpty { macNavigationPath = [] }
+            if openedSession != nil { openedSession = nil }
+            if model.sessionToOpen != nil { model.sessionToOpen = nil }
+            selectedTab = tab
+            if #available(iOS 16.0, *) {
+                if leavingDestination { macNavigationRevision += 1 }
+            } else { macNavigationRevision += 1 }
+        }
     }
 
-    private func sidebarAction(_ title: String, _ icon: String,
-                               action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(.system(size: 14))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 12)
-                .frame(height: 36)
-                .foregroundStyle(Theme.ink)
-        }
-        .pointerButtonStyle()
-        .accessibilityIdentifier(title == L("New Mesh") ? "sidebar.new-mesh" : "sidebar.settings")
-    }
 }
 
 struct MacBrandHeader: View {

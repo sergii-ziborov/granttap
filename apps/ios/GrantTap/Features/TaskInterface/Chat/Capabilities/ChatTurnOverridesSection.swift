@@ -10,7 +10,7 @@ struct ChatTurnOverridesSection: View {
     let agent: String
     @ObservedObject var model: AppModel
 
-    private var supportsModel: Bool { ["codex", "claude"].contains(AgentIdentity.normalize(agent)) }
+    private var supportsModel: Bool { ["codex", "claude", "cursor", "grok"].contains(AgentIdentity.normalize(agent)) }
     private var efforts: [TurnEffort] { TurnEffort.supported(by: agent) }
 
     var body: some View {
@@ -20,19 +20,13 @@ struct ChatTurnOverridesSection: View {
                     HStack {
                         Text(L("Model"))
                         Spacer()
-                        ComposerModelPill(agent: agent, model: modelBinding,
+                        ComposerModelPill(agent: agent, model: modelBinding, effort: effortBinding,
+                            fallbackEffort: model.turnOverrides.agentDefaults(for: agent).effort
+                                ?? session?.effort.flatMap(TurnEffort.init(rawValue:)),
                             current: session?.model,
                             catalog: model.turnModelCatalog(agent: agent, session: session),
                             fallback: model.turnOverrides.agentDefaults(for: agent).model?.id,
                             hasConversation: true)
-                    }
-                }
-                if !efforts.isEmpty {
-                    Picker(L("Effort"), selection: effortBinding) {
-                        Text(L("Keep current effort")).tag(TurnEffort?.none)
-                        ForEach(efforts) { choice in
-                            Text(choice.label).tag(TurnEffort?.some(choice))
-                        }
                     }
                 }
             } header: {
@@ -63,6 +57,7 @@ struct ChatTurnOverridesSection: View {
             set: { choice in
                 var current = model.turnOverrides.chatOverrides(sessionId)
                 current.effort = choice
+                model.objectWillChange.send()
                 model.turnOverrides.setChatOverrides(current, for: sessionId)
             }
         )

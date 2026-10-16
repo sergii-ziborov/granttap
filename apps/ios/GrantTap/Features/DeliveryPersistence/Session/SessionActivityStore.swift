@@ -10,23 +10,27 @@ enum SessionActivityPersistence {
     private static let filename = "session-activities.json"
     private static let logger = Logger(subsystem: "com.ziborov.granttap",
                                        category: "persistence")
+    private static let writer = TranscriptArchiveWriter { activity in
+        do { try archive.save(activity) }
+        catch {
+            logger.error("Transcript cache write failed (code: \((error as NSError).code, privacy: .public))")
+        }
+    }
 
     static func load() -> [String: SessionActivity] {
-        let stored = (try? Data(contentsOf: fileURL)).flatMap {
-            try? JSONDecoder().decode([String: SessionActivity].self, from: $0)
-        } ?? [:]
-        return stored.merging(archive.load()) { _, saved in saved }
+        writer.barrier {
+            let stored = (try? Data(contentsOf: fileURL)).flatMap {
+                try? JSONDecoder().decode([String: SessionActivity].self, from: $0)
+            } ?? [:]
+            return stored.merging(archive.load()) { _, saved in saved }
+        }
     }
 
     static func save(_ activities: [String: SessionActivity]) {
-        do {
-            for activity in activities.values { try archive.save(activity) }
-        } catch {
-            logger.error(
-                "Transcript cache write failed (code: \((error as NSError).code, privacy: .public))"
-            )
-        }
+        writer.enqueue(activities)
     }
+
+    static func finish(_ completion: @escaping () -> Void) { writer.finish(completion) }
 
     /// Existing callers may still normalize a snapshot; normalization never evicts.
     static func bounded(_ activities: [String: SessionActivity]) -> [String: SessionActivity] {
@@ -47,8 +51,10 @@ enum SessionActivityPersistence {
     }
 
     static func clear() {
-        try? FileManager.default.removeItem(at: fileURL)
-        try? archive.clear()
+        writer.barrier {
+            try? FileManager.default.removeItem(at: fileURL)
+            try? archive.clear()
+        }
     }
 
     private static var directoryURL: URL {

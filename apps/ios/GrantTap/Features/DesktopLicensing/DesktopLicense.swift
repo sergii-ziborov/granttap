@@ -31,6 +31,12 @@ enum DesktopLicense: Equatable, Sendable {
         }
     }
 
+    /// Viewing paired data does not buy a local license or renew remote authorization.
+    func permitsRelayCompanionInspection(linkedAccountID: String?, currentAccountID: String?) -> Bool {
+        guard let linkedAccountID, linkedAccountID == currentAccountID else { return false }
+        return true
+    }
+
     static func resolve(_ evidence: [DesktopPurchaseEvidence],
                         distribution: DesktopLicenseDistribution,
                         bundleID: String, evaluationAllowed: Bool,

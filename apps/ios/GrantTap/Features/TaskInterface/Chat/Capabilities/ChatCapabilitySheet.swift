@@ -15,21 +15,6 @@ struct ProviderControlSupport {
     }
 }
 
-enum PersonalApprovalMode: String, CaseIterable, Identifiable {
-    case risky
-    case every
-    case defaults
-
-    var id: String { rawValue }
-    var label: String {
-        switch self {
-        case .risky: return L("Ask for risky actions")
-        case .every: return L("Ask for every action")
-        case .defaults: return L("Use agent defaults")
-        }
-    }
-}
-
 /// Secondary task controls. The task itself remains a chat/activity screen.
 struct ChatCapabilitySheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -40,11 +25,13 @@ struct ChatCapabilitySheet: View {
     let accent: Color
     let onToggle: (ChatCapabilityRow) -> Void
     private let modelOverride: AppModel?
+    private let onClose: (() -> Void)?
     @State private var showHandoff = false
 
     init(
         sessionId: String, session: SessionInfo, rows: [ChatCapabilityRow],
         accent: Color, model: AppModel? = nil,
+        onClose: (() -> Void)? = nil,
         onToggle: @escaping (ChatCapabilityRow) -> Void
     ) {
         self.sessionId = sessionId
@@ -52,19 +39,16 @@ struct ChatCapabilitySheet: View {
         self.rows = rows
         self.accent = accent
         modelOverride = model
+        self.onClose = onClose
         self.onToggle = onToggle
     }
 
     private var model: AppModel { modelOverride ?? environmentModel }
     private var ranked: [ChatCapabilityRow] { ChatCapabilitySort.rank(rows) }
     private var route: ChatComputerRoute? { model.chatComputerRoute(forSessionId: sessionId) }
-    private var legacyLevel: String? {
-        let level = model.autoAcceptLevel(for: sessionId)
-        return ["safe", "except_destructive", "full"].contains(level) ? level : nil
-    }
-
     var body: some View {
-        CompatNavigationStack {
+        ChatSheetNavigation(title: L("Task controls"), doneIdentifier: "chat.controls.done",
+            onClose: { if let onClose { onClose() } else { dismiss() } }) {
             List {
                 approvalSection
                 if AgentIdentity.normalize(session.agent) == "codex" { accessSection }
@@ -74,12 +58,6 @@ struct ChatCapabilitySheet: View {
                 projectMeshSection
                 taskInfoSection
             }
-            .navigationTitle(L("Task controls"))
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L("Done")) { dismiss() }
-                }
-            }
         }
         .sheet(isPresented: $showHandoff) {
             TaskHandoffSheet(session: session, model: model)
@@ -87,45 +65,11 @@ struct ChatCapabilitySheet: View {
     }
 
     private var approvalSection: some View {
-        Section(L("Approval Mode")) {
-            Picker(L("Approval Mode"), selection: approvalBinding) {
-                ForEach(PersonalApprovalMode.allCases) { mode in
-                    Text(mode.label).tag(mode)
-                }
-            }
-            .pickerStyle(.inline)
-            .disabled(model.automationPending[sessionId] != nil)
-            if model.automationPending[sessionId] != nil {
-                HStack { ProgressView(); Text(L("Waiting for the computer to confirm…")) }
-            } else if let error = model.automationErrors[sessionId] {
-                Text(error).font(.caption).foregroundStyle(Theme.riskHigh)
-            }
-            if model.autoAcceptPaused {
-                Text(L("Automation is paused globally. Resume it in Settings."))
-                    .font(.caption).foregroundStyle(Theme.muted)
-            }
-            Text(L("Ask for risky actions is recommended for most tasks."))
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.muted)
-            if let legacyLevel {
-                CompatLabeledContent(L("Advanced · Custom")) {
-                    Text(legacyLabel(legacyLevel)).foregroundStyle(Theme.riskMed)
-                }
-            }
-        }
+        ChatApprovalSection(sessionId: sessionId, session: session, model: model)
     }
 
     private var accessSection: some View {
-        Section(L("Access")) {
-            Picker(L("Codex access"), selection: accessBinding) {
-                Text(L("Read only")).tag("read-only")
-                Text(L("Workspace")).tag("workspace")
-                Text(L("Full access")).tag("full")
-            }
-            Text(L("Applies to the next turn sent from GrantTap."))
-                .font(.system(size: 11))
-                .foregroundStyle(session.accessLevel == "full" ? Theme.riskHigh : Theme.muted)
-        }
+        ChatApprovalAccessSection(sessionId: sessionId, session: session, model: model)
     }
 
     private var modelSection: some View {
@@ -203,13 +147,12 @@ struct ChatCapabilitySheet: View {
     }
 
     @ViewBuilder var projectMeshSection: some View {
-        if session.projectId != nil, session.taskId != nil,
-           ["claude", "codex"].contains(AgentIdentity.normalize(session.agent)),
-           !model.connectionRegistry.connections.isEmpty {
+        if model.canOfferTaskTransfer(for: session) {
             Section(L("Mesh")) {
                 Button(action: beginHandoff) {
-                    Label(L("Hand off task"), systemImage: "arrow.right.arrow.left")
+                    Label(L("Transfer to…"), systemImage: "arrow.right.arrow.left")
                 }
+                .accessibilityIdentifier("chat.controls.transfer")
                 Text(L("The same Task continues with another agent here, or on another computer of the chat. The target uses its own branch/worktree."))
                     .font(.system(size: 11)).foregroundStyle(Theme.muted)
             }
@@ -221,20 +164,7 @@ struct ChatCapabilitySheet: View {
     }
 
     var approvalBinding: Binding<PersonalApprovalMode> {
-        Binding(get: {
-            if model.isExcluded(sessionId) { return .defaults }
-            return model.autoAcceptLevel(for: sessionId) == "ask" ? .every : .risky
-        }, set: { mode in
-            switch mode {
-            case .defaults:
-                model.setSessionExcluded(sessionId, true)
-            case .every:
-                model.setSessionAutoAccept(sessionId, "ask")
-            case .risky:
-                model.setSessionAutoAccept(sessionId, "except_push", authorizeProjectAsk: true,
-                    expectedPolicyRevision: session.projectId.flatMap { model.projectGovernance[$0]?.revision })
-            }
-        })
+        ChatApprovalPreferences(sessionId: sessionId, session: session, model: model).binding
     }
 
     var accessBinding: Binding<String> {
@@ -257,43 +187,5 @@ struct ChatCapabilitySheet: View {
         CompatLabeledContent(L(label)) {
             Text(value).font(Theme.mono(11)).lineLimit(2).truncationMode(.middle)
         }
-    }
-}
-
-struct ChatCapabilityRowView: View {
-    let row: ChatCapabilityRow
-    let accent: Color
-    let onToggle: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 8) {
-                Image(systemName: row.kind.systemImage).foregroundStyle(Theme.muted)
-                Text(row.name).font(.system(size: 14, weight: .semibold)).lineLimit(1)
-                Spacer()
-                if row.needsAuth {
-                    Text(L("sign in")).font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Theme.riskMed)
-                } else if row.isControllable {
-                    HStack(spacing: 6) {
-                        Text(row.controlLabel ?? "")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(Theme.muted)
-                        Toggle("", isOn: Binding(
-                            get: { row.allowed != false }, set: { _ in onToggle() }
-                        ))
-                        .labelsHidden()
-                        .tint(Theme.ok)
-                        .accessibilityValue(row.controlLabel ?? "")
-                    }
-                } else {
-                    Text(L("Observed only")).font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Theme.muted)
-                }
-            }
-            Text(row.usage ?? L("Not observed in this task"))
-                .font(.system(size: 11)).foregroundStyle(Theme.muted)
-        }
-        .padding(.vertical, 2)
     }
 }

@@ -58,6 +58,7 @@ struct ProjectExecutionSection: View {
 
     var body: some View {
         Section {
+            ProjectNetworkRoutingControl(projectId: snapshot.projectId, model: model)
             Picker(L("Mesh computer"), selection: Binding(
                 get: { hostChoice },
                 set: { choice in

@@ -39,7 +39,7 @@ enum MessageImageContent {
         }
         flushProse()
         flushGallery()
-        let inline = valid.filter { !displayed.contains($0.id) && text.contains($0.markdown) }
+        let inline = valid.filter { !displayed.contains($0.id) }
         if !inline.isEmpty { result.append(.images(inline)) }
         return result.isEmpty ? [.text(text)] : result
     }

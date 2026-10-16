@@ -67,14 +67,15 @@ struct AboutGrantTapView: View {
 
             #if targetEnvironment(macCatalyst)
             Section(L("Mac license")) {
-                Text(L("One-time Mac license. Personal is optional for hosted delivery; direct or own-relay operation requires no subscription."))
+                Text(L("Personal includes managed access on linked Macs. Mac Local is a separate one-time license for local control and your own relay. You do not need both purchases for managed access."))
                 NavigationLink(L("Purchase or restore Mac license")) { DesktopLicenseView() }
             }
             #endif
 
             Section(L("Privacy by design")) {
                 Label(L("End-to-end encrypted payloads"), systemImage: "lock.shield")
-                Label(L("No account, advertising, tracking, or analytics"), systemImage: "hand.raised")
+                Label(L("No advertising, tracking, or behavioral analytics"), systemImage: "hand.raised")
+                Text(L("QR pairing needs no account. Managed account access uses an optional passkey account; Apple billing and provider sign-ins remain separate."))
                 Text(L("Visible activity is streamed only for an open session. Hidden reasoning is never forwarded."))
             }
 
@@ -84,6 +85,8 @@ struct AboutGrantTapView: View {
 
             Section(L("Legal")) {
                 ProductInformationLinks()
+                NavigationLink(L("Third-party notices")) { ThirdPartyNoticesView() }
+                    .accessibilityIdentifier("information.third-party")
             }
 
             Section(L("Website and source")) {
@@ -95,7 +98,7 @@ struct AboutGrantTapView: View {
             }
 
             Section {
-                Text(L("Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude and Claude Code are trademarks of Anthropic. OpenAI and Codex are trademarks of OpenAI. GrantTap is not affiliated with or endorsed by those companies."))
+                Text(L("Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude and Claude Code belong to Anthropic; OpenAI and Codex to OpenAI; Cursor to Anysphere; Grok to xAI. GrantTap is not affiliated with or endorsed by these companies."))
                     .font(.footnote)
                     .foregroundStyle(Theme.muted)
                 Text(L("© 2026 Serhii Ziborov. All rights reserved."))

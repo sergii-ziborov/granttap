@@ -5,7 +5,10 @@ enum AppLocale {
 
     static var code: String {
 #if DEBUG
-        if let testCode = ProcessInfo.processInfo.environment["GRANTTAP_TEST_LANGUAGE"] {
+        // This runs for every label. Read the single override without copying
+        // the whole process environment, including in local debug builds.
+        if let value = getenv("GRANTTAP_TEST_LANGUAGE") {
+            let testCode = String(cString: value)
             return testCode == "ru" ? "ru" : "en"
         }
 #endif

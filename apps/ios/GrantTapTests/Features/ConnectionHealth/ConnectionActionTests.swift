@@ -5,6 +5,15 @@ import XCTest
 /// The detail screen showed status and load but no action, so a computer that
 /// had dropped could be seen and not repaired.
 final class ConnectionActionTests: XCTestCase {
+    func testOfflineHeaderKeepsOneTitleAcrossTransportStates() {
+        for phase in [ConnectionPhase.phoneOffline, .macOffline] {
+            let snapshot = ConnectionSnapshot(phase: phase, linked: true, deviceName: nil,
+                                              machineName: nil, roomShort: nil, catalogAgeSeconds: nil)
+            XCTAssertEqual(snapshot.statusTitle, "Offline")
+            XCTAssertEqual(snapshot.statusColor, Theme.muted)
+        }
+    }
+
     func testABrokenLinkOffersItsRepairRightThere() {
         for phase in [ConnectionPhase.phoneOffline, .macOffline] {
             XCTAssertTrue(

@@ -39,6 +39,8 @@ struct ProjectMeshTask: Codable, Equatable, Identifiable {
 }
 
 struct ExecutionSessionLink: Codable, Equatable, Identifiable {
+    var continuedAt: Double? = nil
+    var state: String? = nil
     var taskId: String
     let sessionId: String
     let provider: String
@@ -88,6 +90,9 @@ struct ProjectTaskDependency: Codable, Equatable, Identifiable {
 }
 
 struct TaskCapsule: Codable, Equatable {
+    var title: String? = nil
+    var launch: String? = nil
+    var contextHash: String? = nil
     let taskId: String
     let goal: String
     let currentStatus: String
@@ -141,6 +146,7 @@ struct CapsuleCheckpoint: Codable, Equatable {
 }
 
 struct ProjectHandoffReceipt: Codable, Equatable {
+    var prepared: Bool? = nil
     let sourceSessionId: String
     var sourceActorId: String? = nil
     let targetSessionId: String
@@ -150,6 +156,7 @@ struct ProjectHandoffReceipt: Codable, Equatable {
 }
 
 struct ProjectMeshEventPayload: Codable, Equatable {
+    var transferContext: String? = nil
     var summary: String? = nil
     var dependsOnTaskId: String? = nil
     var question: String? = nil
@@ -182,7 +189,7 @@ struct ProjectMeshEvent: Codable, Equatable, Identifiable {
     let eventType: String
     let createdAt: Double
     var expiresAt: Double?
-    let payload: ProjectMeshEventPayload
+    var payload: ProjectMeshEventPayload
     var id: String { eventId }
 }
 
@@ -273,4 +280,5 @@ struct ProjectMeshHandoffPrepare: Codable, Equatable {
     /// Publish the branch to the repository's remote before the capsule leaves,
     /// so another computer can fetch the commit. Never a force push.
     var push: Bool? = nil
+    var prepareOnly: Bool? = nil
 }

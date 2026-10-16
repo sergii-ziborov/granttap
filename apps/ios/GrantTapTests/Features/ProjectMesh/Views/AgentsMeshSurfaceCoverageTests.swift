@@ -128,6 +128,7 @@ final class AgentsMeshSurfaceCoverageTests: XCTestCase {
 
     func testHandoffRendersCodingAndGrokDestinations() {
         let model = AppModel()
+        model.meshComputerRoomByEndpointId = ["MacBook": "source", "Workstation": "target"]
         model.agentMeshPreferences = .defaults
         let source = linked(room: "source", machine: "MacBook")
         let target = linked(room: "target", machine: "")

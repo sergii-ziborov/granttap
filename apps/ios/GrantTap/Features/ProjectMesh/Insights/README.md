@@ -4,6 +4,10 @@ Shared Mac, iPhone and iPad presentation of repository reports and refresh route
 `ProjectInsightReports` chooses one current report per repository identity and
 retains enrichment between lightweight catalog updates only while bindings stay
 compatible. Forks sharing a name remain separate.
+Fresh scoped Git observations may prove that a historical local path and a
+canonical identity refer to the same checkout. Their reports then share one
+current result; an obsolete alias failure cannot restart a successful build.
+Missing or conflicting identity evidence keeps the reports separate.
 
 `ProjectGraphRefreshPlan` sends admitted local projects through the local MCP and
 other connected computers through their relay. Local completion, remote request,

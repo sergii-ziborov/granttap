@@ -1,15 +1,21 @@
 import SwiftUI
 
-/// One row of a chat's timeline: an activity, an approval, a question, or a
-/// message, in the shape the list expects.
-extension TaskChatView {
-    /// One transcript row. Extracted because the list body became an
-    /// expression the type-checker refused to finish.
+/// A separate View keeps rich row construction inside List's visible cells.
+/// Shared Task settings are resolved once by the parent, not once per saved row.
+struct TaskChatTimelineRow: View {
+    let row: ChatTimelineRow
+    let accent: Color
+    let servers: [McpServerInfo]
+    let focusEntryId: String?
+    let highlightedEntryId: String?
+    let replyChanges: [String: [RecordedFileChange]]
+    let currentReplyFinalId: String?
+
     @ViewBuilder
-    func timelineRow(_ row: ChatTimelineRow) -> some View {
+    var body: some View {
         switch row {
         case .item(.activity(let entry)):
-            let changes = entry.kind == "final" ? ChatFileChanges.endingAt(entry.id, entries: rootEntries) : []
+            let changes = entry.kind == "final" ? replyChanges[entry.id] ?? [] : []
             VStack(alignment: .leading, spacing: 10) {
                 ActivityRow(entry: entry, accent: accent, compact: false,
                         server: server(for: entry))
@@ -20,7 +26,7 @@ extension TaskChatView {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(highlightedEntryId == entry.id ? accent.opacity(0.18) : .clear)
                 )
-                if !changes.isEmpty, entry.id != ChatFileChanges.currentReplyFinalId(entries: rootEntries) {
+                if !changes.isEmpty, entry.id != currentReplyFinalId {
                     ChatFileChangesCard(files: changes, complete: entry.fileChangesComplete != false)
                         .padding(.horizontal, 6)
                 }
@@ -46,9 +52,9 @@ extension TaskChatView {
         }
     }
 
-    func server(for entry: ActivityEntry) -> McpServerInfo? {
+    private func server(for entry: ActivityEntry) -> McpServerInfo? {
         entry.mcpServer.flatMap { name in
-            currentSession.mcpServers?.first { $0.name == name }
+            servers.first { $0.name == name }
         }
     }
 }

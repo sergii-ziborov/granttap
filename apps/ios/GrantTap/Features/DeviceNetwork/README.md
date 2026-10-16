@@ -12,4 +12,14 @@ only while the client wants a foreground connection; iOS does not promise
 periodic execution while suspended. Local setup and server processes belong
 to the separately maintained MCP runtime.
 
+`RelayReconnect.swift` binds delayed retries to their disconnected generation.
+Foreground recovery, route replacement and disconnect invalidate older timers,
+so an overdue callback cannot tear down an already recovered socket.
+
 Tests: `GrantTapTests/Features/DeviceNetwork/EndpointDirectoryTests.swift`.
+
+The authenticated WebSocket upgrade advertises the SHA-256 digest of the local
+public key. Updated relays use it to select addressed ciphertext, reducing
+traffic sent to unrelated controllers. RelayClient checks that hint before
+attempting decryption; envelopes from earlier clients remain readable. Room
+credentials and encrypted payload authentication remain required.

@@ -36,6 +36,15 @@ enum ProjectHealthDiagnostics {
     static func graphReport(
         for repositoryId: String, snapshot: ProjectMeshSnapshot
     ) -> ProjectRepositoryGraph? {
-        ProjectInsightReports.reports(snapshot).first { $0.repositoryId == repositoryId }
+        let canonical = RepositoryIdentityIndex.canonical(repositoryId, snapshots: [snapshot])
+        return ProjectInsightReports.reports(snapshot).first {
+            RepositoryIdentityIndex.canonical($0.repositoryId, snapshots: [snapshot]) == canonical
+        }
+    }
+
+    static func graphRepositoryIds(_ snapshot: ProjectMeshSnapshot) -> [String] {
+        let ids = ProjectMeshLogic.visibleBindings(snapshot.bindings ?? []).map(\.repositoryId)
+            + [snapshot.project.canonicalRepositoryId]
+        return Set(ids.map { RepositoryIdentityIndex.canonical($0, snapshots: [snapshot]) }).sorted()
     }
 }

@@ -76,6 +76,7 @@ extension AppModel {
 
     /// Mirror the current human-attention layer and bounded task state to Watch.
     func pushToWatch(force: Bool = false) {
+        guard WatchBridge.shared.supportsSnapshots else { return }
         let approvals = pending.filter { $0.kind != "question" }.map {
             WatchApproval(id: $0.requestId, agent: $0.agent, title: $0.title,
                           command: $0.command, risk: $0.risk.rawValue, cwd: $0.cwd,

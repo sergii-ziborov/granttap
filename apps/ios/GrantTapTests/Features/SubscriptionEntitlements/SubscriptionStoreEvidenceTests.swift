@@ -182,7 +182,7 @@ final class SubscriptionStoreEvidenceTests: XCTestCase {
         for receipt in [
             SubscriptionStatusSnapshot(product: .personal, state: .subscribed,
                 expirationDate: now.addingTimeInterval(-1), isTrial: false, verified: true),
-            SubscriptionStatusSnapshot(product: .fleet, state: .subscribed,
+            SubscriptionStatusSnapshot(product: .studio, state: .subscribed,
                 expirationDate: now.addingTimeInterval(3600), isTrial: false, verified: false)
         ] {
             let snapshots = SubscriptionStoreEvidence.merge([], authoritative: [], receipts: [receipt])

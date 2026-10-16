@@ -22,8 +22,17 @@ final class ProductInformationUITests: XCTestCase {
         let help = app.buttons["information.help"].firstMatch
         reveal(help, in: app)
         help.tap()
-        XCTAssertTrue(app.staticTexts["Account Mesh and passkey"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["information.learn"].exists)
+        XCTAssertTrue(app.buttons["information.learn"].waitForExistence(timeout: 10))
+        reveal(app.staticTexts["Account passkey and QR"], in: app)
+        app.navigationBars["GrantTap Help"].buttons.firstMatch.tap()
+        let notices = app.buttons["information.third-party"].firstMatch
+        reveal(notices, in: app)
+        notices.tap()
+        let crypto = app.buttons["information.notice.tweetnacl-swiftwrap"].firstMatch
+        XCTAssertTrue(crypto.waitForExistence(timeout: 10))
+        crypto.tap()
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@",
+            "Copyright (c) 2017 Bitmark")).firstMatch.waitForExistence(timeout: 10))
     }
 
     private func reveal(_ element: XCUIElement, in app: XCUIApplication) {

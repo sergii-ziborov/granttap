@@ -52,7 +52,7 @@ extension ContentView {
 
     func tabScroll<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) { content() }
+            LazyVStack(alignment: .leading, spacing: 18) { content() }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
         }

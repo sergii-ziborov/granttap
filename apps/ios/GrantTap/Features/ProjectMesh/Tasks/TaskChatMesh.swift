@@ -30,13 +30,7 @@ extension TaskChatView {
         }?.projectId
     }
 
-    var childThreads: [ChildThreadDisplayRow] {
-        ChildThreadTree.rows(
-            rootId: chatSessionId,
-            threads: currentSession.childThreads ?? [],
-            activity: entries
-        )
-    }
+    var childThreads: [ChildThreadDisplayRow] { preparedChildThreads }
 
     var projectMeshSnapshot: ProjectMeshSnapshot? {
         model.meshSnapshot(for: meshProjectId)
@@ -63,7 +57,7 @@ extension TaskChatView {
             }
         }
         if byId.isEmpty {
-            for entry in rootEntries {
+            for entry in entries where entry.childThreadId == nil {
                 if ranks[entry.id] == nil { ranks[entry.id] = ranks.count }
                 byId[entry.id] = entry
             }

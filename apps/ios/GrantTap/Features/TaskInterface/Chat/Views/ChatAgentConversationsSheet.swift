@@ -5,10 +5,12 @@ struct ChatAgentConversationsSheet: View {
     let session: SessionInfo
     let entries: [ActivityEntry]
     let threads: [ChildThreadDisplayRow]
+    var onClose: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        CompatNavigationStack {
+        ChatSheetNavigation(title: L("Agent conversations"), doneIdentifier: "chat.agents.done",
+            onClose: { if let onClose { onClose() } else { dismiss() } }) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     Text(L("Agent conversations are nested executions of this Task."))
@@ -29,11 +31,6 @@ struct ChatAgentConversationsSheet: View {
                 .padding(16)
             }
             .background(Theme.bg)
-            .navigationBarTitleDisplayMode(.inline)
-            .pageNavigationTitle(L("Agent conversations"), showsBack: false,
-                                 actionPlacement: .confirmationAction) {
-                Button(L("Done")) { dismiss() }
-            }
         }
     }
 }

@@ -1,6 +1,6 @@
 # Repository graph and code towers
 
-[public source](https://github.com/sergii-ziborov/granttap) · [Public entry point](ProjectGraphView.swift)
+[Engineering index](../../../../../../AGENTS.md) · [Public entry point](ProjectGraphView.swift)
 
 Graph consumes the current received Weavatrix report from Project Mesh. The
 shared build card owns waiting, receipt confirmation and retry presentation;

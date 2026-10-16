@@ -10,7 +10,7 @@ extension AppModel {
         var transitionedExpiredProcessing = false
         var failedOriginSessionIds: Set<String> = []
         for index in snapshot.indices {
-            if snapshot[index].chatQueue?.waiting == true { continue }
+            if snapshot[index].chatQueue?.waiting == true || snapshot[index].chatQueue?.relayManaged == true { continue }
             if let deadline = DeliveryOutboxPolicy.terminalDeadline(for: snapshot[index]),
                now > deadline {
                 if let sessionId = localOriginSessionId(for: snapshot[index]) {
@@ -73,7 +73,8 @@ extension AppModel {
         }
         if delivery.state == .queued, delivery.attempts == 0,
            delivery.processingAcknowledgedAt == nil {
-            return now - delivery.createdAt <= TaskDeliveryQueue.retentionMilliseconds(for: delivery)
+            return now - TaskDeliveryQueue.retentionAnchor(for: delivery)
+                <= TaskDeliveryQueue.retentionMilliseconds(for: delivery)
         }
         if delivery.awaitingSessionRemap == true,
            (delivery.state == .queued || delivery.state == .sending) {
@@ -89,7 +90,7 @@ extension AppModel {
            (delivery.state == .queued || delivery.state == .sending) {
             return now - delivery.updatedAt <= maxUnacknowledgedAge
         }
-        if now - (delivery.state == .failed ? delivery.updatedAt : delivery.createdAt)
+        if now - (delivery.state == .failed ? delivery.updatedAt : TaskDeliveryQueue.retentionAnchor(for: delivery))
             > TaskDeliveryQueue.retentionMilliseconds(for: delivery),
            delivery.processingAcknowledgedAt == nil { return false }
         if let requestId = delivery.requestId, !requestId.isEmpty,
@@ -186,6 +187,8 @@ extension AppModel {
         deliveries[index].processingRetryStartedAt = nil
         deliveries[index].attemptGeneration = nil
         deliveries[index].updatedAt = Date().timeIntervalSince1970 * 1000
+        deliveries[index].manualRetryStartedAt = deliveries[index].updatedAt
+        deliveries[index].transportAttemptStartedAt = nil
         // A dependency failure is explicitly retryable: promote this follow-up
         // to a fresh new-task origin. Provider identity is already persisted.
         if deliveries[index].awaitingSessionRemap == true {
@@ -220,7 +223,7 @@ extension AppModel {
                 if delivery.chatQueue?.waiting == true { return true }
                 if delivery.state == .queued, delivery.attempts == 0,
                    delivery.processingAcknowledgedAt == nil {
-                    return now - delivery.createdAt
+                    return now - TaskDeliveryQueue.retentionAnchor(for: delivery)
                         <= TaskDeliveryQueue.retentionMilliseconds(for: delivery)
                 }
                 if delivery.awaitingSessionRemap == true,

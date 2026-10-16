@@ -8,7 +8,7 @@ struct DesktopLicenseView: View {
 
     var body: some View {
         List {
-            Section(L("Mac license")) {
+            Section("Mac Local") {
                 switch store.license {
                 case .checking: ProgressView(L("Checking purchase…"))
                 case .purchased:
@@ -22,7 +22,7 @@ struct DesktopLicenseView: View {
                                 expiry.formatted(date: .abbreviated, time: .omitted)))
                         .font(.footnote).foregroundStyle(Theme.muted)
                 case .notPurchased:
-                    Text(L("A Mac license unlocks local agent control and your own relay. A hosted-service subscription is optional."))
+                    Text(L("Mac Local unlocks local agent control and your own relay with one purchase. Active Personal already includes Mac managed-client access without this purchase."))
                     Button(L("Verify TestFlight evaluation")) {
                         Task { await store.verifyBetaTrial() }
                     }
@@ -34,7 +34,7 @@ struct DesktopLicenseView: View {
                             Task { await store.purchase() }
                         } label: {
                             HStack {
-                                Text(L("Buy Mac license"))
+                                Text(L("Buy Mac Local"))
                                 Spacer()
                                 Text(product.displayPrice)
                             }
@@ -51,7 +51,7 @@ struct DesktopLicenseView: View {
                     .accessibilityIdentifier("license.restore")
             }
             Section(L("Optional hosted service")) {
-                Text(L("Personal pays for hosted encrypted delivery, its server queue and background notifications. Your Mac license does not expire when a subscription ends."))
+                Text(L("Personal includes managed delivery and linked Mac clients. Mac Local remains valid when Personal ends; managed hosting is not part of the one-time purchase."))
                 NavigationLink(L("Manage subscription")) { SubscriptionView() }
             }
             Section(L("Legal")) {

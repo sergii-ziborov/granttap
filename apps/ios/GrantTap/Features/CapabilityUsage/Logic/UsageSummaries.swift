@@ -54,12 +54,43 @@ enum CapabilityResourceFormat {
 struct UsageSummaries {
     let events: [CapabilityUsageEvent]
     let totals: [CapabilityUsageTotal]
+    let rows: [OperationalToolSummary]
+    let toolCalls: Int
+
+    init(events: [CapabilityUsageEvent], totals: [CapabilityUsageTotal]) {
+        self.events = events
+        self.totals = totals
+        let aggregation = UsageSummaryAggregation(events: events, totals: totals)
+        rows = aggregation.rows
+        toolCalls = aggregation.toolCalls
+    }
+
+    static func heaviestFirst(_ lhs: OperationalToolSummary, _ rhs: OperationalToolSummary) -> Bool {
+        UsageSummaryAggregation.heaviestFirst(lhs, rhs)
+    }
+}
+
+/// Count once for a value snapshot. Reading a row never rescans its event feed.
+private struct UsageSummaryAggregation {
+    let events: [CapabilityUsageEvent]
+    let totals: [CapabilityUsageTotal]
 
     /// Failures first, then the busiest; equal rows keep one order by name,
     /// so a list that is redrawn on every report does not shuffle its ties.
     var rows: [OperationalToolSummary] {
-        var byId = Dictionary(uniqueKeysWithValues: observed.map { ($0.id, $0) })
-        for row in published { byId[row.id] = row }
+        let observedById = Dictionary(uniqueKeysWithValues: observed.map { ($0.id, $0) })
+        var byId = observedById
+        for row in totals {
+            guard let name = row.name else { continue }
+            let id = "\(row.kind.rawValue):\(name)"
+            let observation = observedById[id]
+            byId[id] = OperationalToolSummary(
+                kind: row.kind, name: name, count: row.count,
+                failures: row.failures, cancelled: row.cancelled,
+                averageDurationMs: observation?.averageDurationMs, lastUsedAt: row.lastUsedAt,
+                peakMemoryBytes: observation?.peakMemoryBytes, cpuTimeMs: observation?.cpuTimeMs
+            )
+        }
         return byId.values.sorted(by: Self.heaviestFirst)
     }
 
@@ -78,26 +109,6 @@ struct UsageSummaries {
             let reported = rollups.isEmpty ? rows : rollups
             return count + (reported.isEmpty ? events.filter { $0.kind == kind }.count
                            : reported.reduce(0) { $0 + $1.count })
-        }
-    }
-
-    private var durationsByRow: [String: [Int]] {
-        Dictionary(grouping: events) { "\($0.kind.rawValue):\($0.name)" }
-            .mapValues { $0.compactMap(\.durationMs) }
-    }
-
-    private var published: [OperationalToolSummary] {
-        let durations = durationsByRow
-        return totals.compactMap { row in
-            guard let name = row.name else { return nil }
-            return OperationalToolSummary(
-                kind: row.kind, name: name, count: row.count,
-                failures: row.failures, cancelled: row.cancelled,
-                averageDurationMs: Self.average(durations["\(row.kind.rawValue):\(name)"] ?? []),
-                lastUsedAt: row.lastUsedAt,
-                peakMemoryBytes: Self.peakMemory(events, kind: row.kind, name: name),
-                cpuTimeMs: Self.cpuTime(events, kind: row.kind, name: name)
-            )
         }
     }
 
@@ -124,18 +135,6 @@ struct UsageSummaries {
     private static func average(_ values: [Int]) -> Int? {
         guard !values.isEmpty else { return nil }
         return Int((Double(values.reduce(0, +)) / Double(values.count)).rounded())
-    }
-
-    private static func peakMemory(_ events: [CapabilityUsageEvent],
-                                   kind: CapabilityUsageKind, name: String) -> Int? {
-        events.filter { $0.kind == kind && $0.name == name }
-            .compactMap { $0.resource?.effectivePeakRssBytes }.max()
-    }
-
-    private static func cpuTime(_ events: [CapabilityUsageEvent],
-                                kind: CapabilityUsageKind, name: String) -> Int? {
-        sum(events.filter { $0.kind == kind && $0.name == name }
-            .compactMap { $0.resource?.effectiveCpuTimeMs })
     }
 
     private static func sum(_ values: [Int]) -> Int? {

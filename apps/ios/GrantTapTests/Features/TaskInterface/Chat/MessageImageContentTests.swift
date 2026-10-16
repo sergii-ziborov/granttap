@@ -20,6 +20,12 @@ final class MessageImageContentTests: XCTestCase {
         ])
     }
 
+    func testSubmittedPicturesRemainVisibleWithoutMarkdownOrACaption() {
+        let image = MessageImageAttachment(id: "submitted", name: "Photo.png", markdown: "attachment:0")
+        XCTAssertEqual(MessageImageContent.parts("Caption", images: [image]), [.text("Caption"), .images([image])])
+        XCTAssertEqual(MessageImageContent.parts("", images: [image]), [.images([image])])
+    }
+
     func testNoImagesPreservesMarkdownAndInvalidReferencesAreIgnored() {
         let text = "# Result\n\n| a | b |\n|---|---|\n| 1 | 2 |"
         XCTAssertEqual(MessageImageContent.parts(text, images: []), [.text(text)])

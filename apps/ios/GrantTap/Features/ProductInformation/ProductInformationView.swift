@@ -39,6 +39,12 @@ private struct ProductDocumentView: View {
                     Text(L("Last updated") + ": " + document.updated)
                         .font(.caption).foregroundStyle(Theme.muted)
                 }
+                if information == .licenses {
+                    Section {
+                        NavigationLink(L("Third-party notices")) { ThirdPartyNoticesView() }
+                            .accessibilityIdentifier("information.third-party")
+                    }
+                }
                 if information == .help {
                     Section(L("Guides")) {
                         NavigationLink(L("Learn")) { LearnView() }
@@ -58,6 +64,9 @@ private struct ProductDocumentView: View {
                                 Text(item).textSelection(.enabled)
                             }
                         }
+                        if let illustration = section.image {
+                            ProductHelpIllustration(illustration: illustration)
+                        }
                         ForEach(section.links ?? [], id: \.href) { link in
                             if let url = link.url { Link(link.label, destination: url) }
                         }
@@ -68,7 +77,7 @@ private struct ProductDocumentView: View {
                 Section(L("Support")) {
                     Link("sergii.ziborov@gmail.com", destination: URL(string: "mailto:sergii.ziborov@gmail.com")!)
                     if let name = information.documentName {
-                        Link(L("Read on the website"), destination: URL(string: "https://granttap.com/\(name)")!)
+                        Link(L("Read on the website"), destination: URL(string: "https://granttap.com/\(name)\(language == "ru" ? "?lang=ru" : "")")!)
                     }
                 }
             } else {

@@ -9,8 +9,18 @@ extension TaskChatView {
             snapshotKnown: activitySnapshotKnown
         )
         if phase == .content {
-            ForEach(ChatActivityGrouping.rows(visibleTimeline)) { row in
-                timelineRow(row)
+            let prepared = transcriptPresentation
+            let session = currentSession
+            let rowAccent = Theme.accent(for: session.agent)
+            ForEach(prepared.rows) { row in
+                // A fixed one-cell shape lets List recycle conditional row content.
+                VStack(alignment: .leading, spacing: 0) {
+                    TaskChatTimelineRow(row: row, accent: rowAccent,
+                        servers: session.mcpServers ?? [], focusEntryId: focusEntryId,
+                        highlightedEntryId: highlightedEntryId, replyChanges: prepared.replyChanges,
+                        currentReplyFinalId: prepared.currentFinalId)
+                }
+                    .id(row.id)
                     .background(GeometryReader { geometry in
                         let frame = geometry.frame(in: .named("chat-transcript"))
                         Color.clear.preference(

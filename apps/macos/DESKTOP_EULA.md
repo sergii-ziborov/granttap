@@ -15,7 +15,7 @@ A verified GrantTap Mac purchase grants you a non-exclusive license to use the
 Mac app for personal or internal work on Apple computers you own or control,
 subject to Apple's applicable Usage Rules. The proposed US launch price is
 USD 39.99; the actual purchase sheet and receipt govern price and availability.
-A non-consumable Mac License unlock is separate from an auto-renewable Personal
+A non-consumable Mac Local unlock is separate from an auto-renewable Personal
 subscription. The purchase does not expire because a subscription ends. Restore
 Purchases uses the same Apple Account; refunded or revoked purchases lose their
 paid entitlement. Store availability and future major-version purchases are
@@ -27,6 +27,10 @@ Personal subscriptions pay for managed encrypted delivery, server queues and
 supported background notifications. They do not buy model tokens. Billing,
 renewal, cancellation and refunds follow the purchase sheet and Apple rules.
 A subscription is optional for licensed Mac local control and own-relay use.
+Active Personal includes managed access on linked Mac clients without an
+additional Mac Local purchase. That managed-client right is subscription access,
+not a perpetual license for local control or self-hosting. A controller-only Mac
+does not consume a managed publishing-computer seat.
 
 Your Mac license includes permission to run and privately modify the separately
 licensed GrantTap relay for personal or internal use on computers you own or

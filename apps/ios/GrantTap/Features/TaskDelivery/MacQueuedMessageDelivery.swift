@@ -46,7 +46,7 @@ extension AppModel {
         Task {
             do {
                 let result = try await reader.send(row.text, to: session, attachments: attachments,
-                                                   deliveryId: deliveryId, model: row.model)
+                                                   deliveryId: deliveryId, model: row.model, effort: row.effort)
                 completeLocalChatQueue(id, generation: generation,
                                        accepted: result.accepted, error: result.error)
             } catch {

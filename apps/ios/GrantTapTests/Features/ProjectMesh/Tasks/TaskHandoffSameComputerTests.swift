@@ -44,6 +44,7 @@ final class TaskHandoffSameComputerTests: XCTestCase {
         model.meshSnapshots = ["project": snapshot(uncommitted: uncommitted)]
         model.connectionRegistry = .init(connections: rooms.map(linked), preferredId: "source")
         model.sessionSourceRooms["claude"] = ["source"]
+        model.meshComputerRoomByEndpointId = Dictionary(uniqueKeysWithValues: rooms.map { ("\($0).lan", $0) })
         return model
     }
 

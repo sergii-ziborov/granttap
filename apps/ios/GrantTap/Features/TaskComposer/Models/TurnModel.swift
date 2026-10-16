@@ -45,6 +45,7 @@ struct TurnModel: RawRepresentable, Hashable, Identifiable {
         switch AgentIdentity.normalize(agent) {
         case "claude": return claude
         case "codex": return !claude
+        case "cursor", "grok": return !Self.supported(by: "claude").contains(self)
         default: return false
         }
     }

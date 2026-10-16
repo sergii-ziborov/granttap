@@ -2,6 +2,18 @@ import XCTest
 @testable import GrantTap
 
 final class ConnectionFreshnessTests: XCTestCase {
+    func testPoweredOffComputerDoesNotBlinkOfflineDuringRelayReconnect() {
+        let now: Double = 1_000_000
+        for delta in [0.0, 500, 1_500] {
+            XCTAssertEqual(ConnectionFreshness.phase(socketUp: false, disconnectedAt: now,
+                heartbeatAt: now - 120_000, catalogAt: now - 150_000,
+                socketUpSince: now - 60_000, now: now + delta), .macOffline)
+        }
+        XCTAssertEqual(ConnectionFreshness.phase(socketUp: false, disconnectedAt: now,
+            heartbeatAt: now - 120_000, catalogAt: now - 150_000,
+            socketUpSince: now - 60_000, now: now + 2_000), .phoneOffline)
+    }
+
     func testOnlyBriefTransportLossKeepsFreshComputerVisibleAsLive() {
         let now: Double = 1_000_000
         XCTAssertEqual(ConnectionFreshness.phase(socketUp: false, disconnectedAt: now - 500,

@@ -115,15 +115,17 @@ extension AppRuntimeTests {
     }
 
     @MainActor
-    func testWakeTargetsEveryRoomAndLiveDecisionUsesPinnedRelay() {
+    func testWakeTargetsEveryRoomAndLiveDecisionUsesPinnedRelay() async {
         let model = AppModel()
         let client = RelayClient(pairing: testPairing())
         model.connectionRegistry = testConnectionRegistry()
         model.relaysByRoom["room-a"] = client
         var wake: UIBackgroundFetchResult?
-        model.handleRemoteWake { wake = $0 }
+        let completed = expectation(description: "Wake completes after persistence")
+        model.handleRemoteWake { wake = $0; completed.fulfill() }
         XCTAssertEqual(model.backgroundWakeCompletions.count, 1)
         model.finishBackgroundWake(.newData)
+        await fulfillment(of: [completed], timeout: 3)
         XCTAssertEqual(wake, .newData)
 
         model.requestSourceRoom["decision"] = "room-a"
@@ -132,7 +134,9 @@ extension AppRuntimeTests {
             requestId: "decision", decision: "allow", by: "phone",
             title: "Run", agent: "codex"
         ), sessionId: "session")
-        RunLoop.main.run(until: Date().addingTimeInterval(0.04))
+        for _ in 0..<100 where model.approvalDecisionsInFlight["decision"] != nil {
+            try? await Task.sleep(nanoseconds: 20_000_000)
+        }
         XCTAssertNil(model.approvalDecisionsInFlight["decision"])
     }
 

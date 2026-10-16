@@ -12,6 +12,7 @@ struct ChatWorkspaceDirectoryView: View {
     @State private var failed = false
     @State private var expanded: Set<String> = []
     @State private var selected: TaskWorkspaceEntry?
+    @StateObject private var editSession = TaskFileEditSession()
 
     init(model: AppModel, session: SessionInfo, path: String) {
         self.model = model
@@ -24,6 +25,26 @@ struct ChatWorkspaceDirectoryView: View {
     }
 
     var body: some View {
+        Group {
+            if path.isEmpty {
+                if entries.isEmpty && (loading || snapshot == nil && !failed) {
+                    ProgressView(L("Loading workspace files…"))
+                        .accessibilityIdentifier("chat.files.workspace.loading")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView { directoryContent.padding(16) }
+                }
+            } else { directoryContent }
+        }
+        .frame(maxWidth: .infinity, maxHeight: path.isEmpty ? .infinity : nil)
+        .foregroundStyle(Theme.ink)
+        .task(id: path) { await load(offset: 0) }
+        .sheet(item: $selected) { entry in
+            ChatWorkspaceFileSheet(model: model, session: session, path: entry.path, editSession: editSession) { selected = nil }
+        }
+    }
+
+    private var directoryContent: some View {
         VStack(alignment: .leading, spacing: 8) {
             if path.isEmpty {
                 Text(L("This Task's workspace"))
@@ -39,6 +60,7 @@ struct ChatWorkspaceDirectoryView: View {
             }
             if entries.isEmpty && (loading || snapshot == nil && !failed) {
                 ProgressView(L("Loading workspace files…")).padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
             } else if entries.isEmpty {
                 Text(snapshot?.unavailable == true || failed
                      ? L("This folder is unavailable. Connect this Task's computer and retry.")
@@ -67,10 +89,7 @@ struct ChatWorkspaceDirectoryView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(Theme.ink)
-        .task(id: path) { await load(offset: 0) }
-        .sheet(item: $selected) { entry in
-            ChatWorkspaceFileSheet(model: model, session: session, path: entry.path)
-        }
+
     }
 
     private func directory(_ entry: TaskWorkspaceEntry) -> some View {

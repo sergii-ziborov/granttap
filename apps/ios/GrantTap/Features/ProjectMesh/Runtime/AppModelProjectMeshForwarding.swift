@@ -26,6 +26,15 @@ extension AppModel {
               let target = meshRelay(forRoom: targetRoom),
               let key = source.sessionKey(for: scopeId)
         else { return }
+        if memberLinks.contains(where: { $0.id == targetRoom }), var snapshot = payload as? ProjectMeshSnapshot {
+            snapshot.modelCatalog = snapshot.modelCatalog?.map { catalog in
+                var shared = catalog
+                shared.accountUsage = nil
+                return shared
+            }
+            target.forwardMesh(snapshot, scopeId: scopeId, key: key, purpose: purpose)
+            return
+        }
         target.forwardMesh(payload, scopeId: scopeId, key: key, purpose: purpose) { [weak self] error in
             guard let error else { return }
             Task { @MainActor in self?.append("mesh forward failed: \(error.localizedDescription)") }

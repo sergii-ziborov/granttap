@@ -32,8 +32,7 @@ struct ConnectionSnapshot: Equatable {
         switch phase {
         case .demo: return L("Demo")
         case .notLinked: return L("Need pair")
-        case .phoneOffline: return L("Offline")
-        case .macOffline: return L("Mac offline")
+        case .phoneOffline, .macOffline: return L("Offline")
         case .needRepair: return L("Need re-pair")
         case .live: return L("Live")
         }
@@ -43,8 +42,7 @@ struct ConnectionSnapshot: Equatable {
         switch phase {
         case .demo: return Theme.muted
         case .notLinked, .needRepair: return Theme.riskMed
-        case .phoneOffline: return Theme.muted
-        case .macOffline: return Theme.riskMed
+        case .phoneOffline, .macOffline: return Theme.muted
         case .live: return Theme.ok
         }
     }

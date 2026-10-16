@@ -64,13 +64,13 @@ final class ChatMessageQueueTests: XCTestCase {
         XCTAssertFalse(model.cancelChatQueuedMessage(first.id))
     }
 
-    func testSendNowReleasesExactIDOnceWhileKeepingLaterQueueHeld() throws {
+    func testDemoSendNowReleasesExactIDOnceWhileKeepingLaterQueueHeld() throws {
         let model = makeModel()
+        model.demoMode = true
         model.queueChatMessage("First", to: session())
         model.queueChatMessage("Second", to: session())
         let rows = model.chatQueuedMessages(for: session())
         let first = try XCTUnwrap(rows.first)
-        model.demoMode = true
         model.sendChatQueuedMessageNow(first.id)
         model.sendChatQueuedMessageNow(first.id)
         XCTAssertEqual(model.activities[first.sessionId!]?.entries.map(\.id), ["local-user-\(first.id)"])
@@ -78,10 +78,12 @@ final class ChatMessageQueueTests: XCTestCase {
         XCTAssertEqual(model.deliveries.first { $0.id == first.id }?.state, .delivered)
     }
 
-    func testQueueCannotCancelOrResendAnAlreadySubmittedMessage() throws {
+    func testLegacyQueueCannotCancelOrResendAnAlreadySubmittedMessage() throws {
         let model = makeModel()
         model.queueChatMessage("Submitted", to: session())
         let id = try XCTUnwrap(model.deliveries.first?.id)
+        // Persisted pre-relay queues have no server-managed context.
+        model.deliveries[0].chatQueue?.relayManaged = nil
         model.deliveries[0].state = .sending
         model.deliveries[0].attempts = 1
         model.deliveries[0].chatQueue?.waiting = false

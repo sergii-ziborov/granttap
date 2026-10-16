@@ -1,55 +1,104 @@
 {
-  "title": "Pricing and subscriptions",
-  "updated": "2026-10-12",
-  "intro": "Start with a 7-day free trial. Personal is priced by how many computers you link — $1.99 for up to two, $3.99 for five, $5.99 for ten, $9.99 for fifteen per month — billed through Apple's App Store. Agents on each computer are unlimited.",
+  "title": "Pricing and connection modes",
+  "updated": "2026-10-16",
+  "intro": "Available in TestFlight by invitation. These are planned US prices for the first commercial release; paid products are not available yet.",
   "sections": [
     {
       "heading": "Personal",
+      "paragraphs": [
+        "$3.99 / month. Up to 2 managed computers.",
+        "For your main machine and one more computer."
+      ]
+    },
+    {
+      "heading": "Personal Plus",
+      "paragraphs": [
+        "$6.99 / month. Up to 5 managed computers.",
+        "For several working machines and projects."
+      ]
+    },
+    {
+      "heading": "Fleet",
+      "paragraphs": [
+        "$11.99 / month. Up to 15 managed computers.",
+        "For a larger personal fleet of computers."
+      ]
+    },
+    {
+      "heading": "The same core product in every plan.",
+      "paragraphs": [
+        "The number of managed computers changes. Task control, history and supported integrations stay available in each plan.",
+        "Actions depend on the provider, installed runtime and adapter. Repository analysis requires GrantTap Engine on the computer. Technical limits and service protections apply."
+      ],
       "bullets": [
-        "7-day free trial for eligible new subscribers.",
-        "$1.99 per month for up to 2 computers, $3.99 for up to 5, $5.99 for up to 10, $9.99 for up to 15.",
-        "Every computer runs as many coding agents as it can; agents are never counted or charged for.",
-        "iPhone and Apple Watch remote, encrypted relay delivery, multi-computer queue, and supported provider integrations.",
-        "Cancel in Apple subscription settings at least 24 hours before renewal to avoid the next charge."
+        "Linked Mac, iPhone and iPad clients; quick Watch decisions through iPhone",
+        "Encrypted delivery and a bounded server queue",
+        "Tasks, history, Project Mesh and project rules",
+        "Supported ways to continue agent work; no separate per-agent or per-task charge"
       ]
     },
     {
-      "heading": "Changing tier",
+      "heading": "Mac Local — $39.99 once",
       "paragraphs": [
-        "Tiers differ only by linked computers. Move between them in Apple subscription settings; Apple prorates the change and shows the exact amount before it is confirmed."
+        "Prefer local control and your own relay? Buy Mac Local once. No Personal subscription is required for that mode. Managed hosting is not included. Active Personal already covers Mac as a managed client; you do not need both purchases for managed access."
       ]
     },
     {
-      "heading": "Mac license and no-subscription mode",
+      "heading": "What counts as a computer?",
       "paragraphs": [
-        "GrantTap Mac is being prepared for a one-time $39.99 US Mac License purchase. The confirmed US launch price is $39.99; the App Store purchase sheet controls availability and local price. A Mac license remains valid when Personal ends.",
-        "Licensed Mac local control and own-relay operation require no Personal subscription. Direct mode uses only a short-lived encrypted address directory; self-hosted mode uses your endpoint for pairing and delivery without that directory. Supply a reachable TLS endpoint or VPN. This does not open router ports or guarantee background notifications."
+        "One stable computer enabled to publish agent work through the managed service. Multiple agents and projects on it do not use extra seats. iPhone, iPad, Watch and controller-only Macs do not add execution-computer seats."
       ]
     },
     {
-      "heading": "Billing",
+      "heading": "Do I need Personal and Mac Local?",
       "paragraphs": [
-        "Payment is charged to your Apple Account after trial confirmation. The subscription renews automatically unless cancelled at least 24 hours before the current period ends. Apple manages billing, taxes, refunds, and subscription settings."
+        "Not for managed mode. Active Personal provides managed access to your linked Mac. Mac Local is the separate one-time purchase for local control and your own relay."
+      ]
+    },
+    {
+      "heading": "Are AI models and tokens included?",
+      "paragraphs": [
+        "No. You use your own provider accounts and plans. GrantTap manages supported executions; it does not replace a model subscription."
+      ]
+    },
+    {
+      "heading": "What remains after cancellation?",
+      "paragraphs": [
+        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid."
+      ]
+    },
+    {
+      "heading": "Is Fleet a team plan?",
+      "paragraphs": [
+        "Fleet increases your managed-computer allowance. It is not an enterprise package, an SLA or a fifteen-person license. Supported Project Mesh collaboration remains available."
+      ]
+    },
+    {
+      "heading": "Do I pay separately for Apple Watch?",
+      "paragraphs": [
+        "No. Supported Watch actions work through your paired iPhone. The watch is not a standalone execution computer."
+      ]
+    },
+    {
+      "heading": "Purchase terms",
+      "paragraphs": [
+        "A 7-day free trial is available to eligible new subscribers when Apple offers it. Your selected monthly plan follows. Trial eligibility appears in the purchase sheet.",
+        "Subscriptions renew automatically until cancelled. Manage or cancel in Apple subscription settings. Apple shows the terms and effective date of a plan change. Ending Personal does not delete downloaded local data or revoke a purchased Mac Local license.",
+        "USD prices are US launch prices. The App Store purchase sheet controls availability, local pricing, offer terms and the next charge. No annual plans are offered at first launch."
       ],
       "links": [
         {
-          "label": "Manage Apple subscriptions",
-          "href": "https://support.apple.com/118428"
-        },
-        {
-          "label": "Terms of Use",
+          "label": "Terms",
           "href": "/terms"
         },
         {
-          "label": "Privacy Policy",
+          "label": "Privacy",
           "href": "/privacy"
+        },
+        {
+          "label": "Help and FAQ",
+          "href": "/support"
         }
-      ]
-    },
-    {
-      "heading": "One account across computers",
-      "paragraphs": [
-        "Sign in with your GrantTap passkey before purchasing Personal. The verified plan belongs to that account on each connected computer. QR local/own-relay use and Demo remain account-free."
       ]
     }
   ]

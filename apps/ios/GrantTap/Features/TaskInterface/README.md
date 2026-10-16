@@ -43,16 +43,16 @@ long tool runs cannot hide the question above them. Top-edge paging also works,
 and the explicit history button recovers failed or stalled loads without a retry loop.
 The latest-message action shares the pinned request strip, outside the scrolling
 surface, so it cannot intercept transcript pans. Its space stays reserved while
-hidden so the first jump to the newest message survives layout. Paging measures the content
-container rather than a lazy header that may disappear from the view hierarchy.
-Loaded rows use measured heights: lazy row estimates could repeatedly undo an
-upward pan and stop older-page loading. Native cursors and scroll anchors still
-preserve the reader's position when another history page arrives.
-Stable entry ids and older cursors survive live snapshots. iPhone keeps a bounded
-recent window extended through two complete request boundaries. Mac retains every
-fetched page in a per-chat protected archive across launches until the user clears
-it in Settings → This Mac → Chat history & cache. Clearing the cache also clears
-its durable files, while preserving provider history and device connections. `ChatFileChanges` renders the computer's completed-reply file
+hidden so the first jump to the newest message survives layout. The phone uses
+native recycled list rows through [TranscriptViewport](Chat/TranscriptViewport/README.md),
+so old messages stay in the device archive without every row being laid out.
+Top-edge paging follows actual visible row positions, and stable entry ids and
+native cursors preserve navigation through older pages. Timeline grouping and
+recorded reply changes are prepared once when the relevant transcript or Mesh
+changes, rather than for each scroll or composer edit.
+Every fetched page remains in a protected per-chat archive on iPhone and Mac
+until the user clears Chat history & cache in Settings. Clearing that cache
+preserves provider history, account credentials and device connections. `ChatFileChanges` renders the computer's completed-reply file
 summary, added/removed counts, expandable file list and redacted diff previews.
 The summary includes edits outside the visible page; it describes recorded
 successful edits rather than the final Git tree. Full bounded tool call/result
@@ -83,3 +83,9 @@ Sparse refreshes preserve previously received telemetry for the same call and
 capability; explicit new resource evidence replaces the old sampling window.
 Tests: `ActivityCommandMetricsTests`, `MacCommandMetricsTests`, and the command
 detail scenario in `TranscriptHistoryUITests`.
+
+Running chats expose the existing computer-confirmed Stop/pause action beside
+the composer. A pending control remains disabled until the computer replies;
+its refusal or timeout restores the previous state. Resume remains in Task
+controls. Neutral filled Retry and Mesh actions use the inverse neutral ink in
+both appearances. Rendering tests verify the real Now Retry contrast.

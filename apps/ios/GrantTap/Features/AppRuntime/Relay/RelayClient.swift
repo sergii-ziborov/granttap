@@ -59,6 +59,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var retryDelay: TimeInterval = 1
     let maxRetryDelay: TimeInterval = 15
     var reconnectScheduled = false
+    var reconnectGeneration: UUID?
     /// A stale catalog means the peer's outbound half may also be dead.
     /// Carry this once on the next authenticated hello.
     var recoverPeerOnNextHello = false
@@ -87,6 +88,8 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onCapabilityUsage: ((CapabilityUsageStatus) -> Void)?
     var onCapabilityCatalog: ((CapabilityCatalogStatus) -> Void)?
     var onCompactResult: ((SessionCompactResult) -> Void)?
+    var onTaskTransferContinueResult: ((TaskTransferContinueResult) -> Void)?
+    var onProjectTransportAck: ((ProjectTransportAck) -> Void)?
     var onSessionControlResult: ((SessionControlResult) -> Void)?
     var onProviderHookTrustResult: ((ProviderHookTrustResult) -> Void)?
     var onToolUpdateResult: ((ToolUpdateResult) -> Void)?
@@ -171,13 +174,17 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         }
         comps.queryItems = items
         guard let url = comps.url else { return }
+        cancelScheduledReconnect()
         interruptSocketForReplacement()
         resolvedRelayURL = address
         var request = URLRequest(url: url)
+        request.setValue(CiphertextRecipient.identifier(publicKey: pairing.myPublicKey),
+                         forHTTPHeaderField: "X-GrantTap-Recipient-Key-Id")
         if let pushAuth = pairing.pushAuth, !pushAuth.isEmpty {
             request.setValue("Bearer \(pushAuth)", forHTTPHeaderField: "Authorization")
         }
         let t = session.webSocketTask(with: request)
+        t.maximumMessageSize = 22_010_000
         task = t
         t.resume()
         receiveLoop(t)
@@ -185,6 +192,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
 
     func disconnect() {
         wantsConnection = false
+        cancelScheduledReconnect()
         initialConnectionStartedAt = nil
         endpointLookup?.cancel()
         endpointPolling?.cancel()
@@ -192,19 +200,6 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
         onConnectionChange?(false)
-    }
-
-    /// Drop happened — try again with backoff until the relay is back.
-    func scheduleReconnect() {
-        guard wantsConnection, !reconnectScheduled else { return }
-        reconnectScheduled = true
-        let delay = retryDelay
-        retryDelay = min(maxRetryDelay, retryDelay * 2)
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            guard let self else { return }
-            self.reconnectScheduled = false
-            self.openSocket()
-        }
     }
 
     /// Drop and reopen the WebSocket so a stale link recovers on pull-to-refresh.

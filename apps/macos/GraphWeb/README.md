@@ -1,6 +1,6 @@
 # Mac code city
 
-[public source](https://github.com/sergii-ziborov/granttap) · [Public entry point](mesh-graph.js)
+[Engineering index](../../../AGENTS.md) · [Public entry point](mesh-graph.js)
 
 The Apple client embeds the Repo Lens Cyberboard in a local WKWebView. Reports
 come from the encrypted Project Mesh snapshot; this viewer does not run a

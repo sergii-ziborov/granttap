@@ -17,6 +17,7 @@ enum DeliveryPersistence {
 
     private static func isActive(_ delivery: OutgoingDelivery) -> Bool {
         delivery.state == .queued || delivery.state == .sending
+            || delivery.chatQueue?.relayManaged == true && delivery.state != .delivered
     }
 
     /// Encode the exact JSON array that is written to disk. Encoding each row

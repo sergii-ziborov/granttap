@@ -1,6 +1,6 @@
 # Demo support
 
-[public source](https://github.com/sergii-ziborov/granttap) · [Graph fixture](GraphBuildFixture.swift) · [Chat work fixture](ChatActivityRailFixture.swift)
+[Engineering index](../../../../../AGENTS.md) · [Graph fixture](GraphBuildFixture.swift) · [Chat work fixture](ChatActivityRailFixture.swift)
 
 This module contains deterministic DEBUG-only data used by screenshot and UI
 tests. `AppModelDemo.swift` owns lifecycle changes; `AppModelDemoFixtures.swift`

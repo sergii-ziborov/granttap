@@ -12,18 +12,19 @@ final class TaskHideRestoreUITests: XCTestCase {
         ]
         app.launch()
 
-        let task = app.buttons["task.task:granttap-project-demo\u{001F}granttap-pairing-task-demo"]
+        let taskId = "task:granttap-project-demo\u{001F}granttap-pairing-task-demo"
+        let task = app.buttons["task.\(taskId)"]
         XCTAssertTrue(task.waitForExistence(timeout: 10))
 
         task.swipeLeft()
-        let send = app.buttons["Send"]
+        let send = app.buttons["task.send.\(taskId)"]
         XCTAssertTrue(send.waitForExistence(timeout: 5))
         send.tap()
-        XCTAssertTrue(app.navigationBars["Task handoff"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Transfer to"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.textViews["handoff.comment"].exists)
-        app.buttons["Cancel"].tap()
+        app.buttons["handoff.close"].tap()
         task.swipeLeft()
-        let archive = app.buttons["Archive"]
+        let archive = app.buttons["task.archive.\(taskId)"]
         XCTAssertTrue(archive.waitForExistence(timeout: 5))
         tap(archive, until: { !task.exists })
         XCTAssertTrue(task.waitForNonExistence(timeout: 5))

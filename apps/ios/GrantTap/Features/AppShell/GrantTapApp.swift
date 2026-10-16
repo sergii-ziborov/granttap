@@ -15,6 +15,14 @@ enum AppRuntime {
         return false
         #endif
     }
+
+    static func reconcileInstall(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        using reconcile: () -> Void = { _ = InstallIdentity.reconcile() }
+    ) {
+        guard !usesIsolatedUIFixture(environment: environment) else { return }
+        reconcile()
+    }
 }
 
 @main
@@ -46,7 +54,7 @@ struct AppLifecycleDependencies {
 
     static let live = AppLifecycleDependencies(
         isRunningUnitTests: { AppRuntime.isRunningUnitTests },
-        reconcileInstall: { _ = InstallIdentity.reconcile() },
+        reconcileInstall: { AppRuntime.reconcileInstall() },
         registerCategories: { NotificationManager.shared.registerCategories() },
         registerRemoteNotifications: { $0.registerForRemoteNotifications() },
         startServices: {
@@ -97,6 +105,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         #if targetEnvironment(macCatalyst)
         ProductInformationMenus.install(in: builder)
         #endif
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        TranscriptArchiveBackgroundFlush.start(application)
     }
 
     func application(_ application: UIApplication,

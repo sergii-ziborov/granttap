@@ -6,11 +6,13 @@ struct SessionInfo: Codable, Identifiable, Equatable {
     var projectId: String? = nil
     var taskId: String? = nil
     var computerId: String? = nil
+    var transfer: TaskTransferNotice? = nil
     var title: String?
     var cwd: String?
     var branch: String?
     var worktree: String? = nil
     var model: String?
+    var effort: String? = nil
     var summary: String? = nil
     var accessLevel: String? = nil
     var state: String          // "working" | "waiting" | "idle"
@@ -31,10 +33,10 @@ struct SessionInfo: Codable, Identifiable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case sessionId, agent, projectId, taskId, computerId, title, cwd, branch, worktree
-        case model, summary, accessLevel, state
+        case model, effort, summary, accessLevel, state
         case startedAt, lastActivityAt, lastMessageAt, tokensSession, tokensLastTurn
         case contextTokensUsed, contextWindow, mcpServers, skills, childThreads, shellAllowed
-        case paused
+        case paused, transfer
     }
 
     var isPaused: Bool { paused == true }
@@ -151,6 +153,8 @@ extension SessionInfo {
         branch = try? c.decode(String.self, forKey: .branch)
         worktree = try? c.decode(String.self, forKey: .worktree)
         model = try? c.decode(String.self, forKey: .model)
+        effort = try? c.decode(String.self, forKey: .effort)
+        transfer = try? c.decode(TaskTransferNotice.self, forKey: .transfer)
         summary = try? c.decode(String.self, forKey: .summary)
         accessLevel = try? c.decode(String.self, forKey: .accessLevel)
         state = (try? c.decode(String.self, forKey: .state)) ?? "idle"

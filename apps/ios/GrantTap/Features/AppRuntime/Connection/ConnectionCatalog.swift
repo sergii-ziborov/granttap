@@ -162,6 +162,11 @@ extension AppModel {
     }
 
     func clearLinkLocalState() {
+        relayQueueDelay?.cancel()
+        relayQueueDelay = nil
+        relayQueueLoop?.cancel()
+        relayQueueLoop = nil
+        relayQueueLoopGeneration = nil
         for room in Set(approvalDecisionQueue.entries.map(\.roomId)) { approvalDecisionQueue.removeRoom(room) }
         relay?.disconnect()
         for client in relaysByRoom.values { client.disconnect() }

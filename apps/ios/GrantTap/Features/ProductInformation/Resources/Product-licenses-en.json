@@ -1,7 +1,7 @@
 {
   "title": "Licenses and notices",
-  "updated": "2026-09-28",
-  "intro": "GrantTap app, desktop, relay, and website are commercial software. Public source access does not make them MIT-licensed. The MCP project has its own MIT license.",
+  "updated": "2026-10-16",
+  "intro": "GrantTap app, desktop, relay, and website are commercial software. Public source access does not make them MIT-licensed. The MCP project is licensed under Apache License 2.0.",
   "sections": [
     {
       "heading": "GrantTap apps",
@@ -23,7 +23,7 @@
       "heading": "Open-source project",
       "links": [
         {
-          "label": "MCP bridge — MIT",
+          "label": "MCP bridge — Apache 2.0",
           "href": "https://github.com/sergii-ziborov/granttap-mcp/blob/main/LICENSE"
         }
       ]
@@ -56,6 +56,24 @@
         "Weavatrix Rust graph and repository crates in the separate Engine — MIT where identified by their package licenses",
         "Cortex Context in the separate Engine — MIT OR Apache-2.0",
         "Cloudflare Workers tooling — applicable open-source licenses"
+      ],
+      "links": [
+        {
+          "label": "Full website dependency notices",
+          "href": "/licenses/dependency-notices.txt"
+        },
+        {
+          "label": "Full MCP dependency notices",
+          "href": "/licenses/mcp-dependency-notices.txt"
+        },
+        {
+          "label": "Full relay dependency notices",
+          "href": "/licenses/relay-dependency-notices.txt"
+        },
+        {
+          "label": "Full Engine dependency notices",
+          "href": "/licenses/engine-dependency-notices.txt"
+        }
       ]
     },
     {
@@ -78,6 +96,19 @@
       "heading": "Trademarks",
       "paragraphs": [
         "Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude and Claude Code are trademarks of Anthropic. OpenAI and Codex are trademarks of OpenAI. Cursor belongs to Anysphere. Grok and xAI belong to xAI. All other names belong to their respective owners."
+      ]
+    },
+    {
+      "heading": "Included Mac renderer",
+      "paragraphs": [
+        "The first-party Repo Lens Cyberboard renderer, revision 79cd18b9e58ce759226020827ee9d78ee881e05d, is incorporated under the GrantTap commercial source and app end-user terms. Its separate Three.js r160 dependency retains MIT. No open-source license is claimed for the reserved-rights renderer."
+      ]
+    },
+    {
+      "heading": "GrantTap Commercial Source License 1.0",
+      "paragraphs": [
+        "This source-code license is separate from the purchased App Store application license. Original English legal text follows.",
+        "GrantTap Commercial Source License 1.0\nEffective September 28, 2026\nClarified October 16, 2026\n\nCopyright (c) 2026 Serhii Ziborov. All rights reserved.\n\nThis license covers the first-party source code, documentation, and original\nassets distributed with it in this repository (the \"Software\"). It is a\nsource-available commercial license, not an open-source license. Third-party\ncomponents and materials retain their own licenses and notices.\n\n1. Evaluation grant. You may access, copy, build, run, and privately modify the\nSoftware solely to evaluate, test, and audit it for your own use. This grant\ndoes not permit production use, providing a service to others, or distributing\nthe Software or a modified version. Keep copyright and license notices in\nevery evaluation copy.\n\n2. Commercial use. Production use and distribution require a separate written\ncommercial agreement or an applicable end-user license issued by the copyright\nholder. An App Store purchase is governed by the applicable App Store license;\nthe directly distributed macOS app has its own Desktop end-user license. A\npurchase or subscription does not license this source code unless its written\nterms expressly say so.\n\nA purchased Mac app is additionally governed by apps/macos/DESKTOP_EULA.md.\nThe app license includes the personal/internal own-relay grant described there;\nthis does not grant redistribution of first-party app source or binaries.\n\n3. Restrictions. Except where applicable law expressly permits otherwise, you\nmay not publish, sell, sublicense, redistribute, or make the Software available\nto third parties; use it to operate a hosted service; remove legal notices; or\ncircumvent a license or security control. No trademark rights are granted.\n\n4. Ownership and data. The copyright holder retains all rights in the Software\nnot expressly granted here. You retain your rights in your own projects, code,\nprompts, records, and other data processed with the Software. This license\ndoes not grant access to any Project, device, account, or third-party service.\n\n5. Duration. The evaluation grant lasts until you stop using the Software or\nmaterially breach these terms. On termination, stop using and distributing any\nevaluation copies. A separate paid end-user license controls the duration of\npaid use and is not cancelled merely because this source license changes.\n\n6. Warranty and liability. To the maximum extent permitted by applicable law,\nevaluation copies are provided \"as is\", without warranties of any kind. The\ncopyright holder is not liable for indirect or consequential loss arising from\nevaluation use. This section does not limit non-waivable consumer rights or\nliability that applicable law does not allow to be limited.\n\n7. Earlier licenses. A copy validly received under a different license remains\nsubject to that license. This version does not withdraw permissions previously\ngranted for those copies. In particular, granttap-mcp remains separately\nlicensed under Apache License 2.0 in its own repository.\n\nFor a commercial source license, contact sergii.ziborov@gmail.com.\n"
       ]
     }
   ]

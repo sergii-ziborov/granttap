@@ -4,7 +4,12 @@ import Foundation
 @MainActor
 enum ChatActivityRailFixture {
     static func apply(to model: AppModel, at now: Double) {
-        guard ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_WORK"] == "1" else { return }
+        let scenario = ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_WORK"]
+        guard ["1", "empty", "loading"].contains(scenario) else { return }
+        if scenario != "1" {
+            applyEmptyWorkspace(to: model, at: now, hidesFolder: scenario == "empty")
+            return
+        }
         let sessionId = AppModelDemoFixtures.codexSessionId
         let names = ["Sources/AppModel.swift", "Sources/GraphView.swift", "README.md", "Tests/GraphTests.swift"]
         let added = [120, 80, 27, 20], removed = [25, 40, 13, 30]
@@ -55,6 +60,24 @@ enum ChatActivityRailFixture {
             requestId: "workspace-demo-remainder", path: "Sources/GraphView.swift", text: "// cached remainder\n",
             truncated: false, createdAt: now)
         TaskWorkspaceStore.shared.save(remainder, scope: scope, mode: "file", offset: 20)
+        for path in ["README.md", "LICENSE"] {
+            let preview = TaskWorkspaceSnapshot(type: "session.workspace.result", sessionId: sessionId,
+                requestId: "workspace-demo-complete-\(path)", path: path,
+                text: "# GrantTap\nFixture file for reviewing edits.\n", truncated: false, createdAt: now)
+            TaskWorkspaceStore.shared.save(preview, scope: scope, mode: "file", offset: 0)
+        }
+    }
+
+    private static func applyEmptyWorkspace(to model: AppModel, at now: Double, hidesFolder: Bool) {
+        let sessionId = AppModelDemoFixtures.codexSessionId
+        if hidesFolder, let index = model.sessions.firstIndex(where: { $0.sessionId == sessionId }) {
+            model.sessions[index].cwd = nil
+        }
+        model.activities[sessionId] = SessionActivity(sessionId: sessionId, agent: "codex", state: "idle",
+            entries: [ActivityEntry(id: "no-changes", kind: "message", text: "No edits in this reply.",
+                                    createdAt: now)], generatedAt: now, history: .init(hasMore: false))
+        model.pending = []
+        model.questions = []
     }
 }
 #endif

@@ -45,3 +45,9 @@ Prefetch and an opened image share one validated transfer. A received image
 updates an already visible gallery, and failed previews offer Retry. Clearing
 the replica cancels those reads before removing bytes, keeping authentication
 and pairing separate from content storage.
+
+`SubmittedImageReplica` archives submitted photo bytes before dispatch, including
+Queue → Send now. Local gallery identifiers survive outbox cleanup. A matched
+native user turn receives cached image aliases in block order; incomplete or
+ambiguous picture groups retain the original preview. Native aliases read the
+same device store after the outbox is removed and while offline.

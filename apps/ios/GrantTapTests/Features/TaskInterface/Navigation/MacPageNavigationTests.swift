@@ -29,6 +29,32 @@ final class MacPageNavigationTests: XCTestCase {
             .environmentObject(model).environmentObject(MacLocalMCPModel()))
     }
 
+    func testTaskControlsUsesTheSameCompactHeaderAsOtherChatSheets() throws {
+        let model = AppModel()
+        let session = SessionInfo(sessionId: "modal", agent: "codex", state: "idle",
+            startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0)
+        try assertCompactHeader(ChatCapabilitySheet(sessionId: session.sessionId,
+            session: session, rows: [], accent: .blue, model: model, onToggle: { _ in })
+            .environmentObject(model))
+    }
+
+    func testNativeDoneActivationClearsThePresentingOwnersState() throws {
+        var presented = true
+        let controller = UIHostingController(rootView:
+            ChatSheetDoneButton(identifier: "test.done", onClose: { presented = false }))
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
+        window.rootViewController = controller
+        window.isHidden = false
+        defer { window.isHidden = true }
+        controller.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+        let button = try XCTUnwrap(descendants(controller.view).compactMap { $0 as? UIButton }
+            .first { $0.accessibilityIdentifier == "test.done" })
+        XCTAssertEqual(button.title(for: .normal), "Done")
+        button.sendActions(for: .primaryActionTriggered)
+        XCTAssertFalse(presented)
+    }
+
     private func assertCompactHeader<V: View>(_ view: V) throws {
         let frame = CGRect(x: 0, y: 0, width: 1000, height: 700)
         let controller = UIHostingController(rootView: CompatNavigationStack { view })

@@ -68,18 +68,24 @@ enum TaskListCatalog {
     ) -> [TaskListItem] {
         let newestById = Dictionary(grouping: sessions, by: \.sessionId)
             .compactMapValues { $0.max { $0.lastActivityAt < $1.lastActivityAt } }
+        let sessionsByTask = Dictionary(grouping: sessions.filter { $0.projectId != nil && $0.taskId != nil }) {
+            meshKey(projectId: $0.projectId!, taskId: $0.taskId!)
+        }
         var result: [TaskListItem] = []
         var meshKeys = Set<String>()
+        let untitled = L("Untitled chat")
         for snapshot in model.meshSnapshots.values {
             // A hidden Project's Tasks leave the lists; its chats stay chats.
             if model.isProjectHidden(snapshot.projectId) { continue }
             let projectName = model.projectDisplayName(snapshot)
+            let executionsByTask = Dictionary(grouping: snapshot.executions, by: \.taskId)
             for task in snapshot.tasks {
                 let key = meshKey(projectId: snapshot.projectId, taskId: task.taskId)
                 meshKeys.insert(key)
                 result.append(meshItem(
-                    task: task, snapshot: snapshot, sessions: sessions,
-                    newestById: newestById, history: history, projectName: projectName
+                    task: task, snapshot: snapshot,
+                    executions: executionsByTask[task.taskId] ?? [], taskSessions: sessionsByTask[key] ?? [],
+                    newestById: newestById, history: history, projectName: projectName, untitled: untitled
                 ))
             }
         }
@@ -97,16 +103,14 @@ enum TaskListCatalog {
     private static func meshItem(
         task: ProjectMeshTask,
         snapshot: ProjectMeshSnapshot,
-        sessions: [SessionInfo],
+        executions: [ExecutionSessionLink],
+        taskSessions: [SessionInfo],
         newestById: [String: SessionInfo],
         history: Bool,
-        projectName: String? = nil
+        projectName: String? = nil,
+        untitled: String
     ) -> TaskListItem {
-        let executions = snapshot.executions.filter { $0.taskId == task.taskId }
         let owner = task.ownerSessionId.flatMap { id in executions.first { $0.sessionId == id } }
-        let taskSessions = sessions.filter {
-            $0.projectId == snapshot.projectId && $0.taskId == task.taskId
-        }
         let fallback = taskSessions.max { $0.lastActivityAt < $1.lastActivityAt }
         let current = task.ownerSessionId.flatMap { newestById[$0] }
             ?? (task.ownerSessionId == nil ? fallback : nil)
@@ -120,7 +124,7 @@ enum TaskListCatalog {
             id: "task:\(snapshot.projectId)\u{1f}\(task.taskId)",
             destination: .task(.init(projectId: snapshot.projectId, taskId: task.taskId)),
             projectId: snapshot.projectId, taskId: task.taskId,
-            projectName: projectName ?? snapshot.project.name, title: nativeTitle(current) ?? task.title,
+            projectName: projectName ?? snapshot.project.name, title: nativeTitle(current, untitled: untitled) ?? task.title,
             summary: current?.summary ?? (task.goal.isEmpty ? fallback?.summary : task.goal),
             state: state, ownerExecution: owner,
             currentSession: current, historicalExecutions: executions,
@@ -191,9 +195,10 @@ enum TaskListCatalog {
         ["failed", "cancelled"].contains(state) ? state : "finished"
     }
 
-    private static func nativeTitle(_ session: SessionInfo?) -> String? {
-        guard let session else { return nil }
+    private static func nativeTitle(_ session: SessionInfo?, untitled: String) -> String? {
+        guard let session, let raw = session.title,
+              !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         let title = session.displayTitle
-        return title == L("Untitled chat") ? nil : title
+        return title == untitled ? nil : title
     }
 }

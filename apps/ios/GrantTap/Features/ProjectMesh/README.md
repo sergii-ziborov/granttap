@@ -1,6 +1,6 @@
 # Project Mesh
 
-[public source](https://github.com/sergii-ziborov/granttap) · [Graph interface](Graph/ProjectGraphView.swift)
+[Engineering index](../../../../../AGENTS.md) · [Graph interface](Graph/ProjectGraphView.swift)
 
 Project Mesh is the Apple client coordination layer above native coding-agent
 sessions. It keeps a stable Project and Task identity while Claude Code,
@@ -104,7 +104,7 @@ separate worktree under the same Task; its receipt changes the owner. The same
 agent on the same computer is allowed only with a different model.
 
 Tests live in `GrantTapTests/Features/ProjectMesh`. See the repository
-[public source](https://github.com/sergii-ziborov/granttap) for the product and quality contract.
+[`AGENTS.md`](../../../../../AGENTS.md) for the product and quality contract.
 
 ### Architecture inspection
 

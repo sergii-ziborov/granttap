@@ -32,6 +32,12 @@ struct OutgoingDelivery: Codable, Identifiable {
     var state: DeliveryState
     var error: String?
     var nextRetryAt: Double?
+    /// Explicit Retry renews the local wait without changing message identity
+    /// or its original timeline date. Legacy rows keep their original anchor.
+    var manualRetryStartedAt: Double? = nil
+    /// Receipt timeouts start with the first actual dispatch, after any offline
+    /// wait. Subsequent attempts share that bounded transport window.
+    var transportAttemptStartedAt: Double? = nil
     /// Local receipt time for the machine's non-terminal processing ack.
     /// Persisted so an app restart does not resend while the provider is still
     /// allowed to use its full execution timeout.
@@ -52,14 +58,15 @@ struct OutgoingDelivery: Codable, Identifiable {
     /// Present only for an explicit follow-up queue. Waiting rows have never
     /// been submitted to the provider; cancellation is therefore local and exact.
     var chatQueue: ChatMessageQueueContext? = nil
+    var relayJob: RelayTaskQueueReservation? = nil
 }
 
 enum DeliveryOutboxPolicy {
-    /// Mirrors bridge `deliverToSession` / `startNewTask` timeout (240 seconds).
-    static let providerTimeoutMs: Double = 240_000
+    /// Mirrors bridge `deliverToSession` / `startNewTask` timeout (ten minutes).
+    static let providerTimeoutMs: Double = 600_000
     /// The bridge's durable `processing` lease is deliberately longer than the
     /// provider call. Reusing a message id before it expires only deduplicates.
-    static let machineProcessingLeaseMs: Double = 300_000
+    static let machineProcessingLeaseMs: Double = 660_000
     /// Relay/event propagation and app wake margin after provider completion.
     static let terminalEventMarginMs: Double = 30_000
     static let processingRetryDelayMs = machineProcessingLeaseMs + terminalEventMarginMs

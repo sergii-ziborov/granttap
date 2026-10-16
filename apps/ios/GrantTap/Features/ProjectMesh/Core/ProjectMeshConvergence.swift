@@ -42,7 +42,9 @@ enum ProjectMeshConvergence {
     ) -> ExecutionSessionLink {
         if (current.endedAt != nil) != (incoming.endedAt != nil) {
             var live = current.endedAt == nil ? current : incoming
-            live.endedAt = current.endedAt ?? incoming.endedAt
+            let endedAt = current.endedAt ?? incoming.endedAt
+            if let continuedAt = live.continuedAt, let endedAt, continuedAt > endedAt { return live }
+            live.endedAt = endedAt
             return live
         }
         let currentAt = current.updatedAt ?? current.startedAt
@@ -77,16 +79,21 @@ enum ProjectMeshConvergence {
     static func task(
         after event: ProjectMeshEvent,
         task: ProjectMeshTask,
-        knownEvents: [ProjectMeshEvent]
+        knownEvents: [ProjectMeshEvent],
+        executions: [ExecutionSessionLink] = []
     ) -> ProjectMeshTask? {
         var next = task
         if event.eventType == "HANDOFF_ACCEPTED", let receipt = event.payload.receipt {
             guard movesOwnership(task, receipt: receipt, knownEvents: knownEvents) else { return nil }
             next.ownerSessionId = receipt.targetSessionId
-            if !isTerminal(task.state) { next.state = "working" }
+            if !isTerminal(task.state) { next.state = receipt.prepared == true ? "planned" : "working" }
             next.updatedAt = max(task.updatedAt, receipt.acceptedAt)
         } else if event.eventType == "TASK_COMPLETED" {
-            next.state = "completed"
+            let anotherWorking = executions.contains { execution in
+                execution.taskId == task.taskId && execution.sessionId != event.sourceSessionId
+                    && execution.endedAt == nil && execution.state == "working"
+            }
+            next.state = anotherWorking ? "working" : "completed"
             next.updatedAt = max(task.updatedAt, event.createdAt)
         } else {
             return nil

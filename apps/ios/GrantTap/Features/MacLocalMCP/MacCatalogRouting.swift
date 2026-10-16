@@ -3,6 +3,11 @@ import Foundation
 
 @MainActor
 extension AppModel {
+    func usesLocalTaskDelivery(for session: SessionInfo) -> Bool {
+        guard let endpoint = localMCPReader?.status?.endpointId, session.computerId == endpoint else { return false }
+        return usesLocalMCP(for: session)
+    }
+
     func usesLocalMCP(for session: SessionInfo) -> Bool {
         guard let reader = localMCPReader, reader.status != nil,
               let projectId = session.projectId,

@@ -31,6 +31,7 @@ extension RelayClient {
               env.v == 1,
               env.room == pairing.room,
               env.from == peerRole,
+              CiphertextRecipient.accepts(env.recipientKeyId, publicKey: pairing.myPublicKey),
               env.to == role.rawValue || env.to == "all",
               env.expiresAt.map({ $0 > Date().timeIntervalSince1970 * 1000 }) ?? true,
               let plain = Crypto.open(nonceB64: env.nonce, boxB64: env.box,
@@ -136,6 +137,12 @@ extension RelayClient {
         case "capability.usage.status": return deliver(CapabilityUsageStatus.self, plain, to: onCapabilityUsage)
         case "capability.catalog.status": return deliver(CapabilityCatalogStatus.self, plain, to: onCapabilityCatalog)
         case "session.compact.result": return deliver(SessionCompactResult.self, plain, to: onCompactResult)
+        case "task.transfer.continued":
+            return deliver(TaskTransferContinueResult.self, plain, to: onTaskTransferContinueResult)
+        case "project.transport.ack":
+            return deliver(ProjectTransportAck.self, plain, to: onProjectTransportAck) {
+                $0.sessionId == $0.projectId && $0.generatedAt.isFinite && $0.revision >= 0
+            }
         case "session.control.result":
             return deliver(SessionControlResult.self, plain, to: onSessionControlResult) { result in
                 ["pause", "resume"].contains(result.action) && result.message.count <= 1_000

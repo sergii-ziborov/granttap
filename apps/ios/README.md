@@ -98,7 +98,7 @@ through unchanged; running `claude /login` once on that computer resolves it.
 ## Connection health
 
 The header pill distinguishes **Offline** (this iPhone is not on the relay) from
-**Mac offline** (the phone is linked, but the computer is not publishing). That
+**Offline** (the phone is linked, but the computer is not publishing). That
 second verdict is driven by the computer's own lightweight heartbeat, not by how
 old the chat catalog is: rebuilding a catalog reads every provider transcript and
 can take far longer than a heartbeat interval, so catalog age alone declared

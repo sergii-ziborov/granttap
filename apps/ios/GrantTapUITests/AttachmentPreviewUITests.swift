@@ -32,9 +32,14 @@ final class AttachmentPreviewUITests: XCTestCase {
         let draftLast = app.buttons["attachment.preview.File-10.txt"]
         let draftStrip = app.scrollViews["composer.attachments"]
         XCTAssertFalse(visible(draftLast, inside: draftStrip))
-        for _ in 0..<4 where !visible(draftLast, inside: draftStrip) { draftStrip.swipeLeft() }
+        // Accessibility bounds can lead the decelerating scroll position.
+        // Continue until the actual file action can receive a tap.
+        for _ in 0..<8 where !visible(draftLast, inside: draftStrip) || !draftLast.isHittable {
+            draftStrip.swipeLeft()
+        }
         XCTAssertTrue(visible(draftLast, inside: draftStrip))
-        XCTAssertTrue(draftLast.isHittable)
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "hittable == true"), object: draftLast)], timeout: 5), .completed)
         draftLast.tap()
         XCTAssertTrue(text.waitForExistence(timeout: 5))
         XCTAssertEqual(text.value as? String, "Attachment 10\n")

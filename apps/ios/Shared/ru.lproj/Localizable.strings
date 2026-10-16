@@ -1036,6 +1036,23 @@
 "Paused" = "На паузе";
 "Resuming…" = "Возобновляю…";
 "Paused from this phone: the computer refuses its tool calls. Resume to send." = "На паузе с этого телефона: компьютер отклоняет его вызовы инструментов. Возобновите, чтобы отправить.";
+"This chat is paused. Resume to send." = "Чат на паузе. Возобновите работу, чтобы отправить сообщение.";
+"Add images or files" = "Добавить изображения или файлы";
+"Choose a computer and workspace in this Mesh." = "Выберите компьютер и рабочую папку в этом Mesh.";
+"Choose a workspace registered on this computer." = "Выберите рабочую папку на этом компьютере.";
+"Choose an enabled provider." = "Выберите включённого провайдера.";
+"Could not create this Task." = "Не удалось создать задачу.";
+"Could not create this Task. Your draft is kept; try again." = "Не удалось создать задачу. Черновик сохранён — попробуйте ещё раз.";
+"Describe what you want the agent to do…" = "Опишите, что должен сделать агент…";
+"Discard task" = "Удалить черновик";
+"Discard this task?" = "Удалить черновик задачи?";
+"Keep the task description within 8,000 characters." = "Описание задачи не должно превышать 8000 символов.";
+"No computer is available in this Mesh." = "В этом Mesh пока нет доступного компьютера.";
+"Run on" = "Где выполнять";
+"The pinned execution host has not confirmed its grant." = "Закреплённый компьютер ещё не подтвердил доступ.";
+"The pinned execution host is unavailable." = "Закреплённый компьютер недоступен.";
+"This Mesh is pinned to another computer." = "Этот Mesh закреплён за другим компьютером.";
+"Creating Task…" = "Создание задачи…";
 "Most recently worked first." = "Сначала те, над которыми работали недавно.";
 "started %@" = "начато %@";
 "ended %@" = "завершено %@";
@@ -1079,6 +1096,12 @@
 "Tokens are the chats' own totals as the computer reported them. Tool calls, CPU and memory are what the computer measured around each call; the phone keeps the recent history only." = "Токены — собственные итоги чатов, как их сообщил компьютер. Вызовы, CPU и память — то, что компьютер измерил вокруг каждого вызова; телефон хранит только недавнюю историю.";
 "A wrong turn is a failed or cancelled call, a blocked Task, a rejected handoff, or a resource conflict." = "«Не туда» — это неудачный или отменённый вызов, заблокированная задача, отклонённая передача или конфликт ресурсов.";
 "Generated" = "Создан";
+"Preview" = "Предпросмотр";
+"Preparing report…" = "Подготовка отчёта…";
+"Could not prepare report." = "Не удалось подготовить отчёт.";
+"%d page" = "%d страница";
+"%d pages" = "%d страниц";
+"%d pages|few" = "%d страницы";
 "Period" = "Период";
 "Figure" = "Показатель";
 "Value" = "Значение";
@@ -2684,3 +2707,119 @@
 "outgoing" = "исходящих";
 "reported files" = "файлов в отчёте";
 "Exit full screen" = "Выйти из полного экрана";
+"7 days free, then %@ per month. Renews automatically until cancelled." = "7 дней бесплатно, затем %@ в месяц. Продлевается автоматически до отмены.";
+"%@ per month. Renews automatically until cancelled." = "%@ в месяц. Продлевается автоматически до отмены.";
+"Start 7-day free trial" = "Попробовать бесплатно 7 дней";
+
+"Stop task" = "Остановить задачу";
+"Stop and pause task" = "Остановить и поставить задачу на паузу";
+
+"%d%% remaining" = "Осталось %d%%";
+
+"Update needed" = "Нужно обновить";
+
+"Resets" = "Сброс через";
+
+"Last reported" = "Данные получены";
+
+"Providers and models" = "Провайдеры и модели";
+
+"Subscription limits" = "Лимиты подписки";
+
+"Subscription limits have not been reported by this provider." = "Провайдер пока не передал лимиты подписки.";
+
+"No reported sessions in this period." = "За этот период нет данных о сессиях.";
+
+"tokens" = "токенов";
+
+"Reasoning effort" = "Глубина рассуждений";
+"Extra High" = "Очень высокое";
+"Faster" = "Быстрее";
+"More reasoning" = "Больше рассуждений";
+"Reasoning effort is included in this provider's model variants." = "Глубина рассуждений включена в варианты моделей этого провайдера.";
+"Automatic computer transfers" = "Автоматический перенос между компьютерами";
+"Uses compatible computers in this Mesh while preserving the provider, model and effort." = "Использует совместимые компьютеры этого Mesh, сохраняя провайдера, модель и глубину рассуждений.";
+"Waiting for computer confirmation" = "Ожидание подтверждения компьютеров";
+"Transfer settings could not be confirmed. Check the computers and try again." = "Не удалось подтвердить настройки переноса. Проверьте подключение компьютеров и повторите попытку.";
+"Allow portable work across platforms" = "Разрешить перенос между платформами";
+"Only tasks declared portable can move between macOS, Windows and Linux." = "Между macOS, Windows и Linux переносятся только задачи, для которых подтверждена переносимость.";
+
+"Edit file" = "Редактирование файла";
+
+"Open current file" = "Открыть текущий файл";
+
+"Editing requires a complete text preview up to 128 KB." = "Для редактирования нужен полный текстовый предпросмотр размером до 128 КБ.";
+
+"Make a change before sending a request." = "Внесите правки перед отправкой запроса.";
+
+"The edited text exceeds the 128 KB limit. Your draft has been kept." = "Изменённый текст превышает 128 КБ. Черновик сохранён.";
+
+"The diff preview is shortened. The request includes the complete edit." = "Предпросмотр изменений сокращён. Запрос содержит правки полностью.";
+
+"Discard unsent edits?" = "Удалить неотправленные правки?";
+
+"Discard draft" = "Удалить черновик";
+
+"Keep editing" = "Продолжить редактирование";
+
+"These edits have not been sent to the agent." = "Эти правки ещё не отправлены агенту.";
+
+"Request queued" = "Запрос в очереди";
+
+"Track delivery or retry in this chat's Queue." = "Статус доставки и повторная отправка доступны в очереди этого чата.";
+
+"Your edits will be sent as a request to this Task's agent. The agent checks the current file before applying them." = "Правки будут отправлены агенту этой задачи как запрос. Перед применением агент проверит текущий файл.";
+
+"Send edit request" = "Отправить запрос с правками";
+
+"The edit request could not be queued. Your draft has been kept." = "Не удалось добавить запрос с правками в очередь. Черновик сохранён.";
+
+"Could not open the confirmation. Your draft has been kept." = "Не удалось открыть подтверждение. Черновик сохранён.";
+
+"Ask for approval" = "Спрашивать разрешение";
+
+"Approve for me" = "Подтверждать за меня";
+
+"Allow all actions" = "Разрешать все действия";
+
+"Custom rule" = "Особое правило";
+
+"Ask before every action handled by GrantTap." = "Спрашивать перед каждым действием, которое проверяет GrantTap.";
+
+"Allow routine actions. Ask before publishing, destructive actions and external writes." = "Разрешать обычные действия. Спрашивать перед публикацией, удалением данных и записью во внешние сервисы.";
+
+"Allow actions without asking in this chat. Global and Mesh blocks still apply." = "Разрешать действия в этом чате без запроса. Общие запреты и правила Mesh сохраняются.";
+
+"Use the provider's own approval flow and configuration." = "Использовать подтверждения и настройки самого провайдера.";
+
+"This computer has reported a custom approval rule." = "На этом компьютере действует особое правило подтверждений.";
+
+"GrantTap approvals are paused. The provider's own rules still apply." = "Подтверждения GrantTap приостановлены. Правила самого провайдера сохраняются.";
+
+"These rules apply only to this chat. The provider's own permissions and Mesh blocks still apply." = "Правила действуют только для этого чата. Разрешения провайдера и запреты Mesh сохраняются.";
+
+"Third-party notices" = "Сторонние компоненты и лицензии";
+
+"Connection guide" = "Руководство по подключению";
+
+"These components keep their original licenses. Full license texts are available here offline. The separate MCP and Engine carry their own notices." = "Эти компоненты сохраняют исходные лицензии. Полные тексты доступны здесь без интернета. Отдельные MCP и Engine содержат свои уведомления.";
+
+"Included in the Apple clients for authenticated encryption." = "Включён в Apple-клиенты для шифрования с проверкой подлинности.";
+
+"Included in the Mac graph viewer; not used by the iPhone or Watch renderer." = "Включён в просмотр графа на Mac; не используется при отрисовке на iPhone или Watch.";
+
+"Personal includes managed access on linked Macs. Mac Local is a separate one-time license for local control and your own relay. You do not need both purchases for managed access." = "Personal включает managed-доступ связанных Mac. Mac Local — отдельная разовая лицензия для локального управления и собственного relay. Для managed-доступа не нужно покупать обе опции.";
+
+"No advertising, tracking, or behavioral analytics" = "Без рекламы, отслеживания и поведенческой аналитики";
+
+"QR pairing needs no account. Managed account access uses an optional passkey account; Apple billing and provider sign-ins remain separate." = "Для QR-подключения аккаунт не нужен. Managed-доступ аккаунта использует необязательный passkey-аккаунт; оплата Apple и вход у провайдеров остаются отдельными.";
+
+"Apple, Apple Watch, iPhone, and App Store are trademarks of Apple Inc. Claude and Claude Code belong to Anthropic; OpenAI and Codex to OpenAI; Cursor to Anysphere; Grok to xAI. GrantTap is not affiliated with or endorsed by these companies." = "Apple, Apple Watch, iPhone и App Store — товарные знаки Apple Inc. Claude и Claude Code принадлежат Anthropic; OpenAI и Codex — OpenAI; Cursor — Anysphere; Grok — xAI. GrantTap не связан с этими компаниями и не одобрен ими.";
+
+"Buy Mac Local" = "Купить Mac Local";
+
+"Mac Local unlocks local agent control and your own relay with one purchase. Active Personal already includes Mac managed-client access without this purchase." = "Mac Local открывает локальное управление агентами и собственный relay одной покупкой. Активная Personal уже включает managed-доступ Mac без этой покупки.";
+
+"Personal includes managed delivery and linked Mac clients. Mac Local remains valid when Personal ends; managed hosting is not part of the one-time purchase." = "Personal включает managed-доставку и связанные Mac-клиенты. Mac Local остаётся действительной после окончания Personal; managed-хостинг не входит в разовую покупку.";
+
+"Managed computers" = "Managed-компьютеры";

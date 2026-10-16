@@ -43,6 +43,7 @@ final class TaskRouteReadinessTests: XCTestCase {
 
     func testCleanTaskWithoutOverlapIsReadyAndClaimConflictsBlockIt() {
         let model = AppModel()
+        model.meshComputerRoomByEndpointId = ["source.lan": "source", "target.lan": "target"]
         model.agentMeshPreferences = .defaults
         model.meshSnapshots = ["project": snapshot(uncommitted: false)]
         model.connectionRegistry = .init(connections: [linked("source"), linked("target")],

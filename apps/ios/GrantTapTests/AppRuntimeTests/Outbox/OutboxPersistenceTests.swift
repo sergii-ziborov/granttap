@@ -93,13 +93,13 @@ extension AppRuntimeTests {
         let now = Date().timeIntervalSince1970 * 1000
         var active = (0..<34).map { index in
             existingSessionDelivery(
-                createdAt: index == 0 ? now - 700_000 : now - Double(index),
+                createdAt: index == 0 ? now - 1_420_000 : now - Double(index),
                 id: "prune-legacy-active-\(index)",
                 text: "pending \(index)"
             )
         }
-        active[0].updatedAt = now - 700_000
-        active[0].processingAcknowledgedAt = now - 700_000
+        active[0].updatedAt = now - 1_420_000
+        active[0].processingAcknowledgedAt = now - 1_420_000
         let expiredId = active[0].id
         let model = AppModel()
         model.deliveries = active

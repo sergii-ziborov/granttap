@@ -1,6 +1,6 @@
 # Task Composer
 
-Parent index: [public source](https://github.com/sergii-ziborov/granttap)
+Parent index: [`AGENTS.md`](../../../../../AGENTS.md)
 
 [`TaskComposerRouteModel.swift`](Routes/TaskComposerRouteModel.swift) owns the bounded
 provider/computer/workspace labels and honest computer availability tone.
@@ -39,3 +39,26 @@ and billing remain the provider's responsibility. Guidance:
 
 Tests: `GrantTapTests/Features/TaskComposer/TurnModelCatalogTests.swift` and
 `GrantTapUITests/TurnModelPickerUITests.swift`.
+
+The shared `ProviderAccountUsage` projection renders independently reported
+subscription windows with freshness and reset times. All four provider model
+IDs remain provider-scoped. Usage model rows open the sessions they counted;
+missing limits are not reported as unlimited or zero use.
+
+Effort is selected in the same model popover on iPhone and Mac, persisted per
+chat with provider defaults, and carried by queued and immediate turns.
+Codex levels come from the installed account's selected-model metadata;
+Claude and Grok use their native effort flags. Cursor advertises reasoning
+variants as separate model IDs. Unknown account quota remains unknown.
+
+The shared [animated Effort control](Models/EffortControl/README.md) supports
+touch, pointer, arrow keys and accessibility. Extra High, Maximum and Ultra have
+distinct particle/pixel treatments. The current chat's reported effort is shown
+when no override or provider default is set. Reduce Motion stops animation.
+The model popover uses the same explicit Done header on both clients.
+`ComposerModelPicker` owns the pending model confirmation inside the presented
+view, so Catalyst can show the context warning and keep a canceled choice.
+
+The home composer resolves model and effort before admitting either a new Task
+or a continuation into the durable outbox. MCP question replies keep their
+request scope and carry no turn override.

@@ -31,3 +31,8 @@ The request targets that computer and hash; the client accepts success only
 from the matching room, endpoint, and request with the same enabled, trusted
 native definition. Timeout, modified definitions, and unavailable status do
 not claim success. Tests live in `GrantTapTests/Features/ConnectionHealth`.
+
+The header shows the same Offline title and neutral indicator for a missing
+phone relay link and an offline computer. The detailed connection view keeps
+the specific cause and repair action, so reconnecting does not alternate the
+header between Offline and Mac offline.

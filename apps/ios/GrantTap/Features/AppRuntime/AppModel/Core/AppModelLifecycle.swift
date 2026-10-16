@@ -35,6 +35,7 @@ extension AppModel {
         }
         guard !connectionRegistry.connections.isEmpty else { return }
         restartAllRelays()
+        resumeRelayTaskQueues()
         PushRegistrationManager.shared.pairingDidChange()
     }
 

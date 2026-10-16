@@ -83,6 +83,23 @@ final class TurnModelCatalogTests: XCTestCase {
         let old = Data(#"{"modelId":"gpt-5.5","provider":"codex","endpointId":"mac","source":"observed","observedAt":1}"#.utf8)
         XCTAssertNil(try JSONDecoder().decode(ProjectAdvertisedModel.self, from: old).description)
         XCTAssertFalse(TurnModel.opus.accepted(by: "cursor"))
-        RenderProbe.render(ComposerModelPill(agent: "codex", model: .constant(nil), current: "gpt-6-sol"), height: 60)
+        RenderProbe.render(ComposerModelPill(agent: "codex", model: .constant(nil), effort: .constant(nil), current: "gpt-6-sol"), height: 60)
     }
+
+    func testFourProviderCatalogsKeepTheirOwnModelIdentityAndAccountLimits() {
+        let now = Date().timeIntervalSince1970 * 1_000
+        for provider in ["claude", "codex", "cursor", "grok"] {
+            let id = provider == "claude" ? "claude-future" : "future-model"
+            let model = ProjectAdvertisedModel(modelId: id, provider: provider, endpointId: "mac",
+                source: "advertised", observedAt: now)
+            let usage = ProviderAccountUsage(provider: provider, limitId: provider, observedAt: now,
+                windows: [.init(id: "primary", usedPercent: 40, windowMinutes: 300, resetsAt: now + 1_000)])
+            let catalog = ProjectEndpointModelCatalog(endpointId: "mac", observedAt: now, models: [model], accountUsage: [usage])
+            let resolved = TurnModelCatalog.resolve(agent: provider, endpointId: "mac", catalogs: [catalog], now: now)
+            XCTAssertTrue(resolved.options.contains { $0.id == id })
+            XCTAssertEqual(resolved.accountUsage.first?.usage.provider, provider)
+            XCTAssertFalse(resolved.stale)
+        }
+    }
+
 }

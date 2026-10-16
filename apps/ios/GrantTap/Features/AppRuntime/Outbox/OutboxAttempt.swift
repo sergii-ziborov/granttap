@@ -16,11 +16,22 @@ extension AppModel {
     }
 
     func attemptDelivery(_ id: String) {
+        if deliveries.first(where: { $0.id == id })?.chatQueue?.relayManaged == true {
+            resumeRelayTaskQueues()
+            return
+        }
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
               deliveries[index].state != .delivered,
               deliveries[index].admissionRejected != true,
               deliveries[index].awaitingSessionRemap != true,
               deliveries[index].chatQueue?.waiting != true else { return }
+
+        // Catalog refreshes and reconnects must not overlap a live send or
+        // shorten the persisted receipt/backoff wait for this exact message.
+        if let generation = deliveries[index].attemptGeneration,
+           liveDeliveryAttemptGenerations.contains(generation) { return }
+        let now = Date().timeIntervalSince1970 * 1_000
+        if let retryAt = deliveries[index].nextRetryAt, now < retryAt { return }
 
         #if targetEnvironment(macCatalyst)
         if deliveries[index].chatQueue?.transport == .localMCP {
@@ -75,6 +86,7 @@ extension AppModel {
             return
         }
 
+        if deliveries[index].attempts == 0 { deliveries[index].transportAttemptStartedAt = now }
         deliveries[index].attempts += 1
         deliveries[index].state = .sending
         deliveries[index].updatedAt = Date().timeIntervalSince1970 * 1000

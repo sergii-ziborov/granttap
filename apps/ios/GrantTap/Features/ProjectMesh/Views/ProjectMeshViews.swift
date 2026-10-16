@@ -63,7 +63,11 @@ struct ProjectMeshView: View {
         }
         .pageNavigationTitle(model.projectDisplayName(snapshot), onBack: onBack) {
             Button { showNewTask = true } label: {
+                #if targetEnvironment(macCatalyst)
+                Label(L("New Task"), systemImage: "plus")
+                #else
                 Image(systemName: "plus")
+                #endif
             }
             .accessibilityLabel(L("New Task in this Mesh"))
             .accessibilityIdentifier("project.new-task")
@@ -81,10 +85,10 @@ struct ProjectMeshView: View {
         }
         #endif
         .sheet(isPresented: $showReport) {
-            ReportExportSheet(report: model.report(for: .project(currentSnapshot)))
+            ReportExportSheet(report: model.report(for: .project(currentSnapshot)), onClose: { showReport = false })
         }
-        .fullScreenCover(isPresented: $showNewTask) {
-            ProjectNewTaskView(snapshot: currentSnapshot, model: model)
+        .sheet(isPresented: $showNewTask) {
+            ProjectNewTaskView(snapshot: currentSnapshot, model: model, onClose: { showNewTask = false })
         }
         #if targetEnvironment(macCatalyst)
         .task(id: snapshot.projectId) {

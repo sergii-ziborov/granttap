@@ -24,6 +24,7 @@ schemes:
       storeKitConfiguration: GrantTapTests/Features/DesktopLicensing/MacCommerce.storekit
     test:
       config: Debug
+      debugEnabled: false
       environmentVariables:
         GRANTTAP_TEST_LANGUAGE: en
         GRANTTAP_STOREKIT_TESTS: "1"

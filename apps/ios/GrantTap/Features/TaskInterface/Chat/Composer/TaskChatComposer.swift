@@ -22,6 +22,15 @@ extension TaskChatView {
         )
     }
 
+    var chatEffortBinding: Binding<TurnEffort?> {
+        Binding(get: { model.turnOverrides.chatOverrides(chatSessionId).effort }, set: { picked in
+            var current = model.turnOverrides.chatOverrides(chatSessionId)
+            current.effort = picked
+            model.objectWillChange.send()
+            model.turnOverrides.setChatOverrides(current, for: chatSessionId)
+        })
+    }
+
     var chatPermissionBinding: Binding<TurnPermissionMode?> {
         Binding(
             get: { model.turnOverrides.chatOverrides(chatSessionId).permissionMode },
@@ -47,6 +56,10 @@ extension TaskChatView {
     }
 
     var composer: some View {
+        ChatComposerDraftScope(draft: composerDraft) { composerContent }
+    }
+
+    private var composerContent: some View {
         VStack(alignment: .leading, spacing: 7) {
             #if targetEnvironment(macCatalyst)
             if let localSendError {
@@ -81,7 +94,7 @@ extension TaskChatView {
                 ComposerField(
                     placeholder: dictator.isRecording ? L("Listening…")
                         : (replyRequestId == nil ? L("Message this chat…") : L("Reply…")),
-                    text: $draft, focus: $chatFocused, onSubmit: send
+                    text: draftBinding, focus: $chatFocused, onSubmit: send
                 )
                 .onChange(of: dictator.transcript) { transcript in
                     if dictator.isRecording { draft = transcript }
@@ -92,28 +105,40 @@ extension TaskChatView {
                                          skills: currentSession.skills ?? [],
                                          selectedMcp: $selectedMcp,
                                          selectedSkill: $selectedSkill)
-                    ComposerModelPill(agent: currentSession.agent, model: chatModelBinding,
+                    if AgentIdentity.composeIds.contains(AgentIdentity.normalize(currentSession.agent)) {
+                        ComposerApprovalButton(sessionId: chatSessionId, session: currentSession, model: model)
+                    }
+                    ComposerModelPill(agent: currentSession.agent, model: chatModelBinding, effort: chatEffortBinding,
+                                      fallbackEffort: model.turnOverrides.agentDefaults(for: currentSession.agent).effort
+                                        ?? currentSession.effort.flatMap(TurnEffort.init(rawValue:)),
                                       current: currentSession.model,
                                       catalog: model.turnModelCatalog(agent: currentSession.agent, session: currentSession),
                                       fallback: model.turnOverrides.agentDefaults(for: currentSession.agent).model?.id,
-                                      hasConversation: true)
+                                      hasConversation: true, refresh: { await model.refreshProviderMetadata() })
                     Spacer(minLength: 4)
-                    ListeningMicButton(isRecording: dictator.isRecording,
-                                       isStarting: dictator.isStarting,
-                                       tint: accent,
-                                       action: toggleDictation)
+                    if !showsStopControl || dictator.isRecording || dictator.isStarting {
+                        ListeningMicButton(isRecording: dictator.isRecording,
+                                           isStarting: dictator.isStarting,
+                                           tint: accent, action: toggleDictation)
+                    }
+                    if showsStopControl {
+                        TaskComposerStopButton(pending: controlPending) {
+                            model.pauseSession(chatSessionId)
+                        }
+                    }
                     let action = ComposerAction.resolve(
                         text: draft, attachments: attachments.count, isFocused: chatFocused
                     )
                     if action.isVisible {
                         if action == .send && replyRequestId == nil {
-                            ComposerQueueButton(add: queueDraft, sendNow: sendImmediately)
+                            ComposerQueueButton(add: queueDraft, sendNow: sendImmediately,
+                                                schedule: { showSchedule = true })
                         }
                         ComposerSendButton(
                             action: action, tint: accent,
                             glyphInk: Theme.glyphInk(for: currentSession.agent),
                             blocked: (!queuesNewMessages && chatSendAvailability?.blocksSending == true)
-                                || localSending,
+                                || localSending || transferRequiresConfirmation,
                             send: send,
                             dismissKeyboard: { chatFocused = false }
                         )

@@ -19,7 +19,7 @@ extension AppModel {
             }
             var entries = existing.entries
             entries.append(ActivityEntry(id: id, kind: entry.kind, text: trimmed,
-                                         createdAt: entry.createdAt, attachments: carried))
+                                         createdAt: entry.createdAt, attachments: carried, images: entry.images))
             entries.sort { $0.createdAt < $1.createdAt }
             next[sessionId] = SessionActivity(
                 type: existing.type.isEmpty ? "session.activity" : existing.type,
@@ -36,12 +36,14 @@ extension AppModel {
                 agent: agent,
                 state: entry.kind == "status" ? "waiting" : "working",
                 entries: [ActivityEntry(id: id, kind: entry.kind, text: trimmed,
-                                        createdAt: entry.createdAt, attachments: carried)],
+                                        createdAt: entry.createdAt, attachments: carried, images: entry.images)],
                 generatedAt: entry.createdAt
             )
         }
         activities = next
-        if !demoMode { SessionActivityPersistence.save(next) }
+        if !demoMode, let updated = next[sessionId] {
+            SessionActivityPersistence.save([sessionId: updated])
+        }
         pushToWatch()
     }
 
@@ -54,14 +56,16 @@ extension AppModel {
         }
         var byId: [String: ActivityEntry] = [:]
         var incomingOrder: [String: Int] = [:]
+        let aliases = legacyAliases(existing.entries, sessionId: incoming.sessionId)
         for entry in existing.entries { byId[entry.id] = entry }
         for (index, entry) in incoming.entries.enumerated() {
             if incoming.agent == "claude", byId[entry.id] == nil,
-               let old = existing.entries.first(where: {
+               let old = aliases[entry.createdAt]?.first(where: {
                    byId[$0.id] != nil && Self.isLegacyClaudeAlias($0, of: entry, sessionId: incoming.sessionId)
                }) { byId.removeValue(forKey: old.id) }
             if incoming.agent == "codex", incoming.history != nil {
-                for old in existing.entries where Self.isLegacyCodexAlias(old, of: entry, sessionId: incoming.sessionId) {
+                for old in aliases[entry.createdAt] ?? []
+                where Self.isLegacyCodexAlias(old, of: entry, sessionId: incoming.sessionId) {
                     byId.removeValue(forKey: old.id)
                 }
             }
@@ -107,6 +111,19 @@ extension AppModel {
         )
     }
 
+    /// Native pages only compare possible legacy aliases at the same timestamp.
+    /// Already migrated history must not be scanned once for every incoming row.
+    private static func legacyAliases(_ entries: [ActivityEntry], sessionId: String) -> [Double: [ActivityEntry]] {
+        let prefix = sessionId + ":"
+        var candidates: [Double: [ActivityEntry]] = [:]
+        for entry in entries where entry.id.hasPrefix(prefix) {
+            let parts = entry.id.dropFirst(prefix.count).split(separator: ":")
+            guard parts.count == 2, Int(parts[1]) != nil else { continue }
+            candidates[entry.createdAt, default: []].append(entry)
+        }
+        return candidates
+    }
+
     private static func retainingDownloadedText(_ incoming: ActivityEntry, from previous: ActivityEntry?) -> ActivityEntry {
         guard let previous, incoming.id == previous.id, incoming.kind == previous.kind else { return incoming }
         var retained = incoming
@@ -149,10 +166,9 @@ extension AppModel {
             && Int(current[1]) != nil
     }
 
-    /// Retain complete request boundaries on phones and every fetched page on Mac.
+    /// Keep the full per-chat archive when leaving a conversation.
     func releaseTranscriptHistory(sessionId: String) {
         guard let activity = activities[sessionId] else { return }
-        activities[sessionId] = SessionActivityPersistence.trimmed(activity)
-        SessionActivityPersistence.save(activities)
+        SessionActivityPersistence.save([sessionId: SessionActivityPersistence.trimmed(activity)])
     }
 }

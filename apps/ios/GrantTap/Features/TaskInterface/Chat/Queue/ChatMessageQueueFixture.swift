@@ -4,7 +4,7 @@ import Foundation
 enum ChatMessageQueueFixture {
     @MainActor static func apply(to model: AppModel, at now: Double) {
         guard ProcessInfo.processInfo.environment["GRANTTAP_DEMO"] == "1",
-              ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "1",
+              ["1", "failed"].contains(ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"]),
               let session = model.sessions.first(where: {
                   $0.sessionId == AppModelDemoFixtures.codexSessionId
               }) else { return }
@@ -21,6 +21,13 @@ enum ChatMessageQueueFixture {
                 attempts: 0, state: .queued, error: nil, nextRetryAt: nil,
                 chatQueue: ChatMessageQueueContext(waiting: true, transport: .relay,
                                                    taskId: session.taskId))
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "failed" {
+            model.deliveries = Array(model.deliveries.prefix(1))
+            model.deliveries[0].state = .failed
+            model.deliveries[0].attempts = 5
+            model.deliveries[0].chatQueue?.waiting = false
+            model.deliveries[0].error = L("Delivery was not confirmed after five attempts.")
         }
     }
 }

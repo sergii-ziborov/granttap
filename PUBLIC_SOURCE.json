@@ -1,18 +1,10 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "c9e57f15ab5006876616830a01527160684532d5",
+  "sourceCommit": "955148e8b633edf7699e994288b510f8b47ac36e",
   "files": [
     {
-      "path": ".gitignore",
-      "sha256": "ad42992069e32957dda8763a7bf77d29e895255334f36d6ee7232d4647b28652"
-    },
-    {
       "path": "LICENSE",
-      "sha256": "78fe5a6a5fb1377b46a33098fae831b04db5000ffaf18ae0a5fc4f3a29bcdd9d"
-    },
-    {
-      "path": "README.md",
-      "sha256": "dc098dfda2cd3f703f1c5fc79e875fffb0c33031cffc7338f86bbecf5bcc36a2"
+      "sha256": "6c94c5ae5c245503529194dae58fb880da54e530f384b7f39538b3074da373c0"
     },
     {
       "path": "SECURITY.md",
@@ -127,6 +119,34 @@
       "sha256": "8813ca38f34007b5fc68edaf652307b53d92c258a4762a235d40bd9a8f0888a7"
     },
     {
+      "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
+      "sha256": "b16aaa08efb3f557021c050d151411ceb0c22c51fe06839616fb5daff9e3e71b"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+      "sha256": "7f3b00b5c3fdb45242d7b87e1e5c4e25d1fa8129a16c94295ecc4e8ea2235c5f"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+      "sha256": "e3bba7e7947232c9a6eb99a4a32a877c45d62ddba4700ad0a3b688c755a71f1c"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap Commerce.xcscheme",
+      "sha256": "147ec5d9560bddfb8692268ec48eda36828886d5b2bd8295c325e95c07b5811e"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap Local.xcscheme",
+      "sha256": "eceaf862ebd83190f7c892f671d211f9698ff99b69637ea281b1de5f3b7d8384"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap.xcscheme",
+      "sha256": "95865c4c3c76bf7775fc4860109d28243eb59416e8038b34359d26434576af44"
+    },
+    {
+      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTapWatch.xcscheme",
+      "sha256": "4d7d8a4cc7ad92b9be4c3b920ac5864526677672549a0d069c6699159cf3ee85"
+    },
+    {
       "path": "apps/ios/GrantTap/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
       "sha256": "e5191ed120bc5b95a585a0116334878322dd9f830bd744312671b0bfb9fb1973"
     },
@@ -211,6 +231,22 @@
       "sha256": "fef3cb0878d8670642e98c292e317135dee273556bb2c636a3be88e6e98f6d6b"
     },
     {
+      "path": "apps/ios/GrantTap/Assets.xcassets/help-devices.imageset/Contents.json",
+      "sha256": "05db414c368e70d866e4088b730d838aef8e49dc6c5b25822733bd48d97d3b63"
+    },
+    {
+      "path": "apps/ios/GrantTap/Assets.xcassets/help-devices.imageset/help-devices.png",
+      "sha256": "dd954b4131daa4c9f4fef6b12ac738b2cb8d75f30afb554151a3472bd9d56707"
+    },
+    {
+      "path": "apps/ios/GrantTap/Assets.xcassets/help-scan-qr.imageset/Contents.json",
+      "sha256": "23d2a85fb8bb13ba822e84a592221910d0d59d537d5ddf5158f64cd196b1a319"
+    },
+    {
+      "path": "apps/ios/GrantTap/Assets.xcassets/help-scan-qr.imageset/help-scan-qr.png",
+      "sha256": "dc7c27dcbb5861ca150b3e4041335551920e4f20acd99d50a224dca08483e915"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/AgentMeshSettings/AgentMeshPreferences.swift",
       "sha256": "a3ee3eeea5dce22a344855f3a7040b6cbacf5c3ad5a7d9a4f2e28b1a2eae2590"
     },
@@ -240,7 +276,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/AppModelAgentEvents.swift",
-      "sha256": "c89a446672f1b439941d8a93447583b99824deac31c00432c8b2978595ed735f"
+      "sha256": "6190f95a0f41cc0eb9df037ff3d2c08e6df4a1c1afdd6ab3a050f7bb45659bcf"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/AppModelApprovalState.swift",
@@ -260,11 +296,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModel.swift",
-      "sha256": "d38499eef32a1f490ac85eacfd9a5ffb96aa8a3fa6ee0eb63255935e0e36d6b3"
+      "sha256": "a3135e2133cdeadf6dd27f0660bd7befedd60bef73ccb6adb2ace66904292e1a"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModelConfig.swift",
-      "sha256": "cf22180e1fd4e2e7c8ea4a15a3fa4f065e007d22fa4d42a666f0599c612e6618"
+      "sha256": "2ab8a049d9940cd2bfd166a86adb43ab189e523b1e7dd240f3a8bceb0aa9027a"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModelConnections.swift",
@@ -272,11 +308,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModelDemo.swift",
-      "sha256": "15c7a183fbe67ba1408f0c5aa8207e8f784c25bea33bbff3b1d94153663ed7f6"
+      "sha256": "12cd99f4620b63eb93c71f54950df097249c17be1f03360c6626d8f8b9c81acd"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModelLifecycle.swift",
-      "sha256": "e0a7bc8f647eca1b9166872649356c7f7fb023f044ad9a561f0916dcc06d0eba"
+      "sha256": "b5f42fa311c818bbf880f19b99706b9d7241257f3170ffa07ed2c13f066cca32"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/AppModel/Core/AppModelPairing.swift",
@@ -288,7 +324,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Connection/ConnectionCatalog.swift",
-      "sha256": "11fc11b8e8f462ebe7f08ba4472f0b5552033e082e41914ae85b7c962bb4bc74"
+      "sha256": "8bc33bf59dd6a7dbc2bb60d606dfa85ed3b54cfb609df8fa1fd01776a9fa5715"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Connection/ConnectionRegistry.swift",
@@ -296,7 +332,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Connection/ConnectionRelays.swift",
-      "sha256": "044648008bfe6f55d58470ab0c776ed6f777354bbed789f2d749b844858e7bbc"
+      "sha256": "4cd8be0995b4031ee9971187d9293e65d974fe1f44322649f6a7f7699ccd5122"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/MessageOutbox.swift",
@@ -304,7 +340,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/OutboxAttempt.swift",
-      "sha256": "fb7abb8bbca711ae918b69a5884e275dccaee8519a6a4683c91484f139e1cf2a"
+      "sha256": "18a3f69b19b551c0bb820e1f709346439a3b7b7020acf178e455bda64644bb78"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/OutboxCompletion.swift",
@@ -312,15 +348,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/OutboxDeferred.swift",
-      "sha256": "decf413a03a03eeab4d98667810f175e80bf47c5c26406908837c4602a348da9"
+      "sha256": "783aef956133c9d8762f0c970817f4739159e5231df52e2cef1427ef67f57a6a"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/OutboxEnqueue.swift",
-      "sha256": "99b8c272940f0c36faf65f855be8a27cb4a95c1e44da0027d8aeb3c781dad4d8"
+      "sha256": "5d285026b91d22ee8dcfd0f422bffe43f29ac418fd52f3819cf22c7deed36c02"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Outbox/OutboxLifecycle.swift",
-      "sha256": "62d7b3c0bb48f193a461b31b9c675e797a44bac98782922898c5c1ed612c126b"
+      "sha256": "4434ca22506efd0bb93a12e83979e18cf5301bdf8639f11449750379b8e02d70"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/README.md",
@@ -336,7 +372,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Relay/RelayClient+Inbound.swift",
-      "sha256": "72e8c18a8f7205d31ac51c51f96d4f9a934b78393dabdfea79e0feab8e383124"
+      "sha256": "8890d65964e5359e3fc61f2c468b94af46e054206c2a38ffc356806b5abf0738"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Relay/RelayClient+ProjectSend.swift",
@@ -348,7 +384,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Relay/RelayClient.swift",
-      "sha256": "5e9a436a800c4532c258ad2b01b740ae73f148d6f258e06502c2d4196b047240"
+      "sha256": "7dde2e3d486cedceb476aca121839b0b2078756c50580f8c69be9e9da0b3a181"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Relay/RelaySessionQueue.swift",
@@ -364,23 +400,27 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Relay/SessionChatEntries.swift",
-      "sha256": "d3f0f3f55afd3d8a0ccc051edf77181a04bb21e731453b124102f2a8f36a2e1a"
+      "sha256": "885838cc2ea87283e87b7972ead9d44c6f565ec4477d15d497c1e8a108dda85c"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Session/AccountDeviceCatalog.swift",
       "sha256": "0d4a98c19f985ed1e1ae1bb26d86503e1f6345fd489e0cecb8d5319d2a94a021"
     },
     {
+      "path": "apps/ios/GrantTap/Features/AppRuntime/Session/ActivityEchoReconciliation.swift",
+      "sha256": "c4349eaeb407624f4aaa4be9b1f0c7a48db10c67840daf14b68823cc43fa7845"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Session/README.md",
-      "sha256": "21c2df7e5d7a8362646bf309fcbf0cff1903235eac53b6859c9569af7a3b7ae2"
+      "sha256": "70595a2cef557e5e9b0a96b55a0102a1ac9bf6b5eaeaa73ff09e0ebe69c7cb05"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Session/SessionActivity.swift",
-      "sha256": "185b3d14a9974f89004ad9d43d05b83759e76c136dd32096a7f77e79fe82c664"
+      "sha256": "fe20d60e4e57d270ecf53728ad6e6b99aecd6c1749dbe70d4d694af54500144b"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Session/SessionBackgroundRefresh.swift",
-      "sha256": "1d086fb34730ee61ce502ca69d3f48394e38d1387170849bc9184bca58398eca"
+      "sha256": "536547d6bf83282372c920d417ed8054cc8ffb5143b794a9a408f76eba2ab1ba"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppRuntime/Session/SessionCatalogArchive.swift",
@@ -424,7 +464,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/GrantTapApp.swift",
-      "sha256": "930aff0583ca0ecaf566f290097376abc232dc10ff25d3ab2bac545ef19648f9"
+      "sha256": "efeafbafa46dfe7849a4b0f50a883c64e83bb331251495e360a0fef6d9d29018"
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/PointerFeedback.swift",
@@ -440,7 +480,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/AppShell/WatchBridge.swift",
-      "sha256": "49aed18bce7ebe95344e924e7ca5cc2f51cf34fd4b1e3fffa2571bd870127b47"
+      "sha256": "0225e9cffa7b072b41eb90a605463fdd4d36c96ac2b14ab7ae9622af0b573570"
     },
     {
       "path": "apps/ios/GrantTap/Features/ApprovalDelivery/AppModelApprovalChat.swift",
@@ -452,7 +492,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ApprovalDelivery/ApprovalAutomation.swift",
-      "sha256": "1ffa12528c18d2a75c8c54e5cf20e7b9969d9f1afc1a9a96698b213473c3c5e4"
+      "sha256": "e09e2292176c52de072043ee4eabff31fd3afc019e04de618092cf7ffb7201c3"
     },
     {
       "path": "apps/ios/GrantTap/Features/ApprovalDelivery/ApprovalChatControls.swift",
@@ -548,7 +588,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Logic/UsageDemoFixtures.swift",
-      "sha256": "412cad61f82dcb6a75a390c1e341d0d774a843f6f2b8813c45bb3ffcdbd44b96"
+      "sha256": "569876cbe4ebb4db60d99692e33ad375b58182e5b1d898956c84eae729dfab2d"
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Logic/UsageFilters.swift",
@@ -560,15 +600,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Logic/UsageSummaries.swift",
-      "sha256": "c7b08a45e4feee0ecd690054ffac3c43b023a705fdc2f40524951dc8fc93893c"
+      "sha256": "ac2fceca259c317eb8d5ec76d272406ca9125b9f28626aeef9856c2940470613"
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/README.md",
-      "sha256": "adefb0a5704eadde09cdb775e45c3cc6381a48514f828653291c4d59742f47ba"
+      "sha256": "103726fcc81b8c74aac9cb40722dd453a77d78985ed150e55462d6149ebe835c"
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Rows/CapabilityUsageRows.swift",
-      "sha256": "66820b7f5a0150bfe5771116516eb4173172ee2b043f696605e0b2d14941f79b"
+      "sha256": "8c4a0cd549392bae22f1d4624c3736f5156a68d6df00ce5bcacb3cb641063300"
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Rows/ChatHistoryRows.swift",
@@ -592,7 +632,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Views/CapabilityUsageView.swift",
-      "sha256": "85366155ec4180234bfe379f1e665b74fdb0e5d4e9eac504a6d6ac30c39f6310"
+      "sha256": "b51a1f3aaef18fdcf9e1c0514b33303c10e1f60ca2ad66b7127ff315e9409e72"
     },
     {
       "path": "apps/ios/GrantTap/Features/CapabilityUsage/Views/ChatHistorySheet.swift",
@@ -632,11 +672,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ConnectionHealth/Logic/ConnectionFreshness.swift",
-      "sha256": "d74b704cc23bbc5508866904994c997a7cbb216fc75be085065bdaaa9bdad942"
+      "sha256": "822e136771a6bb5815dab2e86b23f48dbe0d048e2375fd34f8a05f25a261ba18"
     },
     {
       "path": "apps/ios/GrantTap/Features/ConnectionHealth/Logic/ConnectionSnapshot.swift",
-      "sha256": "788d6eef19320fdf0a0433b30800de1a9b575962d2208f9989dde75ac61fbff2"
+      "sha256": "d2e5e704e61495aa424141d42f28f59c53e302e59b463f767fbe93c992e90126"
     },
     {
       "path": "apps/ios/GrantTap/Features/ConnectionHealth/Logic/LoadHistory.swift",
@@ -656,7 +696,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ConnectionHealth/README.md",
-      "sha256": "eee477174816fd9a3dbfed0aabf2de49f6db55e3c167e10ea0bee684abb59378"
+      "sha256": "2f20db0538c771fb228e04acb5d2368558750528db8ade5a7dc0b019c343889d"
     },
     {
       "path": "apps/ios/GrantTap/Features/ConnectionHealth/Shell/ConnectionHealth.swift",
@@ -712,15 +752,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/DeliveryModels.swift",
-      "sha256": "b4b020fc316f82812bd1de5dcd58ec9c0da41d7aafecf7b4f1ab68d4d4b455e4"
+      "sha256": "be855396957859af0c7043be34e65e0daa5131712431ac2a3e69ee9eb0c31934"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/DeliveryStore.swift",
-      "sha256": "4e446c0ea284ef037733f95574aaf2e120c5183a42955a52529542e4c35423a7"
+      "sha256": "ae5bc1d07188e69e65cb8930f265d687264947573c4427cc4e40455af5b0e989"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/README.md",
-      "sha256": "3d98c1d7d6b49758932547b543776e8dfa63916f8a20d9887898b39e07779754"
+      "sha256": "35a7400e7a546a5fc9316242435c3d6896354db42432d03e40bd67fe5c8f3e73"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/ArchivedSessionStore.swift",
@@ -728,15 +768,27 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/SessionActivityStore.swift",
-      "sha256": "23e80cf08c49ec43eaf6cc0150ebd44071d70565970121be635284b8b848e4d3"
+      "sha256": "ad4bc65a412caa11c2a0e67b2eb31d08bcf8359367ce704c1e7054cbc4039afd"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/TranscriptArchive.swift",
       "sha256": "1f27e1936f89d54d9075516fcbc8b910d2e3b9f236cb987be376e02cc04c251e"
     },
     {
+      "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/TranscriptArchiveBackgroundFlush.swift",
+      "sha256": "0844953e5befbae1d1c13d6ba3e651c9573af5c68f3d42fdcefb7555f4347088"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/TranscriptArchiveWriter.swift",
+      "sha256": "77c5d200557d9853710ce6b02df579feba6d01671293f4a2990843b067443192"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/TranscriptRequestBoundary.swift",
       "sha256": "396fa421b903cab4da06375a535212642e8afcba39e6f2362944236491fc893a"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DeliveryPersistence/Session/TranscriptRequestIndex.swift",
+      "sha256": "fbed9a844954ea0742801d551b68efec9af81d220dd9c493f7c591291b84653b"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/AppModelDemoFixtures.swift",
@@ -748,15 +800,19 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/AppModelDemoMeshPresentation.swift",
-      "sha256": "b3cde59e740a547fdb8e11223d88ee04d16cd54a86881e97e9ff50438073ded5"
+      "sha256": "74e9882e19983af0e2cb7d5893547e02817c84c85fce3148b520595904473c59"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/ChatActivityRailFixture.swift",
-      "sha256": "284b236ddd0eccd6cc1af2e6f1536d10995adc46e12b1de8bbea2ef5f2445a40"
+      "sha256": "b814349600ef7c83fd2f4e515b91f563bfe14c6c707ad503993cf887087b806d"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/ClaudeQuestionFixture.swift",
       "sha256": "c12d8c73116c5df924be355bd988c2c07bec868fb4ca938ddb69a30a80056791"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DemoSupport/DemoLongTranscript.swift",
+      "sha256": "9f22610dec70e208625c356e62a82525d1a6b98cb0d19afcf5f84cc14af2c0b9"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/DemoMessageImages.swift",
@@ -767,16 +823,28 @@
       "sha256": "1406e5e825f097302776384dd51da2a53af874dafdfda6ef36f1467f42f0c294"
     },
     {
+      "path": "apps/ios/GrantTap/Features/DemoSupport/DemoWorkspaceRead.swift",
+      "sha256": "58599ee46dd66e2ca3f411b3f09a746e031d8c03c89d13f9d826579aba5757c9"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/DemoSupport/GraphBuildFixture.swift",
       "sha256": "be3d6d79823fe3b4deeadea688aef189445ae1654e35e2e47c6496e6732c1cc9"
     },
     {
+      "path": "apps/ios/GrantTap/Features/DemoSupport/ProjectTaskCreationFixture.swift",
+      "sha256": "796b0d3e281fd14a74631a6bbb170f32305fbaf5ab2de521e129d840eab232bf"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/DemoSupport/README.md",
-      "sha256": "3b46d2061e873e0fe29859edc0a40b68c42fbada2ad6b03f370198bb3547f6ec"
+      "sha256": "78439f0bf5030643371262c0211d98fa58dc59662d805ed24894dc605537fdc7"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/RepositoryCatalogFixture.swift",
       "sha256": "2c5c97f37e9efb3166f505c6325aceb4ad5adcc23fe65bd24a76fb954ef59c22"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DemoSupport/UsageNavigationFixture.swift",
+      "sha256": "35b96a4021758ffdfd7bffaf28dfb7bfeb9b6cc138393af8e547a7df26c37e91"
     },
     {
       "path": "apps/ios/GrantTap/Features/DesktopLicensing/DesktopBetaTrialStore.swift",
@@ -784,7 +852,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DesktopLicensing/DesktopLicense.swift",
-      "sha256": "aba64a9ab16e8a1d33bc1aae0e2698117d18afbd7da960c45f1a25a3b0f99011"
+      "sha256": "07482eaf9ac484aeb045745f78b60726f9b4c813a25898adbdfab796fbfe0240"
     },
     {
       "path": "apps/ios/GrantTap/Features/DesktopLicensing/DesktopLicenseStore.swift",
@@ -792,11 +860,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DesktopLicensing/DesktopLicenseView.swift",
-      "sha256": "d06b620eb8b8b387fecc883693251618f6e099e0c5710e1ec8e9984283a37408"
+      "sha256": "62b0b507157fd6a07257378f01466a66af7ae2096c13707481019d955a6ccc84"
     },
     {
       "path": "apps/ios/GrantTap/Features/DesktopLicensing/README.md",
-      "sha256": "09c295061aeef761a21bb61a8b723c2c88c110cd077512ef7ce1a2a406f8a69b"
+      "sha256": "9a29f3e46b007f938c0a7dff9d50597bd1023b4ba6d86585fe44d6bd50f9bd42"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DeviceNetwork/CiphertextRecipient.swift",
+      "sha256": "948ec351fcdc61c13760b11806ebd9e49cdf0bb8e106ed26a4ae1b3bfa66c213"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeviceNetwork/EndpointDirectory.swift",
@@ -808,11 +880,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DeviceNetwork/README.md",
-      "sha256": "57f586c6ce26a21ddbe56dda3c9cf34b8474f3ec0d6b03da4e85ded0becef823"
+      "sha256": "fb9b3ad57fa623b817105afabb7342068ab6263e933c9850ea89bcb06047ff0b"
     },
     {
       "path": "apps/ios/GrantTap/Features/DeviceNetwork/RelayClientNetwork.swift",
       "sha256": "480451879b8baee5a4cebf1fee69a6f738edaca0be6bbdb1df0272d2672d2550"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/DeviceNetwork/RelayReconnect.swift",
+      "sha256": "502652916fde3f2c9a3f8c21c38264dcc58790a85297b34f0cc56d304570211c"
     },
     {
       "path": "apps/ios/GrantTap/Features/HumanAttention/HumanAttentionNotifications.swift",
@@ -820,7 +896,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/HumanAttention/HumanAttentionPipeline.swift",
-      "sha256": "c880219d3f5d89280a4b907ad631f5dc015c12cb723bc5f3ff650a1fc443bdc5"
+      "sha256": "93987612123902c481c615c6851ad86ef48824dc3039a75f7eaec77dcb0f6837"
     },
     {
       "path": "apps/ios/GrantTap/Features/HumanAttention/Notifications.swift",
@@ -828,19 +904,19 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/HumanAttention/README.md",
-      "sha256": "a923bbf824c9439f28902fa982e0db110d24e3f331a946235985ca234c7d1b38"
+      "sha256": "cfb56a1ba2d2299394878690efeff765e6f95b7b97674658c5a3ca3f62d99bdc"
     },
     {
       "path": "apps/ios/GrantTap/Features/InstallIdentity/InstallIdentity.swift",
-      "sha256": "c3d5e580f9c91d4bdc12c20dc8d97249ae5a7e1fb5fbc7ade6fb29316bd7f528"
+      "sha256": "9e6aa69475b6b1aba6d0f1baeebb309677d4cd09ed68fc7951f2520b2f45ae0a"
     },
     {
       "path": "apps/ios/GrantTap/Features/InstallIdentity/InstallKeychain.swift",
-      "sha256": "50b4894c4bc2ff869e247398d377bf73cda06912bd7b3dbc780b56c021e37bcf"
+      "sha256": "7b4041fff2e2b5a843229b2addd1beaafb50ec921c92235e55cbd44f2382bfcf"
     },
     {
       "path": "apps/ios/GrantTap/Features/InstallIdentity/README.md",
-      "sha256": "5f3bb497f66c7bb2ee697c6892cc8b48380a0af904f06be528dd5fc054bdadf0"
+      "sha256": "166bc7a5a085b342065c8ef47fb5982307dfd84eabdd54e8bae6fed92e959b5e"
     },
     {
       "path": "apps/ios/GrantTap/Features/Learn/LearnTopic.swift",
@@ -876,7 +952,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacCatalogRouting.swift",
-      "sha256": "b06178372eea3f6b446cb3056b2f1940457da8a7bf257f046fab5568c4875f3d"
+      "sha256": "3a91105c6df9712796a603608e46f5858502786f9afa7dd95fa7c6a5438543be"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacComputerLinkView.swift",
@@ -904,11 +980,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPClient.swift",
-      "sha256": "8844cb4929b9fac1c086943597f08c5abcaff22ccde2afd5f4a2e59219320575"
+      "sha256": "0ddcbc60f64327d150666d523398d087af8d5926cadaaf9e474f684995b2deed"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPHandoff.swift",
-      "sha256": "748584fcc12628f70ede2b4d86ef1037758d2248031c39b1a2a916d3bbb20201"
+      "sha256": "a3295192c212de24d843a0d64550ccc732c971ef64c0da2d63b09680c36144ad"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPImage.swift",
@@ -924,7 +1000,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPModel.swift",
-      "sha256": "8946e29346c3cdb326d4683a3c882be8e80048f1fab5a20a2678df20dbb6a0c2"
+      "sha256": "5c718184a45cfc1f55532dbcd831825ced4f350e8db6112bc63918407b416919"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPPolicy.swift",
@@ -932,7 +1008,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPSend.swift",
-      "sha256": "a60fca6b0a2230b65770f8721b3f821cb2e093021fba60c006d02c9b56df6d98"
+      "sha256": "b108da7b52af0299dcdb5548606ad70656606c4105bb1ac357fbfd3a5f2645a0"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPSettingsSection.swift",
@@ -948,7 +1024,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPTaskCreate.swift",
-      "sha256": "fba1b621d6ab2fae271416111a556c121fade2f43af85f8dea7a14d38e2b259a"
+      "sha256": "c352f2cb406aac6d377b008b8a9eb049c4c8e21b84d5870ec8e7c905ffe85592"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPTaskQueue.swift",
+      "sha256": "29c140df52786cc5bd76312112b8bf4a3c9bbfe51223a1c6930cedb007146d90"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalMCPUsage.swift",
@@ -964,11 +1044,19 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalProjection.swift",
-      "sha256": "90be4b9324cf229550170aae751006acb6c252bdea5118e6d8916e755441c7c0"
+      "sha256": "a525110b8ab03fab86f914b2265d36f524f20efbd4871d19d1e243be2ab9635b"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalProviderHooks.swift",
       "sha256": "08db5a089dab6403fc06bbe35b6ec98cfcc41fc3939ffda34e1810e9aa4a434f"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalTaskCapabilities.swift",
+      "sha256": "2669e634f4eb4a3c42424bd12c46d0a147a1f5eacfb886b89dbbc6b94dc2608a"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalTaskCommands.swift",
+      "sha256": "53cdc85821157c278bb406a43182b3eb4f3b0093ca55732b90cb2cbbb20afe82"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/MacLocalTaskWorkspace.swift",
@@ -980,7 +1068,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/MacLocalMCP/README.md",
-      "sha256": "50b129a74cf8bc69dd1dc8cb815f8857519e793524e930e67dc99b3640df4d85"
+      "sha256": "45887cb17716e6fd7dbc3262c2dbf1d847e85fc72e2accba60f83a2ef24260b1"
     },
     {
       "path": "apps/ios/GrantTap/Features/MacNativeAccess/MacNativeAccess.swift",
@@ -1020,7 +1108,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/OfflineReplica/README.md",
-      "sha256": "7c1a0c98a049d9763522a129a15eb1f7193dbaac6c5c1ffc261c4d3c55d6db85"
+      "sha256": "5ff93295037ae4aa74e950c440db260babbf38768d4fde4a79828c2dbecc40ca"
     },
     {
       "path": "apps/ios/GrantTap/Features/OfflineReplica/ReplicaImageStore.swift",
@@ -1029,6 +1117,10 @@
     {
       "path": "apps/ios/GrantTap/Features/OfflineReplica/ReplicaImageTransfer.swift",
       "sha256": "0e0fecfbd207acc9e3ccc8f49614f10a17ef34b9f051c7f2929d4a55b71e265d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/OfflineReplica/SubmittedImageReplica.swift",
+      "sha256": "91ee2ad400f4572124358d68917210b1f1d4d8432ac63ea7032806c9a4f98bd7"
     },
     {
       "path": "apps/ios/GrantTap/Features/OfflineReplica/TranscriptBackfill.swift",
@@ -1060,7 +1152,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/Pairing/AccountBridge/README.md",
-      "sha256": "8080dd8822f6f25a475aa206d22f8be3b53c04b3f6bae0f8cc12a5620685c329"
+      "sha256": "bae408dca87c6bb2f492110248c82f0487ca79fa6014bafac3f7386deadb5b23"
     },
     {
       "path": "apps/ios/GrantTap/Features/Pairing/Device/ComputerLinkEnrollment.swift",
@@ -1131,8 +1223,12 @@
       "sha256": "e80f0f44dbb1de2dcbddb614c511d37794b4f15fa664098bc86f1f633317b965"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProductInformation/ProductHelpIllustration.swift",
+      "sha256": "9d25f266d2f44d17a714b62d9ef7c0d6692922352d2302ae61241032d66d4161"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProductInformation/ProductInformation.swift",
-      "sha256": "afd1ab6cb9dd21ca6a0343f5c1e1a134a19648bd853526dfc9c48c6f6aa6727e"
+      "sha256": "9982a4514c9795645a3e731108d118fcd7579f0ea9a1a37353a4a8a7561130b7"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/ProductInformationMenus.swift",
@@ -1140,51 +1236,63 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/ProductInformationView.swift",
-      "sha256": "9564ffbb869d12a7a9559e03c4f88b08eb33ed0f3c3a39ee7ea7fb39ebeea314"
+      "sha256": "a2046bd2c3b3522265f0e8f221084ac0905dd79416cc58ed5ece006fb0cf74a4"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/README.md",
-      "sha256": "6bb718bfd9f4f876de47df9d5cd81f194cb4156d9f9b9665b88f2e47835d49b5"
+      "sha256": "07bfc98ee6ef183cc0354c69e92813207259c49857df7a85a374cdd40ec20400"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-licenses-en.json",
-      "sha256": "0921367c51fb80d5ab596189962f0b159e05db10e7716802bb96ca61c588c05e"
+      "sha256": "2fd3a53bab8e3b370de1b85a41507f8a3f87231aa6933dd21c3c82d607c25342"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-licenses-ru.json",
-      "sha256": "5545107f5d7e5465974c5276120505c4ee31569555eb7b17f8e08197a092ef38"
+      "sha256": "422a62b85bfbe8dc1afdc1a00d4f197f640b322ea0be8be7c373532df5b512ef"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-pricing-en.json",
-      "sha256": "9ddf3e0614543058081b58206da719deea2c9143cf49d45939a27ddde4d9c6a2"
+      "sha256": "62c213ca140d164391eeba31f1e04b6f7b962853621fb9985373ad0cbec0eff3"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-pricing-ru.json",
-      "sha256": "a2df030d69bc81e9ef65e707bb3334b6ef187bdf695edbb98bb67c6ddb111b28"
+      "sha256": "6b9a1c8913f9cca3189337546d7552e4b08dc7730f13279f88b10b0be3ee6ece"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-privacy-en.json",
-      "sha256": "59339e030d9019d37ca20dcbd70a15e585e8171e0beccd8827b3230bababbd71"
+      "sha256": "de9537007b16e6214919be68fa32e834432711cbc1f416b5e26c4c33715cd9f4"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-privacy-ru.json",
-      "sha256": "c4145cf9bb8516e2e8a712c5285448a3b8dcd21c8e734b1603aa11eab337ff88"
+      "sha256": "541d4acef1d825cfd98bb03cf430dc9fa4456f45b9f47fc3ccbd62bf557e16a4"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-support-en.json",
-      "sha256": "be2949639c77cff348db541c0dbf822c9965904215a81328b6deddaa200c1d8a"
+      "sha256": "86e62cfa2297d17fb1cc31a26e10e2638ae4ed36ec8614f36fd36f5dad82bc01"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-support-ru.json",
-      "sha256": "496dd00c9bcbd48e688b837fdc3346d2dfd787a9b71fa618f9ff72ff03cd4f8f"
+      "sha256": "ac8a500f47bb7ecbc2eb33f4205f9fe74de6efc5838e34d9505716072d24114c"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-terms-en.json",
-      "sha256": "b008b596d6eee458410c43f2cdde08c1cffba76a045f80b7ac37efe3d27c6c1d"
+      "sha256": "d8f943939bbb32bc06bd6fcb08879fdf039654d9ca9e5277c28542485f501cd1"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-terms-ru.json",
-      "sha256": "6f30fa31aba8ea0f09d0a2f4127fe10884458b80ce7c6b8b448ba1f72e165963"
+      "sha256": "1b4797ece7e017904514881c93cf94858ec7bb0d7c9f8fd8d84ba0896b01d52b"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProductInformation/Resources/Product-third-party-notices.json",
+      "sha256": "98ccf92d2984ca1215a2d514dfeacb92126b05059e3638a3c714b04d17f9c433"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProductInformation/ThirdPartyNotices.swift",
+      "sha256": "35ab28b170187ecc63fc679f880bb35ba6f8b6a00917697baedf33831e0f1f3d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProductInformation/ThirdPartyNoticesView.swift",
+      "sha256": "affb4ecb6fb374b36c1d3e4d15f825c570648b6bef1e82cec7ffbef7435e670e"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Approval/AppModelProjectApproval.swift",
@@ -1200,7 +1308,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Approval/README.md",
-      "sha256": "21346922ef7b18440cc75953b2364f28d6da4a42fd2a410dd63914fc5f116007"
+      "sha256": "92f5a3a86544a5b72500e9d06ef62c500b3365aa1775b8c897110031500f3773"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Capabilities/AppModelProjectCapabilities.swift",
@@ -1216,7 +1324,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Capabilities/ProjectCapabilityCatalog.swift",
-      "sha256": "f0e60aa34ee31590ee89fcbaa09712549d0ba731cb3146476372aa4e33821d24"
+      "sha256": "7cde5e000f24ce0964ecb66f30b08e71963167e6131ccf409cfca16bfb036caa"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Capabilities/ProjectCapabilityDetailView.swift",
@@ -1237,6 +1345,62 @@
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Capabilities/ProjectSkillApproval.swift",
       "sha256": "738f63f3d27f3da5f9929026a9e35a6aad6a827ebdc265a0ce45d2e569c7938a"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/AppModelProjectComputerNetwork.swift",
+      "sha256": "f7fd06c365b1ed5b98cb6468d66ebf4d046f59053b76b17a57a3a739579a78c8"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkConfigurationHTTP.swift",
+      "sha256": "bfb8cf9f5bf45bf83073f2ffa68eefb1b201a7cbfbd05e037d3311819f8479de"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkConfirmation.swift",
+      "sha256": "fb9861969cd88afba49b20c2f4f70984c6a0480a773ee73a822860ec7a40fddf"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkCoordinator.swift",
+      "sha256": "2a1d0e4951c87a3191e5a795949108d6e8c92fa4c4c42762e8caad90a6b89270"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkHTTP.swift",
+      "sha256": "120d0a55503f7582260d87333a1a7f186b7777b0ec920edd004806b234e4ba79"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkNative.swift",
+      "sha256": "9bb1451b1275b6d897d4d777afec9c38668c8cda07854a119bac14c0d2e6b973"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkPlan.swift",
+      "sha256": "7412a9af1649ed2f73edb7e59355a29cd21eb6bd6ddc37dbbe427ef5ea812f6d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkRoutingControl.swift",
+      "sha256": "a4c621a773e54aa03300f3df6c9bcd56dca8626d2aa85f5df107e9e4f53dbf0d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkVault.swift",
+      "sha256": "712c225e6dcf55af6d7b3911c72fa02a8f0125dcd6dd5bac173c16d8b7d3e781"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/ProjectNetworkWire.swift",
+      "sha256": "e6838a34c593b7500d3d77bfbb669314657174d03473f7521d4be06d7a252cf5"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/README.md",
+      "sha256": "eb1a743cc0d9a6c36165630f8da333a252f045f83e4c9f580784c2f08003d7cb"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/tests/PreparedTransferRoutingTests.swift",
+      "sha256": "a7fabe4419376139f58117fff726ca2c050bd807d3a37d1d8c3c00fb2a5285dd"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/tests/ProjectComputerNetworkTests.swift",
+      "sha256": "5dc318035e0fd2a094d029151d46c975945c2a0f8cc42eaf7c4a958388194231"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/ComputerNetwork/tests/ProjectNetworkRecoveryTests.swift",
+      "sha256": "8184cc1ff131e432e047d5a757de5638c53b17ac15c294db4a497d9f7178e53f"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Configuration/AppModelProjectConfiguration.swift",
@@ -1284,15 +1448,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Core/ProjectMeshConvergence.swift",
-      "sha256": "cabc5bf2767950637b44a91620ebb3b90c0f5f04e0b0df8778511075bb93be69"
+      "sha256": "e496db5aad2aa9f25732c9757c8b4129dd013725ef2a084d6117850e1c1e2ca7"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Core/ProjectMeshLogic.swift",
-      "sha256": "2b52f979a198c4e069d613324ba63fa0607b6e08892a139765ff173501362d2c"
+      "sha256": "a26733ca818b0b65d20ba72ff2e87fc4724fbf7cca5388590a6fd0bfd90444b2"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Core/ProjectMeshModels.swift",
-      "sha256": "d674347b191ce7179334a61ac5e2430e4cb119ba563a44f9395bd4b82126d51d"
+      "sha256": "5dd5c43f06c9a69c1a7d258f732d3f7ed9144b4c1c291346cd07eca3bcb87c6a"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Core/ProjectMeshPersistence.swift",
@@ -1308,7 +1472,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Core/ProjectMeshWireValidator.swift",
-      "sha256": "b9d8f00303b1dbae0e6e0bd466eb69ec99e7b4075d62abdd9f6dea03d7ac0c64"
+      "sha256": "6ca5e335ef95b7be12d08ea8a4b66eb98b09504b62021893dd87de5274d90265"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Cortex/AppModelProjectCortex.swift",
@@ -1336,15 +1500,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Execution/ProjectExecutionSection.swift",
-      "sha256": "6d19c4049b79d20b992a2e379d4119a9121fd8314aa34228719686430735ee69"
-    },
-    {
-      "path": "apps/ios/GrantTap/Features/ProjectMesh/Execution/ProjectNewTaskView.swift",
-      "sha256": "b87338554bffedfc73f677dbb83268c333158de228a7c226f3fa65b062b588e6"
+      "sha256": "caaef86523d1846aed83486f517b4d14ee920cb66526151702b49e4e6d8dbdb0"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Execution/README.md",
-      "sha256": "354f976b4e2aea67332fda0d0cf64ad289038c6b0654aefdc0ec23e46f6ac891"
+      "sha256": "724c1476fff60087faee663c45672cdcd95efa1bb00969c3c4a22375be11d9e0"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Governance/Logic/ProjectGovernanceDraft.swift",
@@ -1548,7 +1708,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/README.md",
-      "sha256": "8d61ef502d71dc8230affb2ab2b32fd3cded5f46b2a89b0febcb81a0f83c3132"
+      "sha256": "fcd65ff0d4cb349dbcf542755651b5bc447ecbdb2b6791e32b3715fef4e90a5c"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Insights/ProjectGraphDelivery.swift",
@@ -1560,11 +1720,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Insights/ProjectInsightReports.swift",
-      "sha256": "d8b6bd22a22e7a9457eb0899c1a7d514f3904c1f6782154bea29eef219a55a52"
+      "sha256": "e9eb92e88bdf1e658d655fdec484cc3d173f827d1f54dc76a6d91f405a0e1329"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Insights/README.md",
-      "sha256": "6b008354a25527e205dfdd042daeb948fbbdade463e33e557a43c2bc2ab7e07a"
+      "sha256": "673cb987c9859fff0e9635a81cca3923623dda547d2d932f6d9ba424727c8c4d"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Knowledge/KnowledgeDecisionEditor.swift",
@@ -1676,7 +1836,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/README.md",
-      "sha256": "8da760f2c11ec5ab6d16ba661821da9a1c7b9e38b76876f44be3c03744f9aee2"
+      "sha256": "0951762764db72838e952b57925c06605c4a95f4f5f3eaeecfcad8f99383beab"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Repositories/ProjectComputerUsageView.swift",
@@ -1731,8 +1891,12 @@
       "sha256": "7759b0ea05d0921d6ef965ddcea004d3f1c5500053ff2693cad677e89bfbd4b3"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/RepositoryCatalog/ProjectRepositoryDetailsValidation.swift",
+      "sha256": "777d7d386810127d06905a898a15d6ee1a8bed1a64fdd2f9ec21aaea3db0fccd"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/RepositoryCatalog/README.md",
-      "sha256": "dcf89b078dd00771f5d6fc427b8abc93fb8f27b71fe333018d3f52f132213af9"
+      "sha256": "f01ee789860bfb9510da75e397fa38af634a45a0184f653213bc6314128454f2"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/RepositoryCatalog/RepositoryActivity.swift",
@@ -1763,6 +1927,10 @@
       "sha256": "62dd92edb3c85d2e5d7403a5b5c1851b11e60db8d27355fed5d8262c99556b55"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/RepositoryCatalog/tests/RepositorySnapshotContractTests.swift",
+      "sha256": "97e8cfffcaf3f57be0e439668a52c530f25512ff38c28f4393481a96af24a075"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Runtime/AppModelClaimRelease.swift",
       "sha256": "a0c689d2ef50e8db3c48a8366e3cbed50ccef111bf137d8a6c013f066c9f1e87"
     },
@@ -1776,11 +1944,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Runtime/AppModelProjectMesh.swift",
-      "sha256": "f7d76b4945f681356397c228d92c378de75ca4b45f6d0b414387fc940e68c83f"
+      "sha256": "bda222c15d0cbf92cd58f0e7850e38a1b94648dd1e7f12652a869fef2368e531"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Runtime/AppModelProjectMeshForwarding.swift",
-      "sha256": "a2be89b4c9e7fb3f1c6a039bf54c54cb65ddb92ca03061c095644a653b5e3837"
+      "sha256": "cfe536155f0f84e570453a99b9c69d17f71bc5435e20c7e5523ea3d4e23ff4fe"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Runtime/AppModelProjects.swift",
@@ -1827,16 +1995,52 @@
       "sha256": "f0faa863b46ca1aaba08c3cb2940852ad1c893aaa138c0e2acefbfa21d2f05ae"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectNewTaskView.swift",
+      "sha256": "ee40b5db1b191ba379398f937892f6cd308cc41ff55a9a90b3babc7bdb78a973"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectTaskComposerFields.swift",
+      "sha256": "1bf3a1b759b9ad2be5c2c6f61e854ce38a4f531632153bccd53d5349e96d473b"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectTaskCreationContext.swift",
+      "sha256": "971ace0ddf921a24f02e16b63adeedb20720581cf5370761a22774e013a63396"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectTaskDraft.swift",
+      "sha256": "bdb4c130e458db1339d3bbb0899b87232b348478e14a4a2a08d29450e6b34bf9"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectTaskMacDismissal.swift",
+      "sha256": "df74c5bb6e0c9df35071d8b7e607f73fcf36a60286d41ec407d15f93ac191ebf"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/ProjectTaskSubmission.swift",
+      "sha256": "21331c1646fc941dfd7865dcdcd78303c0db09b773220c9c3e9b8819086a65cb"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/README.md",
+      "sha256": "4d65aef09b4988d009969b9e6fe257b1fe5bb4f15e8fcd4837abbe8fe7e0e6ab"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/tests/ProjectTaskDraftTests.swift",
+      "sha256": "66f095f4bced0b60a8c8f35bf60c6b5ce583636a51deebb959203487b800ffcd"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/TaskCreation/tests/ProjectTaskLayoutTests.swift",
+      "sha256": "dd6b2cd86b41f9c3175fcdbe4ad857caa11f08b66d1e743927abebdad3e747cf"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/ProjectMeshTaskTitle.swift",
       "sha256": "07f13f8da0191034d916cac1d945d3de69365035bced1561e98ffb43751b1567"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskChatMesh.swift",
-      "sha256": "f3dd916012de9e2e910fc3cfeb21b36a61b41cac9db18684281fb108e0f3e717"
+      "sha256": "8a7f74eb42c6dfac1c5913821997dc738065b580b5c1750ec750e82a1e5404bc"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskHandoffActions.swift",
-      "sha256": "22da0a4505b8c3065a298ddc5e9b2c9fcce5c7b436fcf884da62972d6da91d5f"
+      "sha256": "18f4f54b681ce4b6908ab04a28fab89b0fdadbef3b1fc100ce918c1a42c24bee"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskHandoffReadiness.swift",
@@ -1844,7 +2048,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskHandoffSheet.swift",
-      "sha256": "c46a7faa53c55641c030ecc8616d8657e0bbb4e008d5ec4b5785d801ee687883"
+      "sha256": "938d04f90fcf49ef98d5f78ee5048421c512b7f1148d31510f7ac5b72fc12814"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskMeshEventIndex.swift",
+      "sha256": "e714d5c5b92003dc399c5e26df8390e275930d30d48250f17f5270a06a0f4652"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskRouteRows.swift",
@@ -1852,7 +2060,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Tasks/TaskRouteView.swift",
-      "sha256": "daccd06f1bbc18e74e4a237e2ecbfd1332a3350a35f31516f5c95240836d8148"
+      "sha256": "942db5f562ba44b30206971095a07deeaea15bdfbae6d2f2ac4488ba18c720d2"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Transport/ExecutionCoalescing.swift",
@@ -1864,7 +2072,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectHealthDiagnostics.swift",
-      "sha256": "0c5631dd3506bc7bd88663f56012c2a4ba988a659ff6563ffbcf966de3caabb2"
+      "sha256": "deb09fb0c73538391fce5a90caac7bbaf94e2cc0cefdbd30448c6c9035d3c981"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectHealthRows.swift",
@@ -1884,15 +2092,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectMeshStatusView.swift",
-      "sha256": "8cc9baf6a6d8a3cb1c5c7e495a58ad5b9c98fe13e975f478f4f953bec9be4cda"
+      "sha256": "a1f46576332b1a63eef7975853b1e03ff96c3f3db2ad4106b03e75b33a8b912a"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectMeshTimelineViews.swift",
-      "sha256": "362d95463e879e539960aebc79e54ffe5238af60422c007ecc0adf81007bc28d"
+      "sha256": "0acdc817bb9f692bd695d71019a56a37d6704006019992bd69ae1171b8d27842"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectMeshViews.swift",
-      "sha256": "9f1f2ad4abdd819a8faeb564b6e7916e2ae891325d1f44a013d155eecffb7a82"
+      "sha256": "f3a39722d7ee87ff411aa669ba7f0ebdbe716e71f1f778425ce4f776564544fa"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectSolutionGroups.swift",
@@ -1900,7 +2108,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectsTabView.swift",
-      "sha256": "1235f7ca70e3376a9ed3d13b3e78b15d60892afdf751ba18cb4b8f02c0146a88"
+      "sha256": "ed589210669f416704d18e2e0bb56295da2170523847a3506c8e39bf1f9fdb0d"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/QRCodeImage.swift",
@@ -1911,12 +2119,32 @@
       "sha256": "4650c2a0756c787e061f55807a8e8f718f7b839d4d4436c56dff6d82b16ef165"
     },
     {
+      "path": "apps/ios/GrantTap/Features/ProviderAccountUsage/ProviderAccountUsage.swift",
+      "sha256": "339cbbce901ec02508e0fb58ad32e8b1283305fd9df3b6796c42361bf680b14a"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProviderAccountUsage/ProviderAccountUsageRows.swift",
+      "sha256": "1dab04554e77e633e1e390118bb99dc77eee7c852cc358fc7bc5fed86fb0a791"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProviderAccountUsage/ProviderUsageSection.swift",
+      "sha256": "c78f87603989bf49b066c5e1e2f28a72f40fa4a96e5d0e50846f207c21166408"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProviderAccountUsage/README.md",
+      "sha256": "1ab026093a0a9001781e60cd30a2dac4b1389f9bb7d14a33f1bcd4e99079eec4"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProviderAccountUsage/tests/ProviderAccountUsageTests.swift",
+      "sha256": "8f5ae1962cd7e95776eef3bd6a1a4aa68f4760fc2c9320a03322abe6fe0bd3b2"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/ProviderIdentity/ProviderArtwork.swift",
       "sha256": "da86769b306800c88e6ee33fc00ed07bb3449c398072d752fd8ce3f91488a7d1"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProviderIdentity/README.md",
-      "sha256": "0028a6b83e0141a12b904e048d560e6d64193ebc4916f1bfd430b37c6fb12463"
+      "sha256": "21bfe59831ef2b7bd71e9dedc1f7ed567ba9962bdd0b05985d003e197ec187e9"
     },
     {
       "path": "apps/ios/GrantTap/Features/Reports/AppModelReports.swift",
@@ -1927,20 +2155,56 @@
       "sha256": "b6ab56ed88ef9c423cfc5179a4350fefeec98171d3e8982120ce34a7848e781f"
     },
     {
+      "path": "apps/ios/GrantTap/Features/Reports/README.md",
+      "sha256": "69f0034f8efad62ee11dd508c9a1c1e01146a3c7aa44f2a7d2242fab6921fe69"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/Reports/ReportCSV.swift",
       "sha256": "6425002ea92a9a79177b873c882b52bac1f6631e6bf20f942fcc21ded7aacd92"
     },
     {
+      "path": "apps/ios/GrantTap/Features/Reports/ReportDocumentPreview.swift",
+      "sha256": "7faf8008cc81b643f592132f3cf3f6ee4a7fca3ffca66ae10d5f70040405e2e1"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/Reports/ReportExportSheet.swift",
-      "sha256": "feea225bec16498caa3a644d36670c1bac38c5207e1d86a07b1ba5838f0d7292"
+      "sha256": "15031975ddfe8963c6dd57327c4cdd7a89d9901212315874eee6ccce688b7039"
     },
     {
       "path": "apps/ios/GrantTap/Features/Reports/ReportPDF.swift",
-      "sha256": "ba5871fa65b52be3c5cdea7a1692c82a8d381a4b17129702c891b184986a0924"
+      "sha256": "01089915801986a142774886527ebd6df7d94cd5f53c962528827930de9a91ec"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/Reports/ReportPreviewPreparation.swift",
+      "sha256": "d3d52d5fee6852b5ed4197d3a6062a87788eed5cf621dd70db740da934c162d5"
     },
     {
       "path": "apps/ios/GrantTap/Features/Reports/ReportTables.swift",
       "sha256": "0d6d2ac0cba4c84adc70c7e174e7c8ba4edc89cc7a5e365d02fb6347af64986f"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/Reports/tests/ReportPreviewTests.swift",
+      "sha256": "4e8e06f7b3c97a674c1748314de8c86c0d4bc7de8a70c45ba1989819f1ef1a99"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Audit/AppModelDiagnostics.swift",
+      "sha256": "aeb5ac0d08640bb44800a6575fc95aea7a40a584c59ad60c3cbdafec5b62a3c7"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Audit/AuditStore.swift",
+      "sha256": "0c7c2771d6c04f9af8ad5d24392172092831e4cd4b4bb4a877c2a00b561e15f8"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Audit/CapabilityUsageEvent.swift",
+      "sha256": "8e239c07d90fd3f9babdb37964cddfdd43185294bd7f75aa52f33be8f17cba80"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Audit/CapabilityUsagePersistence.swift",
+      "sha256": "11ba7fd38e95b856b58587fb802b3f0f7f074891e790b005c1141b09a85cadd6"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Audit/CapabilityUsageStore.swift",
+      "sha256": "45663976fe9a4fc4d2e860c1635277d53d9990aab4f49935251acd79de0eeddd"
     },
     {
       "path": "apps/ios/GrantTap/Features/SecurityAndAudit/Crypto/Crypto.swift",
@@ -2019,12 +2283,16 @@
       "sha256": "9a968bd59d8b3ff61becdb1c0922490238245b437888fd8783f4743be7d7e08e"
     },
     {
+      "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/AccountSubscriptionGrant.swift",
+      "sha256": "3a490e8fbb26facc637fe0077151368b0c6fe0dc63e8c27ee603b2ee36e0c9eb"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/README.md",
-      "sha256": "d2291e8f6e08ae00df5db731279d0e117ccaf3d69454a340e750e646d8a3e38e"
+      "sha256": "b6aa9ad4499015333539c9636eb55b5b1a59be618abc07eb48b7166ea4ce80ea"
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionBetaRelayAccess.swift",
-      "sha256": "6856b97afa8ee1d85e1bd4daf0410864430d71cac0a980f9e4d4320464a95d5a"
+      "sha256": "939dbfc5bd4329354d3a605b88dbd73ba5cb22971c3239cea3e7d19d02803e39"
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionEntitlement.swift",
@@ -2032,7 +2300,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionProduct.swift",
-      "sha256": "520d9c75f445f49e21095e157c37e8fff61b4cd685dd51d3a35b79909b871d34"
+      "sha256": "abf108e69b384245ee087cf81cff01261a3186e49a6863f7d628dbdc8bb3afc1"
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionReceiptSync.swift",
@@ -2040,15 +2308,19 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionStore.swift",
-      "sha256": "af84dcfdda8df167ee8219a5b3bcb73d54009eb1e8c943c5e9011bfe1c419980"
+      "sha256": "b733cc12aa229eefdedd2bdbd9f1568b0d0fe329bbb0141d6937a1a072e73881"
     },
     {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionStoreEvidence.swift",
       "sha256": "569b506d21a32952bd811cd07a9659cfd69a2e7dc7d3a374f9371cc830757f00"
     },
     {
+      "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionStorefront.swift",
+      "sha256": "16cd050850c9a56fbc002d0d2823aed5bed9edc77ce059f854c8d2c2b7357242"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/SubscriptionEntitlements/SubscriptionView.swift",
-      "sha256": "e934ec9b0b46cd277a7d04b1beb0300d62c3f4fc7e542790442fd6294f40ffb9"
+      "sha256": "249038fcfb501a3ea627b93afc84781c10ebc25b4485a755b39e706dcb5d6f0b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/ComposerAction.swift",
@@ -2056,27 +2328,55 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Models/AppModelTurnModels.swift",
-      "sha256": "e7ca831f0805dbaee008fc99ab7e2feb8871caf94745907dc014174f1cb4552d"
+      "sha256": "8455ee998f8ed88162cd8260b7bd89d817b836e9a179e87de208308fe1ad9862"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/ComposerEffortPicker.swift",
+      "sha256": "1b87139172bc9d99a53f08507a46c71a4606ef57f0312bf870ef984ae78ce94d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/ComposerModelPicker.swift",
+      "sha256": "82eed9031ac3e689190728096ce1b8620528fbec4b4e4a676df8058df4553b4b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Models/ComposerModelPill.swift",
-      "sha256": "c339cacfa817f0e944b9876088b3658322f0089a3eadb6e00853e2b37c897a5e"
+      "sha256": "2867e1304e59b3c408c2d7c564874e50158015fd01dfa480340e426c49bd8975"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/EffortControl/EffortAnimatedTrack.swift",
+      "sha256": "c546b8213d9db78cbc0b17164826b2ccd91f2910c370597b3901cd26c812f730"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/EffortControl/EffortScale.swift",
+      "sha256": "794d2c92ea6f0a9b949c6d429ac26c6c8e01b13dcc4509f3b0acef9fcfde7e62"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/EffortControl/EffortSlider.swift",
+      "sha256": "0aa07e86e54761717c24f0de43d4bb2ed4577722fd8870b3472a4af1c4efe27c"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/EffortControl/README.md",
+      "sha256": "b4a10f5732c116b1fa693d6b9352d7d84d34fef52261e052f0f0008d77d4cd14"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskComposer/Models/EffortControl/tests/EffortControlTests.swift",
+      "sha256": "63b48ec465577d67f8305566a5bedd5a0d81a0e62d72cc44a1a412a1ea24463f"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Models/TurnModel.swift",
-      "sha256": "c4cd2c6f81fa57753a8604622dcd80fb271f751110306cd4d60f5d9be4652b15"
+      "sha256": "cc83a34b893444d91fb936a167492fab3770668e69ab8505085f42bfc8cc4f91"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Models/TurnModelCatalog.swift",
-      "sha256": "5221d1bc2f69bbed88f751fc11117ad4b67fb44d3df61fa5ba802dffaf38a9f1"
+      "sha256": "a478be08b16112005dc3f4817229e1a4072324f9fbf2616574829ff0d0413df6"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Models/TurnModelPickerFixture.swift",
-      "sha256": "c4b40a95e834052df6674cdf16506ae9df06062139001d8858b10e57769f4846"
+      "sha256": "81f1dc53e2a3ad6de63e64d0189ce9c472252e91693e33fedfae7113ebac4de3"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/README.md",
-      "sha256": "8d230afe1553007c6cf5e2331f43ecea7c281cfbe064b9e7605c374f4103d081"
+      "sha256": "74f737b96de06daafd93e2bf88ef5fde532bbd84c443f918f1b5feb7893c5f87"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/Routes/TaskComposerRouteModel.swift",
@@ -2092,7 +2392,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/TurnOverrides.swift",
-      "sha256": "3c23c6931846e73ae22256f8bab91dd6f23421e6d34ee815504ae8f836a4ca52"
+      "sha256": "db32920f8f7c67da67a8a50f9ab66e495e22748c071a2f6058c53a998d500412"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskComposer/WorkspacePickerSheet.swift",
@@ -2100,23 +2400,99 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/ChatMessageQueue.swift",
-      "sha256": "c2b43a45926ac143d4c16415b9da850462066a6fcc55cc668d784adaa22bd1cb"
+      "sha256": "e22c0d10cc8596a9b76d3dbb54abf5e9aa88bd7e10e91ef4807201334d150c2a"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/ChatMessageQueuePolicy.swift",
-      "sha256": "194a48f25588924bbe59887aa735bf2a45bebb267c355040f09fc6fee837c904"
+      "sha256": "41687c93bb5cdcca5edd34cf8181d20334306041d845d9d534ba23ff39f7a9c0"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/MacQueuedMessageDelivery.swift",
-      "sha256": "41e91ee0a8e581342522ee81dff51aad18a3e1cedc03cb713d42e07c68fc2542"
+      "sha256": "83558765520798194bc0092f1ebf786c75b729fffc152344403c65130b6c5c49"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/README.md",
-      "sha256": "4b2a47779597cd3c29c7c6570aaa31196e95c84fc963e6cd5abe218f8d2f98a0"
+      "sha256": "8cdd43b9d4f0587d52d33fa15eaf19bbe40943d74716f511c9aebd6c009ed9e8"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/README.md",
+      "sha256": "c30c1ff200c5990be39aaef873d6524c5312a1f3059a097873a050b4419d6849"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueActions.swift",
+      "sha256": "d741c8beb694fa194a770d12fd1f05f3c36ce6a1e3dc00401ed34f0c262aaede"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueCipherStore.swift",
+      "sha256": "fdd19270238e5b9e8718b4ceb59d131697c7cfd7e4d6ae601bfc063b81f9b391"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueEncoding.swift",
+      "sha256": "e97ad7a28e688f91b48448a04d5329c77e30419f6a802a8fba9e0cd4f37e0c78"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueMac.swift",
+      "sha256": "b85feb5a7dd86a1bb4f6f0cc0e35fc45d1b36ee472d4f68a209307d3f8247221"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueModels.swift",
+      "sha256": "d9ccb46370473e7091afbeec5aab81189265202f199d9e2f56abbb4307072c58"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueRuntime.swift",
+      "sha256": "d5e47683e49a2e8cf8c55d7e2529d49587ae37e41b22aba33d7254dc9daa4a9e"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/RelayTaskQueue/RelayTaskQueueTransport.swift",
+      "sha256": "26e60aff9a59f2f852267e814d63af1ff1c13a530f0602f3b51a2b20bebe3675"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskControl/AppModelLocalTaskControl.swift",
+      "sha256": "b800c70c59d779ac48a0c0c91581307aae4eff8a76597644d806c80927a5b5ec"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskControl/AppModelTaskControl.swift",
+      "sha256": "5f3cbc938d25eb865c739ebfbb0c6b06903bf2feb5a342c163cab871da1bf5e5"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskControl/README.md",
+      "sha256": "2cc1a12a8fe301c158040ae6505bb1c16fbbf6ae4ceab87df5d9b380f5ae49f3"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskControl/tests/LocalTaskControlTests.swift",
+      "sha256": "3f371347e91bdb515548fee939c088a4d0b68b2c3aa2073d34ca5ba241997f1c"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskDeliveryQueue.swift",
-      "sha256": "5403283f024ae805025fda4be9351dce9c1465c1e3328b3c8c833473d249a2c4"
+      "sha256": "84c105a8a95db2adb745f1a5133f6d9a17000af052cf727a0af27a7aabdcfbb1"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/AppModelTaskTransfers.swift",
+      "sha256": "1d735b95b18f74112819fe081f8af0bc745f1ed536bb8e130c2aa4fbb77ea81b"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/ChatTransferBanner.swift",
+      "sha256": "f6fe93d8219e4b10510738fd1a6f0abc74d1fc5ae86fa7aee8053752c4688398"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/README.md",
+      "sha256": "a2b5d123639e1f67fc1f3a8e8d11849ac97fc12a87a55969992f19542a140936"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/TaskTransferAvailability.swift",
+      "sha256": "c1e1a6d5c105826c644416add779f980c5ce5cc4b1d369a94fccfd201a5827ce"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/TaskTransferModels.swift",
+      "sha256": "58e529509851093602811a3a01910109e724987d9fc8874fd80d945543b0c94c"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/tests/TaskTransferAvailabilityTests.swift",
+      "sha256": "4f78ff54056f5d180d8e4741a6eeaa729ce3698abc0576fb7c0f65e8e6975b98"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskDelivery/TaskTransfers/tests/TaskTransferTests.swift",
+      "sha256": "d7cedec935a572e70c4bd32c60e194f6a68bb094fd3d675e897555d9a3bc45b1"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/AttachmentPreview/AttachmentPreviewFile.swift",
@@ -2167,8 +2543,12 @@
       "sha256": "b99423aab74b4d2d311d36f0f7281496e899e983f781948eef5112fc6bf3ec25"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Capabilities/ChatCapabilityRowView.swift",
+      "sha256": "b963b6819d50b46ecbc5ed5a3f40e104b7d840848e53fc06c5e92dc2c6529ec0"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Capabilities/ChatCapabilitySheet.swift",
-      "sha256": "fb710231a7faaaa3101a73fd68fb36501251bff1dcb82508eaca69485683104e"
+      "sha256": "c0d39ab12f5b7ba61ee8c2c6e601539bfeb25ea7a4d05117a5747c66ec360e9c"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Capabilities/ChatGovernedCapabilitySection.swift",
@@ -2176,23 +2556,31 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Capabilities/ChatTurnOverridesSection.swift",
-      "sha256": "e6e276f1f2dfdfbc9f533e81c2e3c5e9ba36aa19ec3534b2f9640d603a72fdad"
+      "sha256": "f89383a3e1fc1f17d9954bf9b460dad8e43b3fd1ad54d7a8c3ff09373d47c5a9"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Capabilities/TaskChatCapabilityRows.swift",
       "sha256": "1520b1ee063eaeac0e7e2a42a14478fd199470d4ba82a014ae20a53209abc8ed"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/ChatComposerDraft.swift",
+      "sha256": "0f5d4e301e052760eb47c283c53fac9b83f0fc609e9873b82c97790abaa72ee8"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/ComposerParts.swift",
-      "sha256": "9691930a50997ff78be3d38e065b0ff614e7ac321164cddda28a9546e05374ca"
+      "sha256": "56c68675a3e0257a041469a6f6ea6ad2f91d31294b3a84d116b05b93c8b0dda8"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/ComposerTextEditorBackground.swift",
       "sha256": "dc77544cf7b25c701844209a74f8d29a407e2305c063e6cd6b7c2e86648f3586"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/ComposerTurnBindings.swift",
+      "sha256": "1e41d60105d5a8f3e29ed9d377d8599fbd69caaa36c64b70a24243199ead4251"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/ContentComposer.swift",
-      "sha256": "d0092faeea970ce21c44470c854212c907b2320410523671ceb949b62baa0a4c"
+      "sha256": "ef9699b82ea233c26f9c11533384d5b1ac2e009d7ab634449a3115d468b7d6f7"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/DictationControls.swift",
@@ -2200,7 +2588,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/NewTaskComposer.swift",
-      "sha256": "3b35537c5d92ead2d973765cb87283caecc101c63204005caed9cafdbf1fbff9"
+      "sha256": "459f99f2d5aa94f7e1fcc0bf5796e07e86664bb22db689ee4988824a921988b8"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/README.md",
+      "sha256": "924dab41957a4094c4ee7fd70372a3487fc714829ec8e2dcb974f889fc42ca24"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/SessionComposerBar.swift",
@@ -2208,15 +2600,23 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/TaskChatComposer.swift",
-      "sha256": "e10fc3fb603705ff1d271282ff75c3b451623c772f759a385984eb3c57de7f11"
+      "sha256": "365412c868339a7ac10ec59a9986b41c202be4b7dd4aa918dc0c34ad7ba0dd2d"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/TaskChatQueue.swift",
-      "sha256": "612d7088b5935cfe30f7657a849748782e4f1e99fa8989c589c08c4cd95d783f"
+      "sha256": "e82d4c31078a8c10428342cd46222fc212c61ae93f79513fb1338b78725b1e14"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/TaskChatSending.swift",
-      "sha256": "2e9ae4f97cf32c94464ac2aed5c1ea83312f7f8cd48aad77cea7eb05f762b5f2"
+      "sha256": "f90ad2c2d784ebf6affa2bfc91f787b4f9947890ebadae35a2d6932d9cd6bb81"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/TaskComposerStopButton.swift",
+      "sha256": "faec482ceb314378d86ba7dd1a02d388b530ca4d339ce9534e02ac287d8efccf"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Composer/tests/ComposerDraftTests.swift",
+      "sha256": "d4abe3fa6004917f9c2ffd20e506a8cf57f8f498bc9548a2a0b4b7e00913cb9d"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Controls/ApprovalCard.swift",
@@ -2236,35 +2636,67 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Controls/TaskChatControls.swift",
-      "sha256": "c1e7a62498393f6023a3ed2f90c16e7d6c820f22c66efcaaa89f4e8bcf7c4abb"
+      "sha256": "3ecdf63d4f5269140ebd8b2454256f1ed616ad0ce56cc4c83d68fcbef8a2289e"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Controls/TransientToast.swift",
       "sha256": "435990f94c6390f2eee333f275e94d5bf3e6616da49febcc7ad0e9186f1eca91"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/AppModelTaskFileEdits.swift",
+      "sha256": "f1a3b63e65ffa4c195aca159ee3ac9ab9f288f7ae5a7f03cc98c594abdae5ef7"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/ChatFileEditView.swift",
+      "sha256": "08743e020de1867e3afc722678e39fa3ee0a421f1e8e5bd5499e7fc576aa4674"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/README.md",
+      "sha256": "999933767702eb5c2f0784ea168bd2eec6cefdfe3655981f7e2e78daf1076ba9"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/TaskFileEditClose.swift",
+      "sha256": "7e42225942dacc5ec6abdf945c5c0b74359796537d9efbef9ed52306e4803fb2"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/TaskFileEditDiff.swift",
+      "sha256": "c827b5c94fe01f79947dbfd644991a83b044b364cc3ed66489c417a86181ebe7"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/TaskFileEditDraft.swift",
+      "sha256": "184b78df6143f0553bcc999e15a7f5f8a1db7aade891a619d9f6d7c83b8eb5a5"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/TaskFileEditPath.swift",
+      "sha256": "e875963ca3ad4d934942df12fa6eff70d5438b240367bf3bc901a83b9cf1772b"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileEditing/TaskFileEditRequest.swift",
+      "sha256": "a92e4b910d4824c97f590f3a18d11d20f65cb6048dccfde7ef05bb8bd7cb7f37"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/AppModelTaskWorkspace.swift",
-      "sha256": "aef04b53da1fb064185bcbf037e1833324b9593108add508e1dc1c57eddfabf1"
+      "sha256": "d03dfee66f6962d2f05964653574d828d49b09d16bc6fedc3da8bec20c50bf41"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/ChatFileReviewSheet.swift",
-      "sha256": "193f62a530c221feb9786e6af13dfef5af4d283bbb146664d35052a42e75b8c7"
+      "sha256": "91a14f5e1160303050edf8f92b619fcd8703254e72fc01b46a703bfb659d8bbd"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/ChatWorkFilesSheet.swift",
-      "sha256": "1fa4656a0ba68709321b7b78a256384a6ed99e64bc05c1e6735434c06db84f15"
+      "sha256": "ae741088da371bf7d28cedd1501df68a06b962aac236ab3ff0f2b696f95b8233"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/ChatWorkspaceDirectoryView.swift",
-      "sha256": "b3c655c8fd73a91028585f40a71a5321e54fdf23cfb751f536e128a0367d1199"
+      "sha256": "85ec490242cb1ae432ef33e14b5274ef0046931a0fda3a8708a18b905037220b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/ChatWorkspaceFileSheet.swift",
-      "sha256": "44b7f09efb72994fce4297e12a12ffda85485ec03862f54620e9e2ccadfa1796"
+      "sha256": "2c647d6961bc0009f26e5105ab456ddb2c272f8f43721fb19115520fb6eaf36b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/README.md",
-      "sha256": "8e7a381a274de326fa6b0af50ee4295bb0d6b7ca27fbbddc1f797bb300f7ca27"
+      "sha256": "e9b0a5c3804dc67b5f544bb0b0a705696210824be15087366a018f0a0bdc54ad"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/FileReview/TaskWorkspaceModels.swift",
@@ -2279,12 +2711,36 @@
       "sha256": "61d36f7eda8250fc8ccdce70f616251e3463b3d54c96db353499b2610531131b"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Permissions/ChatApprovalPreferences.swift",
+      "sha256": "fdbb605b16aa7ec133fb2e3b8e8c5543c13685fc84e8f2dc5671f2548cd2bc3e"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Permissions/ChatApprovalSection.swift",
+      "sha256": "77dde64e659165053979f5696a5d5faff25c260ad336d858fe8d4629d70c0a67"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Permissions/ComposerApprovalButton.swift",
+      "sha256": "1e02b6e4663117db1347505b08e8505c7000ce1fbe83c6b19471deaf9840acec"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Permissions/README.md",
+      "sha256": "467b77299f8eab6c09dbd2e7001e3750284377c22388e2ba64bdb088b8ddad10"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatMessageQueueBar.swift",
-      "sha256": "a1c2bc4a851cc21f0b6956cc8b97a890ef695768d2f94b79ffb62d6065e0a971"
+      "sha256": "a5ab861ee4771495cdfe2a21584b7dad65378529a81832146b1ff77c5490472e"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatMessageQueueFixture.swift",
-      "sha256": "aafb12389f76fa26b443c05c3e949a3c88641eae144f55a7bd9d7b73300653f6"
+      "sha256": "208af8d9285b66bcc96f7970319c7f507b8b6c8936d368564ec7f3aae4770082"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatQueuedMessagesSheet.swift",
+      "sha256": "051973f8db60026705cf3143de6fb5c50924481af5e24ed6e9c28dc7f4c97b5d"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Queue/ChatScheduleSheet.swift",
+      "sha256": "43fdcfcf454035533a4629d7f0e74a80bdf6c7c0a108c7aadd91e4e7afd57727"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/ActivityCommandMetrics.swift",
@@ -2292,7 +2748,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/ActivityRow.swift",
-      "sha256": "ab654219e63471731f4719b327912b906abe436ba4fdd5f2e5b9e188f66de7cf"
+      "sha256": "70f0fee7fed6d199a9fb0fc8a1f9c74afb330f7dc4d83152913a0a0fc8c8804d"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/ActivityRowBadges.swift",
@@ -2312,31 +2768,75 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/TaskChatTimelineRow.swift",
-      "sha256": "96564deee87d71cf8c224d44d02a17a24e1f4b2a4682de5493bc9958fe5a7c41"
+      "sha256": "42fb94406272dfb432ab4272e543e520ecd025f98efc03bc4755e50b3b509240"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Timeline/TranscriptTimestamp.swift",
       "sha256": "90da75180a9abac63eb5c55f35443cdd7e917b3b6266d66c11546b64e1fbfad3"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/ChatRequestNavigation.swift",
+      "sha256": "10cd090bcade46047462c828310ce2f7e9d3971527fedd6c0d711893a2942aba"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/ChatTranscriptCache.swift",
+      "sha256": "177912dd798cfeb9ec3dd624111c91b26c4a920476f204920968a580ba8729a9"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/ChatTranscriptPresentation.swift",
+      "sha256": "c272664c285a8c09418e303f102aa796d2772b1a4d06f7113e9b95d182e9675f"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/ChatTranscriptViewport.swift",
+      "sha256": "ac251d974a64acef6650acb6e3337cc0ea2548cc41c18f9d1572631277e1632c"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/README.md",
+      "sha256": "b6e95e9e95969def523f9269e85dd8ebeb3ad469ba624ce0babbd60e867f2f70"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/TranscriptScrollPosition.swift",
+      "sha256": "def9254415fa85170c860a7cd4499bbd773b1ad0166317b02cd762e344f9a01f"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/tests/TranscriptCacheTests.swift",
+      "sha256": "f780df03c6d0a56db63349c42a7311f99831e089472640c37c476f087a561522"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/tests/TranscriptPresentationTests.swift",
+      "sha256": "e9ca1451ef1701720398dd21dfc32fcef06526885df92496f75e4079ec294429"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/tests/TranscriptRequestNavigationTests.swift",
+      "sha256": "c4f081aa693266c522c01c9cb1ce7207291ab908a092b133350fceca7dcbe7f7"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/tests/TranscriptScrollPerformanceTests.swift",
+      "sha256": "88658efd94ec42843d7e009b41e77ca2cc2685c770ee5f0fd1e6049d15a96569"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/TranscriptViewport/tests/TranscriptViewportTests.swift",
+      "sha256": "036ad3c6bbb0bf2e234e7516dbce5c8118a0587208890095a8be5488125513bf"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatAccessoryPillStyle.swift",
+      "sha256": "89c5631eb8df18ad0802489bf178c08d1f35a7fb73289adad270c669950c9d47"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatActivityRail.swift",
-      "sha256": "542f8d30f1f7c5fa969d021f0a676b1803cc9e79cb9315b1e1d2998148e02061"
+      "sha256": "7068d58a30a72b053218cd26a0db092e231e9c1d20b8499c7ebd0df3b8f7682b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatAgentConversationsSheet.swift",
-      "sha256": "f3ef88eb1daf34223a20b1fc9bfc5df836f872d521ee5b094b8dd5792ed7c29b"
-    },
-    {
-      "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatBottomPositionKey.swift",
-      "sha256": "8cb2e0a9291eb48c6d19ab25c78703287a70af220439ccb06e5027b9fbb3bb21"
+      "sha256": "6768ef3f9297d5431ba081598250037d21e098835d19de4a59f0b4b4e72f5f2d"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatFileChanges.swift",
-      "sha256": "25a34009fdab673c3f5bd153d8309b0f7d8f569410fdc943cb7ed612865e35ce"
+      "sha256": "ed64ee7c8f226dd8a9c3fbcf310a581b1f25ad961f6f5d17e8312335086cbf9c"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatHistoryPaging.swift",
-      "sha256": "61c1dd7b68e1202aa0505d818b50269ed8ab5168b3307e3d934d17a0770de3e9"
+      "sha256": "01797b33fcdba0545d6d6aca848a3c00078dc578f58617531a775c7a951f24e5"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/ChatPinnedUserMessage.swift",
@@ -2356,11 +2856,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/LatestUserMessageButton.swift",
-      "sha256": "d417c63845276b1fd4c662f34aa2fb3c35ce777249beaf346ca5dcdfef5f1c32"
+      "sha256": "c9999925e2d47f55cc1fed556ffdf54ed7d2f9f51ffdf6af7349456c3d8482a0"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/MessageImageContent.swift",
-      "sha256": "fab77c4645bd01ad9e1560003335d4a158eb1f33729d8f912fb63c3941ec1d5e"
+      "sha256": "0ae58910ba943030b324b765bec5734d3a4a6219cb6d1481dbd957b51701100c"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/MessageImageContentView.swift",
@@ -2384,15 +2884,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatScreen.swift",
-      "sha256": "3fc218422dbe63e2fd473a7c60f7b55a85669fa2a818b8e86c1d917440ff2e2b"
+      "sha256": "af974b4dadca0859bea296720529ea1cd600ddb58449c7c8926160344a03e6ee"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/Screen/TaskChatTranscriptRows.swift",
-      "sha256": "dca5516e04d5fdf5b5597c6aba0202e67cf46d948d5b943793fedbd8bc39604d"
+      "sha256": "55f17e311cc15294e71865d1f35d0ea464f4cbc5e6b8c0ad6d46010adb873923"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Chat/Views/TaskChatView.swift",
-      "sha256": "8d80b7106dd7288c5fc30da7dfaf35b2d8e6261eee859618a3706b7f5828091b"
+      "sha256": "4a0b92041c0f415dd6b263332cc84764b0622bc06eaede0ae1cb9ea6c4947a25"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Content/Views/ContentHeader.swift",
@@ -2412,11 +2912,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Content/Views/ContentPending.swift",
-      "sha256": "c24972ba16fa6ce8f50b7b341e54f1f77148c6095309c3add266c037b0ca0c83"
+      "sha256": "42079db4c048244829cec7379d08f257583be93e15a0cdc5b2461851de644588"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Content/Views/ContentSessions.swift",
-      "sha256": "42bc8acb992ac6657785fadfb309cab4e7c88ab08f0e087c07186fd5eafda41f"
+      "sha256": "09f9e6db97191e00b8481e2ad644b19148063f05b872a15eae1a193794427ae3"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Content/Views/ContentTaskActions.swift",
@@ -2431,6 +2931,18 @@
       "sha256": "924b3ca2b1772aff6a108f217f4bd6f0c4cd9e0d374def4c29b24f61d9fb9b90"
     },
     {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Navigation/ChatSheetDoneButton.swift",
+      "sha256": "0935052b824f60a508836c399868d7dcc2b394216b63d6129753cbf5e5c66e13"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Navigation/ChatSheetNavigation.swift",
+      "sha256": "73c8a2178198d3723815b0286f4232baf346bf62c8f4a66bb2873541872da3d7"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskInterface/Navigation/MacTabFrameProbe.swift",
+      "sha256": "f82ef5f97e03f61f3399d646d03828981623cdc3f687654d57cd329262b96332"
+    },
+    {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Navigation/MainWindowMeshNavigation.swift",
       "sha256": "5ab83d4b66b06c186e88856683ea77fffd03a13f9d6127329e3fdcb73aa76011"
     },
@@ -2440,11 +2952,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Navigation/README.md",
-      "sha256": "2f67d035de26cc533b1b39acacf36a7988a4ab2f23d125ac766568b83cdc532c"
+      "sha256": "108724e669ac07ed1ab29bb222d8689619d3754ed3030b723de2f791c47b31bf"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/README.md",
-      "sha256": "611dc543532259b23ea51be8db51207aaaa5f367e0b3e5881157888ec948d3ff"
+      "sha256": "7f7ca1cf255a5f42b9d1595e42867ee9c06b5a817dc06f916b7ca273861f159b"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Session/Views/PairingPurpose.swift",
@@ -2464,7 +2976,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Session/Views/TaskSwipeCard.swift",
-      "sha256": "afcad0151109eed21df4aee52425bcdb16207f018c3f1af571a89800babb7a8d"
+      "sha256": "21de0fc0f2a141defd42baa30541048f392b297441e20dcc865a83088b983bd4"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Session/Views/WorkspaceSelectionMenu.swift",
@@ -2472,7 +2984,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Settings/Views/AboutGrantTapView.swift",
-      "sha256": "a1b69cd86c1244bc12b04bdbbc65d419a6a3928ce1daeb6cbfa83d56cba247e7"
+      "sha256": "0641ea0c9b7a351d8ff0678f4e4a5facd464fb17744d16369d28128ba1e8852d"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Settings/Views/ChatCacheView.swift",
@@ -2496,11 +3008,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Shell/ContentNavigationRoot.swift",
-      "sha256": "a22c7856448fe60de06f77ab1bc470048f4037fdec7d9295661fdf659994ad77"
+      "sha256": "d5666b8dd0b0928e87c2445cadd13ac5dd348dea2ed1e44285c1eadf99aa5433"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Shell/ContentView.swift",
-      "sha256": "40e1fb92fca226702f31df9e06b7572e4300a7cbcb33f68bf56bc334f2b8dad0"
+      "sha256": "4aaa69e4754bcc53c21d2803552a9e7b6640ce9ae2acad310486212f05189f45"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Shell/ContentViewActions.swift",
@@ -2508,23 +3020,27 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Shell/ContentViewChrome.swift",
-      "sha256": "a5e07bab73d311d190c35c249e093339e083d36f0b61a63d18011545e6c63c9d"
+      "sha256": "e6963641261172f7187ea11cf2af876976c86072960cb076472e84137bdaeb98"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskInterface/Shell/MacSidebarTabs.swift",
-      "sha256": "8bccf1e2243f23a389c412c25c56cfd0c79ab69fc12004101cf064510ac37006"
+      "sha256": "8cd89aef71319d343a5313250145e3a79558e1dc6c031eb5a75828bb3e87be99"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/README.md",
-      "sha256": "9cdb6f90ef76aa7662801a4a2cff7175f6a787667698612f129528a81b8f029b"
+      "sha256": "04f781eaa7e1b942146ad9236c7826f92451970e46775f2a5704d0737ae90945"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/TaskListItem.swift",
-      "sha256": "531800cbcf4e52b25244fbe0729ad3470249447f02cd4fab4c167e5afb667959"
+      "sha256": "410ea91ac10711cdaf3721221abbabcba6fdaa3a7df0a8bf884c954ae372a048"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/TaskRoutePresentation.swift",
       "sha256": "e93e6bfbe51f5e5e2010ccff338187b54b47b091fce808131d647def4c07902e"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/TaskRouting/tests/TaskCatalogPerformanceTests.swift",
+      "sha256": "9845168ec81196648b4e0b60864eb2640dbb77402ed7804cdb35e80ad1ce1256"
     },
     {
       "path": "apps/ios/GrantTap/Features/WireProtocol/Machine/ConfigurationPayloads.swift",
@@ -2580,7 +3096,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/WireProtocol/Session/SessionInfo.swift",
-      "sha256": "d330301048b5b3f1b1c9f9860236d0beee54bff5cc68fb1ecfb6543c8314e6f0"
+      "sha256": "d1b7138d513924e691559dc0225295e810660ffee39a990e0babbbd36ee207b5"
     },
     {
       "path": "apps/ios/GrantTap/Features/WireProtocol/Session/SessionsHistoryPage.swift",
@@ -2596,7 +3112,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/WireProtocol/Session/TransportPayloads.swift",
-      "sha256": "5fab22c536d5861af8622f72127a93f9a43040b1191ee7afb648ea24c1f2d0ed"
+      "sha256": "89816512bcff7b9a6a6c5e438529b6669b448783b23544475003da733bce8e7b"
     },
     {
       "path": "apps/ios/GrantTap/GrantTap.entitlements",
@@ -2617,34 +3133,6 @@
     {
       "path": "apps/ios/GrantTap/PrivacyInfo.xcprivacy",
       "sha256": "c63cd733e6ca2b3cbf810a962e87087053ba32691c123d1e3a1f5a7e677f8a87"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "7955d7b3073b5ddc7fa5a34b5e7e6aab1e9ef8add677e06b087c71f2e271a5a5"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
-      "sha256": "7f3b00b5c3fdb45242d7b87e1e5c4e25d1fa8129a16c94295ecc4e8ea2235c5f"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
-      "sha256": "e3bba7e7947232c9a6eb99a4a32a877c45d62ddba4700ad0a3b688c755a71f1c"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap Commerce.xcscheme",
-      "sha256": "557ce7b6633c6d1b491f6511af67bdf3c05028cd4da32eb885f7a725fe03940a"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap Local.xcscheme",
-      "sha256": "eceaf862ebd83190f7c892f671d211f9698ff99b69637ea281b1de5f3b7d8384"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTap.xcscheme",
-      "sha256": "95865c4c3c76bf7775fc4860109d28243eb59416e8038b34359d26434576af44"
-    },
-    {
-      "path": "apps/ios/GrantTap.xcodeproj/xcshareddata/xcschemes/GrantTapWatch.xcscheme",
-      "sha256": "4d7d8a4cc7ad92b9be4c3b920ac5864526677672549a0d069c6699159cf3ee85"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/AppModel/AppModelLifecycleCoverageTests.swift",
@@ -2684,7 +3172,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Approvals/RuntimeBranchCoverageTests.swift",
-      "sha256": "0a3bfc49e25fa2b2b84b7fc61d8dc55b5f6ab3d59a7e668143ad5ca112a4bbbc"
+      "sha256": "8c7a33762cecb835a24638e8a4fdd928cd30238a336567b7c238524f738a1126"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Connections/ConnectionCatalogEdgeCoverageTests.swift",
@@ -2723,8 +3211,12 @@
       "sha256": "50348333d363d756e44728e66bcf1e6b6d2d761e9bc76d75207591b23670492a"
     },
     {
+      "path": "apps/ios/GrantTapTests/AppRuntimeTests/Outbox/OutboxDispatchLeaseTests.swift",
+      "sha256": "3db7f9b96985bba26dde990fc6f5d7fde500702de69639c9d6827adf13e925ac"
+    },
+    {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Outbox/OutboxPersistenceTests.swift",
-      "sha256": "69a97f56dc17c4430fb65b73c967d30d680a953ab2ed4f03a004d2914a654437"
+      "sha256": "f6d52b07769dedc033d0f19543772e482b48952bd21bf74fbd67b9fa571ac1df"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Outbox/OutboxRetryEdgeCoverageTests.swift",
@@ -2740,7 +3232,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Relay/ReceiptRecoveryTests.swift",
-      "sha256": "2a46c3bfa7006f99d10c00f7b7f4b6958b8907fc31904da21e8b399b62277c35"
+      "sha256": "22f3f07a46c831175610b4047ce0e01ec85698b017b0b69d718e797b6a57f5a2"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Relay/RelayInboundCoverageTests.swift",
@@ -2768,11 +3260,11 @@
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Room/TerminalEventTests.swift",
-      "sha256": "d88522785930f8361185146affa4cdaa7342d7157c7102b6374ce43aad18e35c"
+      "sha256": "a362085193be25a82f6d3086179c7ef4940ef3481c3dbf9d037db70982b489f4"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Session/AgentActivityCoverageTests.swift",
-      "sha256": "726f817f609d346d8cf68246ebd7bc599f2daedb8919d35b89ed83760d05954a"
+      "sha256": "e3a6eb0a1b218d499761b55fe32d1d1f4e9fbddbca7691463ec0785774ffd117"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Session/ArchiveAndAttemptCoverageTests.swift",
@@ -2780,7 +3272,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Session/BackgroundRefreshCoverageTests.swift",
-      "sha256": "ec8fc45a36fb8b5ade50dbe22cb496c3b3e92285ae9d75bb7b01d94339b88a5c"
+      "sha256": "ce8559b5fe855473ffe00f14b08e8026338d02914d0080f5a254baebb34b01e4"
     },
     {
       "path": "apps/ios/GrantTapTests/AppRuntimeTests/Session/CatalogCoverageTests.swift",
@@ -2843,6 +3335,10 @@
       "sha256": "a7e0bcd326e4896e25f87c5cc1b90722363c8dc3b7ee23a28bb37b26cc6afdbd"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/CapabilityUsage/Usage/UsageRenderingPerformanceTests.swift",
+      "sha256": "3e27c179b513da48dd1f8d99a8e7073ea6e269468429b522a7966e3201034f02"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/CapabilityUsage/Usage/UsageSummariesTests.swift",
       "sha256": "d0867be479a58c8f0b0ad2192826a7aa8ef6d09a454275f93ee72f756a4a20bf"
     },
@@ -2860,11 +3356,11 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ConnectionHealth/ConnectionActionTests.swift",
-      "sha256": "ce8631271d6eeb8820bb22dea6043718bbfa628c2cb8a7394860a9e21e5ae787"
+      "sha256": "fb65190a4c8159c74ec686b641313972d9449ebecbd71bb76c6eef6b58c639df"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ConnectionHealth/ConnectionFreshnessTests.swift",
-      "sha256": "286f882c0c9343a7b08ca3180cbd430c376f48d6f496f90326ad45414cea893a"
+      "sha256": "9a711ca9e2d6333b34eaf2f00b52cbfd35a019418646de1b72b09e502ea3321e"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ConnectionHealth/LoadHistoryTests.swift",
@@ -2876,7 +3372,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ConnectionHealth/PluralFormsTests.swift",
-      "sha256": "dd408dc08bd49054b2d69ff793a6af5e676c51b095cce32b453d4a59c816b63a"
+      "sha256": "d0686586ac03a0281f1d6f8f68c6b8656806f262d133b934077123a143d1f84c"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ConnectionHealth/ProviderHookReviewTests.swift",
@@ -2895,6 +3391,10 @@
       "sha256": "ca35d32b00762b9405f361e4ff603df7d42e2ba0b31b157750e3127305a35bd7"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/DeliveryPersistence/TranscriptArchiveWriterTests.swift",
+      "sha256": "5b00e3561771dde7b67570a37664cf47f948880ac594c69c2709eb3236b4f479"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/DesktopLicensing/DesktopBetaTrialStoreTests.swift",
       "sha256": "d5a58c556a0906d4d0fea53df7785695f624edcec2805d09776cc79a5b64a146"
     },
@@ -2904,23 +3404,31 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DesktopLicensing/DesktopLicenseTests.swift",
-      "sha256": "289213aa74ed9b90f5dd928fac468a3b47b3a588bfbf565419097c8598de1c3a"
+      "sha256": "72b6a01f3b45aa8ec840a2af7f377bcb0851d587b58f5f61c57755bc8930ac32"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DesktopLicensing/MacCommerce.storekit",
-      "sha256": "6caf036bee7fcbf7ea4a6c807d9d10d21fc2ad8d26a2f61d88a4a6ea7d30f43b"
+      "sha256": "11e3156debabe418a09b140052aaf5aeaa16e9d9eeb162d0178280edeef7b428"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DesktopLicensing/MacCommerceStoreKitTests.swift",
-      "sha256": "b1ab42d16c3039680f8cd723a05d0bd07a029fa77c3095cfb9f57011e3bc45d1"
+      "sha256": "03563abbac3a1e05e01d624c73355692f222a25a0bf3126c8d2bfb91fe836992"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/DeviceNetwork/CiphertextRecipientTests.swift",
+      "sha256": "83b98fe0dd2ea17e7aa81806946165fab21f38b489337b3718dd1b5ca6c222c1"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/DeviceNetwork/EndpointDirectoryTests.swift",
       "sha256": "a980b2b395d5391c3f8f0091b1c9f9f401dddf8bf89b8ea74ef7ea093c1c5216"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/DeviceNetwork/RelayReconnectRecoveryTests.swift",
+      "sha256": "958815d4307bee6bdfea484d3733119d7640133d6905a735f5a84a778faae470"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/InstallIdentity/InstallIdentityTests.swift",
-      "sha256": "577352ca214fb7e2c8d7119e3ac6dfcdb2f16e537f77ff6b9be507a7013eb477"
+      "sha256": "4e964550e2bcc4df6ce30b44230661eeacb816dc7574d1f41cba6b503c9e0c39"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/Learn/LearnSectionTests.swift",
@@ -2984,7 +3492,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProductInformation/ProductInformationTests.swift",
-      "sha256": "99907582ffed7e68456deb6d45140f5895a07ed804111b3d7c22bb289327bbe2"
+      "sha256": "204867b4d2ed49248a9ce3bc0861b5a45bc166507f431aada1b6e3fc613e3420"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Approval/ProjectApprovalTests.swift",
@@ -3012,7 +3520,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Core/Convergence/ProjectMeshConvergenceTests.swift",
-      "sha256": "37c4d77940a1d2b1724f9e90e97dcb0cd4cd2a147468ebaeaf2bec74b768f1af"
+      "sha256": "857e3c39df95dda8badc476bddd2c92bf4a8cc863fb30651d05d2d04ae6f3b45"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Core/Convergence/ProjectMeshRejoinTests.swift",
@@ -3020,7 +3528,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Core/Convergence/ProjectMeshRoutingTests.swift",
-      "sha256": "db62133e78c9d08df1c38a0c4b642fb8e2d6bf56d33099c9c6fceaeb9ce2b830"
+      "sha256": "ca0cde25eb7477f0eb299c7285457e37853f775bff29612ea88a767d53d73cfd"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Core/Convergence/ProjectMeshRuntimeTests.swift",
@@ -3192,7 +3700,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/RepositoryCatalog/RepositoryFactsTests.swift",
-      "sha256": "523bb77c123649a3a0d967185b1fd8d6e5fe5e8adb9c30478d635b62905b0a53"
+      "sha256": "3a8211d0fd6225c40d0fede1e4e8c31551f36440219ab02a41f27203005754ba"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Tasks/ExecutionCoalescingTests.swift",
@@ -3212,11 +3720,11 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Tasks/TaskHandoffSameComputerTests.swift",
-      "sha256": "f947a2c0419d158204679bc0b55f1383e4abf33219ab313b1a8973da582c0e6a"
+      "sha256": "e3ea03d28ea44c0eb05389fc69e741a8633f1404ee4638fc1c6fe94afb9449d6"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Tasks/TaskRouteReadinessTests.swift",
-      "sha256": "ca0aa2da8d0ccbd2042383c062edf00e495b306039a5c6f59809bf574ff307f5"
+      "sha256": "48edbcbbcf55ad02414e407540b77cd7c1ec0affcbcae0857af7d3dbdf7fe97d"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Usage/GraphDeliveryTests.swift",
@@ -3224,7 +3732,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Usage/GraphProvenanceTests.swift",
-      "sha256": "492dad9b92e2c06e3e4d486b0fd5f714b9eff104c9687d952496d1a7c39dfd74"
+      "sha256": "431ec59de008ea645de41b6c1e98d76f4bfce4571bd5a7760cb133027d10edc5"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Usage/ProjectInsightRegressionTests.swift",
@@ -3248,7 +3756,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/AgentsMeshSurfaceCoverageTests.swift",
-      "sha256": "2c92a8a026aff237d272e26194ba06c67b608fa95c2364aa09eba11456e024d5"
+      "sha256": "6e18aeacfa688ffa0ad26af481442c6bac663a81553a4490ebab2124bce00f5a"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/AgentsMeshSurfaceFixtures.swift",
@@ -3280,7 +3788,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/ProjectTaskRepositoryGroupsTests.swift",
-      "sha256": "73e8cda00ab496b82c3c3e328c1472683019144d72a335ecc2e0b2674ebea5b1"
+      "sha256": "b2db4c99d1f0dafe23f57e7db3ba2283bce0183824c5fa1c33769d0b9d5763e9"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Views/ProjectsTabTests.swift",
@@ -3288,7 +3796,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/Reports/ReportBuilderTests.swift",
-      "sha256": "f19f359d005ed8ba18b091847956d72400317f3d552b1b4101b5cd21fe07138f"
+      "sha256": "4b209f57675356b0e0c5b9f1b6432e65a86b58499d2a8dafb97fe3a1120eec57"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/SecurityAndAudit/BugReportTests.swift",
@@ -3299,6 +3807,10 @@
       "sha256": "d4d4508b5922085931c2e546a1c669bda8e2b6f29dc8349846a1d3b60b8f5add"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/AccountSubscriptionGrantTests.swift",
+      "sha256": "b0596825394f6b42c4f5747730a94282bd6e9b6a464d8c7cd4ef2b79026e7fd9"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/SubscriptionEntitlementTests.swift",
       "sha256": "7370d6c7429843249e3915fc9c6911843319175fbe4923deed62d3f177fce7b2"
     },
@@ -3307,20 +3819,28 @@
       "sha256": "f8355cf3648afdf81f4fe490a13b78f6005f3f176c2ac2facab6ea5279a0e913"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/SubscriptionReviewCaptureTests.swift",
+      "sha256": "ab8752d90169fdfd7c771f670e7613e6042ababd685b69a98326c35d955bf563"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/SubscriptionStoreEvidenceTests.swift",
-      "sha256": "0b7c250d69f24b48f948921b32164afe133bdeb983061d72e34bd242cace36be"
+      "sha256": "6ca8f525e5a6218bce2214cf3cb96300f58c824d6888b229a88b7c73f5c87fdc"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/SubscriptionTiersTests.swift",
-      "sha256": "8bb3c3fd83e7373253ae9151efd3c27fd57be13fcc12d6a43f7226b02058cf3d"
+      "sha256": "4fc4925614259bee465e8b750b7520b2a31e045a154637adc4e452a0f4dcf484"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/SubscriptionEntitlements/SubscriptionTransportStartupTests.swift",
-      "sha256": "f34e93b3ab8cfea56389741454757dfdc4008d3a1182b7a709ad579566fee389"
+      "sha256": "721eb4e1444af5405e4d9fd6823baee8c20394c3fa52ff609566b96c4811a717"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/ComposerActionTests.swift",
       "sha256": "11339da457b2dbaa64d70487993e14f842b5cbbfa1e35742422a27ec094f2d0a"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskComposer/ComposerTurnDeliveryTests.swift",
+      "sha256": "6996c1e6de8532b9eb9efecd34a50227cbe38a995efc56207eaa5d154142ae78"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/TaskComposerRouteModelTests.swift",
@@ -3328,7 +3848,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/TurnModelCatalogTests.swift",
-      "sha256": "01fcd23ddd73f12d06e16fd7570e19747e8109be4821e8dfd001a794fea37670"
+      "sha256": "1bf8a92cffccccdfbac7ff7d9579a5c6700a7ff6bc3f6b92564edcd3377cc64b"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/TurnOverrideStoreTests.swift",
@@ -3336,7 +3856,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/TurnOverridesTests.swift",
-      "sha256": "c6f8a856e365a0ec7485d265368079426e31db915170a3ad6e02e1d61366e205"
+      "sha256": "67e5326aa7a8ffefcf8743db949c45c9c21e8415cdc558bced992b811724e89d"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskComposer/WorkspacePickerTests.swift",
@@ -3348,11 +3868,27 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskDelivery/ChatMessageQueueRuntimeTests.swift",
-      "sha256": "17cc42426db0e64359c9b3ed589f03f237476e96c7cd92590776e11217172775"
+      "sha256": "4a25d8ae476cdfad2ccd484fdfa853e804f015af95013ab07d0106d2a4934c47"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskDelivery/ChatMessageQueueTests.swift",
-      "sha256": "36cdde7eaf818886c4c5159f5f400c487fcf660269b6e5d20301dcf69bd9015e"
+      "sha256": "42bf449bc1be1c3cfc8b75bd4a7d785b9b65334fbecc5db209406eb4841899f2"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskDelivery/DeliveryRecoveryTests.swift",
+      "sha256": "1ee421d5ade95bea619dacfb9a5960b9c30c9e7bc370ece8a2373fe280b434ee"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskDelivery/QueuedImageRetentionTests.swift",
+      "sha256": "0897ec2b2e3225aeb4d500d12f1aa0fd5c05b193d37db23582fa6e260e3cd38b"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskDelivery/RelayTaskQueueRuntimeTests.swift",
+      "sha256": "da10d627f6b02591805f78aff9e4398aae674036d51a08a3e768f1bfbf482d0c"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskDelivery/RelayTaskQueueTests.swift",
+      "sha256": "1bfa3d22d01df58b90af89e45421dbdf2540ad2c9f1693bb3ac118f6f80c00e4"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/AttachmentPreview/AttachmentPreviewTests.swift",
@@ -3395,8 +3931,12 @@
       "sha256": "8f3d4e860d6f2f4844f1cb5239c2a01af9342fbc77d92813d6e44561f84d0d4a"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/TaskInterface/Chat/LongTranscriptMergeTests.swift",
+      "sha256": "6071e9715abab96df6e81b1d6b9b39b32901343da2284aacfa2db68d114bf8d0"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Chat/MessageImageContentTests.swift",
-      "sha256": "1b966cd8243e8f2c221f257adb064424650de1b44c566bed3172d97208fbf663"
+      "sha256": "4de83c0e305cbb67400d9d2d0633e94d4ce347f0e4b29659a0ea6b730aaea9dc"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Chat/MessageImageLoaderTests.swift",
@@ -3416,7 +3956,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Composer/ComposerShapeTests.swift",
-      "sha256": "05299cefccfff1702577b71fd6cd192db957100eef02414fca9d238e42f3936d"
+      "sha256": "5311a2c6a5c2d4bc4ec60bfea76cfed1be1fe36a3fefa9180fae9d1684cfeaa1"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Composer/DeliveryTicksTests.swift",
@@ -3431,12 +3971,24 @@
       "sha256": "b47eb641a4431daf970cb281e4398464fb30e6064b6c6dfeb90a6621e909e7c8"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/TaskInterface/Content/FailedDeliveryContrastTests.swift",
+      "sha256": "a909adc98b256e5a2d799d958715582b55a0db5d629b46df334308080bd121c1"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Content/TaskSwipeArchiveTests.swift",
       "sha256": "9647de4b8dfb2aec8a2b6d639033962c6fc3ecd6e21ac062541e7aff815602ce"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/TaskInterface/FileEditing/TaskFileEditTests.swift",
+      "sha256": "9ecae7358406a64fdf5c3a84bb39610170dc0f3f42e78ac59d1f848fbea6f1b8"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Navigation/MacPageNavigationTests.swift",
-      "sha256": "d33bfa8067fb48d1b7d1f5d18cf99586eedbb6704eaabf17ff29caf62364ad94"
+      "sha256": "6e65429c5a71fa69ee439e70e22fac4c0870fb664b0d4aebfa8ec90ae5059ce2"
+    },
+    {
+      "path": "apps/ios/GrantTapTests/Features/TaskInterface/Permissions/ChatApprovalPreferencesTests.swift",
+      "sha256": "c1422f92e00155e228725ded24c3d07e0c3d4bf747a754e415a9364867b20111"
     },
     {
       "path": "apps/ios/GrantTapTests/Features/TaskInterface/Session/PairingFixture.swift",
@@ -3604,7 +4156,7 @@
     },
     {
       "path": "apps/ios/GrantTapTests/Verification/SwiftUI/UIActionCoverageTests.swift",
-      "sha256": "afa0694bc16d56baa3df51e897b065b6d5a7a3a834e55ca757d0fe1729805fa0"
+      "sha256": "78da2e29ee658ec308ea73d1b576823ae42c0b6a77b2d0c3d8b3ec89d7f3891b"
     },
     {
       "path": "apps/ios/GrantTapTests/Verification/UI/AppDelegateCoverageTests.swift",
@@ -3627,24 +4179,48 @@
       "sha256": "d12a05216503b79c169dec0dabace18bc73e116f6c7260eef2e8e18e00f5f14b"
     },
     {
+      "path": "apps/ios/GrantTapUITests/AnimatedEffortUITests.swift",
+      "sha256": "3ea16654c00910e90a09772a03f2a5e4ebcd47d52026b658ebfa80d00cfa6d2c"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/ApprovalDetailsUITests.swift",
       "sha256": "6a11b245cadd092ce604f5d256d0b833a37369001fd4f43e72eb3e6f6f3850cf"
     },
     {
       "path": "apps/ios/GrantTapUITests/AttachmentPreviewUITests.swift",
-      "sha256": "64e7a8aa512d07ccb187d9aaf7d149b25e9d47927c206ead1db8bdc72c986f2f"
+      "sha256": "8c86f4652a7b77aefa84c22f776b5b8c1ff3bc95c6022af5788c8b7d7cd3db9a"
     },
     {
       "path": "apps/ios/GrantTapUITests/ChatActivityRailUITests.swift",
       "sha256": "2a17d1d0b3f2246812a23e3827aada667d54bfad0443d125bf069681b132e042"
     },
     {
+      "path": "apps/ios/GrantTapUITests/ChatComposerAccessoriesUITests.swift",
+      "sha256": "832e165f049858ad64cfebd5f7d4b2ca85061b1fa74493baab850a68f2b921d2"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ChatFileEditingUITests.swift",
+      "sha256": "366bc142585833d993a82f59403c1f50e07551f64f5d246b18b1049073be2304"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/ChatMessageQueueUITests.swift",
-      "sha256": "d2f8f3cdd027345beffddde6c214efbb87dcca0a11b8ab4a4cb34f1d50281479"
+      "sha256": "5a42cf64cf9b6b749d5156d8b71c4ef98263d6d76218736049a025c736457c1c"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ChatModalDismissalUITests.swift",
+      "sha256": "a969ba5948db717913048187e5b823e1f2ddac6b25310df530d772a492c815b4"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ChatStopControlUITests.swift",
+      "sha256": "e663df25b86e1f606884914c177e4aa63c31a428cebb857f87055c7ddcac7812"
     },
     {
       "path": "apps/ios/GrantTapUITests/ClaudeQuestionsUITests.swift",
       "sha256": "7a6583bbe0eadf0a6babf358a918831d2b85a75119bed091f08ce4831aff6525"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ComposerApprovalUITests.swift",
+      "sha256": "da2cb437a06af053259f101e567ef154833896e0c0effe50d960cafd3f27b14d"
     },
     {
       "path": "apps/ios/GrantTapUITests/ConnectionListUITests.swift",
@@ -3659,6 +4235,10 @@
       "sha256": "90a5afdd772cda48a68c2ae0d4646d6a44d12a1f680fa18f42144b77b17a5718"
     },
     {
+      "path": "apps/ios/GrantTapUITests/LongTranscriptUITests.swift",
+      "sha256": "04df405c478ca918eb144de7d8d38cf07a1a3fe35a7c187558562ec83dcf8ddf"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/MacGraphControlsUITests.swift",
       "sha256": "673fdb323ef578b6bc14563f8d8e9dab17ac41950c59f55c8ccdb20cbdecd3ec"
     },
@@ -3671,16 +4251,28 @@
       "sha256": "eb65cdc521bce1e08b40a91ba216b0d68fbc01b7053e2f6b2ea59f450b199a56"
     },
     {
+      "path": "apps/ios/GrantTapUITests/MacTabFrameUITests.swift",
+      "sha256": "833dccfdb365938268f6bfbc95962ec8ad544cfe8f1bbb3bb042b7ca5e0c2260"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/MacTranscriptUITests.swift",
+      "sha256": "c455e04929586cbfa183af595d141c1f2464e3b7f092967717e929ab3c10bce7"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/MacUsageNavigationUITests.swift",
+      "sha256": "a33c7bf45d41549c7217c39cc0e5bcbb7712baaca91b1db1c25d34111a4834ec"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/MessageImageUITests.swift",
       "sha256": "71f85d6a981de6d96770a5ce26a26673508af116710d8b32dde9e95f7bd76d00"
     },
     {
       "path": "apps/ios/GrantTapUITests/PasskeyConnectionUITests.swift",
-      "sha256": "776945c17ea7d02a5594595f530bd737190e47fd53c2d6700940572689202123"
+      "sha256": "e460bbcc1263d11e47a1853e1f53bc975ea8a062163adf61967b91ac48311cd8"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProductInformationUITests.swift",
-      "sha256": "dfb0a9359a7260e1689beb40bd28a6b61996f679890e42024b080f18ae7e2568"
+      "sha256": "966a2129efceba734cd455e08c80ec563475821faf9f6a50e1c489d1ca6eddf6"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectArchitectureInfoUITests.swift",
@@ -3707,12 +4299,20 @@
       "sha256": "fd49024b84ce003fe4c1a3814b6cf2b38454e763a91c5a2748fcc2018f1ce88e"
     },
     {
+      "path": "apps/ios/GrantTapUITests/ProjectTaskCreationUITests.swift",
+      "sha256": "3e184906520904abd6a220094a185795095839431285c902b5dee330439b82a0"
+    },
+    {
       "path": "apps/ios/GrantTapUITests/ProjectTowerBrowserUITests.swift",
       "sha256": "9f45e4c94e79886778e29b76a3d274da9d88c3f1fb813ced32b4f8a4de0367ec"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectTowerControlsUITests.swift",
       "sha256": "e36a208a23b3b9dc677b040f936b3ffa4649a34a1f48ce3b7f6337bac43310b5"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ReportPreviewUITests.swift",
+      "sha256": "4727b4753fa6802c07b34f46cf5af65d4f39044c9ac8bd7a793c1e328e27ffdf"
     },
     {
       "path": "apps/ios/GrantTapUITests/RepositoryCatalogUITests.swift",
@@ -3724,19 +4324,19 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/TaskHideRestoreUITests.swift",
-      "sha256": "c1e17e879fabb84e41ee46f87f9f0098590a9147403857bf233374e2741b95eb"
+      "sha256": "c074d9da45acf4f84579dd0bf78d9face6bf0eeb3bd2f3d007379be9f5e0b0ef"
     },
     {
       "path": "apps/ios/GrantTapUITests/TranscriptHistoryUITests.swift",
-      "sha256": "e8505bb898b71501dddfa14e689bef24b6a1b009a417c7c698848ecd3eca3cf6"
+      "sha256": "50533f336b5555a6bfd79222682570d226659ddaef81f69d08f58e14dc171831"
     },
     {
       "path": "apps/ios/GrantTapUITests/TurnModelPickerUITests.swift",
-      "sha256": "844c6eff67682944fc679fa3c1f1e6c2f6fac4f80a2fee10797ccb230f0836d7"
+      "sha256": "e8d5f934338925094f38e919ddf84769081e1219365236307d65d2f2676136a1"
     },
     {
       "path": "apps/ios/GrantTapUITests/UsageUITests.swift",
-      "sha256": "30a79983b8012d77197a5fe871d6ce74207d2b696fd5047717ddec9c7baa84cd"
+      "sha256": "b60785528eb2bcf5cfe59bb4882c040f9115342637ff7680b99b4e77ac266bdf"
     },
     {
       "path": "apps/ios/GrantTapWatch/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
@@ -3844,7 +4444,7 @@
     },
     {
       "path": "apps/ios/README.md",
-      "sha256": "e7304d893c46aba97ac5c6f6d87869d4e79cc93db9dda25b2a416fa19ff5cfd4"
+      "sha256": "cc6203e6629d9ad7b14732af3365425cdb08ba4a105f64e0e80992ecc5224dd3"
     },
     {
       "path": "apps/ios/Shared/AgentIdentity.swift",
@@ -3852,7 +4452,7 @@
     },
     {
       "path": "apps/ios/Shared/Localization.swift",
-      "sha256": "4c170dc3f68e167e8f6a3acafebde71c28602d2e8c2388528ae071a9d80d8eb9"
+      "sha256": "32cbd7624ee740ce01885cef34a84a9064a606eb41f2dab1cd0fb85634ead7f5"
     },
     {
       "path": "apps/ios/Shared/WatchLink.swift",
@@ -3868,71 +4468,79 @@
     },
     {
       "path": "apps/ios/Shared/ru.lproj/Localizable.strings",
-      "sha256": "0d3852d88647018dde498d3531adc6f905e382999f7b836a68fd10b61e061f64"
+      "sha256": "b0647eec21c5463f5df3c576e91b9251cf14a589e3d1d5279fb5c9cbf9938c70"
     },
     {
       "path": "apps/ios/THIRD_PARTY_NOTICES.md",
-      "sha256": "6a8e7791b2878373915b17884e81993413e4e8b0ee364eecd84e18824edc5be6"
+      "sha256": "31c92593ebddb8bc2776a079d14405766ca5790e26f01a4d44219f92abf2391e"
     },
     {
       "path": "apps/ios/commerce-project.yml",
-      "sha256": "2a4bb415d82428ba681c9efea8859c4e089dba2e933eb17ab6748ec53f4ecc64"
+      "sha256": "2084a2df543ac65c7804ba28c8fde472bf0ac0136edb515c71bcba7c93a53a72"
     },
     {
       "path": "apps/ios/project.yml",
-      "sha256": "64ee5d0eda2fb9914146837232c8d16ae81e622eb6f844025c85805e69cdddac"
+      "sha256": "4f7fe9a7533a3d8ab7b8fe99e6ff2ff30a04883e754fecb00e14627d18cf204a"
+    },
+    {
+      "path": "apps/macos/AppStore/APP_STORE_METADATA.md",
+      "sha256": "9ee468fe6580042a03c946679c86f2cacad208b0b90e2dae87368eb9693b7949"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/en-US/Mac/01-now.jpg",
-      "sha256": "555f76982bc5aaf7278c76d4380a8f4100fe0ef0d45f8e2b753058395f1e5a58"
+      "sha256": "c6af7e3a0910bcaad0cec13de47d4320b2fd0fa7f916c102a812c132525cce32"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/en-US/Mac/02-tasks.jpg",
-      "sha256": "9bb9f49d1b33f23d90d2eea210a7b73ecc5ba935c907518d2740cda45682633b"
+      "sha256": "6299034feea9ab0febce417a2dcf66ee6c187fbb014b4925b621a337d9264316"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/en-US/Mac/03-task.jpg",
-      "sha256": "50c2e21ee96cc2b17ef3322828d2cf2f3c7086d2659a683d7a471645c63b7766"
+      "sha256": "e70c69bc30fc48802dc92deaca48c747df06fd2bdc7cea2131a05fb139f0c18c"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/en-US/Mac/04-usage.jpg",
-      "sha256": "93881dfe8d28c1f2cdf4bd9c2ea0be870d1141d1d724af8a71ab6394f21544d7"
+      "sha256": "0c7bce2a800190321dea7414aff54222138dd7d9437ac9ca65d3a6c721e44062"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/en-US/Mac/05-mesh.jpg",
-      "sha256": "190def3ce93722b4a8fe7e5ce27fa8cc74db2d41ced05fddd6f526141a793314"
+      "sha256": "19ae07b9316a11ea96c45958ead9a8ea5d80e1279ebcf421c61a3c5f573bd228"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/ru/Mac/01-now.jpg",
-      "sha256": "57500cdb5f5b04d9651b7d758121a1b8788f3426a4b4023db5cbaa165d3b78e1"
+      "sha256": "49fcdd9863ccab048349050d7ed11a79264e389d5ef3c792b5992bd8bd178d18"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/ru/Mac/02-tasks.jpg",
-      "sha256": "3d896558234b836fa1f00737a7e7799d6b5ded0896a70135b027da1eab47703d"
+      "sha256": "62e414c4275b2c9d4cca2348c550b9cb5499b425c3087c48f446cbdd2c86b431"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/ru/Mac/03-task.jpg",
-      "sha256": "71e9f17b1900bb5d06879ede9d8f43b32f8bb1dbc29f57d325213336eccf3a06"
+      "sha256": "231156064c64ff49a3d86a49d145e1b09296890aa5006ac3e1bb733e1c347ae6"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/ru/Mac/04-usage.jpg",
-      "sha256": "641374ce07ee3dbf5150b378ff148ce53d8791866b0beb7010164ea3dd5f3641"
+      "sha256": "5b1849be3df21c752e7a0603cffb5964c1492a153d14a5f30871dc790c605f2a"
     },
     {
       "path": "apps/macos/AppStore/Screenshots/ru/Mac/05-mesh.jpg",
-      "sha256": "d7734298a4a21a1151aca279a608e2c8fe00e94b89f98fd4c7c8e25d704947fb"
+      "sha256": "d1916d45bb451d737d96650b12133dd72069c5186050678cd6d73b61c31a3720"
     },
     {
       "path": "apps/macos/DESKTOP_EULA.md",
-      "sha256": "dd43cdd7d42ca41dcfd5ed873d30bb78c22e4259a333d9ee0e8ec9df157f8661"
+      "sha256": "4125ea6c187ac0bde39bde3ef6f7e6c70800766868092837bdf4dde5d982dec5"
     },
     {
       "path": "apps/macos/GraphWeb/README.md",
-      "sha256": "4d983e94493a9908f07d89d7aad9c70bcd23499eeeb72b6b73fce1b603dddde8"
+      "sha256": "5a4ff4596ced3be88254c6aa04dc5ae4db953c05bbacc126641d50efaec61425"
     },
     {
       "path": "apps/macos/GraphWeb/REPO_LENS_COMMIT",
       "sha256": "60a04448d4f6adaa3a13e3b0695b35fa9e0b39b9971945ca85af0f73d004ec56"
+    },
+    {
+      "path": "apps/macos/GraphWeb/REPO_LENS_LICENSE.txt",
+      "sha256": "66bfc3d5eb2c2b8777ef5383fd90511e51c56c036d303fc9e7b49eebec7cc7fb"
     },
     {
       "path": "apps/macos/GraphWeb/THREE_LICENSE.txt",
@@ -4032,7 +4640,7 @@
     },
     {
       "path": "apps/macos/README.md",
-      "sha256": "80eb36056796703022fc9f7544e9e0e0ffc11a226074828a98f179139efa3399"
+      "sha256": "2d06b3a31de5d7f5a08c18a8adb456f5f1374bec5d4780d643d1dc05eaceac05"
     },
     {
       "path": "apps/macos/Sources/DesktopInspectorCore/EngineClient.swift",
@@ -4080,7 +4688,7 @@
     },
     {
       "path": "apps/macos/Sources/DesktopInspectorCore/README.md",
-      "sha256": "33ddc1cb13321cf4da1d3f045e9604aa4577c3c2992950def56bb5426d328511"
+      "sha256": "33db9a9e4480c737152d416f0d93769cf30b2ffb7b6f84c2fd00da5413ba5898"
     },
     {
       "path": "apps/macos/Sources/DesktopInspectorCore/TaskActivitySnapshot.swift",
@@ -4236,7 +4844,7 @@
     },
     {
       "path": "apps/macos/embed-graph-resources.sh",
-      "sha256": "f4fa7bb2a3d20e8430b1628eb1166418e15dd5aff50922b4a471e0e0c68974e4"
+      "sha256": "b99cbb50d0e5367d4fd84a9b6a0ee7652d831a399d13103fa07766ecc143d405"
     },
     {
       "path": "docs/images/iphone-chat-files.png",
@@ -4336,31 +4944,23 @@
     },
     {
       "path": "docs/images/mac-mesh.jpg",
-      "sha256": "190def3ce93722b4a8fe7e5ce27fa8cc74db2d41ced05fddd6f526141a793314"
-    },
-    {
-      "path": "docs/images/mac-mesh.png",
-      "sha256": "974456bf0d595aa3badf0de2b2970b589cb7a38d3a4e089ea2b25b1c19bd9844"
+      "sha256": "19ae07b9316a11ea96c45958ead9a8ea5d80e1279ebcf421c61a3c5f573bd228"
     },
     {
       "path": "docs/images/mac-now.jpg",
-      "sha256": "555f76982bc5aaf7278c76d4380a8f4100fe0ef0d45f8e2b753058395f1e5a58"
-    },
-    {
-      "path": "docs/images/mac-now.png",
-      "sha256": "835e10356fd13c78ee4758a0d18107f921733032bdb6bca1768a291e5f3eff65"
+      "sha256": "c6af7e3a0910bcaad0cec13de47d4320b2fd0fa7f916c102a812c132525cce32"
     },
     {
       "path": "docs/images/mac-task.jpg",
-      "sha256": "50c2e21ee96cc2b17ef3322828d2cf2f3c7086d2659a683d7a471645c63b7766"
-    },
-    {
-      "path": "docs/images/mac-task.png",
-      "sha256": "1872d6f4b8f1434e93ec78b8777b0304b78edddf82e0727290d8280303b53f0f"
+      "sha256": "e70c69bc30fc48802dc92deaca48c747df06fd2bdc7cea2131a05fb139f0c18c"
     },
     {
       "path": "docs/subscriptions.md",
-      "sha256": "e6a48f9f08e471aff10ba56f79f6194639786fd80fc87fed34078be269836791"
+      "sha256": "a2b8b08203e36e1c65c582899d121640b1f7747a92795a9bf3f514d112cd9dbb"
+    },
+    {
+      "path": "README.md",
+      "sha256": "6c308093e3a94a97d1f1586b5fb211ce7a6a4d3a532cc476017ae4daff4eefab"
     }
   ]
 }

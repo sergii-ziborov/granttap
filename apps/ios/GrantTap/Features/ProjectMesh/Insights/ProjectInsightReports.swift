@@ -3,15 +3,25 @@ import Foundation
 /// Repository identity is authoritative; similarly named forks remain separate.
 enum ProjectInsightReports {
     static func reports(_ snapshot: ProjectMeshSnapshot) -> [ProjectRepositoryGraph] {
+        reports(snapshot, identities: identityMap(snapshot))
+    }
+
+    private static func reports(_ snapshot: ProjectMeshSnapshot, identities: [String: String]) -> [ProjectRepositoryGraph] {
+        let identity = { identities[$0] ?? $0 }
         let revisions = Set((snapshot.bindings ?? []).compactMap { binding -> String? in
-            guard binding.available, let revision = binding.revision else { return nil }
-            return "\(binding.repositoryId)\u{1f}\(revision)"
+            let canonical = identity(binding.repositoryId)
+            guard binding.available,
+                  let revision = observedRevision(binding, canonical: canonical, snapshot: snapshot) else { return nil }
+            return "\(canonical)\u{1f}\(revision)"
         })
         let candidates = (snapshot.repositoryGraphs ?? []).filter { $0.projectId == snapshot.projectId }
-        return Dictionary(grouping: candidates, by: \.repositoryId).values.compactMap { rows in
+        return Dictionary(grouping: candidates, by: { identity($0.repositoryId) }).compactMap { canonical, rows in
             rows.enumerated().max { left, right in
-                let lhs = rank(left.element, revisions: revisions)
-                let rhs = rank(right.element, revisions: revisions)
+                let lhs = rank(left.element, revisions: revisions, canonical: canonical)
+                let rhs = rank(right.element, revisions: revisions, canonical: canonical)
+                if lhs == rhs, (left.element.repositoryId == canonical) != (right.element.repositoryId == canonical) {
+                    return right.element.repositoryId == canonical
+                }
                 return lhs == rhs ? left.offset < right.offset : lhs < rhs
             }?.element
         }.sorted {
@@ -23,11 +33,24 @@ enum ProjectInsightReports {
     }
 
     static func needsAnalysis(_ snapshot: ProjectMeshSnapshot) -> Bool {
-        let reports = reports(snapshot)
+        let identities = identityMap(snapshot)
+        let reports = reports(snapshot, identities: identities)
         return (snapshot.bindings ?? []).filter(\.available).contains { binding in
-            !reports.contains { $0.repositoryId == binding.repositoryId && isAnalyzed($0)
-                && (binding.revision == nil || ($0.sourceRevision ?? $0.revision) == binding.revision) }
+            let canonical = identities[binding.repositoryId] ?? binding.repositoryId
+            let revision = observedRevision(binding, canonical: canonical, snapshot: snapshot)
+            return !reports.contains {
+                (identities[$0.repositoryId] ?? $0.repositoryId) == canonical && isAnalyzed($0)
+                    && (revision == nil || ($0.sourceRevision ?? $0.revision) == revision)
+            }
         }
+    }
+
+    private static func identityMap(_ snapshot: ProjectMeshSnapshot) -> [String: String] {
+        let ids = Set((snapshot.bindings ?? []).map(\.repositoryId)
+            + (snapshot.repositoryGraphs ?? []).map(\.repositoryId))
+        return Dictionary(uniqueKeysWithValues: ids.map {
+            ($0, RepositoryIdentityIndex.canonical($0, snapshots: [snapshot]))
+        })
     }
 
     static func hasEvidence(_ snapshot: ProjectMeshSnapshot) -> Bool {
@@ -38,11 +61,21 @@ enum ProjectInsightReports {
         report.analysisStatus == "COMPLETE" || report.analysisStatus == "INCOMPLETE"
     }
 
-    private static func rank(_ report: ProjectRepositoryGraph, revisions: Set<String>) -> Int {
+    private static func rank(_ report: ProjectRepositoryGraph, revisions: Set<String>, canonical: String) -> Int {
         let valid = isAnalyzed(report)
-        let current = revisions.contains("\(report.repositoryId)\u{1f}\(report.sourceRevision ?? report.revision)")
+        let current = revisions.contains("\(canonical)\u{1f}\(report.sourceRevision ?? report.revision)")
         return (valid ? 8 : 0) + (current ? 4 : 0)
             + (report.analysisStatus == "COMPLETE" ? 2 : 0) + (report.codeMap != nil ? 1 : 0)
+    }
+
+    private static func observedRevision(_ binding: ProjectBindingSummary, canonical: String,
+                                         snapshot: ProjectMeshSnapshot) -> String? {
+        guard canonical != binding.repositoryId, binding.revision != nil else { return binding.revision }
+        let latest = (snapshot.repositoryDetails ?? []).filter {
+            $0.projectId == snapshot.projectId && $0.repositoryId == binding.repositoryId && $0.endpointId == binding.endpointId
+        }.max { $0.observedAt < $1.observedAt }
+        guard latest?.status == "ready", latest?.canonicalRepositoryId == canonical else { return binding.revision }
+        return latest?.revision ?? binding.revision
     }
 
     static func retainingEnrichment(

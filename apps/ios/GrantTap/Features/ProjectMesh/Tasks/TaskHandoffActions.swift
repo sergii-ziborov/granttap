@@ -9,19 +9,31 @@ extension TaskHandoffSheet {
 
     func submitHandoff() {
         #if targetEnvironment(macCatalyst)
-        if model.usesLocalMCP(for: session) {
+        if model.usesLocalTaskDelivery(for: session) {
             submitLocalHandoff()
             return
         }
         #endif
-        if performHandoff(targetRoom: targetRoom, targetProvider: targetProvider) { dismiss() }
+        guard !submitting, isReady, let computer = destinationComputer(for: targetRoom) else { return }
+        submitting = true
+        handoffError = nil
+        Task {
+            do {
+                try await model.ensureProjectComputerNetwork(for: session, targetComputer: computer)
+                if performHandoff(targetRoom: targetRoom, targetProvider: targetProvider) { dismiss() }
+                else { handoffError = L("The handoff was not accepted.") }
+            } catch {
+                handoffError = L("The computers have not confirmed this Project's transfer access. Check their connections and retry.")
+            }
+            submitting = false
+        }
     }
 
     /// Another computer when there is one, else this one with another agent.
     var defaultSelection: (room: String, provider: String) {
         let source = AgentIdentity.normalize(session.agent)
         let otherComputer = targets.first {
-            $0.id != sourceRoom && (localComputerId == nil || computerName($0) != localComputerId)
+            $0.id != sourceRoom && (localComputerId == nil || destinationComputer(for: $0.id) != localComputerId)
         }
         if let otherComputer { return (otherComputer.id, source) }
         let enabled = AgentIdentity.composeIds.filter {
@@ -59,7 +71,13 @@ extension TaskHandoffSheet {
 
     func destinationComputer(for room: String) -> String? {
         if room == "local-mcp" { return localComputerId }
-        return targets.first(where: { $0.id == room }).map(computerName)
+        if let endpoint = model.meshComputerRoomByEndpointId.first(where: { $0.value == room })?.key {
+            return endpoint
+        }
+        let ids = Set((model.sessions + model.sessionHistory).filter {
+            model.sourceRoom(forSessionId: $0.sessionId) == room
+        }.compactMap(\.computerId))
+        return ids.count == 1 ? ids.first : nil
     }
 
     func computerName(_ connection: LinkedComputer) -> String {
@@ -76,6 +94,7 @@ extension TaskHandoffSheet {
         handoffError = nil
         Task {
             do {
+                try await model.ensureProjectComputerNetwork(for: session, targetComputer: computer)
                 let result = try await reader.handoff(
                     session, provider: AgentIdentity.normalize(targetProvider), computer: computer,
                     targetModel: targetModel.isEmpty ? nil : targetModel,

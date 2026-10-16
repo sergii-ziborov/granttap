@@ -54,7 +54,7 @@ not the main Mac product UI.
 
 The first-party Mac source follows the [GrantTap Commercial Source License](../../LICENSE).
 The separate [GrantTap MCP](https://github.com/sergii-ziborov/granttap-mcp)
-repository is MIT licensed. See [third-party notices](../ios/THIRD_PARTY_NOTICES.md).
+repository is Apache-2.0 licensed. See [third-party notices](../ios/THIRD_PARTY_NOTICES.md).
 
 ## Purchase and Store preparation
 

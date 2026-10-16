@@ -1,18 +1,18 @@
 {
   "title": "Privacy Policy",
-  "updated": "2026-10-12",
+  "updated": "2026-10-16",
   "intro": "This policy covers the GrantTap Mac, iPhone, iPad and Apple Watch apps, its local machine helper, the encrypted relay, and granttap.com. GrantTap creates no advertising profile or readable cloud chat history.",
   "sections": [
-    {
-      "heading": "Mac and endpoint discovery",
-      "paragraphs": [
-        "App Store purchase evidence is verified by StoreKit; we do not receive payment-card details. The native Mac keeps its separate local MCP access token in its device-only Keychain. Direct mode announces only authenticated encrypted endpoint records with opaque room and recipient identifiers, sizes and expiry. The managed directory cannot decrypt an address; network operators still observe connection IPs and timing. Directory records expire within 15 minutes. In fully self-hosted mode, pairing and chat traffic use your endpoint and do not contact that directory. You administer your own server logs, queues and retention."
-      ]
-    },
     {
       "heading": "Subscription verification",
       "paragraphs": [
         "Personal uses the signed-in GrantTap account UUID as Apple appAccountToken. The account service independently verifies Apple-signed purchases and retains product IDs, original/renewal transaction IDs, signed time, expiry and revocation status for computer limits. It does not receive payment-card details or your Apple password. Sandbox purchases are not paid production rights. Account deletion removes these service records but does not cancel the Apple subscription."
+      ]
+    },
+    {
+      "heading": "Mac and endpoint discovery",
+      "paragraphs": [
+        "App Store purchase evidence is verified by StoreKit; we do not receive payment-card details. The native Mac keeps its separate local MCP access token in its device-only Keychain. Direct mode announces only authenticated encrypted endpoint records with opaque room and recipient identifiers, sizes and expiry. The managed directory cannot decrypt an address; network operators still observe connection IPs and timing. Directory records expire within 15 minutes. In fully self-hosted mode, pairing and chat traffic use your endpoint and do not contact that directory. You administer your own server logs, queues and retention."
       ]
     },
     {
@@ -52,7 +52,7 @@
       "heading": "Retention, deletion, and your choices",
       "paragraphs": [
         "Pairing blobs expire after 15 minutes and are single-use. Encrypted offline queues are bounded and expire. Local data remains until you clear it, unlink a computer, reset pairing, or remove the app/helper.",
-        "You may decline optional system permissions. Account devices can be revoked and the account deleted on the account page. Depending on applicable law, you may request access, correction, deletion, restriction, portability, or objection for data GrantTap can identify and control. The relay cannot decrypt task payloads or search their readable content by account."
+        "You may decline optional system permissions. Account devices can be revoked and the account deleted on the account page or from the Devices screen in the Apple app. Deleting the account does not remove QR pairings stored on your own devices or cancel an Apple subscription. Depending on applicable law, you may request access, correction, deletion, restriction, portability, or objection for data GrantTap can identify and control. The relay cannot decrypt task payloads or search their readable content by account."
       ],
       "links": [
         {
