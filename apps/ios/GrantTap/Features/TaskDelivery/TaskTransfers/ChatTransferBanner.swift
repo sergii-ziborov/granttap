@@ -18,10 +18,7 @@ extension TaskChatView {
                 HStack {
                     if let targetSessionId = notice.targetSessionId {
                         Button(L("Open destination")) {
-                            dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                model.sessionToOpen = targetSessionId
-                            }
+                            openTransferredChat(targetSessionId)
                         }
                     }
                     Spacer()
@@ -46,6 +43,15 @@ extension TaskChatView {
             } message: {
                 Text(L("The destination will keep working. Both branches can make changes independently."))
             }
+        }
+    }
+
+    func openTransferredChat(_ destination: String) {
+        showHandoff = false
+        showCapabilities = false
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            model.sessionToOpen = destination
         }
     }
 }

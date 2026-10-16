@@ -55,7 +55,8 @@ final class TaskHandoffSameComputerTests: XCTestCase {
         XCTAssertTrue(sheet.staysHere)
         XCTAssertFalse(sheet.sameAgentHere)
         XCTAssertTrue(sheet.isReady)
-        XCTAssertTrue(sheet.performHandoff(targetRoom: "source", targetProvider: "codex"))
+        XCTAssertFalse(sheet.performHandoff(targetRoom: "source", targetProvider: "codex"),
+                       "No source relay is installed in this policy fixture.")
 
         let same = TaskHandoffSheet(session: session(), model: model, initialTargetRoom: "source", initialTargetProvider: "claude")
         XCTAssertTrue(same.sameAgentHere)

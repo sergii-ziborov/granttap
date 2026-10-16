@@ -31,9 +31,7 @@ enum TaskHandoffReadiness {
         targetProviderEnabled: Bool,
         checkpoint: Bool = false
     ) -> [HandoffReadinessCheck] {
-        let execution = snapshot?.executions.first {
-            $0.sessionId == session.sessionId && $0.endedAt == nil
-        }
+        let execution = sourceExecution(for: session, in: snapshot)
         let conflict = conflictingClaim(session: session, snapshot: snapshot)
         let neighbour = moduleOverlapClaim(session: session, snapshot: snapshot)
         return [
@@ -87,6 +85,22 @@ enum TaskHandoffReadiness {
 
     static func blockedReason(_ checks: [HandoffReadinessCheck]) -> String? {
         checks.first { !$0.ready }?.detail
+    }
+
+    /// Native chats can resume after a durable close. Use the owning computer's
+    /// fresh checkout reading without reopening that historical execution.
+    static func sourceExecution(for session: SessionInfo,
+                                in snapshot: ProjectMeshSnapshot?) -> ExecutionSessionLink? {
+        guard let snapshot, snapshot.projectId == session.projectId else { return nil }
+        return snapshot.executions.filter {
+            $0.sessionId == session.sessionId && $0.taskId == session.taskId
+                && AgentIdentity.normalize($0.provider) == AgentIdentity.normalize(session.agent)
+                && (session.computerId == nil || $0.computerId == session.computerId)
+        }.filter { execution in
+            guard let ended = execution.endedAt else { return true }
+            return session.lastActivityAt > ended
+                && (execution.updatedAt ?? 0) >= session.lastActivityAt
+        }.max { ($0.updatedAt ?? $0.startedAt) < ($1.updatedAt ?? $1.startedAt) }
     }
 
     private static func workingTreeDetail(_ execution: ExecutionSessionLink?) -> String {

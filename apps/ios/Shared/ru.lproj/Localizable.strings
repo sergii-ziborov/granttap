@@ -2740,6 +2740,9 @@
 "Automatic computer transfers" = "Автоматический перенос между компьютерами";
 "Uses compatible computers in this Mesh while preserving the provider, model and effort." = "Использует совместимые компьютеры этого Mesh, сохраняя провайдера, модель и глубину рассуждений.";
 "Waiting for computer confirmation" = "Ожидание подтверждения компьютеров";
+"Waiting for computer confirmation…" = "Ожидаем подтверждение компьютера…";
+"Prepare transfer" = "Подготовить перенос";
+"Preparing transfer…" = "Подготовка переноса…";
 "Transfer settings could not be confirmed. Check the computers and try again." = "Не удалось подтвердить настройки переноса. Проверьте подключение компьютеров и повторите попытку.";
 "Allow portable work across platforms" = "Разрешить перенос между платформами";
 "Only tasks declared portable can move between macOS, Windows and Linux." = "Между macOS, Windows и Linux переносятся только задачи, для которых подтверждена переносимость.";

@@ -62,7 +62,8 @@ final class ClaimOverlapVectorTests: XCTestCase {
 
         // The warning row: ready, flagged, never blocking.
         let session = SessionInfo(
-            sessionId: "mine", agent: "claude", taskId: "task-a", title: "A", state: "working",
+            sessionId: "mine", agent: "claude", projectId: "project", taskId: "task-a",
+            computerId: "MacBook", title: "A", state: "working",
             startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0
         )
         let snapshot = ProjectMeshSnapshot(
@@ -91,7 +92,8 @@ final class ClaimOverlapVectorTests: XCTestCase {
     /// Uncommitted work blocks a plain move and is released by a checkpoint.
     func testACheckpointReleasesADirtyWorkingTreeAsAWarningNotABlock() {
         let session = SessionInfo(
-            sessionId: "mine", agent: "claude", taskId: "task-a", title: "A", state: "working",
+            sessionId: "mine", agent: "claude", projectId: "project", taskId: "task-a",
+            computerId: "MacBook", title: "A", state: "working",
             startedAt: 1, lastActivityAt: 2, tokensSession: 0, tokensLastTurn: 0
         )
         var snapshot = ProjectMeshSnapshot(

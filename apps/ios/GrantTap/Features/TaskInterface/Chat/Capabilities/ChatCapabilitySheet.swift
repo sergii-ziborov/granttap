@@ -26,12 +26,14 @@ struct ChatCapabilitySheet: View {
     let onToggle: (ChatCapabilityRow) -> Void
     private let modelOverride: AppModel?
     private let onClose: (() -> Void)?
+    private let onPrepared: ((String) -> Void)?
     @State private var showHandoff = false
 
     init(
         sessionId: String, session: SessionInfo, rows: [ChatCapabilityRow],
         accent: Color, model: AppModel? = nil,
         onClose: (() -> Void)? = nil,
+        onPrepared: ((String) -> Void)? = nil,
         onToggle: @escaping (ChatCapabilityRow) -> Void
     ) {
         self.sessionId = sessionId
@@ -40,6 +42,7 @@ struct ChatCapabilitySheet: View {
         self.accent = accent
         modelOverride = model
         self.onClose = onClose
+        self.onPrepared = onPrepared
         self.onToggle = onToggle
     }
 
@@ -60,7 +63,14 @@ struct ChatCapabilitySheet: View {
             }
         }
         .sheet(isPresented: $showHandoff) {
-            TaskHandoffSheet(session: session, model: model)
+            TaskHandoffSheet(session: session, model: model, onPrepared: { destination in
+                showHandoff = false
+                if let onClose { onClose() } else { dismiss() }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    if let onPrepared { onPrepared(destination) }
+                    else { model.sessionToOpen = destination }
+                }
+            })
         }
     }
 

@@ -2,6 +2,7 @@ import SwiftUI
 
 extension TaskHandoffSheet {
     func applyDefaults() {
+        observesHandoff = true
         let defaults = defaultSelection
         if targetRoom.isEmpty { targetRoom = defaults.room }
         if targetProvider.isEmpty { targetProvider = defaults.provider }
@@ -17,11 +18,17 @@ extension TaskHandoffSheet {
         guard !submitting, isReady, let computer = destinationComputer(for: targetRoom) else { return }
         submitting = true
         handoffError = nil
+        let previous = previousHandoffEvents
+        handoffNotBefore = session.projectId.flatMap { model.meshSnapshots[$0]?.generatedAt } ?? 0
         Task {
             do {
                 try await model.ensureProjectComputerNetwork(for: session, targetComputer: computer)
-                if performHandoff(targetRoom: targetRoom, targetProvider: targetProvider) { dismiss() }
-                else { handoffError = L("The handoff was not accepted.") }
+                guard observesHandoff else { return }
+                if performHandoff(targetRoom: targetRoom, targetProvider: targetProvider, completion: { error in
+                    if error != nil { handoffError = L("The handoff was not accepted.") }
+                }) {
+                    await waitForHandoff(previousEvents: previous, computer: computer)
+                } else { handoffError = L("The handoff was not accepted.") }
             } catch {
                 handoffError = L("The computers have not confirmed this Project's transfer access. Check their connections and retry.")
             }
@@ -46,7 +53,8 @@ extension TaskHandoffSheet {
     }
 
     @discardableResult
-    func performHandoff(targetRoom: String, targetProvider: String) -> Bool {
+    func performHandoff(targetRoom: String, targetProvider: String,
+                        completion: ((Error?) -> Void)? = nil) -> Bool {
         let comment = userComment.trimmingCharacters(in: .whitespacesAndNewlines)
         guard TaskHandoffReadiness.isReady(
                   readinessChecks(room: targetRoom, provider: targetProvider)
@@ -59,14 +67,13 @@ extension TaskHandoffSheet {
               targetModel.isEmpty || modelOptions.contains(where: { $0.id == targetModel }) else {
             return false
         }
-        model.prepareTaskHandoff(
+        return model.prepareTaskHandoff(
             session: session, targetProvider: normalizedProvider,
             targetComputer: computer, targetModel: targetModel.isEmpty ? nil : targetModel,
             userComment: comment.isEmpty ? nil : comment,
             checkpoint: checkpointUncommitted && hasUncommittedWork,
-            push: pushBranch && targetRoom != sourceRoom
+            push: pushBranch && targetRoom != sourceRoom, completion: completion
         )
-        return true
     }
 
     func destinationComputer(for room: String) -> String? {
@@ -92,9 +99,12 @@ extension TaskHandoffSheet {
               let reader = model.localMCPReader else { return }
         submitting = true
         handoffError = nil
+        let previous = previousHandoffEvents
+        handoffNotBefore = session.projectId.flatMap { model.meshSnapshots[$0]?.generatedAt } ?? 0
         Task {
             do {
                 try await model.ensureProjectComputerNetwork(for: session, targetComputer: computer)
+                guard observesHandoff else { return }
                 let result = try await reader.handoff(
                     session, provider: AgentIdentity.normalize(targetProvider), computer: computer,
                     targetModel: targetModel.isEmpty ? nil : targetModel,
@@ -102,7 +112,11 @@ extension TaskHandoffSheet {
                     checkpoint: checkpointUncommitted && hasUncommittedWork,
                     push: pushBranch && targetRoom != sourceRoom
                 )
-                if result.accepted { dismiss() }
+                if result.accepted {
+                    await reader.refresh()
+                    model.refreshMacCombinedCatalog()
+                    await waitForHandoff(previousEvents: previous, computer: computer)
+                }
                 else { handoffError = result.error ?? L("The handoff was not accepted.") }
             } catch {
                 handoffError = L("The local handoff service is unavailable. Check GrantTap MCP.")

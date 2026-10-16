@@ -94,6 +94,7 @@ extension AppModel {
         resolveMeshAttention(eventId, status: .resolved)
     }
 
+    @discardableResult
     func prepareTaskHandoff(
         session: SessionInfo,
         targetProvider: String,
@@ -101,8 +102,9 @@ extension AppModel {
         targetModel: String? = nil,
         userComment: String? = nil,
         checkpoint: Bool = false,
-        push: Bool = false
-    ) {
+        push: Bool = false,
+        completion: ((Error?) -> Void)? = nil
+    ) -> Bool {
         let note = userComment?.trimmingCharacters(in: .whitespacesAndNewlines)
         guard agentMeshPreferences.meshEnabled,
               agentMeshPreferences.isProviderEnabled(targetProvider),
@@ -110,7 +112,7 @@ extension AppModel {
               AgentIdentity.knownIds.contains(targetProvider),
               targetModel.map({ TurnModel(rawValue: $0) != nil }) ?? true,
               note.map({ !$0.isEmpty && $0.count <= 1_000 }) ?? true,
-              let source = relayForSession(session.sessionId) else { return }
+              let source = relayForSession(session.sessionId) else { return false }
         let request = ProjectMeshHandoffPrepare(
             type: "mesh.handoff.prepare",
             sessionId: session.sessionId,
@@ -128,12 +130,15 @@ extension AppModel {
             provider: targetProvider, computer: targetComputer
         )
         source.send(payload: request, ttl: 15 * 60) { [weak self] error in
-            guard error != nil else { return }
             Task { @MainActor in
-                self?.authorizedHandoffRoutes[taskId] = nil
-                self?.append("handoff preparation failed")
+                if error != nil {
+                    self?.authorizedHandoffRoutes[taskId] = nil
+                    self?.append("handoff preparation failed")
+                }
+                completion?(error)
             }
         }
+        return true
     }
 
     func prepareTaskHandoff(session: SessionInfo, targetActorId: String) {

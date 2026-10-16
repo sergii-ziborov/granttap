@@ -40,7 +40,7 @@ extension TaskChatView {
         }
         .sheet(isPresented: $showCapabilities) { capabilitiesSheet }
         .sheet(isPresented: $showHandoff) {
-            TaskHandoffSheet(session: currentSession, model: model)
+            TaskHandoffSheet(session: currentSession, model: model, onPrepared: openTransferredChat)
         }
         .sheet(isPresented: $showReport) {
             ReportExportSheet(report: model.report(for: reportScope), onClose: { showReport = false })
@@ -209,6 +209,7 @@ extension TaskChatView {
             rows: capabilityRows,
             accent: accent,
             onClose: { showCapabilities = false },
+            onPrepared: openTransferredChat,
             onToggle: toggleCapability
         ).environmentObject(model)
     }

@@ -155,7 +155,8 @@ final class AgentsMeshSurfaceCoverageTests: XCTestCase {
         render(sheet)
         XCTAssertFalse(sheet.performHandoff(targetRoom: "missing", targetProvider: "codex"))
         XCTAssertFalse(sheet.performHandoff(targetRoom: target.id, targetProvider: "copilot"))
-        XCTAssertTrue(sheet.performHandoff(targetRoom: target.id, targetProvider: "codex"))
+        XCTAssertFalse(sheet.performHandoff(targetRoom: target.id, targetProvider: "codex"),
+                       "A selected destination does not confirm submission without a relay.")
     }
 
     func testGrokEndpointAcceptsScopedProgressAndActorHandoff() {

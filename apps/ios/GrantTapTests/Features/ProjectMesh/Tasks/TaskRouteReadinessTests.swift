@@ -54,7 +54,8 @@ final class TaskRouteReadinessTests: XCTestCase {
             session: session(), model: model, initialTargetRoom: "target"
         )
         XCTAssertTrue(ready.isReady)
-        XCTAssertTrue(ready.performHandoff(targetRoom: "target", targetProvider: "codex"))
+        XCTAssertFalse(ready.performHandoff(targetRoom: "target", targetProvider: "codex"),
+                       "Readiness alone cannot submit a transfer without its source relay.")
         XCTAssertTrue(TaskHandoffReadiness.isReady(TaskHandoffReadiness.checks(
             session: session(), snapshot: model.meshSnapshots["project"],
             destinationSelected: true, targetProviderEnabled: true

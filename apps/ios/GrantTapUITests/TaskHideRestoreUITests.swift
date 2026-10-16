@@ -22,6 +22,11 @@ final class TaskHideRestoreUITests: XCTestCase {
         send.tap()
         XCTAssertTrue(app.navigationBars["Transfer to"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.textViews["handoff.comment"].exists)
+        let prepare = app.buttons["handoff.submit"]
+        XCTAssertTrue(prepare.exists)
+        XCTAssertGreaterThan(prepare.frame.width, 200)
+        XCTAssertLessThan(prepare.frame.maxY, app.frame.maxY)
+        XCTAssertEqual(app.buttons["handoff.close"].label, "Cancel")
         app.buttons["handoff.close"].tap()
         task.swipeLeft()
         let archive = app.buttons["task.archive.\(taskId)"]
