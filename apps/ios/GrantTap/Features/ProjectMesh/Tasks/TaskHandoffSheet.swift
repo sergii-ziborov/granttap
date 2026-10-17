@@ -10,6 +10,9 @@ struct TaskHandoffSheet: View {
     @State var pushBranch = false
     @State var targetProvider: String
     @State var targetModel: String
+    @State var targetEffort = ""
+    @State var cloudEnvironment = ""
+    @State var cloudRun: ExecutionSessionLink?
     @State var userComment = ""
     @State var handoffError: String?
     @State var submitting = false
@@ -61,29 +64,22 @@ struct TaskHandoffSheet: View {
         let all = model.connectionRegistry.connections
         return all.filter { $0.id == sourceRoom } + all.filter { $0.id != sourceRoom }
     }
+    /// A cloud runner is never "here", even though this computer starts it.
     var staysHere: Bool {
-        targetRoom == sourceRoom
+        guard cloudTarget == nil else { return false }
+        return targetRoom == sourceRoom
             || (localComputerId != nil && destinationComputer(for: targetRoom) == localComputerId)
     }
-    private var effectiveTargetRoom: String {
+    var effectiveTargetRoom: String {
         targetRoom.isEmpty ? defaultSelection.room : targetRoom
     }
-    private var effectiveTargetProvider: String {
+    var effectiveTargetProvider: String {
         targetProvider.isEmpty ? defaultSelection.provider : targetProvider
     }
     /// The same agent on the same computer is not a move.
     var sameAgentHere: Bool {
         staysHere && AgentIdentity.normalize(targetProvider) == AgentIdentity.normalize(session.agent)
             && (targetModel.isEmpty || targetModel == session.model)
-    }
-
-    var modelOptions: [TurnModelOption] {
-        #if targetEnvironment(macCatalyst)
-        if effectiveTargetRoom == "local-mcp" {
-            return model.turnModelCatalog(agent: effectiveTargetProvider, session: session).options
-        }
-        #endif
-        return model.turnModelCatalog(agent: effectiveTargetProvider, roomId: effectiveTargetRoom).options
     }
 
     var body: some View {
@@ -101,7 +97,7 @@ struct TaskHandoffSheet: View {
                     } footer: {
                         Text(L("The comment travels in the encrypted Task Capsule and is shown to the destination agent."))
                     }
-                    if !grokActors.isEmpty {
+                    if !grokActors.isEmpty && cloudTarget == nil {
                         Section("Grok Bot") {
                             ForEach(grokActors) { actor in
                                 Button {
@@ -131,7 +127,9 @@ struct TaskHandoffSheet: View {
                                     .accessibilityIdentifier("handoff.push")
                             }
                         } footer: {
-                            Text(staysHere
+                            Text(cloudTarget != nil
+                                 ? L("A push publishes the branch, or a checkpoint branch, to the repository's remote, never by force, so the cloud runner can fetch it.")
+                                 : staysHere
                                  ? L("The source computer commits the changes to a branch named granttap/checkpoint/… and nothing else moves.")
                                  : L("A checkpoint commits the changes to a branch named granttap/checkpoint/…. A push publishes that branch — or the current one — to the repository's remote, never by force, so the other computer can fetch the commit before it starts."))
                         }
@@ -150,60 +148,33 @@ struct TaskHandoffSheet: View {
                             }
                         }
                     }
-                    Section {
-                        Text(L("GrantTap prepares the destination with the visible conversation, available attachments and project facts. Incomplete context stops the transfer."))
-                        Text(L("Use a separate branch or worktree on the destination computer. If no authorized checkout matches, the handoff fails safely in Needs You."))
-                    }
+                    transferContextSection
                 }
                 .onAppear(perform: applyDefaults)
-                .disabled(submitting || awaitingConfirmation)
+                .disabled(submitting || awaitingConfirmation || cloudRun != nil)
                 transferFooter
             }
             .onDisappear { observesHandoff = false }
         }
     }
 
-    private var destinationSection: some View {
-        Section {
-            Picker(L("Computer"), selection: $targetRoom) { computerOptions }
-            Picker(L("Agent"), selection: $targetProvider) { agentOptions }
-            Picker(L("Model"), selection: $targetModel) {
-                Text(L("Automatic")).tag("")
-                ForEach(modelOptions) { option in Text(option.label).tag(option.id) }
-            }
-            .accessibilityIdentifier("handoff.model")
-            .onChange(of: targetProvider) { _ in targetModel = "" }
-            .onChange(of: targetRoom) { _ in targetModel = "" }
-        } header: {
-            Text(L("Destination"))
-        } footer: {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(sameAgentHere
-                     ? L("Choose another agent or model, or another computer: this is where the Task already is.")
-                     : staysHere
-                        ? L("The Task continues here in a new worktree from the last commit.")
-                        : L("The other computer needs the commit: push the branch, or make sure it can fetch it."))
-                if !targetModel.isEmpty {
-                    Text(L("The destination keeps this Task’s title and visible conversation. Work starts with its first message."))
-                }
-            }
-        }
-    }
-
     /// Readiness for one concrete destination, so the button and the action
     /// that follows it can never disagree about what is being checked.
     func readinessChecks(room: String, provider: String) -> [HandoffReadinessCheck] {
-        TaskHandoffReadiness.checks(
+        let cloud = TaskHandoffCloudTarget(tag: room)
+        let computerRoom = cloud?.room ?? room
+        let checks = TaskHandoffReadiness.checks(
             session: session,
             snapshot: session.projectId.flatMap { model.meshSnapshots[$0] },
-            destinationSelected: targets.contains { $0.id == room }
-                || (room == "local-mcp" && localComputerId != nil),
+            destinationSelected: targets.contains { $0.id == computerRoom }
+                || (computerRoom == "local-mcp" && localComputerId != nil),
             targetProviderEnabled: !provider.isEmpty
                 && model.agentMeshPreferences.isProviderEnabled(
-                    AgentIdentity.normalize(provider)
+                    AgentIdentity.normalize(cloud?.provider ?? provider)
                 ),
             checkpoint: checkpointUncommitted
         )
+        return cloud == nil ? checks : checks + [TaskHandoffCloudTarget.readiness(push: pushBranch)]
     }
 
     /// Whether this execution has work a plain handoff would leave behind.
@@ -213,7 +184,7 @@ struct TaskHandoffSheet: View {
     }
 
     var readinessChecks: [HandoffReadinessCheck] {
-        readinessChecks(room: effectiveTargetRoom, provider: effectiveTargetProvider)
+        readinessChecks(room: effectiveTargetRoom, provider: destinationProvider)
     }
 
     var isReady: Bool { TaskHandoffReadiness.isReady(readinessChecks) }
@@ -224,30 +195,6 @@ struct TaskHandoffSheet: View {
         TaskHandoffReadiness.isReady(
             readinessChecks.filter { $0.id != "destination" && $0.id != "targetAgent" }
         )
-    }
-
-    var computerOptions: some View {
-        Group {
-            if let localComputerId {
-                Text(String(format: L("%@ (this computer)"),
-                            localComputerName ?? localComputerId)).tag("local-mcp")
-            }
-            ForEach(targets) { connection in
-                Text(connection.id == sourceRoom
-                     ? String(format: L("%@ (this computer)"), computerName(connection))
-                     : computerName(connection)).tag(connection.id)
-            }
-        }
-    }
-
-    var agentOptions: some View {
-        Group {
-            ForEach(AgentIdentity.composeIds.filter {
-                model.agentMeshPreferences.isProviderEnabled($0)
-            }, id: \.self) { provider in
-                Text(AgentIdentity.displayName(provider)).tag(provider)
-            }
-        }
     }
 
     var grokActors: [GrokBotMeshActor] {

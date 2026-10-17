@@ -9,7 +9,8 @@ struct MacLocalTaskHandoffResult: Decodable, Sendable {
 
 extension MacLocalMCPModel {
     func handoff(_ session: SessionInfo, provider: String, computer: String,
-                 targetModel: String?, comment: String?, checkpoint: Bool, push: Bool) async throws
+                 targetModel: String?, comment: String?, checkpoint: Bool, push: Bool,
+                 cloud: ProjectMeshCloudLaunch? = nil) async throws
         -> MacLocalTaskHandoffResult {
         guard status?.desktopEngineSocket != nil,
               let projectId = session.projectId, let taskId = session.taskId,
@@ -23,6 +24,11 @@ extension MacLocalMCPModel {
         ]
         if let targetModel { input["target_model"] = targetModel }
         if let comment, !comment.isEmpty { input["user_comment"] = comment }
+        if let cloud {
+            input["cloud"] = true
+            if let environment = cloud.environment { input["cloud_environment"] = environment }
+            if let effort = cloud.effort { input["cloud_effort"] = effort }
+        }
         let data = try await MacNativeTransport.invoke(operation: "desktop.task_handoff", input: input)
         let result = try JSONDecoder().decode(MacLocalTaskHandoffResult.self, from: data)
         guard result.operation == "desktop.task_handoff", (result.error?.count ?? 0) <= 500 else {

@@ -62,3 +62,18 @@ view, so Catalyst can show the context warning and keep a canceled choice.
 The home composer resolves model and effort before admitting either a new Task
 or a continuation into the durable outbox. MCP question replies keep their
 request scope and carry no turn override.
+
+## Which computer's models
+
+`AppModel.catalogEndpoint(forRoom:)` is the one rule for the computer a room
+reaches, used by the composers, chat overrides and **Transfer to** alike, and by
+the transfer itself: the computer's own status report (`endpointId` on its
+integration rows) first, then the Project snapshots it published — the one with
+the freshest model catalog when an old name is still mapped — then its chats.
+Before, a room had to map to exactly one snapshot publisher, so after a relaunch
+or with a former computer name the picker fell back to Automatic for Codex,
+Cursor and Grok Build. Grok Build rows carry their own reasoning levels, up to
+Extra High. An unreported list is said in words; Automatic stays the default and
+nothing is invented. A transfer's chosen model and effort are stored for the
+new chat, so its first message carries them even when the agent has a default.
+Tests: `GrantTapTests/Features/ProjectMesh/Tasks/TaskHandoffModelChoiceTests.swift`.

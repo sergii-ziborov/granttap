@@ -14,7 +14,7 @@ extension RelayClient {
                 DispatchQueue.main.async {
                     guard self.task === socket else { return }
                     self.task = nil
-                    self.noteSocketClosed(closeCode: socket.closeCode.rawValue)
+                    self.noteSocketClosed(closeCode: socket.closeCode.rawValue, reason: socket.closeReason)
                     self.onConnectionChange?(false)
                     self.scheduleReconnect()
                 }

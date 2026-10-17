@@ -29,9 +29,10 @@ extension RelayClient {
 
     /// Only a connection that stayed up earns a quick reconnect; one the relay
     /// refused right after it opened must not be reopened every second.
-    func noteSocketClosed(closeCode: Int, now: TimeInterval = Date().timeIntervalSince1970) {
+    func noteSocketClosed(closeCode: Int, reason: Data? = nil, now: TimeInterval = Date().timeIntervalSince1970) {
         retryDelay = RelayReconnectBackoff.delayAfterClose(
-            current: retryDelay, openFor: socketOpenedAt.map { now - $0 }, closeCode: closeCode
+            current: retryDelay, openFor: socketOpenedAt.map { now - $0 }, closeCode: closeCode,
+            reason: reason.flatMap { String(data: $0, encoding: .utf8) }
         )
         socketOpenedAt = nil
     }
@@ -43,10 +44,20 @@ enum RelayReconnectBackoff {
     /// A policy refusal (WebSocket 1008) will be refused again; ask again rarely.
     static let policyDelay: TimeInterval = 60
 
-    static func delayAfterClose(current: TimeInterval, openFor: TimeInterval?, closeCode: Int) -> TimeInterval {
-        if closeCode == 1008 { return max(current, policyDelay) }
+    /// 1008 and the relay's 44xx closes are policy refusals: admission, cool-down, rate limit.
+    static func delayAfterClose(current: TimeInterval, openFor: TimeInterval?, closeCode: Int,
+                                reason: String? = nil) -> TimeInterval {
+        if closeCode == 1008 || (4400...4499).contains(closeCode) {
+            return max(current, policyDelay, reason.flatMap(retryAfter) ?? 0)
+        }
         if let openFor, openFor >= healthyLifetime { return 1 }
         return current
+    }
+
+    /// The relay's close reason may carry `; retry-after=<seconds>`.
+    static func retryAfter(_ reason: String) -> TimeInterval? {
+        guard let range = reason.range(of: #"retry-after=(\d{1,5})"#, options: .regularExpression) else { return nil }
+        return TimeInterval(reason[range].dropFirst("retry-after=".count))
     }
 
     /// Doubling stops at the ordinary cap, but never shortens a longer policy wait.

@@ -259,7 +259,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         DispatchQueue.main.async {
             guard self.task === webSocketTask else { return }
             self.task = nil
-            self.noteSocketClosed(closeCode: closeCode.rawValue)
+            self.noteSocketClosed(closeCode: closeCode.rawValue, reason: reason)
             self.onConnectionChange?(false)
             self.scheduleReconnect()
         }

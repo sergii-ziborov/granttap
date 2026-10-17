@@ -60,12 +60,13 @@ enum TurnEffort: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Cursor encodes reasoning variants in its advertised model ID.
+    /// Cursor encodes reasoning variants in its advertised model ID. Grok Build
+    /// lists low…xhigh; each model's own levels come from its catalog row.
     static func supported(by agent: String) -> [TurnEffort] {
         switch AgentIdentity.normalize(agent) {
         case "codex": return allCases
         case "claude": return [.low, .medium, .high, .xhigh, .max]
-        case "grok": return [.low, .medium, .high]
+        case "grok": return [.low, .medium, .high, .xhigh]
         default: return []
         }
     }

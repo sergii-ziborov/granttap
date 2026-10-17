@@ -7,6 +7,8 @@ extension TaskRouteView {
     /// the execution ran, in the words of the list it came from.
     static func timingLine(_ execution: ExecutionSessionLink, now: Double = Date().timeIntervalSince1970 * 1_000) -> String {
         var parts = [String(format: L("started %@"), ReportBuilder.stamp(execution.startedAt))]
+        // A cloud run is never observed, so it has no "last active" to report.
+        if execution.external != nil { return parts[0] }
         if let endedAt = execution.endedAt {
             parts.append(String(format: L("ended %@"), ReportBuilder.stamp(endedAt)))
         } else {
@@ -52,7 +54,8 @@ extension TaskRouteView {
         _ execution: ExecutionSessionLink, chatAvailable: Bool
     ) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(MeshActorPresentation.executionName(execution))
+            Text(execution.external?.title(computer: execution.computerId)
+                 ?? MeshActorPresentation.executionName(execution))
                 .font(.system(size: 14, weight: .semibold))
             // The computer is already in the name above; the line under it
             // says only what the name does not.
@@ -62,13 +65,15 @@ extension TaskRouteView {
                 Text(detail).font(.caption).foregroundStyle(Theme.muted)
             }
             Text(Self.timingLine(execution)).font(.caption2).foregroundStyle(Theme.muted)
-            if execution.endedAt == nil, execution.uncommitted != false {
+            if execution.endedAt == nil, execution.external == nil, execution.uncommitted != false {
                 Text(L(execution.uncommitted == true
                        ? TaskHandoffReadiness.uncommittedWarning
                        : TaskHandoffReadiness.unreadableWorkingTreeWarning))
                     .font(.caption).foregroundStyle(Theme.riskMed)
             }
-            if chatAvailable {
+            if execution.external != nil {
+                CloudRunLink(run: execution)
+            } else if chatAvailable {
                 Label(L("Open chat"), systemImage: "bubble.left.and.bubble.right")
                     .font(.caption.weight(.semibold)).foregroundStyle(Theme.codex)
             } else {

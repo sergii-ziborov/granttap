@@ -60,6 +60,8 @@ struct ExecutionSessionLink: Codable, Equatable, Identifiable {
     var activeAt: Double? = nil
     let startedAt: Double
     var endedAt: Double?
+    /// A provider cloud run: only its link is known, never its progress.
+    var external: ExternalExecution? = nil
     var id: String { "\(computerId)\u{1f}\(provider)\u{1f}\(sessionId)" }
 
     /// The last moment this execution is known to have been alive.
@@ -281,4 +283,5 @@ struct ProjectMeshHandoffPrepare: Codable, Equatable {
     /// so another computer can fetch the commit. Never a force push.
     var push: Bool? = nil
     var prepareOnly: Bool? = nil
+    var cloud: ProjectMeshCloudLaunch? = nil
 }

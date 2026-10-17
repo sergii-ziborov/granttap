@@ -37,7 +37,8 @@ enum ExecutionCoalescing {
             updatedAt: rows.compactMap(\.updatedAt).max(),
             activeAt: primary.activeAt ?? rows.compactMap(\.activeAt).max(),
             startedAt: rows.map(\.startedAt).min() ?? primary.startedAt,
-            endedAt: allEnded ? rows.compactMap(\.endedAt).max() : nil
+            endedAt: allEnded ? rows.compactMap(\.endedAt).max() : nil,
+            external: primary.external ?? rows.compactMap(\.external).first
         )
     }
 }

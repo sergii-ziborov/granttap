@@ -2830,3 +2830,21 @@
 "Sending now…" = "Отправка сейчас…";
 "Update MCP on this computer to send a queued message now." = "Обновите MCP на этом компьютере, чтобы отправить сообщение из очереди сейчас.";
 "The computer's project engine has not accepted this checkout yet. It retries on its next refresh." = "Движок проекта на компьютере ещё не принял этот checkout. Он повторит попытку при следующем обновлении.";
+
+"This computer has not reported its models yet. Automatic lets the provider choose." = "Этот компьютер ещё не сообщил свои модели. «Автоматически» оставляет выбор провайдеру.";
+"%@ on this computer has not reported a model list. Automatic lets it choose its own model." = "%@ на этом компьютере не сообщил список моделей. «Автоматически» оставляет выбор модели ему.";
+"Claude cloud · via %@" = "Облако Claude · через %@";
+"Codex Cloud · via %@" = "Codex Cloud · через %@";
+"Codex Cloud environment" = "Окружение Codex Cloud";
+"Remote branch" = "Ветка на удалённом репозитории";
+"The computer pushes the branch before the cloud run starts." = "Компьютер отправит ветку на удалённый репозиторий до запуска в облаке.";
+"The cloud runner fetches the branch from the remote. Turn on pushing unless it is already pushed." = "Облачный запуск берёт ветку с удалённого репозитория. Включите отправку, если ветка ещё не отправлена.";
+"A push publishes the branch, or a checkpoint branch, to the repository's remote, never by force, so the cloud runner can fetch it." = "Отправка публикует ветку или ветку контрольной точки на удалённый репозиторий, никогда принудительно, чтобы облачный запуск мог её получить.";
+"The computer that holds this Task starts the cloud run with its own CLI. GrantTap shows a link to it but cannot follow its progress." = "Компьютер, на котором сейчас эта задача, запускает её в облаке своим CLI. GrantTap покажет ссылку, но не может следить за ходом работы.";
+"Leave the environment empty to use the one this repository's recent Codex Cloud tasks ran in." = "Оставьте окружение пустым, чтобы использовать то, в котором выполнялись недавние задачи Codex Cloud этого репозитория.";
+"The cloud runner receives the Task Capsule: goal, status, branch and commit, your comment and the remaining work. The conversation itself stays on your computers." = "Облачный запуск получает капсулу задачи: цель, статус, ветку и коммит, ваш комментарий и оставшуюся работу. Сама переписка остаётся на ваших компьютерах.";
+"Start in the cloud" = "Запустить в облаке";
+"%@ started." = "%@ запущен.";
+"Open the cloud run" = "Открыть облачный запуск";
+"The provider reported no link. Its id is %@." = "Провайдер не сообщил ссылку. Идентификатор: %@.";
+"GrantTap cannot follow a cloud run's progress. Check it with the provider." = "GrantTap не может следить за ходом облачного запуска. Проверьте его у провайдера.";

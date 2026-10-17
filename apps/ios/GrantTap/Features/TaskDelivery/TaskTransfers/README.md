@@ -31,3 +31,10 @@ leaves behind next to the action. A fresh checkout reading from a resumed native
 chat can offer a checkpoint even when its previous execution was closed.
 Uncommitted or unread work is a warning, never a block. Cancel closes the form;
 preparation failures remain visible there.
+
+The destination's Model and Effort pickers list what the destination computer
+itself reported for that provider, resolved by the same computer the transfer
+goes to (see the TaskComposer README); Automatic is always first, and a computer
+or provider that reported no list says so instead of showing a made-up one.
+Destinations also include the provider cloud runners of the computer holding the
+Task; see [cloud runners](CloudRunners/README.md).

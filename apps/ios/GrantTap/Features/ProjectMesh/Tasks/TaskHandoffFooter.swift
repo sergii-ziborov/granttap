@@ -9,7 +9,9 @@ extension TaskHandoffSheet {
     /// The action and its blocking reason remain visible while the form scrolls.
     var transferFooter: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if let reason = handoffError ?? TaskHandoffReadiness.blockedReason(readinessChecks) {
+            if let cloudRun {
+                CloudRunStartedNote(run: cloudRun)
+            } else if let reason = handoffError ?? TaskHandoffReadiness.blockedReason(readinessChecks) {
                 Text(reason)
                     .font(.caption)
                     .foregroundStyle(Theme.riskHigh)
@@ -29,13 +31,15 @@ extension TaskHandoffSheet {
             Button(action: submitHandoff) {
                 HStack(spacing: 10) {
                     if submitting || awaitingConfirmation { ProgressView() }
-                    Label(L(submitting ? "Preparing transfer…" : "Prepare transfer"),
-                          systemImage: "arrow.up.right.square")
+                    Label(cloudRun != nil ? L("Done")
+                          : L(submitting ? "Preparing transfer…" : cloudTarget != nil ? "Start in the cloud" : "Prepare transfer"),
+                          systemImage: cloudRun != nil ? "checkmark" : cloudTarget != nil ? "cloud" : "arrow.up.right.square")
                 }
                 .frame(maxWidth: .infinity, minHeight: 36)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(!isReady || sameAgentHere || userComment.count > 1_000 || submitting || awaitingConfirmation)
+            .disabled(cloudRun == nil && (!isReady || sameAgentHere || userComment.count > 1_000
+                                          || submitting || awaitingConfirmation))
             .accessibilityIdentifier("handoff.submit")
         }
         .padding(16)

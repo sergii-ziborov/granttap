@@ -9,6 +9,7 @@ extension TaskHandoffSheet {
     }
 
     func submitHandoff() {
+        if cloudRun != nil { dismiss(); return }
         #if targetEnvironment(macCatalyst)
         if model.usesLocalTaskDelivery(for: session) {
             submitLocalHandoff()
@@ -52,15 +53,27 @@ extension TaskHandoffSheet {
         return (room, provider)
     }
 
+    /// What the cloud runner is asked for: a Codex Cloud environment, Claude's effort.
+    var cloudLaunch: ProjectMeshCloudLaunch? {
+        guard let cloud = cloudTarget else { return nil }
+        let environment = cloudEnvironment.trimmingCharacters(in: .whitespacesAndNewlines)
+        return ProjectMeshCloudLaunch(
+            environment: cloud.provider == "codex" && !environment.isEmpty ? String(environment.prefix(160)) : nil,
+            effort: cloud.provider == "claude" && !targetEffort.isEmpty ? targetEffort : nil
+        )
+    }
+
     @discardableResult
     func performHandoff(targetRoom: String, targetProvider: String,
                         completion: ((Error?) -> Void)? = nil) -> Bool {
         let comment = userComment.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cloud = TaskHandoffCloudTarget(tag: targetRoom)
+        let provider = cloud?.provider ?? targetProvider
         guard TaskHandoffReadiness.isReady(
-                  readinessChecks(room: targetRoom, provider: targetProvider)
+                  readinessChecks(room: targetRoom, provider: provider)
               ),
               let computer = destinationComputer(for: targetRoom) else { return false }
-        let normalizedProvider = AgentIdentity.normalize(targetProvider)
+        let normalizedProvider = AgentIdentity.normalize(provider)
         guard AgentIdentity.composeIds.contains(normalizedProvider),
               model.agentMeshPreferences.isProviderEnabled(normalizedProvider),
               !sameAgentHere, comment.count <= 1_000,
@@ -72,19 +85,15 @@ extension TaskHandoffSheet {
             targetComputer: computer, targetModel: targetModel.isEmpty ? nil : targetModel,
             userComment: comment.isEmpty ? nil : comment,
             checkpoint: checkpointUncommitted && hasUncommittedWork,
-            push: pushBranch && targetRoom != sourceRoom, completion: completion
+            push: pushBranch && targetRoom != sourceRoom, cloud: cloudLaunch, completion: completion
         )
     }
 
+    /// One rule for the computer a transfer goes to and the models it offers.
     func destinationComputer(for room: String) -> String? {
+        if let cloud = TaskHandoffCloudTarget(tag: room) { return destinationComputer(for: cloud.room) }
         if room == "local-mcp" { return localComputerId }
-        if let endpoint = model.meshComputerRoomByEndpointId.first(where: { $0.value == room })?.key {
-            return endpoint
-        }
-        let ids = Set((model.sessions + model.sessionHistory).filter {
-            model.sourceRoom(forSessionId: $0.sessionId) == room
-        }.compactMap(\.computerId))
-        return ids.count == 1 ? ids.first : nil
+        return model.catalogEndpoint(forRoom: room)
     }
 
     func computerName(_ connection: LinkedComputer) -> String {
@@ -106,11 +115,11 @@ extension TaskHandoffSheet {
                 try await model.ensureProjectComputerNetwork(for: session, targetComputer: computer)
                 guard observesHandoff else { return }
                 let result = try await reader.handoff(
-                    session, provider: AgentIdentity.normalize(targetProvider), computer: computer,
+                    session, provider: destinationProvider, computer: computer,
                     targetModel: targetModel.isEmpty ? nil : targetModel,
                     comment: userComment.trimmingCharacters(in: .whitespacesAndNewlines),
                     checkpoint: checkpointUncommitted && hasUncommittedWork,
-                    push: pushBranch && targetRoom != sourceRoom
+                    push: pushBranch && targetRoom != sourceRoom, cloud: cloudLaunch
                 )
                 if result.accepted {
                     await reader.refresh()

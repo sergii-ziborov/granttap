@@ -103,6 +103,7 @@ extension AppModel {
         userComment: String? = nil,
         checkpoint: Bool = false,
         push: Bool = false,
+        cloud: ProjectMeshCloudLaunch? = nil,
         completion: ((Error?) -> Void)? = nil
     ) -> Bool {
         let note = userComment?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -110,6 +111,7 @@ extension AppModel {
               agentMeshPreferences.isProviderEnabled(targetProvider),
               let projectId = session.projectId, let taskId = session.taskId,
               AgentIdentity.knownIds.contains(targetProvider),
+              cloud == nil || TaskHandoffCloudTarget.providers.contains(targetProvider),
               targetModel.map({ TurnModel(rawValue: $0) != nil }) ?? true,
               note.map({ !$0.isEmpty && $0.count <= 1_000 }) ?? true,
               let source = relayForSession(session.sessionId) else { return false }
@@ -124,7 +126,7 @@ extension AppModel {
             userComment: note,
             createdAt: Date().timeIntervalSince1970 * 1_000,
             checkpoint: checkpoint ? true : nil,
-            push: push ? true : nil, prepareOnly: true
+            push: push ? true : nil, prepareOnly: true, cloud: cloud
         )
         authorizedHandoffRoutes[taskId] = Self.handoffRoute(
             provider: targetProvider, computer: targetComputer

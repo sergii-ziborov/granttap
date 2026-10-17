@@ -7,6 +7,10 @@ extension TaskHandoffSheet {
 
     /// Socket submission is not confirmation that a destination chat exists.
     func waitForHandoff(previousEvents: Set<String>, computer: String) async {
+        if let cloud = cloudTarget {
+            await waitForCloudRun(cloud, previousEvents: previousEvents, computer: computer)
+            return
+        }
         awaitingConfirmation = true
         pendingHandoffEvents = previousEvents
         pendingHandoffComputer = computer
@@ -23,6 +27,9 @@ extension TaskHandoffSheet {
         switch outcome {
         case .prepared(let destination):
             awaitingConfirmation = false
+            // The first message carries the chosen model and effort, so an
+            // agent-wide default cannot replace what was picked here.
+            model.rememberTransferChoice(destination: destination, model: targetModel, effort: targetEffort)
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 if let onPrepared { onPrepared(destination) }
@@ -34,6 +41,32 @@ extension TaskHandoffSheet {
         case .waiting:
             // A missing reply must not offer another preparation.
             handoffError = L("Waiting for computer confirmation…")
+        }
+    }
+
+    /// A cloud run is confirmed by the external execution the computer
+    /// records, and shown as a link; nothing opens a chat for it.
+    func waitForCloudRun(_ cloud: TaskHandoffCloudTarget, previousEvents: Set<String>, computer: String) async {
+        awaitingConfirmation = true
+        pendingHandoffEvents = previousEvents
+        pendingHandoffComputer = computer
+        let outcome = await CloudHandoffOutcome.wait(lookup: {
+            if let handoffError { return .failed(handoffError) }
+            return CloudHandoffOutcome.observe(session: session,
+                snapshot: session.projectId.flatMap { model.meshSnapshots[$0] }, target: cloud,
+                computer: computer, previousEvents: previousEvents, notBefore: handoffNotBefore)
+        }, observing: { observesHandoff })
+        switch outcome {
+        case .started(let run)?:
+            awaitingConfirmation = false
+            cloudRun = run
+        case .failed(let reason)?:
+            awaitingConfirmation = false
+            handoffError = reason
+        case .waiting?:
+            handoffError = L("Waiting for computer confirmation…")
+        case nil:
+            awaitingConfirmation = false
         }
     }
 

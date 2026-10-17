@@ -24,6 +24,18 @@ final class RelayReconnectBackoffTests: XCTestCase {
         XCTAssertEqual(RelayReconnectBackoff.nextDelay(after: 8, cap: 15), 15)
     }
 
+    func testRelayPolicyCodesAndRetryAfterAreRespected() {
+        for code in [4401, 4403, 4406, 4409, 4425, 4429] {
+            XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 0.1, closeCode: code), 60, "\(code)")
+        }
+        XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 0.1, closeCode: 4425,
+            reason: "cool-down; retry-after=240"), 240)
+        XCTAssertEqual(RelayReconnectBackoff.retryAfter("hub-admission-required; retry-after=20"), 20)
+        XCTAssertNil(RelayReconnectBackoff.retryAfter("rate-limit"))
+        XCTAssertNil(RelayReconnectBackoff.retryAfter("retry-after=-5"))
+        XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 45, closeCode: 1000), 1)
+    }
+
     @MainActor
     func testAClientThatWasRefusedDoesNotResetItsBackoffWhenTheNextSocketOpens() {
         let client = RelayClient(pairing: Pairing(relayUrl: "ws://127.0.0.1:1", room: "room-a", role: "machine",

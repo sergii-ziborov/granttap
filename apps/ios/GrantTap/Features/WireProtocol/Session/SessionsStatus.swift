@@ -15,6 +15,8 @@ struct AgentIntegrationInfo: Codable, Equatable, Identifiable {
     /// A newer copy already on that disk, which GrantTap already uses.
     var newerOnThisMac: String? = nil
     var updating: Bool? = nil
+    /// The installed CLI can start the provider's cloud runner without a terminal.
+    var cloud: Bool? = nil
 
     var id: String { agent }
 }
