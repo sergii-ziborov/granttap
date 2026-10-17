@@ -6,9 +6,12 @@ final class TaskCatalogPerformanceTests: XCTestCase {
     func testCursorTaskOpensRetainedHistoryWithoutWaitingForLiveCatalog() throws {
         let model = AppModel()
         model.demoMode = true
-        let chat = SessionInfo(sessionId: "cursor-chat", agent: "cursor", projectId: "project", taskId: "task",
-            computerId: "mac", state: "idle", startedAt: 1, lastActivityAt: 30,
-            tokensSession: 0, tokensLastTurn: 0)
+        func chatForProvider(_ provider: String) -> SessionInfo {
+            SessionInfo(sessionId: "cursor-chat", agent: provider, projectId: "project", taskId: "task",
+                computerId: "mac", state: "idle", startedAt: 1, lastActivityAt: 30,
+                tokensSession: 0, tokensLastTurn: 0)
+        }
+        let chat = chatForProvider("cursor")
         model.sessionHistory = [chat]
         model.meshSnapshots = ["project": .init(type: "mesh.snapshot", sessionId: "project", projectId: "project",
             project: .init(projectId: "project", name: "Project", canonicalRepositoryId: "repo", createdAt: 1),
@@ -20,6 +23,12 @@ final class TaskCatalogPerformanceTests: XCTestCase {
         let row = try XCTUnwrap(TaskListCatalog.items(model: model, sessions: []).first)
         XCTAssertEqual(row.currentSession?.sessionId, chat.sessionId,
                        "The first tap opens the known chat, not the Task's checkout warning screen.")
+        model.sessionHistory = [chatForProvider("Cursor")]
+        XCTAssertEqual(TaskListCatalog.items(model: model, sessions: []).first?.currentSession?.sessionId, chat.sessionId,
+                       "Provider aliases still resolve to the same owner.")
+        model.sessionHistory = [chatForProvider("grok")]
+        XCTAssertNil(TaskListCatalog.items(model: model, sessions: []).first?.currentSession)
+        model.sessionHistory = [chat]
         model.sessionHistory[0].projectId = "other-project"
         XCTAssertNil(TaskListCatalog.items(model: model, sessions: []).first?.currentSession)
     }

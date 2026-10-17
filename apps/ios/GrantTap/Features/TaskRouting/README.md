@@ -8,6 +8,8 @@ an offline computer look active.
 `TaskListCatalog` indexes sessions by Project/Task and executions by Task once
 per snapshot. A Task owner already retained in native history opens its chat on
 the first tap, with Project/Task/provider/computer scope checked before routing.
+The native-session index keeps only the newest record per ID in one pass;
+canonical provider IDs match directly, with normalization reserved for aliases.
 The Now screen classifies that result once and renders lazy groups;
 switching root tabs does not repeatedly scan every execution for every card.
 `tests/TaskCatalogPerformanceTests.swift` exercises a 2,000-Task catalog.

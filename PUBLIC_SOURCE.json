@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "b21ccb8f2cd55856a02804b4e7627df597e3023c",
+  "sourceCommit": "80fad1c3fc46e0df8dd4f3efad2557994e495e05",
   "files": [
     {
       "path": "LICENSE",
@@ -3096,11 +3096,11 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/README.md",
-      "sha256": "91f1f95b5ca5aa6b51fc8cad54e26eba9b52a7c6cb6d143573c94431de635184"
+      "sha256": "6a031241aee42da1045c972949260c7a463160b15bee71fbc443b06be48342f2"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/TaskListItem.swift",
-      "sha256": "45ebd21bc2d324f978b71e8113f89be5579a251079ed942990d68e01f14efe7a"
+      "sha256": "4f89740b0a3ba434a8733bb8f5471f39ad3cf6ea8e81a0aaf7e2317d548dfcb3"
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/TaskRoutePresentation.swift",
@@ -3108,7 +3108,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/TaskRouting/tests/TaskCatalogPerformanceTests.swift",
-      "sha256": "cfcea0abc2a92e27cb85c2c9f9c2babfbfb952754dc0ea111ec707a8c4a9d58a"
+      "sha256": "3986b0b9ff5f4d6fc26f0becf8e0b3aae565a8b07401f98c13bfda7c10964ebf"
     },
     {
       "path": "apps/ios/GrantTap/Features/WireProtocol/Machine/ConfigurationPayloads.swift",

@@ -66,8 +66,7 @@ enum TaskListCatalog {
     static func items(
         model: AppModel, sessions: [SessionInfo], history: Bool = false
     ) -> [TaskListItem] {
-        let newestById = Dictionary(grouping: sessions + model.sessionHistory, by: \.sessionId)
-            .compactMapValues { $0.max { $0.lastActivityAt < $1.lastActivityAt } }
+        let newestById = newestSessions(sessions, history: model.sessionHistory)
         let sessionsByTask = Dictionary(grouping: sessions.filter { $0.projectId != nil && $0.taskId != nil }) {
             meshKey(projectId: $0.projectId!, taskId: $0.taskId!)
         }
@@ -117,7 +116,8 @@ enum TaskListCatalog {
         let current = candidate.flatMap { chat -> SessionInfo? in
             guard chat.projectId == nil || chat.projectId == snapshot.projectId,
                   chat.taskId == nil || chat.taskId == task.taskId,
-                  owner == nil || AgentIdentity.normalize(chat.agent) == AgentIdentity.normalize(owner!.provider),
+                  owner == nil || chat.agent == owner!.provider
+                    || AgentIdentity.normalize(chat.agent) == AgentIdentity.normalize(owner!.provider),
                   chat.computerId == nil || owner == nil || chat.computerId == owner!.computerId
             else { return nil }
             return chat
@@ -138,6 +138,15 @@ enum TaskListCatalog {
             currentSession: current, historicalExecutions: executions,
             sessionIds: ids, lastActivityAt: activity
         )
+    }
+
+    private static func newestSessions(_ sessions: [SessionInfo], history: [SessionInfo]) -> [String: SessionInfo] {
+        var result = [String: SessionInfo](minimumCapacity: sessions.count + history.count)
+        for session in [sessions, history].joined() {
+            if let existing = result[session.sessionId], existing.lastActivityAt >= session.lastActivityAt { continue }
+            result[session.sessionId] = session
+        }
+        return result
     }
 
     private static func legacyItems(
