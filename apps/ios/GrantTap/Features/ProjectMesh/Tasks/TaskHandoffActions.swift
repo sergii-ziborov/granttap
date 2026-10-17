@@ -84,7 +84,7 @@ extension TaskHandoffSheet {
             session: session, targetProvider: normalizedProvider,
             targetComputer: computer, targetModel: targetModel.isEmpty ? nil : targetModel,
             userComment: comment.isEmpty ? nil : comment,
-            checkpoint: checkpointUncommitted && hasUncommittedWork,
+            checkpoint: checkpointUncommitted,
             push: pushBranch && targetRoom != sourceRoom, cloud: cloudLaunch, completion: completion
         )
     }
@@ -118,7 +118,7 @@ extension TaskHandoffSheet {
                     session, provider: destinationProvider, computer: computer,
                     targetModel: targetModel.isEmpty ? nil : targetModel,
                     comment: userComment.trimmingCharacters(in: .whitespacesAndNewlines),
-                    checkpoint: checkpointUncommitted && hasUncommittedWork,
+                    checkpoint: checkpointUncommitted,
                     push: pushBranch && targetRoom != sourceRoom, cloud: cloudLaunch
                 )
                 if result.accepted {

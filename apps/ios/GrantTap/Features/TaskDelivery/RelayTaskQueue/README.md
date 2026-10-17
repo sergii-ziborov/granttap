@@ -26,4 +26,10 @@ pause, in-flight delivery, provider availability and computer policy still apply
 This wire option requires a compatible MCP receiver (0.8.69 or later).
 
 Scheduled sends are one-time queue operations in the existing chat composer.
+
+`RelayTaskQueueSchedule` orders each pass: unsaved messages upload before older
+receipt checks, so a new message is never behind a slow request. A just-saved
+or running job is checked every second, a long wait every five seconds. Failed
+and expired jobs cannot change on the relay and are not polled until the person
+retries or removes them.
 Tests mirror this feature under `GrantTapTests/Features/TaskDelivery`.

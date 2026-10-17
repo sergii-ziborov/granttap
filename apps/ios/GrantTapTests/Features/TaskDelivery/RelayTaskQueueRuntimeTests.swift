@@ -151,6 +151,29 @@ final class RelayTaskQueueRuntimeTests: XCTestCase {
         XCTAssertTrue(model.deliveries.isEmpty)
     }
 
+    func testANewMessageUploadsBeforeOlderReceiptsAndAFailedJobIsNotPolledAgain() async throws {
+        let (model, session, chat) = try fixture()
+        let first = try XCTUnwrap(model.deliveries.first?.id)
+        var methods: [String] = [], failFirst = false
+        RelayQueueURLProtocol.handle = { request in
+            methods.append(request.httpMethod ?? "")
+            let id = request.url?.lastPathComponent ?? ""
+            return (201, Self.receipt(id, state: id == first && failFirst ? "failed" : "queued"))
+        }
+        await model.synchronizeRelayTaskQueues(session: session)
+        XCTAssertTrue(model.queueChatMessage("Second synthetic task", to: chat))
+        let second = try XCTUnwrap(model.deliveries.firstIndex(where: { $0.id != first }))
+        model.deliveries[second].chatQueue?.relayManaged = true
+        methods = []
+        failFirst = true
+        await model.synchronizeRelayTaskQueues(session: session)
+        XCTAssertEqual(methods, ["PUT", "GET"], "the new message is saved before the older receipt check")
+        XCTAssertEqual(model.deliveries.first(where: { $0.id == first })?.relayJob?.serverState, .failed)
+        methods = []
+        await model.synchronizeRelayTaskQueues(session: session)
+        XCTAssertEqual(methods, ["GET"], "only the queued job is checked; the failed one waits for the person")
+    }
+
     func testSendNowKeepsTheExistingJobWhenTheComputerNeedsAnUpdate() async throws {
         let (model, session, _) = try fixture()
         let id = try XCTUnwrap(model.deliveries.first?.id)

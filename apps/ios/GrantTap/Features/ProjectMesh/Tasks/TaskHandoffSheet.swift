@@ -116,10 +116,10 @@ struct TaskHandoffSheet: View {
                             }
                         }
                     }
-                    if hasUncommittedWork || !staysHere {
+                    if canCheckpointWork || !staysHere {
                         Section {
-                            if hasUncommittedWork {
-                                Toggle(L("Checkpoint uncommitted work"), isOn: $checkpointUncommitted)
+                            if canCheckpointWork {
+                                Toggle(L("Commit changes before transfer"), isOn: $checkpointUncommitted)
                                     .accessibilityIdentifier("handoff.checkpoint")
                             }
                             if !staysHere {
@@ -181,6 +181,12 @@ struct TaskHandoffSheet: View {
     var hasUncommittedWork: Bool {
         TaskHandoffReadiness.sourceExecution(for: session,
             in: session.projectId.flatMap { model.meshSnapshots[$0] })?.uncommitted == true
+    }
+
+    /// The computer checks the checkout at submission; a delayed report must not hide this choice.
+    var canCheckpointWork: Bool {
+        TaskHandoffReadiness.sourceExecution(for: session,
+            in: session.projectId.flatMap { model.meshSnapshots[$0] })?.uncommitted != false
     }
 
     var readinessChecks: [HandoffReadinessCheck] {

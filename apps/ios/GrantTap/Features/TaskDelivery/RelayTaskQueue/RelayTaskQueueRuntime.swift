@@ -5,18 +5,17 @@ extension AppModel {
     func resumeRelayTaskQueues(immediate: Bool = false) {
         if immediate { relayQueueNeedsSync = true; relayQueueDelay?.cancel() }
         guard !demoMode, relayQueueLoop == nil,
-              deliveries.contains(where: { $0.chatQueue?.relayManaged == true && $0.state != .delivered }) else { return }
+              deliveries.contains(where: RelayTaskQueueSchedule.needsSync) else { return }
         let generation = UUID()
         relayQueueLoopGeneration = generation
         relayQueueLoop = Task { @MainActor [weak self] in
             repeat {
                 self?.relayQueueNeedsSync = false
                 await self?.synchronizeRelayTaskQueues()
-                guard self?.deliveries.contains(where: {
-                    $0.chatQueue?.relayManaged == true && $0.state != .delivered
-                }) == true else { break }
+                guard let rows = self?.deliveries, rows.contains(where: RelayTaskQueueSchedule.needsSync) else { break }
                 if self?.relayQueueNeedsSync == true { continue }
-                let delay = Task<Void, Never> { try? await Task.sleep(nanoseconds: 5_000_000_000) }
+                let seconds = RelayTaskQueueSchedule.delaySeconds(rows, now: Date().timeIntervalSince1970 * 1_000)
+                let delay = Task<Void, Never> { try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000)) }
                 self?.relayQueueDelay = delay
                 await delay.value
             } while !Task.isCancelled
@@ -32,9 +31,7 @@ extension AppModel {
         guard !relayQueueSyncInProgress else { return }
         relayQueueSyncInProgress = true
         defer { relayQueueSyncInProgress = false }
-        let ids = TaskDeliveryQueue.oldestFirst(deliveries).filter {
-            $0.chatQueue?.relayManaged == true && $0.state != .delivered
-        }.map(\.id)
+        let ids = RelayTaskQueueSchedule.syncOrder(deliveries)
         for id in ids {
             guard !Task.isCancelled, let row = deliveries.first(where: { $0.id == id }) else { continue }
             guard row.awaitingSessionRemap != true else { continue }

@@ -38,3 +38,7 @@ goes to (see the TaskComposer README); Automatic is always first, and a computer
 or provider that reported no list says so instead of showing a made-up one.
 Destinations also include the provider cloud runners of the computer holding the
 Task; see [cloud runners](CloudRunners/README.md).
+
+The commit choice remains available while a checkout report is loading. The
+computer checks for changes at submission and creates the checkpoint commit when
+requested; a stale phone report cannot silently discard that choice.

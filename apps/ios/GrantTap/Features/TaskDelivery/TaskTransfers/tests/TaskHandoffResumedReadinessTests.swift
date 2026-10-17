@@ -59,6 +59,16 @@ final class TaskHandoffResumedReadinessTests: XCTestCase {
         XCTAssertTrue(TaskHandoffReadiness.isReady(checks(state, checkpoint: true)))
     }
 
+    func testCommitChoiceIsAvailableWhileCheckoutReportIsStillLoading() {
+        let model = AppModel()
+        let sheet = TaskHandoffSheet(session: session(), model: model)
+        XCTAssertTrue(sheet.canCheckpointWork)
+        model.meshSnapshots = ["project": snapshot(dirty: false)]
+        XCTAssertFalse(TaskHandoffSheet(session: session(), model: model).canCheckpointWork)
+        model.meshSnapshots = ["project": snapshot(dirty: true)]
+        XCTAssertTrue(TaskHandoffSheet(session: session(), model: model).canCheckpointWork)
+    }
+
     private func checks(_ state: ProjectMeshSnapshot, checkpoint: Bool = false) -> [HandoffReadinessCheck] {
         TaskHandoffReadiness.checks(session: session(), snapshot: state,
             destinationSelected: true, targetProviderEnabled: true, checkpoint: checkpoint)

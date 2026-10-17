@@ -66,7 +66,7 @@ enum TaskListCatalog {
     static func items(
         model: AppModel, sessions: [SessionInfo], history: Bool = false
     ) -> [TaskListItem] {
-        let newestById = Dictionary(grouping: sessions, by: \.sessionId)
+        let newestById = Dictionary(grouping: sessions + model.sessionHistory, by: \.sessionId)
             .compactMapValues { $0.max { $0.lastActivityAt < $1.lastActivityAt } }
         let sessionsByTask = Dictionary(grouping: sessions.filter { $0.projectId != nil && $0.taskId != nil }) {
             meshKey(projectId: $0.projectId!, taskId: $0.taskId!)
@@ -112,8 +112,16 @@ enum TaskListCatalog {
     ) -> TaskListItem {
         let owner = task.ownerSessionId.flatMap { id in executions.first { $0.sessionId == id } }
         let fallback = taskSessions.max { $0.lastActivityAt < $1.lastActivityAt }
-        let current = task.ownerSessionId.flatMap { newestById[$0] }
+        let candidate = task.ownerSessionId.flatMap { newestById[$0] }
             ?? (task.ownerSessionId == nil ? fallback : nil)
+        let current = candidate.flatMap { chat -> SessionInfo? in
+            guard chat.projectId == nil || chat.projectId == snapshot.projectId,
+                  chat.taskId == nil || chat.taskId == task.taskId,
+                  owner == nil || AgentIdentity.normalize(chat.agent) == AgentIdentity.normalize(owner!.provider),
+                  chat.computerId == nil || owner == nil || chat.computerId == owner!.computerId
+            else { return nil }
+            return chat
+        }
         let ids = Set(executions.map(\.sessionId) + taskSessions.map(\.sessionId)).sorted()
         let activity = max(
             task.updatedAt,

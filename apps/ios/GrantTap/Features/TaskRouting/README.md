@@ -6,7 +6,9 @@ separate from computer presence: a stale native `working` value can never make
 an offline computer look active.
 
 `TaskListCatalog` indexes sessions by Project/Task and executions by Task once
-per snapshot. The Now screen classifies that result once and renders lazy groups;
+per snapshot. A Task owner already retained in native history opens its chat on
+the first tap, with Project/Task/provider/computer scope checked before routing.
+The Now screen classifies that result once and renders lazy groups;
 switching root tabs does not repeatedly scan every execution for every card.
 `tests/TaskCatalogPerformanceTests.swift` exercises a 2,000-Task catalog.
 

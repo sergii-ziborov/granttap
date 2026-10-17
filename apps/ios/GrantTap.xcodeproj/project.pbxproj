@@ -597,6 +597,7 @@
 		93F02B0166AB16EEA07F4D3C /* AccountDeletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69437CD4B7F8D69118F22CAB /* AccountDeletionTests.swift */; };
 		941DC23879DCB607AD5DF3FB /* TaskUsageHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4740C60B5467B34BB2AFF664 /* TaskUsageHistoryView.swift */; };
 		947F65C1FB764E781CE5D85B /* ProjectTowerControlsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8CC1BB46AE4ED88ADF3B3D1 /* ProjectTowerControlsUITests.swift */; };
+		94B3AF409FE2DDD5BD6384BE /* RelayTaskQueueScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9586DA6878CF11726846F5C2 /* RelayTaskQueueScheduleTests.swift */; };
 		94D864932617EDBCBD9884A2 /* TaskFileEditRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9ACB6AF4112D3B4B6EBBE1 /* TaskFileEditRequest.swift */; };
 		94E0DA89E588EA702DB44F0B /* AccountConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FACB85B2744A5AA26ACC40 /* AccountConnectionView.swift */; };
 		9542A5CF5CC8DC5E5E43D444 /* ProjectAutoAcceptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44297105D2D4FB7B6C8CFBB2 /* ProjectAutoAcceptStore.swift */; };
@@ -679,6 +680,7 @@
 		AC41D37CEB385C664BF3FA0F /* DesktopLicenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026105BCB80EC16DFAF53545 /* DesktopLicenseTests.swift */; };
 		AC6A960DA184F8F69A6042D6 /* TaskChatControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF52E470FF42A8AF3B5CEF0 /* TaskChatControls.swift */; };
 		AC8F410EFE90AAE0B7B3957A /* DeviceNameUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC794AD670508EC4F69C4E0 /* DeviceNameUITests.swift */; };
+		ACC280475722137F5F809DB2 /* RelayTaskQueueSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A383947EA1B2BCAD68DE00F6 /* RelayTaskQueueSchedule.swift */; };
 		ACC836757E46D5B3E4B68420 /* ControllerDisplayNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B8C335C49E5163BBB48BFB /* ControllerDisplayNameTests.swift */; };
 		ACD69947BF529CAD5BD87E27 /* MacLocalTaskCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4D8436759B19AE43FAAB0A /* MacLocalTaskCommands.swift */; };
 		AD1B38BA9EDB263D508540F9 /* TaskDeliveryQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF6A8F20B868ED83C933E30 /* TaskDeliveryQueue.swift */; };
@@ -1650,6 +1652,7 @@
 		94E944E1BCD4AD086680277B /* TaskChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskChatScreen.swift; sourceTree = "<group>"; };
 		95089958CB7744D7E73ACB08 /* MemberLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberLinkTests.swift; sourceTree = "<group>"; };
 		950B969E5A9622F99EADA9C2 /* UsageTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageTimeline.swift; sourceTree = "<group>"; };
+		9586DA6878CF11726846F5C2 /* RelayTaskQueueScheduleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTaskQueueScheduleTests.swift; sourceTree = "<group>"; };
 		95C14F12FF723A96BA0A8A8C /* DeliveryStatusList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryStatusList.swift; sourceTree = "<group>"; };
 		9652C1ACC5CC39B0123F5113 /* AccountSpaceSyncBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSpaceSyncBoundaryTests.swift; sourceTree = "<group>"; };
 		967CAB6337F362B8A3472577 /* SessionRoomOwnership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRoomOwnership.swift; sourceTree = "<group>"; };
@@ -1714,6 +1717,7 @@
 		A2CE1B6E7EDFD52930F9724E /* RelayTaskQueueMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTaskQueueMac.swift; sourceTree = "<group>"; };
 		A306791F455082814C7BD477 /* ChatMessageQueueBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageQueueBar.swift; sourceTree = "<group>"; };
 		A358AF7F5D31F09CF69FD987 /* TaskListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListItem.swift; sourceTree = "<group>"; };
+		A383947EA1B2BCAD68DE00F6 /* RelayTaskQueueSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTaskQueueSchedule.swift; sourceTree = "<group>"; };
 		A3CE81CD7B57474C3E69E364 /* SubscriptionReceiptSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionReceiptSync.swift; sourceTree = "<group>"; };
 		A407238780A9DD70952CB683 /* MacLocalMCPImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLocalMCPImage.swift; sourceTree = "<group>"; };
 		A40C7BEBEAE2E3C547C3D966 /* ProjectTowerGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTowerGeometry.swift; sourceTree = "<group>"; };
@@ -2993,6 +2997,7 @@
 				2FE807C262BFBE2B474B7C8A /* DeliveryRecoveryTests.swift */,
 				B4B6582C7C3BE50365DC2EFF /* QueuedImageRetentionTests.swift */,
 				F0C9EAAE5FB03E40A4398254 /* RelayTaskQueueRuntimeTests.swift */,
+				9586DA6878CF11726846F5C2 /* RelayTaskQueueScheduleTests.swift */,
 				014C95DD42AAD2EA3730B864 /* RelayTaskQueueTests.swift */,
 			);
 			path = TaskDelivery;
@@ -4601,6 +4606,7 @@
 				A2CE1B6E7EDFD52930F9724E /* RelayTaskQueueMac.swift */,
 				44938118A35729DC77DDDC81 /* RelayTaskQueueModels.swift */,
 				BEA9B86B5B601B9703E15845 /* RelayTaskQueueRuntime.swift */,
+				A383947EA1B2BCAD68DE00F6 /* RelayTaskQueueSchedule.swift */,
 				C087C513B51056B8F6A16F28 /* RelayTaskQueueTransport.swift */,
 			);
 			path = RelayTaskQueue;
@@ -5529,6 +5535,7 @@
 				B25988CC87F25D5786822234 /* RelayTaskQueueMac.swift in Sources */,
 				E637B6ADCEFCA2D1FF26F135 /* RelayTaskQueueModels.swift in Sources */,
 				42843714F43122D9615C650D /* RelayTaskQueueRuntime.swift in Sources */,
+				ACC280475722137F5F809DB2 /* RelayTaskQueueSchedule.swift in Sources */,
 				38E4ED32270A881BEB575EFC /* RelayTaskQueueTransport.swift in Sources */,
 				E77803C94C1AFC7CF6756CFE /* RenameProjectSheet.swift in Sources */,
 				D467CD37AFE70BE05E3F06C7 /* ReplicaImageStore.swift in Sources */,
@@ -5882,6 +5889,7 @@
 				E7670937453D7BA5E90243BE /* RelayReconnectRecoveryTests.swift in Sources */,
 				FB78486730B255B44B5A3049 /* RelaySessionQueueTests.swift in Sources */,
 				5233E9C996F2A1B3F53D4DB9 /* RelayTaskQueueRuntimeTests.swift in Sources */,
+				94B3AF409FE2DDD5BD6384BE /* RelayTaskQueueScheduleTests.swift in Sources */,
 				E924AC37D7B9C160E662919B /* RelayTaskQueueTests.swift in Sources */,
 				2DB1CC0E850058C61A80DAC6 /* RemappingTests.swift in Sources */,
 				50778228E677E5961EC434BF /* RenderProbe.swift in Sources */,
@@ -6191,7 +6199,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6224,7 +6232,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6311,7 +6319,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6398,7 +6406,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6436,7 +6444,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6553,7 +6561,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 200;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
