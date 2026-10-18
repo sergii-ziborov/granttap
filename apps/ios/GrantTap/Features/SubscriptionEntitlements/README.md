@@ -11,11 +11,12 @@ to show seven days free; it does not reset trial eligibility on a new build.
 The grant is bound to the signed-in session, lasts at most five minutes and
 cannot be extended by a network failure. A purchase on iPhone can authorize a
 linked Mac's managed relay connection without another trial or purchase.
-The displayed ladder covers 2, 5, 10 and 15 computers; no 16+ tier is offered.
+The displayed ladder covers 2, 5 and 15 computers.
 `SubscriptionEntitlement.swift` reduces verified StoreKit state into the small
 policy state consumed by remote infrastructure. `SubscriptionStore.swift` is
-the StoreKit boundary. A verified sandbox app transaction grants temporary
-relay access for TestFlight testing without claiming a subscription. A signed-in
+the StoreKit boundary. A verified sandbox app transaction grants full TestFlight access without a
+subscription. There is no app-managed trial timer for beta builds. The
+subscription screen shows that access and does not ask a tester to subscribe. A signed-in
 tester can also receive a time-limited account grant from the Hetzner account
 service when StoreKit cannot return an app transaction. The grant is bound to
 that account, expires, and is rechecked for revocation. Production without a

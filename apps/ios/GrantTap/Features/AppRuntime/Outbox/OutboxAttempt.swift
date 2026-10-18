@@ -23,6 +23,7 @@ extension AppModel {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
               deliveries[index].state != .delivered,
               deliveries[index].admissionRejected != true,
+              deliveries[index].relayStoredAt == nil,
               deliveries[index].awaitingSessionRemap != true,
               deliveries[index].chatQueue?.waiting != true else { return }
 
@@ -135,7 +136,8 @@ extension AppModel {
                 self?.deliveryAttemptFinished(
                     id,
                     error: error,
-                    generation: attemptGeneration
+                    generation: attemptGeneration,
+                    relayStored: error == nil
                 )
             }
         }

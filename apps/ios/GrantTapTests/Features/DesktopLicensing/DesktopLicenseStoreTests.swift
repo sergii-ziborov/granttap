@@ -40,48 +40,48 @@ final class DesktopLicenseStoreTests: XCTestCase {
         XCTAssertFalse(evaluation.license.permitsOwnRelay)
     }
 
-    func testVerifiedBetaExpirySurvivesPurchaseCatalogFailure() async {
-        let expiry = Date().addingTimeInterval(60 * 60)
+    func testVerifiedTestFlightAccessDoesNotWaitForPurchaseCatalogOrReceipts() async {
+        var reads = 0
         let store = DesktopLicenseStore(evaluationAllowed: false, observe: false,
-            evidenceLoader: { throw URLError(.notConnectedToInternet) },
-            betaExpiryLoader: { expiry })
-        await store.refresh()
-        XCTAssertEqual(store.license, .betaTrial(expiresAt: expiry))
+            evidenceLoader: { reads += 1; throw URLError(.notConnectedToInternet) },
+            betaAccessLoader: { true }, productLoader: { reads += 1; return [] })
+        await store.start()
+        XCTAssertEqual(store.license, .testFlight)
         XCTAssertTrue(store.license.permitsLocalControl)
-        XCTAssertNotNil(store.lastError)
+        XCTAssertTrue(store.license.permitsOwnRelay)
+        XCTAssertEqual(reads, 0)
+        XCTAssertNil(store.lastError)
     }
 
     func testExplicitTestFlightVerificationRecoversUnavailableStartupEvidence() async {
-        let expiry = Date().addingTimeInterval(60 * 60)
         let store = DesktopLicenseStore(evaluationAllowed: false, observe: false,
-            evidenceLoader: { [] }, betaExpiryLoader: { nil },
-            betaRefreshLoader: { expiry })
+            evidenceLoader: { [] }, betaAccessLoader: { false },
+            betaRefreshLoader: { true })
         await store.refresh()
         XCTAssertEqual(store.license, .notPurchased)
-        await store.verifyBetaTrial()
-        XCTAssertEqual(store.license, .betaTrial(expiresAt: expiry))
+        await store.verifyTestFlightAccess()
+        XCTAssertEqual(store.license, .testFlight)
         await store.refresh()
-        XCTAssertEqual(store.license, .betaTrial(expiresAt: expiry))
+        XCTAssertEqual(store.license, .testFlight)
     }
 
     func testUnavailableTestFlightVerificationDoesNotGrantALicense() async {
         let store = DesktopLicenseStore(evaluationAllowed: false, observe: false,
-            evidenceLoader: { [] }, betaExpiryLoader: { nil },
-            betaRefreshLoader: { nil })
+            evidenceLoader: { [] }, betaAccessLoader: { false },
+            betaRefreshLoader: { false })
         await store.refresh()
-        await store.verifyBetaTrial()
+        await store.verifyTestFlightAccess()
         XCTAssertEqual(store.license, .notPurchased)
         XCTAssertNotNil(store.lastError)
     }
 
-    func testTestFlightVerificationFailurePreservesPreviouslyVerifiedTrial() async {
-        let expiry = Date().addingTimeInterval(60 * 60)
+    func testTestFlightVerificationFailurePreservesPreviouslyVerifiedAccess() async {
         let store = DesktopLicenseStore(evaluationAllowed: false, observe: false,
-            evidenceLoader: { [] }, betaExpiryLoader: { expiry },
+            evidenceLoader: { [] }, betaAccessLoader: { true },
             betaRefreshLoader: { throw URLError(.notConnectedToInternet) })
         await store.refresh()
-        await store.verifyBetaTrial()
-        XCTAssertEqual(store.license, .betaTrial(expiresAt: expiry))
+        await store.verifyTestFlightAccess()
+        XCTAssertEqual(store.license, .testFlight)
         XCTAssertNotNil(store.lastError)
     }
 

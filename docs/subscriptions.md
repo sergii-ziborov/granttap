@@ -7,9 +7,10 @@ confirmed US launch price; public purchase availability requires Apple approval.
 native purchase sheet controls localized price, taxes and availability.
 A paid Mac purchase is independent of Personal; cancelling Personal does not
 remove the Mac license. Restore Purchases rechecks verified StoreKit evidence.
-TestFlight evaluation is separate from paid Mac Local and Apple subscription
-trials. A beta evaluation is not a verified production purchase. Its current
-status is shown by the app; it is not a promised renewal of a commercial trial.
+TestFlight includes all app features without a purchase or subscription on
+iPhone, iPad and Mac. Apple controls build expiry; GrantTap adds no seven-day
+beta countdown. This access does not start or consume the seven-day introductory
+offer attached to a production subscription. It is not a production purchase.
 
 ## Personal
 

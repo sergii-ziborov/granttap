@@ -44,6 +44,40 @@ final class AccountBetaRelayGrantTests: XCTestCase {
         } catch { XCTAssertTrue(error is CancellationError) }
     }
 
+    func testVerifiedTestFlightEvidenceObtainsAccountAccessWithoutASubscription() async throws {
+        let transport = Self.transport()
+        defer {
+            transport.invalidateAndCancel()
+            BetaRelayURLProtocol.handle = nil
+        }
+        var uploads = 0
+        BetaRelayURLProtocol.handle = { request in
+            if request.url?.path.hasSuffix("/testflight") == true {
+                uploads += 1
+                XCTAssertEqual(request.httpMethod, "POST")
+                return Data("{\"expiresAt\":2000000000000}".utf8)
+            }
+            return Data("{\"expiresAt\":null}".utf8)
+        }
+        let grant = try await AccountBetaRelayGrantAPI.load(session: session,
+            transport: transport, currentSession: { self.session }, betaEvidence: { "synthetic-app-jws" })
+        XCTAssertEqual(uploads, 1)
+        XCTAssertEqual(grant?.accountID, session.accountId)
+        XCTAssertEqual(grant?.expiresAt.timeIntervalSince1970, 2_000_000_000)
+        BetaRelayURLProtocol.handle = { request in
+            if request.url?.path.hasSuffix("/testflight") == true {
+                uploads += 1
+                return Data("{\"expiresAt\":2000000000000}".utf8)
+            }
+            return Data("{\"expiresAt\":1000}".utf8)
+        }
+        let renewed = try await AccountBetaRelayGrantAPI.load(session: session,
+            transport: transport, currentSession: { self.session }, betaEvidence: { "new-build-app-jws" })
+        XCTAssertEqual(uploads, 2, "A newly verified beta build can renew an expired account grant")
+        XCTAssertEqual(renewed?.expiresAt.timeIntervalSince1970, 2_000_000_000)
+        XCTAssertTrue(BetaRelayURLProtocol.hadAuthorization)
+    }
+
     private static func transport() -> URLSession {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [BetaRelayURLProtocol.self]
@@ -53,6 +87,7 @@ final class AccountBetaRelayGrantTests: XCTestCase {
 
 private final class BetaRelayURLProtocol: URLProtocol {
     static var payload = Data()
+    static var handle: ((URLRequest) -> Data)?
     static var lastPath: String?
     static var hadAuthorization = false
 
@@ -64,7 +99,7 @@ private final class BetaRelayURLProtocol: URLProtocol {
         let response = HTTPURLResponse(url: request.url!, statusCode: 200,
                                        httpVersion: nil, headerFields: nil)!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: Self.payload)
+        client?.urlProtocol(self, didLoad: Self.handle?(request) ?? Self.payload)
         client?.urlProtocolDidFinishLoading(self)
     }
     override func stopLoading() {}

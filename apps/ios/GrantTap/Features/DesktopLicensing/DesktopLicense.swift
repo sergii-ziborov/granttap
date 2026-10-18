@@ -15,18 +15,18 @@ struct DesktopPurchaseEvidence: Equatable, Sendable {
 enum DesktopLicense: Equatable, Sendable {
     static let productID = "com.ziborov.granttap.mac.license"
     static let paidBundleID = "com.ziborov.granttap.mac"
-    case checking, purchased, evaluation, betaTrial(expiresAt: Date), notPurchased
+    case checking, purchased, evaluation, testFlight, notPurchased
 
     var permitsLocalControl: Bool {
         switch self {
-        case .purchased, .evaluation, .betaTrial: true
+        case .purchased, .evaluation, .testFlight: true
         case .checking, .notPurchased: false
         }
     }
 
     var permitsOwnRelay: Bool {
         switch self {
-        case .purchased, .betaTrial: true
+        case .purchased, .testFlight: true
         case .checking, .evaluation, .notPurchased: false
         }
     }
@@ -40,7 +40,7 @@ enum DesktopLicense: Equatable, Sendable {
     static func resolve(_ evidence: [DesktopPurchaseEvidence],
                         distribution: DesktopLicenseDistribution,
                         bundleID: String, evaluationAllowed: Bool,
-                        betaExpiresAt: Date? = nil, now: Date = Date()) -> Self {
+                        testFlightVerified: Bool = false) -> Self {
         let purchased = evidence.contains { purchase in
             guard purchase.verified, !purchase.revoked else { return false }
             switch distribution {
@@ -51,9 +51,7 @@ enum DesktopLicense: Equatable, Sendable {
             }
         }
         if purchased { return .purchased }
-        if distribution == .inAppUnlock, let betaExpiresAt, betaExpiresAt > now {
-            return .betaTrial(expiresAt: betaExpiresAt)
-        }
+        if testFlightVerified { return .testFlight }
         return evaluationAllowed ? .evaluation : .notPurchased
     }
 }

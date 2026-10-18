@@ -28,9 +28,12 @@ struct SubscriptionView: View {
             } header: {
                 Text(L("Remote service"))
             } footer: {
-                Text(L("Local agent history and on-device encrypted data stay available if the subscription ends. Remote relay, background wake, and the bounded server queue require an active entitlement after the trial."))
+                if !store.hasTestingAccess {
+                    Text(L("Local agent history and on-device encrypted data stay available if the subscription ends. Remote relay, background wake, and the bounded server queue require an active entitlement after the trial."))
+                }
             }
 
+            if !store.hasTestingAccess {
             Section {
                 if store.currentAccountID() == nil {
                     Button(L("Connect with passkey")) { showAccount = true }
@@ -48,6 +51,7 @@ struct SubscriptionView: View {
                 Text(L("Personal"))
             } footer: {
                 Text(L("Tiers differ only by how many computers you link. Every computer runs as many coding agents as it can — agents are never counted or charged for."))
+            }
             }
 
             Section(L("Manage")) {
@@ -84,6 +88,14 @@ struct SubscriptionView: View {
     }
 
     @ViewBuilder var statusRow: some View {
+        if store.hasTestingAccess {
+            VStack(alignment: .leading, spacing: 8) {
+                Label(L("TestFlight — full access"), systemImage: "checkmark.seal.fill")
+                Text(L("All features are available in TestFlight. No purchase or subscription is required."))
+                    .font(.caption).foregroundStyle(Theme.muted)
+            }
+            .accessibilityIdentifier("subscription.testflight-access")
+        } else {
         switch store.effectiveEntitlement.state {
         case .trial(let expiry):
             Label("Free trial until \(expiry.formatted(date: .abbreviated, time: .omitted))",
@@ -101,6 +113,7 @@ struct SubscriptionView: View {
             Label(L("Revoked or refunded"), systemImage: "xmark.shield")
         case .unavailable:
             Label(L("Not subscribed"), systemImage: "circle.dashed")
+        }
         }
     }
 

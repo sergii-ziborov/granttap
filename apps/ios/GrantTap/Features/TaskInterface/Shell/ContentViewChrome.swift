@@ -47,6 +47,7 @@ extension ContentView {
                 .tabItem { Label(L("Devices"), systemImage: "desktopcomputer") }
                 .tag(PersonalTab.devices)
         }
+        .modifier(AdaptiveWorkspaceNavigation())
         #endif
     }
 

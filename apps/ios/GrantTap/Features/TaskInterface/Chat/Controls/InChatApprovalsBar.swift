@@ -72,10 +72,8 @@ struct InChatApprovalsBar: View {
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if model.approvalDecisionsInFlight[req.requestId] != nil {
-                    ProgressView()
-                    Text(L("Waiting for Mac…"))
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Theme.muted)
+                    ApprovalSubmissionStatus(saved: model.approvalDecisionWasStoredOnRelay(req),
+                        message: model.approvalDecisionDeliveryMessage(req))
                 } else {
                     if model.isMcpOpenAsk(req) {
                         compactChip(L("Reply"), tint: Theme.codex, filled: true,
@@ -113,10 +111,8 @@ struct InChatApprovalsBar: View {
                 .contentShape(Rectangle())
                 .onTapGesture { detailRequest = req }
                 if model.approvalDecisionsInFlight[req.requestId] != nil {
-                    ProgressView()
-                    Text(L("Waiting for Mac…"))
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Theme.muted)
+                    ApprovalSubmissionStatus(saved: model.approvalDecisionWasStoredOnRelay(req),
+                        message: model.approvalDecisionDeliveryMessage(req))
                 } else {
                     compactChip(L("Deny"), tint: Theme.riskHigh, filled: false) {
                         model.decide(req, "deny")

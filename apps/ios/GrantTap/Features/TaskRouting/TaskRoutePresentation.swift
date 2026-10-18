@@ -45,6 +45,9 @@ enum TaskRoutePresentation {
         route: ChatComputerRoute?,
         chatIsBusy: Bool = false
     ) -> String {
+        if delivery.relayStoredAt != nil, delivery.state == .queued || delivery.state == .sending {
+            return L("Saved on relay")
+        }
         if let route, route.phase != .live,
            delivery.state == .queued || delivery.state == .sending {
             return String(format: L("Queued until %@ reconnects"), route.computerName)

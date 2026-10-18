@@ -16,7 +16,7 @@ extension AppModel {
     func retryConfirmedApproval(_ request: ApprovalRequest, fromRoom room: String) {
         let session = Self.normalizedApprovalSession(request.sessionId)
         guard let entry = approvalDecisionQueue.entry(request.requestId, roomId: room, sessionId: session),
-              !wasApprovalTerminal(request.requestId, room: room, sessionId: session) else { return }
+              entry.relayStoredAt == nil, !wasApprovalTerminal(request.requestId, room: room, sessionId: session) else { return }
         markDecisionInFlight(request.requestId, decision: entry.decision, sessionId: session)
         // Throttle exact pending snapshots, without treating the send as applied.
         if let sentAt = entry.sentAt, Date().timeIntervalSince1970 - sentAt < 10 { return }
@@ -26,12 +26,13 @@ extension AppModel {
     }
 
     func approvalDecisionDeliveryMessage(_ request: ApprovalRequest) -> String {
+        if approvalDecisionWasStoredOnRelay(request) { return L("Decision saved on relay") }
         guard let room = requestSourceRoom[request.requestId],
               let entry = approvalDecisionQueue.entry(request.requestId, roomId: room,
                 sessionId: Self.normalizedApprovalSession(request.sessionId)), entry.sentAt == nil else {
-            return L("Decision sent · waiting for the computer to confirm…")
+            return L("Saving decision on relay…")
         }
-        return L("Decision saved · waiting for this computer to reconnect…")
+        return L("Saving decision on relay…")
     }
 
     func noteApprovalDecisionSent(_ requestId: String, sessionId: String?, succeeded: Bool) {
@@ -39,6 +40,14 @@ extension AppModel {
               let entry = approvalDecisionQueue.entry(requestId, roomId: room,
                 sessionId: Self.normalizedApprovalSession(sessionId)) else { return }
         approvalDecisionQueue.markSent(entry, at: succeeded ? Date().timeIntervalSince1970 : nil)
+        if succeeded { approvalDecisionQueue.markStored(entry, at: Date().timeIntervalSince1970) }
+        objectWillChange.send()
+    }
+
+    func approvalDecisionWasStoredOnRelay(_ request: ApprovalRequest) -> Bool {
+        guard let room = requestSourceRoom[request.requestId] else { return false }
+        return approvalDecisionQueue.entry(request.requestId, roomId: room,
+            sessionId: Self.normalizedApprovalSession(request.sessionId))?.relayStoredAt != nil
     }
 
     func removeQueuedApprovalDecision(_ requestId: String) {

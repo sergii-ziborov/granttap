@@ -14,15 +14,24 @@ extension AppRuntimeTests {
         let before = model.log.count
         model.decide(request, "deny")
         XCTAssertEqual(model.log.count, before)
+        model.connectionRegistry = testConnectionRegistry()
+        model.requestSourceRoom[request.requestId] = "room-a"
+        XCTAssertTrue(model.persistApprovalDecision(.init(requestId: request.requestId,
+            decision: "allow", by: "phone", title: request.title, agent: request.agent), sessionId: "session-a"))
         model.finishDecisionDelivery(.init(
             requestId: request.requestId, decision: "allow", by: "phone",
             title: request.title, agent: request.agent
         ), error: nil)
-        XCTAssertTrue(model.log.first?.contains("waiting for computer") == true)
+        XCTAssertTrue(model.log.first?.contains("saved on relay") == true)
         model.finishDecisionDelivery(.init(
             requestId: request.requestId, decision: "deny", by: "watch",
             title: request.title, agent: request.agent
         ), error: RelaySendError.disconnected)
+        XCTAssertEqual(model.approvalDecisionsInFlight[request.requestId], "allow")
+        XCTAssertNotNil(model.approvalDecisionQueue.entries.first?.relayStoredAt)
+        model.removeQueuedApprovalDecision(request.requestId)
+        model.finishDecisionDelivery(.init(requestId: request.requestId, decision: "allow", by: "phone",
+            title: request.title, agent: request.agent), error: RelaySendError.disconnected)
         XCTAssertNil(model.approvalDecisionsInFlight[request.requestId])
     }
 

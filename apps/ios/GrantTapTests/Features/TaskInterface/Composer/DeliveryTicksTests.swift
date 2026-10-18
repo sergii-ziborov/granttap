@@ -15,6 +15,22 @@ final class DeliveryTicksTests: XCTestCase {
         )
     }
 
+    @MainActor
+    func testRelayStorageHasItsOwnLabelAndNeverOverridesATerminalState() {
+        let model = AppModel()
+        var row = delivery(id: "relay-label", state: .sending)
+        row.relayStoredAt = row.createdAt
+        model.deliveries = [row]
+        XCTAssertEqual(model.deliveryTick(forEntryId: "local-user-relay-label")?.accessibilityLabel,
+                       "Saved on relay")
+        row.state = .delivered
+        model.deliveries = [row]
+        XCTAssertEqual(model.deliveryTick(forEntryId: "local-user-relay-label"), .delivered)
+        row.state = .failed
+        model.deliveries = [row]
+        XCTAssertEqual(model.deliveryTick(forEntryId: "local-user-relay-label"), .failed)
+    }
+
     func testEveryDeliveryStateHasAMark() {
         XCTAssertEqual(DeliveryTick.forState(.queued), .queued)
         XCTAssertEqual(DeliveryTick.forState(.sending), .sending)
@@ -24,7 +40,7 @@ final class DeliveryTicksTests: XCTestCase {
 
     func testOnlyAFailureIsColoured() {
         XCTAssertTrue(DeliveryTick.failed.isAlarming)
-        for tick in [DeliveryTick.queued, .sending, .delivered] {
+        for tick in [DeliveryTick.queued, .sending, .storedOnRelay, .delivered] {
             XCTAssertFalse(tick.isAlarming, "a normal send must not shout")
         }
     }

@@ -9,6 +9,7 @@
 name: GrantTap
 include:
   - commerce-project.yml
+  - workspace-project.yml
 options:
   bundleIdPrefix: com.ziborov
   # Keep generated projects and schemes stable when opened by the App Store
@@ -76,13 +77,6 @@ targets:
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
         UIUserInterfaceStyle: Automatic     # follow the system in both directions
-        # Keep every iPad multitasking orientation available. iPhone continues
-        # to use the platform defaults because no unqualified key is declared.
-        "UISupportedInterfaceOrientations~ipad":
-          - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
-          - UIInterfaceOrientationPortraitUpsideDown
         # false: Crypto.swift uses published standard NaCl primitives. With
         # France excluded from availability, Apple requires no documentation,
         # so this encryption is exempt for the first release.
@@ -107,7 +101,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap
         PRODUCT_NAME: GrantTap
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "200"
+        CURRENT_PROJECT_VERSION: "201"
         SWIFT_VERSION: "5.9"
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator macosx"
         SUPPORTS_MACCATALYST: YES
@@ -177,7 +171,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.watchkitapp
         PRODUCT_NAME: GrantTapWatch
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "200"
+        CURRENT_PROJECT_VERSION: "201"
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: XMS5ZC28UJ
@@ -195,6 +189,9 @@ targets:
     type: bundle.unit-test
     platform: iOS
     sources:
+      - path: GrantTap/Features/DuoWorkspace/tests
+      - path: GrantTap/Features/RelaySubmission/tests
+      - path: GrantTap/Features/DesktopLicensing/tests
       - path: GrantTap/Features/ProjectMesh/RepositoryCatalog/tests
       - path: GrantTap/Features/ProjectMesh/ComputerNetwork/tests
       - path: GrantTap/Features/TaskRouting/tests

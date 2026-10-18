@@ -73,11 +73,12 @@ extension AppModel {
         _ id: String,
         error: Error?,
         generation: String? = nil,
+        relayStored: Bool = false,
         receiptRetryDelay: TimeInterval = 20,
         transportRetryDelays: [TimeInterval] = [2, 5, 15, 30, 60]
     ) {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
-              deliveries[index].state != .delivered else { return }
+              deliveries[index].state == .queued || deliveries[index].state == .sending else { return }
         if let generation {
             liveDeliveryAttemptGenerations.remove(generation)
             guard deliveries[index].attemptGeneration == generation else { return }
@@ -86,6 +87,14 @@ extension AppModel {
         }
         let attempt = deliveries[index].attempts
         let delays = transportRetryDelays
+        if relayStored, error == nil, deliveries[index].processingAcknowledgedAt == nil {
+            deliveries[index].relayStoredAt = Date().timeIntervalSince1970 * 1_000
+            deliveries[index].attemptGeneration = nil
+            deliveries[index].nextRetryAt = nil
+            deliveries[index].error = nil
+            persistDeliveries()
+            return
+        }
 
         // An authenticated processing ack is stronger than a late transport
         // callback. Its persisted provider/lease deadline exclusively owns the

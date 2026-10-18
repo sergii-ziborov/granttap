@@ -257,7 +257,7 @@ extension AppRuntimeTests {
         XCTAssertTrue(model.deliveries.isEmpty)
     }
 
-    func testUserMessageRelayTTLMatchesUnacknowledgedRetentionPhase() {
+    func testRelayStorageLifetimeIsSeparateFromUnconfirmedAndNativeProcessingDeadlines() {
         let now = Date().timeIntervalSince1970 * 1000
         var row = existingSessionDelivery(createdAt: now)
         row.processingAcknowledgedAt = now
@@ -273,10 +273,10 @@ extension AppRuntimeTests {
 
         XCTAssertEqual(DeliveryOutboxPolicy.maximumLocalRetentionMs, 1_440_000)
         XCTAssertEqual(DeliveryOutboxPolicy.unacknowledgedRetentionMs, 120_000)
-        XCTAssertEqual(DeliveryOutboxPolicy.userMessageRelayTTLSeconds, 2 * 60)
+        XCTAssertEqual(DeliveryOutboxPolicy.userMessageRelayTTLSeconds, 30 * 24 * 60 * 60)
         XCTAssertEqual(
             DeliveryOutboxPolicy.userMessageRelayTTLSeconds * 1_000,
-            DeliveryOutboxPolicy.unacknowledgedRetentionMs
+            2_592_000_000
         )
     }
 

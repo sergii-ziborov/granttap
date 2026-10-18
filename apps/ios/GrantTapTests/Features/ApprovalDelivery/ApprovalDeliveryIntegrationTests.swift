@@ -41,7 +41,10 @@ final class ApprovalDeliveryIntegrationTests: XCTestCase {
         XCTAssertEqual(model.approvalDecisionsInFlight[request.requestId], "allow")
         XCTAssertEqual(model.approvalDecisionQueue.entries.count, 1)
         XCTAssertEqual(model.approvalDecisionDeliveryMessage(request),
-                       L("Decision saved · waiting for this computer to reconnect…"))
+                       L("Saving decision on relay…"))
+        model.noteApprovalDecisionSent(request.requestId, sessionId: request.sessionId, succeeded: true)
+        XCTAssertEqual(model.approvalDecisionDeliveryMessage(request), L("Decision saved on relay"))
+        XCTAssertEqual(model.approvalDecisionQueue.entries.count, 1)
         model.receive(.init(type: "approval.resolved", requestId: request.requestId,
             status: "applied", decision: "allow", sessionId: "wrong", resolvedAt: 1), fromRoom: "approval-test")
         XCTAssertEqual(model.approvalDecisionQueue.entries.count, 1)

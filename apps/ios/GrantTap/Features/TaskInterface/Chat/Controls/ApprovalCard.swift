@@ -6,6 +6,7 @@ import UIKit
 struct ApprovalCard: View {
     let req: ApprovalRequest
     var isWaiting = false
+    var isStoredOnRelay = false
     var waitingMessage: String? = nil
     let onApprove: () -> Void
     let onDeny: () -> Void
@@ -20,12 +21,8 @@ struct ApprovalCard: View {
                 .accessibilityIdentifier("approval.details.\(req.requestId)")
 
             if isWaiting {
-                HStack(spacing: 8) {
-                    ProgressView()
-                    Text(waitingMessage ?? L("Decision sent · waiting for the computer to confirm…"))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Theme.muted)
-                }
+                ApprovalSubmissionStatus(saved: isStoredOnRelay,
+                    message: waitingMessage ?? L("Saving decision on relay…"))
             } else {
                 HStack(spacing: 9) {
                     #if targetEnvironment(macCatalyst)

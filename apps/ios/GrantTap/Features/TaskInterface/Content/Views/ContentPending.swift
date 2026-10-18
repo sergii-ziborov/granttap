@@ -85,7 +85,8 @@ extension ContentView {
                         .foregroundStyle(Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                     if model.approvalDecisionsInFlight[req.requestId] != nil {
-                        Label(L("Waiting for the computer to confirm…"), systemImage: "hourglass")
+                        ApprovalSubmissionStatus(saved: model.approvalDecisionWasStoredOnRelay(req),
+                            message: model.approvalDecisionDeliveryMessage(req))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(Theme.muted)
                     } else {
@@ -122,6 +123,7 @@ extension ContentView {
                     ApprovalCard(
                         req: req,
                         isWaiting: model.approvalDecisionsInFlight[req.requestId] != nil,
+                        isStoredOnRelay: model.approvalDecisionWasStoredOnRelay(req),
                         waitingMessage: model.approvalDecisionDeliveryMessage(req),
                         onApprove: { model.decide(req, "allow") },
                         onDeny: { model.decide(req, "deny") }

@@ -60,6 +60,9 @@ struct ClaudeQuestionReplyView: View {
         .onChange(of: model.pending.map(\.requestId)) { ids in
             if submittedHere && !ids.contains(request.requestId) && !waiting { dismiss() }
         }
+        .onChange(of: model.approvalDecisionWasStoredOnRelay(request)) { saved in
+            if submittedHere && saved { dismiss() }
+        }
         .onAppear { submittedHere = waiting }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -183,13 +186,8 @@ struct ClaudeQuestionReplyView: View {
     private var submissionControls: some View {
         VStack(alignment: .leading, spacing: 12) {
             if waiting {
-                HStack(spacing: 10) {
-                    ProgressView().controlSize(.small)
-                    Text(queued?.sentAt == nil
-                         ? L("Answers saved · waiting for this computer to reconnect…")
-                         : L("Answers sent · waiting for the computer to confirm…"))
-                        .font(.caption.weight(.medium)).foregroundStyle(Theme.muted)
-                }
+                ApprovalSubmissionStatus(saved: model.approvalDecisionWasStoredOnRelay(request),
+                    message: model.approvalDecisionDeliveryMessage(request))
             } else {
                 Text(String(format: L("Answered %d of %d"), completedCount, questions.count))
                     .font(.caption.weight(.medium)).foregroundStyle(Theme.muted)

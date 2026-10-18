@@ -19,7 +19,7 @@ extension RelayClient {
     }
 
     func sendDecision(requestId: String, decision: String, by: String = "phone",
-                      sessionId: String? = nil, note: String? = nil,
+                      sessionId: String? = nil, note: String? = nil, ttl: TimeInterval = 15 * 60,
                       completion: ((Error?) -> Void)? = nil) {
         let payload = Payloads.decision(requestId, decision, by: by,
                                         sessionId: sessionId, note: note)
@@ -29,7 +29,7 @@ extension RelayClient {
         // session-sealed decision then removed the phone/watch card locally but
         // left the Mac gate waiting until timeout. Transcript and task-control
         // payloads continue to use per-session keys where appropriate.
-        send(payload: payload, ttl: 15 * 60,
+        send(payload: payload, ttl: min(15 * 60, max(1, ttl)),
              deliveryId: "approval-decision-\(requestId)", completion: completion)
     }
 
@@ -52,7 +52,7 @@ extension RelayClient {
         // forever Queued). The outer envelope is already E2EE to this machine;
         // session keys remain for activity/compact grants.
         send(payload: payload, ttl: DeliveryOutboxPolicy.userMessageRelayTTLSeconds,
-             deliveryId: messageId, completion: completion)
+             deliveryId: "user-message-\(messageId)", completion: completion)
     }
 
     /// An attachment ahead of its message: the bytes go now, the message
@@ -246,11 +246,7 @@ extension RelayClient {
             completion?(RelaySendError.encoding)
             return
         }
-        guard let task else {
-            completion?(RelaySendError.disconnected)
-            return
-        }
-        task.send(.string(text)) { error in completion?(error) }
+        transmitEnvelope(text, deliveryId: env.deliveryId, to: to, completion: completion)
     }
 
 

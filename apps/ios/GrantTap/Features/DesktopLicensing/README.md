@@ -6,11 +6,10 @@ unrevoked evidence for the configured distribution. A subscription is not a
 Mac license. Development evaluation is explicit and grants no production
 self-hosting license.
 
-A verified sandbox `AppTransaction` grants a seven-day TestFlight evaluation
-of Mac control and own-relay features. The first launch is recorded for the
-Apple app transaction and build number; installing a new TestFlight build
-starts a new evaluation. The record is local to the Mac and is never treated
-as a purchase. Production App Store transactions cannot enter this path.
+A verified sandbox `AppTransaction` grants full TestFlight access to Mac control
+and own-relay features without a purchase or subscription. There is no local
+seven-day timer. Apple controls TestFlight build expiry. Production App Store
+transactions cannot enter this path; a beta build is never proof of purchase.
 An account-linked Mac can use the managed relay as a companion while the same
 account has a verified Personal subscription. This route does not unlock local
 agent control or self-hosting; those still use the standalone Mac license.

@@ -9,6 +9,7 @@ import UIKit
 enum DeliveryTick: Equatable {
     case queued
     case sending
+    case storedOnRelay
     case delivered
     case failed
 
@@ -24,7 +25,7 @@ enum DeliveryTick: Equatable {
     var systemImage: String {
         switch self {
         case .queued: return "clock"
-        case .sending: return "checkmark"
+        case .sending, .storedOnRelay: return "checkmark"
         // Two marks for "the computer confirmed it", one for "it left the phone".
         case .delivered: return "checkmark.circle.fill"
         case .failed: return "exclamationmark.circle.fill"
@@ -35,6 +36,7 @@ enum DeliveryTick: Equatable {
         switch self {
         case .queued: return L("Queued")
         case .sending: return L("Sent")
+        case .storedOnRelay: return L("Saved on relay")
         case .delivered: return L("Delivered")
         case .failed: return L("Not delivered")
         }
@@ -54,6 +56,7 @@ struct DeliveryTicksView: View {
                 .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(tick.isAlarming ? Theme.riskHigh : Theme.muted)
                 .accessibilityLabel(tick.accessibilityLabel)
+                .help(tick.accessibilityLabel)
             if let onRetry {
                 Button(L("Retry"), action: onRetry)
                     .font(.system(size: 10, weight: .bold))
@@ -73,6 +76,8 @@ extension AppModel {
         guard let delivery = deliveries.first(where: {
             $0.id == id || id.hasPrefix("\($0.id)-")
         }) else { return nil }
+        if delivery.relayStoredAt != nil, delivery.processingAcknowledgedAt == nil,
+           delivery.state == .queued || delivery.state == .sending { return .storedOnRelay }
         return DeliveryTick.forState(delivery.state)
     }
 

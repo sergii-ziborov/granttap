@@ -3,7 +3,11 @@ import Foundation
 @MainActor
 extension AppModel {
     func resumeRelayTaskQueues(immediate: Bool = false) {
-        if immediate { relayQueueNeedsSync = true; relayQueueDelay?.cancel() }
+        if immediate {
+            relayQueueNeedsSync = true
+            relayQueueDelay?.cancel()
+            if !demoMode { Task { @MainActor [weak self] in await self?.uploadNewRelayTaskQueues() } }
+        }
         guard !demoMode, relayQueueLoop == nil,
               deliveries.contains(where: RelayTaskQueueSchedule.needsSync) else { return }
         let generation = UUID()
@@ -32,33 +36,48 @@ extension AppModel {
         relayQueueSyncInProgress = true
         defer { relayQueueSyncInProgress = false }
         let ids = RelayTaskQueueSchedule.syncOrder(deliveries)
-        for id in ids {
-            guard !Task.isCancelled, let row = deliveries.first(where: { $0.id == id }) else { continue }
-            guard row.awaitingSessionRemap != true else { continue }
-            #if targetEnvironment(macCatalyst)
-            if row.chatQueue?.transport == .localMCP {
-                do { try await synchronizeLocalRelayTaskQueue(id) }
-                catch { setRelayTaskQueueError(id, error.localizedDescription) }
-                continue
+        for id in ids { await synchronizeRelayTaskQueueRow(id, session: session) }
+    }
+
+    func uploadNewRelayTaskQueues(session: URLSession = .shared) async {
+        let ids = RelayTaskQueueSchedule.syncOrder(deliveries).filter { id in
+            deliveries.first { $0.id == id }?.relayJob?.serverState == nil
+        }
+        for id in ids { await synchronizeRelayTaskQueueRow(id, session: session) }
+    }
+
+    private func synchronizeRelayTaskQueueRow(_ id: String, session: URLSession) async {
+        guard relayQueueOperations[id] == nil else { return }
+        let generation = UUID()
+        relayQueueOperations[id] = generation
+        defer {
+            if relayQueueOperations[id] == generation { relayQueueOperations.removeValue(forKey: id) }
+        }
+        guard !Task.isCancelled, let row = deliveries.first(where: { $0.id == id }) else { return }
+        guard row.awaitingSessionRemap != true else { return }
+        #if targetEnvironment(macCatalyst)
+        if row.chatQueue?.transport == .localMCP {
+            do { try await synchronizeLocalRelayTaskQueue(id) }
+            catch { setRelayTaskQueueError(id, error.localizedDescription) }
+            return
+        }
+        #endif
+        guard let room = row.roomId,
+              let connection = connectionRegistry.connections.first(where: { $0.id == room }),
+              connection.pairing.pushAuth?.isEmpty == false, !connection.pairing.isHub else {
+            setRelayTaskQueueError(id, RelayTaskQueueError.unavailable.localizedDescription)
+            return
+        }
+        let transport = RelayTaskQueueTransport(pairing: connection.pairing,
+            address: relaysByRoom[room]?.resolvedRelayURL, session: session)
+        do {
+            if row.chatQueue?.cancelRequested == true {
+                try await reconcileRelayTaskQueueCancellation(id, transport: transport)
+            } else {
+                try await synchronizeRelayTaskQueue(id, pairing: connection.pairing, transport: transport)
             }
-            #endif
-            guard let room = row.roomId,
-                  let connection = connectionRegistry.connections.first(where: { $0.id == room }),
-                  connection.pairing.pushAuth?.isEmpty == false, !connection.pairing.isHub else {
-                setRelayTaskQueueError(id, RelayTaskQueueError.unavailable.localizedDescription)
-                continue
-            }
-            let transport = RelayTaskQueueTransport(pairing: connection.pairing,
-                address: relaysByRoom[room]?.resolvedRelayURL, session: session)
-            do {
-                if row.chatQueue?.cancelRequested == true {
-                    try await reconcileRelayTaskQueueCancellation(id, transport: transport)
-                } else {
-                    try await synchronizeRelayTaskQueue(id, pairing: connection.pairing, transport: transport)
-                }
-            } catch {
-                setRelayTaskQueueError(id, error.localizedDescription)
-            }
+        } catch {
+            setRelayTaskQueueError(id, error.localizedDescription)
         }
     }
 

@@ -32,6 +32,8 @@ struct OutgoingDelivery: Codable, Identifiable {
     var state: DeliveryState
     var error: String?
     var nextRetryAt: Double?
+    /// Relay persistence is independent of the provider computer's receipt.
+    var relayStoredAt: Double? = nil
     /// Explicit Retry renews the local wait without changing message identity
     /// or its original timeline date. Legacy rows keep their original anchor.
     var manualRetryStartedAt: Double? = nil
@@ -76,7 +78,7 @@ enum DeliveryOutboxPolicy {
     static let failedVisibilityMs: Double = 120_000
     static let maximumLocalRetentionMs = terminalLifecycleMs + failedVisibilityMs
     static let sentImagePreviewRetentionMs: Double = 24 * 60 * 60 * 1_000
-    static let userMessageRelayTTLSeconds = unacknowledgedRetentionMs / 1_000
+    static let userMessageRelayTTLSeconds: Double = 30 * 24 * 60 * 60
 
     static func terminalDeadline(for delivery: OutgoingDelivery) -> Double? {
         if let retryStartedAt = delivery.processingRetryStartedAt {

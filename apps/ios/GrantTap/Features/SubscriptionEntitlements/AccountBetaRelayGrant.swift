@@ -9,11 +9,20 @@ struct AccountBetaRelayGrant: Equatable {
 enum AccountBetaRelayGrantAPI {
     static func load(session: GrantTapAccountSession? = GrantTapAccountAPI.session,
                      transport: URLSession = .shared,
-                     currentSession: () -> GrantTapAccountSession? = { GrantTapAccountAPI.session })
+                     currentSession: () -> GrantTapAccountSession? = { GrantTapAccountAPI.session },
+                     betaEvidence: () async -> String? = { await TestFlightAccessStore.signedEvidence() })
         async throws -> AccountBetaRelayGrant? {
         guard let session else { return nil }
-        let response = try await GrantTapAccountAPI.json("beta-relay", token: session.token,
+        var response = try await GrantTapAccountAPI.json("beta-relay", token: session.token,
                                                          transport: transport)
+        let expired = (response["expiresAt"] as? Double).map {
+            $0.isFinite && $0 > 0 && $0 <= Date().timeIntervalSince1970 * 1_000
+        } ?? false
+        if response["expiresAt"] is NSNull || expired, let proof = await betaEvidence() {
+            guard currentSession()?.token == session.token else { throw CancellationError() }
+            response = try await GrantTapAccountAPI.json("subscriptions/testflight", method: "POST",
+                body: ["signedAppTransaction": proof], token: session.token, transport: transport)
+        }
         guard currentSession()?.token == session.token else {
             throw CancellationError()
         }

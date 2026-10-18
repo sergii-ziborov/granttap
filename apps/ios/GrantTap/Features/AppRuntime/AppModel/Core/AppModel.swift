@@ -101,6 +101,7 @@ final class AppModel: ObservableObject {
     var relayQueueDelay: Task<Void, Never>?
     var relayQueueNeedsSync = false
     var relayQueueSyncInProgress = false
+    var relayQueueOperations: [String: UUID] = [:]
     @Published var deliveries: [OutgoingDelivery] = DeliveryPersistence.load()
     @Published var archivedSessionIds: Set<String> = Set(
         UserDefaults.standard.stringArray(forKey: "granttap.archived-sessions") ?? []

@@ -11,15 +11,16 @@ extension TaskChatView {
     }
 
     private var chatContent: some View {
-        VStack(spacing: 0) {
-            #if targetEnvironment(macCatalyst)
-            macChatHeader
-            #endif
-            taskStatusStrip
-            transferBanner
-            chatTranscript
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        AdaptiveChatWorkspace {
+            VStack(spacing: 0) {
+                #if targetEnvironment(macCatalyst)
+                macChatHeader
+                #endif
+                taskStatusStrip
+                transferBanner
+                chatTranscript
+            }
+        } reply: {
             chatComposerInset
                 .background(
                     (currentSession.agent.lowercased().contains("claude")

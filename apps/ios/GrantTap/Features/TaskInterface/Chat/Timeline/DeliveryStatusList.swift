@@ -17,6 +17,9 @@ struct DeliveryStatusList: View {
             .filter { d in
                 // Delivered rows are removed on receipt — never flash ghosts.
                 if d.state == .delivered { return false }
+                if let storedAt = d.relayStoredAt, d.state == .queued || d.state == .sending {
+                    return now - storedAt <= DeliveryOutboxPolicy.userMessageRelayTTLSeconds * 1_000
+                }
                 if let deadline = DeliveryOutboxPolicy.terminalDeadline(for: d) {
                     return now <= deadline
                 }

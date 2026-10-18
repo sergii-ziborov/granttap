@@ -1,7 +1,7 @@
 import Foundation
 
-/// An explicit decision may survive transport loss. Only a fresh exact pending
-/// request permits replay; a socket write never means the native gate applied it.
+/// Explicit decisions survive transport loss, scoped to the original request.
+/// Relay storage and native application are independent acknowledgements.
 final class ApprovalDecisionQueue {
     struct Entry: Codable, Equatable {
         let requestId: String
@@ -11,11 +11,28 @@ final class ApprovalDecisionQueue {
         let by: String
         let createdAt: Double
         var sentAt: Double? = nil
+        var relayStoredAt: Double? = nil
         var note: String? = nil
     }
 
     private let url: URL
     private(set) var entries: [Entry]
+    private var submissions: Set<String> = []
+    private var retryCounts: [String: Int] = [:]
+
+    func beginSubmission(_ entry: Entry, now: Double = Date().timeIntervalSince1970) -> Bool {
+        guard entry.relayStoredAt == nil, entry.createdAt.isFinite,
+              now >= entry.createdAt, now - entry.createdAt < 15 * 60 else { return false }
+        return submissions.insert(entry.requestId).inserted
+    }
+
+    func finishSubmission(_ requestId: String, succeeded: Bool) -> TimeInterval {
+        submissions.remove(requestId)
+        if succeeded { retryCounts.removeValue(forKey: requestId); return 0 }
+        let attempt = retryCounts[requestId, default: 0]
+        retryCounts[requestId] = min(attempt + 1, 3)
+        return [2.0, 5, 15, 30][min(attempt, 3)]
+    }
 
     init(url: URL? = nil) {
         self.url = url ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -44,6 +61,15 @@ final class ApprovalDecisionQueue {
             $0.requestId == entry.requestId && $0.roomId == entry.roomId && $0.sessionId == entry.sessionId
         }) else { return }
         next[index].sentAt = time
+        _ = persist(next)
+    }
+
+    func markStored(_ entry: Entry, at time: Double) {
+        var next = entries
+        guard let index = next.firstIndex(where: {
+            $0.requestId == entry.requestId && $0.roomId == entry.roomId && $0.sessionId == entry.sessionId
+        }) else { return }
+        next[index].relayStoredAt = time
         _ = persist(next)
     }
 

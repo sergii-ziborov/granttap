@@ -2,10 +2,12 @@
 
 Explicit Allow/Deny decisions are persisted before sending, protected on the
 device and scoped to the exact request, session and authenticated computer.
-Failed writes remain queued. Reconnect alone cannot replay an approval: the
-computer must redeliver that exact pending request. Matching terminal coverage,
-resolved/cancel messages and explicit unlink remove it. Transport success keeps
-the card waiting for native confirmation. Cache clearing preserves this outbox.
+Failed writes remain queued and retry to the relay even while the computer is
+offline. Retries preserve the original 15-minute lifetime, request, session and
+room. Matching terminal coverage, resolved/cancel messages and explicit unlink
+remove the decision. Only a durable relay receipt changes the UI to saved; the
+computer independently checks the still-live native gate before applying it.
+Relay storage does not mean permission was applied. Cache clearing preserves this outbox.
 Tapping a card opens its action details. Per-chat automation is a separate,
 explicit Apply operation bound to the current computer epoch and Project policy
 revision. The UI shows it as applied only after that computer confirms the

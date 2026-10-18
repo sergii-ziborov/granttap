@@ -51,22 +51,6 @@ final class DesktopLicenseTests: XCTestCase {
         XCTAssertFalse(DesktopLicense.checking.permitsLocalControl)
     }
 
-    func testVerifiedBetaTrialOpensMacForThisBuildWithoutBecomingAPurchase() {
-        let now = Date(timeIntervalSince1970: 1_700_000_000)
-        let expiry = now.addingTimeInterval(7 * 24 * 60 * 60)
-        let trial = DesktopLicense.resolve([], distribution: .inAppUnlock,
-            bundleID: bundleID, evaluationAllowed: false, betaExpiresAt: expiry, now: now)
-        XCTAssertEqual(trial, .betaTrial(expiresAt: expiry))
-        XCTAssertTrue(trial.permitsLocalControl)
-        XCTAssertTrue(trial.permitsOwnRelay)
-        XCTAssertEqual(DesktopLicense.resolve([], distribution: .inAppUnlock,
-            bundleID: bundleID, evaluationAllowed: false, betaExpiresAt: expiry, now: expiry),
-            .notPurchased)
-        XCTAssertEqual(DesktopLicense.resolve([], distribution: .paidDownload,
-            bundleID: DesktopLicense.paidBundleID, evaluationAllowed: false,
-            betaExpiresAt: expiry, now: now), .notPurchased)
-    }
-
     func testSeparatePaidDownloadUsesItsOwnVerifiedAppTransaction() {
         let bundleID = "com.ziborov.granttap.mac"
         let receipt = DesktopPurchaseEvidence(identifier: bundleID, verified: true,

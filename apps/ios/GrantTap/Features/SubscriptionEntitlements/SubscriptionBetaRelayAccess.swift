@@ -3,6 +3,8 @@ import Foundation
 
 @MainActor
 extension SubscriptionStore {
+    var hasTestingAccess: Bool { betaRelayAccess || accountGrantAllowsTransport }
+
     var transportAccessChanges: AnyPublisher<Void, Never> {
         Publishers.CombineLatest4($entitlement, $betaRelayAccess,
                                   $accountBetaGrant, $accountSubscriptionGrant)

@@ -49,18 +49,10 @@ final class SubscriptionStore: ObservableObject {
         },
         snapshotLoader: @escaping SnapshotLoader = { await SubscriptionStoreEvidence.load($0) },
         betaEnvironmentLoader: @escaping () async -> Bool = {
-            guard !AppRuntime.isRunningUnitTests else { return false }
-            guard #available(iOS 16.0, macCatalyst 16.0, *) else { return false }
-            guard let result = try? await AppTransaction.shared,
-                  case .verified(let transaction) = result else { return false }
-            return transaction.environment == .sandbox
+            await TestFlightAccessStore.current()
         },
         betaEnvironmentRefresh: @escaping () async throws -> Bool = {
-            guard #available(iOS 16.0, macCatalyst 16.0, *) else { return false }
-            let result = try await AppTransaction.refresh()
-            guard case .verified(let transaction) = result,
-                  transaction.bundleID == Bundle.main.bundleIdentifier else { return false }
-            return transaction.environment == .sandbox
+            try await TestFlightAccessStore.refresh()
         },
         accountBetaLoader: @escaping () async throws -> AccountBetaRelayGrant? = {
             try await AccountBetaRelayGrantAPI.load()

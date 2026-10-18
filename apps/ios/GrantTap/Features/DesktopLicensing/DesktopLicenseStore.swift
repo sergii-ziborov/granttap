@@ -14,9 +14,9 @@ final class DesktopLicenseStore: ObservableObject {
     private let bundleID: String
     private let evaluationAllowed: Bool
     private let evidenceLoader: EvidenceLoader
-    private let betaExpiryLoader: () async -> Date?
-    private let betaRefreshLoader: () async throws -> Date?
-    private var verifiedBetaExpiry: Date?
+    private let betaAccessLoader: () async -> Bool
+    private let betaRefreshLoader: () async throws -> Bool
+    private var verifiedBetaAccess = false
     private let productLoader: () async throws -> [Product]
     private let storeSync: () async throws -> Void
     private var observer: Task<Void, Never>?
@@ -26,15 +26,15 @@ final class DesktopLicenseStore: ObservableObject {
          evaluationAllowed: Bool = DesktopLicenseStore.isEvaluationBuild,
          observe: Bool = !AppRuntime.isRunningUnitTests,
          evidenceLoader: EvidenceLoader? = nil,
-         betaExpiryLoader: @escaping () async -> Date? = {
+         betaAccessLoader: @escaping () async -> Bool = {
              #if targetEnvironment(macCatalyst)
-             await DesktopBetaTrialStore.currentExpiry()
+             await TestFlightAccessStore.current()
              #else
-             nil
+             false
              #endif
          },
-         betaRefreshLoader: @escaping () async throws -> Date? = {
-             try await DesktopBetaTrialStore.refreshedExpiry()
+         betaRefreshLoader: @escaping () async throws -> Bool = {
+             try await TestFlightAccessStore.refresh()
          },
          productLoader: @escaping () async throws -> [Product] = {
              try await Product.products(for: [DesktopLicense.productID])
@@ -46,7 +46,7 @@ final class DesktopLicenseStore: ObservableObject {
         self.bundleID = bundleID
         self.evaluationAllowed = evaluationAllowed
         self.evidenceLoader = evidenceLoader ?? { try await Self.readEvidence(selected) }
-        self.betaExpiryLoader = betaExpiryLoader
+        self.betaAccessLoader = betaAccessLoader
         self.betaRefreshLoader = betaRefreshLoader
         self.productLoader = productLoader
         self.storeSync = storeSync
@@ -74,7 +74,7 @@ final class DesktopLicenseStore: ObservableObject {
 
     func start() async {
         await refresh()
-        guard distribution == .inAppUnlock else { return }
+        guard distribution == .inAppUnlock, license != .testFlight else { return }
         do {
             product = try await productLoader().first {
                 $0.id == DesktopLicense.productID && $0.type == .nonConsumable
@@ -85,29 +85,34 @@ final class DesktopLicenseStore: ObservableObject {
     }
 
     func refresh() async {
-        let betaExpiresAt = await betaExpiryLoader() ?? verifiedBetaExpiry
-        if let betaExpiresAt { verifiedBetaExpiry = betaExpiresAt }
+        let betaAccess = await betaAccessLoader() || verifiedBetaAccess
+        if betaAccess {
+            verifiedBetaAccess = true
+            license = .testFlight
+            lastError = nil
+            return
+        }
         do {
             license = DesktopLicense.resolve(try await evidenceLoader(), distribution: distribution,
                                              bundleID: bundleID, evaluationAllowed: evaluationAllowed,
-                                             betaExpiresAt: betaExpiresAt)
+                                             testFlightVerified: betaAccess)
             lastError = nil
         } catch {
             license = DesktopLicense.resolve([], distribution: distribution, bundleID: bundleID,
                                              evaluationAllowed: evaluationAllowed,
-                                             betaExpiresAt: betaExpiresAt)
+                                             testFlightVerified: betaAccess)
             lastError = error.localizedDescription
         }
     }
 
     /// Explicit retry can ask StoreKit to sign in; use only from a user action.
-    func verifyBetaTrial() async {
+    func verifyTestFlightAccess() async {
         do {
-            guard let expiry = try await betaRefreshLoader() else {
-                lastError = L("This TestFlight evaluation could not be verified.")
+            guard try await betaRefreshLoader() else {
+                lastError = L("TestFlight access could not be verified.")
                 return
             }
-            verifiedBetaExpiry = expiry
+            verifiedBetaAccess = true
             await refresh()
         } catch {
             lastError = error.localizedDescription

@@ -59,6 +59,19 @@ final class SubscriptionTransportStartupTests: XCTestCase {
         XCTAssertEqual(store.entitlement, .unavailable)
     }
 
+    func testTestFlightUnlockDoesNotCreateOrStartASubscriptionTrial() async {
+        let store = SubscriptionStore(startObserving: false, snapshotLoader: { _ in [] },
+            betaEnvironmentLoader: { true }, accountBetaLoader: { nil },
+            accountSubscriptionLoader: { nil })
+        await store.prepareTransport()
+        XCTAssertTrue(store.hasTestingAccess)
+        XCTAssertTrue(store.allowsManagedTransport)
+        XCTAssertEqual(store.effectiveEntitlement, .unavailable)
+        await store.refresh()
+        XCTAssertTrue(store.hasTestingAccess)
+        XCTAssertNil(store.effectiveEntitlement.product)
+    }
+
     func testUnverifiedAccountStillRequiresVerifiedStoreEvidence() async {
         var receiptReads = 0
         let store = SubscriptionStore(startObserving: false, snapshotLoader: { _ in

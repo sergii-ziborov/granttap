@@ -6,6 +6,7 @@ import Foundation
 /// surfaces decoded ApprovalRequests. The relay only ever sees ciphertext.
 final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     let pairing: Pairing
+    let relaySubmissions = RelaySubmissionTracker()
     var sessionKeys: [String: String]
 
     /// Session controls can be tapped before the monitor has returned the
@@ -179,6 +180,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         interruptSocketForReplacement()
         resolvedRelayURL = address
         var request = URLRequest(url: url)
+        request.setValue("1", forHTTPHeaderField: "X-GrantTap-Recipient-Routing")
         request.setValue(CiphertextRecipient.identifier(publicKey: pairing.myPublicKey),
                          forHTTPHeaderField: "X-GrantTap-Recipient-Key-Id")
         if let pushAuth = pairing.pushAuth, !pushAuth.isEmpty {
@@ -192,6 +194,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     }
 
     func disconnect() {
+        relaySubmissions.disconnect()
         wantsConnection = false
         cancelScheduledReconnect()
         initialConnectionStartedAt = nil
@@ -217,6 +220,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     /// so emit exactly one down edge before replacement. AppModel uses it to
     /// invalidate outbox send generations whose completion may never arrive.
     func interruptSocketForReplacement() {
+        relaySubmissions.disconnect()
         guard let current = task else { return }
         current.cancel(with: .goingAway, reason: nil)
         task = nil

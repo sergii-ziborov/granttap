@@ -153,6 +153,7 @@ extension AppModel {
             rt.socketUp = true
             rt.disconnectedAt = 0
             roomRuntime[room] = rt
+            retryUnstoredApprovalDecisions(inRoom: room)
         } else {
             var rt = roomRuntime[room] ?? RoomRuntime()
             rt.socketUp = false

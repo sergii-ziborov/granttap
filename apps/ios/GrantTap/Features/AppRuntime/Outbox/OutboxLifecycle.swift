@@ -11,6 +11,17 @@ extension AppModel {
         var failedOriginSessionIds: Set<String> = []
         for index in snapshot.indices {
             if snapshot[index].chatQueue?.waiting == true || snapshot[index].chatQueue?.relayManaged == true { continue }
+            if let storedAt = snapshot[index].relayStoredAt,
+               snapshot[index].processingAcknowledgedAt == nil,
+               snapshot[index].state == .queued || snapshot[index].state == .sending {
+                if now - storedAt <= DeliveryOutboxPolicy.userMessageRelayTTLSeconds * 1_000 { continue }
+                snapshot[index].state = .failed
+                snapshot[index].relayStoredAt = nil
+                snapshot[index].error = L("The saved message expired before the computer received it.")
+                snapshot[index].updatedAt = now
+                transitionedExpiredProcessing = true
+                continue
+            }
             if let deadline = DeliveryOutboxPolicy.terminalDeadline(for: snapshot[index]),
                now > deadline {
                 if let sessionId = localOriginSessionId(for: snapshot[index]) {
@@ -61,6 +72,8 @@ extension AppModel {
         maxUnacknowledgedAge: Double
     ) -> Bool {
         if delivery.chatQueue != nil, delivery.state != .delivered { return true }
+        if let storedAt = delivery.relayStoredAt, delivery.state == .queued || delivery.state == .sending,
+           now - storedAt <= DeliveryOutboxPolicy.userMessageRelayTTLSeconds * 1_000 { return true }
         if delivery.state == .delivered {
             let awaitingOrigin = delivery.sessionId.map { localOnlySessionIds.contains($0) } == true
             let retainsAttachmentPreview = delivery.attachments.contains {
@@ -189,6 +202,7 @@ extension AppModel {
         deliveries[index].updatedAt = Date().timeIntervalSince1970 * 1000
         deliveries[index].manualRetryStartedAt = deliveries[index].updatedAt
         deliveries[index].transportAttemptStartedAt = nil
+        deliveries[index].relayStoredAt = nil
         // A dependency failure is explicitly retryable: promote this follow-up
         // to a fresh new-task origin. Provider identity is already persisted.
         if deliveries[index].awaitingSessionRemap == true {
@@ -220,6 +234,10 @@ extension AppModel {
             guard let sid = delivery.sessionId else { return false }
             guard aliases.contains(sid) || resolvedSessionId(sid) == resolved else { return false }
             let isInsideRetentionWindow: Bool = {
+                if let storedAt = delivery.relayStoredAt,
+                   delivery.state == .queued || delivery.state == .sending {
+                    return now - storedAt <= DeliveryOutboxPolicy.userMessageRelayTTLSeconds * 1_000
+                }
                 if delivery.chatQueue?.waiting == true { return true }
                 if delivery.state == .queued, delivery.attempts == 0,
                    delivery.processingAcknowledgedAt == nil {
@@ -255,46 +273,4 @@ extension AppModel {
         }.prefix(8))
     }
 
-    /// Exact user.message fields consumed by the relay send. Keeping this as a
-    /// single projection makes retries preserve provider identity and prevents
-    /// a shared native UUID from selecting the wrong provider on the Mac.
-    func wireUserMessage(for delivery: OutgoingDelivery) -> UserMessage {
-        let correlatedReply = delivery.requestId?.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        ).isEmpty == false
-        let localOnly = delivery.sessionId.map { localOnlySessionIds.contains($0) } ?? false
-        let session = delivery.sessionId.flatMap {
-            knownSession(for: $0, preferredAgent: delivery.agent)
-        }
-        let wireSessionId: String? = {
-            if correlatedReply { return delivery.sessionId }
-            return localOnly ? nil : delivery.sessionId
-        }()
-        let wireAgent: String? = {
-            guard !correlatedReply else { return nil }
-            let value = delivery.agent ?? session?.agent
-            guard let value else { return nil }
-            return AgentIdentity.normalize(value)
-        }()
-        let wireCwd: String? = {
-            if let cwd = delivery.cwd { return cwd }
-            return localOnly ? session?.cwd : nil
-        }()
-        return Payloads.message(
-            delivery.text,
-            messageId: delivery.id,
-            agent: wireAgent,
-            cwd: wireCwd,
-            sessionId: wireSessionId,
-            requestId: delivery.requestId,
-            attachments: delivery.attachmentRefs == nil ? delivery.attachments : [],
-            attachmentRefs: delivery.attachmentRefs ?? [],
-            preferredMcp: delivery.preferredMcp,
-            skill: delivery.skill,
-            projectId: delivery.projectId,
-            model: delivery.model,
-            permissionMode: delivery.permissionMode,
-            effort: delivery.effort
-        )
-    }
 }

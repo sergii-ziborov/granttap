@@ -1,0 +1,54 @@
+# The adaptive workspace follows rotations of Duo's inner and outer screens.
+# iPad retains every orientation for multitasking.
+targets:
+  GrantTap:
+    info:
+      properties:
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortraitUpsideDown
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortraitUpsideDown
+
+  GrantTapRelayE2ETests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: GrantTapRelayE2ETests
+        excludes: ["README.md", "Setup"]
+    dependencies:
+      - target: GrantTap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.relay-e2e-tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: GrantTap
+  GrantTapRelaySetupTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: GrantTapRelayE2ETests/Setup
+    dependencies:
+      - target: GrantTap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ziborov.granttap.relay-setup-tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/GrantTap.app/GrantTap"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  GrantTap Relay E2E:
+    build:
+      targets:
+        GrantTap: all
+    test:
+      config: Debug
+      debugEnabled: false
+      targets: [GrantTapRelaySetupTests, GrantTapRelayE2ETests]

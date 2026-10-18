@@ -10,6 +10,7 @@ extension RelayClient {
             guard self.task === socket else { return }
             switch result {
             case .failure:
+                self.relaySubmissions.disconnect()
                 self.noteWireDiagnostic("receive-failed")
                 DispatchQueue.main.async {
                     guard self.task === socket else { return }
@@ -27,8 +28,9 @@ extension RelayClient {
 
     func handle(_ text: String) {
         noteWireDiagnostic("envelope")
-        guard let data = text.data(using: .utf8),
-              let env = try? JSONDecoder().decode(Envelope.self, from: data),
+        guard let data = text.data(using: .utf8) else { return }
+        if handleSubmissionControl(data) { return }
+        guard let env = try? JSONDecoder().decode(Envelope.self, from: data),
               env.v == 1,
               env.room == pairing.room,
               env.from == peerRole,

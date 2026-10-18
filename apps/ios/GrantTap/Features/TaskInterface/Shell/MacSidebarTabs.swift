@@ -5,9 +5,6 @@ import UIKit
 extension ContentView {
     func refreshMacLocal() async {
         guard !model.demoMode else { return }
-        if case .betaTrial(let expiry) = desktopLicense.license, expiry <= Date() {
-            await desktopLicense.refresh()
-        }
         if !desktopLicense.license.permitsLocalControl {
             await macLocalMCP.probeStatus()
             return

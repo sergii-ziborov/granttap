@@ -2850,3 +2850,16 @@
 "GrantTap cannot follow a cloud run's progress. Check it with the provider." = "GrantTap не может следить за ходом облачного запуска. Проверьте его у провайдера.";
 
 "Commit changes before transfer" = "Создать коммит перед переносом";
+
+"TestFlight — full access" = "TestFlight — полный доступ";
+"All features are available in TestFlight. No purchase or subscription is required." = "В TestFlight доступны все функции. Покупка или подписка не нужна.";
+"Verify TestFlight access" = "Проверить доступ TestFlight";
+"TestFlight access could not be verified." = "Не удалось подтвердить доступ TestFlight.";
+
+"Decision saved on relay" = "Решение сохранено на реле";
+"Saving decision on relay…" = "Сохраняем решение на реле…";
+"Relay has not confirmed saving this submission. Retrying…" = "Реле ещё не подтвердило сохранение. Повторяем…";
+"Relay is offline. Your submission remains saved on this device." = "Реле недоступно. Запрос сохранён на этом устройстве.";
+"Relay could not save this submission. It remains on this device." = "Реле не смогло сохранить запрос. Он остаётся на этом устройстве.";
+"The relay queue is full. Your submission remains on this device." = "Очередь реле заполнена. Запрос остаётся на этом устройстве.";
+"The saved message expired before the computer received it." = "Срок хранения сообщения истёк до его получения компьютером.";

@@ -16,15 +16,14 @@ struct DesktopLicenseView: View {
                 case .evaluation:
                     Label(L("Development evaluation"), systemImage: "hammer")
                     Text(L("This development build is for evaluation. It is not a production purchase."))
-                case .betaTrial(let expiry):
-                    Label(L("TestFlight evaluation"), systemImage: "clock")
-                    Text(String(format: L("This build is available until %@. A new TestFlight build starts a new 7-day evaluation."),
-                                expiry.formatted(date: .abbreviated, time: .omitted)))
+                case .testFlight:
+                    Label(L("TestFlight — full access"), systemImage: "checkmark.seal.fill")
+                    Text(L("All features are available in TestFlight. No purchase or subscription is required."))
                         .font(.footnote).foregroundStyle(Theme.muted)
                 case .notPurchased:
                     Text(L("Mac Local unlocks local agent control and your own relay with one purchase. Active Personal already includes Mac managed-client access without this purchase."))
-                    Button(L("Verify TestFlight evaluation")) {
-                        Task { await store.verifyBetaTrial() }
+                    Button(L("Verify TestFlight access")) {
+                        Task { await store.verifyTestFlightAccess() }
                     }
                 }
                 if store.distribution == .inAppUnlock,

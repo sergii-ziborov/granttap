@@ -31,12 +31,18 @@ extension AppModel {
     }
 
     func deliverDecision(_ context: DecisionDeliveryContext, sessionId: String?) {
+        guard let entry = approvalDecisionQueue.entries.first(where: { $0.requestId == context.requestId }) else {
+            clearDecisionInFlight(context.requestId)
+            return
+        }
+        guard approvalDecisionQueue.beginSubmission(entry) else { return }
+        let ttl = max(1, 15 * 60 - (Date().timeIntervalSince1970 - entry.createdAt))
         guard let client = relayForRequest(context.requestId) else {
             finishDecisionDelivery(context, error: RelaySendError.disconnected)
             return
         }
         client.sendDecision(requestId: context.requestId, decision: context.decision, by: context.by,
-                            sessionId: sessionId, note: context.note) { [weak self] error in
+                            sessionId: sessionId, note: context.note, ttl: ttl) { [weak self] error in
             DispatchQueue.main.async {
                 self?.finishDecisionDelivery(context, error: error)
             }
@@ -45,8 +51,16 @@ extension AppModel {
 
     func finishDecisionDelivery(_ context: DecisionDeliveryContext, error: Error?) {
         let sessionId = approvalDecisionSessionScope[context.requestId]
+        let retryDelay = approvalDecisionQueue.finishSubmission(context.requestId, succeeded: error == nil)
+        guard let entry = approvalDecisionQueue.entries.first(where: { $0.requestId == context.requestId }) else {
+            clearDecisionInFlight(context.requestId)
+            return
+        }
+        guard entry.decision == context.decision, entry.by == context.by,
+              entry.relayStoredAt == nil else { return }
         noteApprovalDecisionSent(context.requestId, sessionId: sessionId, succeeded: error == nil)
         if let error {
+            scheduleApprovalSubmissionRetry(context.requestId, after: retryDelay)
             if !approvalDecisionQueue.entries.contains(where: { $0.requestId == context.requestId }) {
                 clearDecisionInFlight(context.requestId)
             }
@@ -56,9 +70,9 @@ extension AppModel {
             pushToWatch()
             return
         }
-        // A successful WebSocket write is not proof that the native gate applied
-        // the decision. Keep the card disabled until approval.resolved/cancel.
-        append("\(context.decision) sent: \(context.title) (waiting for computer, \(context.by))")
+        // The relay has durably saved the decision. Native application remains
+        // independent and is confirmed by approval.resolved/cancel.
+        append("\(context.decision) sent: \(context.title) (saved on relay, \(context.by))")
         AuditStore.shared.record("decision", detail: "\(context.decision) · \(context.agent) · \(context.by)")
         pushToWatch()
     }
