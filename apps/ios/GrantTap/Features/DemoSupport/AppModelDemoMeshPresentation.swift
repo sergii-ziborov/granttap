@@ -17,6 +17,7 @@ extension AppModel {
         RepositoryCatalogFixture.apply(to: self, at: now)
         GraphBuildFixture.apply(to: self, mesh: &mesh, at: now)
         ProjectTaskCreationFixture.apply(to: self, at: now)
+        MeshArchiveStreamingFixture.apply(to: self)
         #endif
     }
 }

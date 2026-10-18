@@ -103,6 +103,7 @@ struct ProjectMeshStatusView: View {
             }
         }
         .pageNavigationTitle(L("Health"))
+        .accessibilityIdentifier("health.scroll")
         .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
         .refreshable { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
         .fullScreenCover(item: $towerReport) { report in

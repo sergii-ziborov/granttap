@@ -19,3 +19,6 @@ fixture's missing computer route.
 and saved directory/text pages under a demo session. It uses the public preview
 store so offline navigation exercises durable cached data. No live account or
 provider process is involved.
+
+`MeshArchiveStreamingFixture` refreshes 48 synthetic Mesh archives during Health
+scrolling tests. It never connects to a live computer or changes account policy.

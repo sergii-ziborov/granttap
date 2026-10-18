@@ -64,6 +64,7 @@ struct ProjectMeshArchive: Codable {
 }
 
 enum ProjectMeshPersistence {
+    private static let writer = ProjectMeshArchiveWriter(write: write)
     private static var url: URL? {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
             .appendingPathComponent("GrantTap", isDirectory: true)
@@ -71,6 +72,10 @@ enum ProjectMeshPersistence {
     }
 
     static func load() -> ProjectMeshArchive {
+        writer.barrier { restore() }
+    }
+
+    private static func restore() -> ProjectMeshArchive {
         guard let url, let data = try? Data(contentsOf: url),
               let archive = try? JSONDecoder().decode(ProjectMeshArchive.self, from: data)
         else { return ProjectMeshArchive(snapshots: [:], pendingEvents: []) }
@@ -86,6 +91,12 @@ enum ProjectMeshPersistence {
     }
 
     static func save(_ archive: ProjectMeshArchive) {
+        writer.enqueue(archive)
+    }
+
+    static func finish(_ completion: @escaping () -> Void) { writer.finish(completion) }
+
+    private static func write(_ archive: ProjectMeshArchive) {
         guard let url, let data = try? JSONEncoder().encode(archive) else { return }
         do {
             try FileManager.default.createDirectory(
@@ -103,7 +114,9 @@ enum ProjectMeshPersistence {
     }
 
     static func clear() {
-        guard let url else { return }
-        try? FileManager.default.removeItem(at: url)
+        writer.barrier {
+            guard let url else { return }
+            try? FileManager.default.removeItem(at: url)
+        }
     }
 }

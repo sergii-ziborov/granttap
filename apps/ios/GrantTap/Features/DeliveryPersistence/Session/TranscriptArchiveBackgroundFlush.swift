@@ -7,7 +7,9 @@ enum TranscriptArchiveBackgroundFlush {
         let lease = TranscriptArchiveBackgroundLease(application)
         lease.token = application.beginBackgroundTask(withName: "granttap.transcript-archive") { lease.end() }
         SessionActivityPersistence.finish {
-            DispatchQueue.main.async { lease.end() }
+            ProjectMeshPersistence.finish {
+                DispatchQueue.main.async { lease.end() }
+            }
         }
     }
 }

@@ -18,6 +18,11 @@ device-protected persistence, explicit cross-computer routing, handoff receipt
 verification, the compact Project view, Project management projections, and
 curated task timeline rows.
 
+`ProjectMeshPersistence` encodes complete archives on its serial utility writer.
+Pending snapshots coalesce to the latest whole state, including attention and
+room routing. Explicit reads and cleanup drain earlier writes; APNs completion
+and background suspension wait for the Mesh archive as well as transcripts.
+
 The shared Mesh list groups Projects by reported repository identities from
 their canonical repository, scoped bindings, and their own Task executions.
 Historical executions retain those links. Shared non-canonical repositories

@@ -24,9 +24,11 @@ extension AppModel {
         let callbacks = Array(backgroundWakeCompletions.values)
         backgroundWakeCompletions.removeAll()
         guard !callbacks.isEmpty else { return }
-        // The APNs lease must outlive asynchronous transcript writes.
+        // The APNs lease must outlive both transcript and Mesh attention writes.
         SessionActivityPersistence.finish {
-            DispatchQueue.main.async { callbacks.forEach { $0(result) } }
+            ProjectMeshPersistence.finish {
+                DispatchQueue.main.async { callbacks.forEach { $0(result) } }
+            }
         }
     }
 
