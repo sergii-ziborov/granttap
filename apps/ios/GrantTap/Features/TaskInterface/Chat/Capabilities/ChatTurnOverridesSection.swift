@@ -26,7 +26,8 @@ struct ChatTurnOverridesSection: View {
                             current: session?.model,
                             catalog: model.turnModelCatalog(agent: agent, session: session),
                             fallback: model.turnOverrides.agentDefaults(for: agent).model?.id,
-                            hasConversation: true)
+                            hasConversation: true, contextTokens: session?.contextTokensUsed,
+                            contextWindow: session?.contextWindow)
                     }
                 }
             } header: {

@@ -10,6 +10,8 @@ struct ComposerModelPill: View {
     var catalog: TurnModelCatalog? = nil
     var fallback: String? = nil
     var hasConversation = false
+    var contextTokens: Int? = nil
+    var contextWindow: Int? = nil
     var refresh: (() async -> Void)? = nil
     @State private var showingPicker = false
 
@@ -39,6 +41,7 @@ struct ComposerModelPill: View {
             ComposerModelPicker(agent: agent, model: $model, effort: $effort,
                 fallbackEffort: fallbackEffort, current: current, fallback: fallback,
                 hasConversation: hasConversation, available: available, refresh: refresh,
+                contextTokens: contextTokens, contextWindow: contextWindow,
                 onClose: { showingPicker = false })
         }
     }

@@ -205,6 +205,9 @@ struct ContentView: View {
         .sheet(item: $handoffSession) { session in
             TaskHandoffSheet(session: session, model: model)
         }
+        .sheet(item: notificationFocusBinding) { focus in
+            NotificationRequestSheet(requestId: focus.id, model: model) { model.focusedApprovalId = nil }
+        }
         .onChange(of: model.sessions) { sessions in
             openRequestedSession(from: sessions)
             if let selected = composeSessionId, replyRequestId == nil,

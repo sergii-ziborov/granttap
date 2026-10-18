@@ -10,3 +10,8 @@ own task-row presentation.
 Public implementation entry point: `HumanAttentionPipeline.swift`.
 
 Repository quality and security rules: [`../../../../../AGENTS.md`](../../../../../AGENTS.md).
+
+`NotificationRequestSheet.swift` opens the exact notification request above the
+current tab or chat after app unlock. Notification data only selects identity;
+authenticated encrypted request data supplies the question and available actions.
+The existing durable decision queue owns submission and relay acknowledgement.

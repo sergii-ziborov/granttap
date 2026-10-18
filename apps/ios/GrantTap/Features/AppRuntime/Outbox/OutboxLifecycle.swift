@@ -192,6 +192,7 @@ extension AppModel {
         if let generation = deliveries[index].attemptGeneration {
             liveDeliveryAttemptGenerations.remove(generation)
         }
+        renewRejectedDeliveryIdentity(at: index)
         deliveries[index].attempts = 0
         deliveries[index].state = .queued
         deliveries[index].error = nil
@@ -210,7 +211,7 @@ extension AppModel {
         }
         persistDeliveries()
         AuditStore.shared.record("delivery", detail: "Manual retry requested")
-        attemptDelivery(id)
+        attemptDelivery(deliveries[index].id)
     }
 
     func deliveries(for sessionId: String?) -> [OutgoingDelivery] {

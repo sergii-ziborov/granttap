@@ -50,6 +50,21 @@ struct EffortSlider: UIViewRepresentable {
 }
 
 final class EffortSliderControl: UISlider {
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        // A List normally waits before delivering touches to its content.
+        // The slider must receive touch-down before a quick horizontal drag.
+        var ancestor = superview
+        while let view = ancestor {
+            if let scroll = view as? UIScrollView {
+                scroll.delaysContentTouches = false
+                break
+            }
+            ancestor = view.superview
+        }
+    }
+
     override var canBecomeFirstResponder: Bool { true }
     override var keyCommands: [UIKeyCommand]? {
         [UIKeyCommand(input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: #selector(decrease)),

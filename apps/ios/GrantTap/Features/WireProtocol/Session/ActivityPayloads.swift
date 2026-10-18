@@ -1,7 +1,7 @@
 import Foundation
 
 struct ActivityEntry: Codable, Identifiable, Equatable {
-    let id: String
+    var id: String
     let kind: String              // "user" | "message" | "tool" | "final" | "status"
     var text: String
     let createdAt: Double

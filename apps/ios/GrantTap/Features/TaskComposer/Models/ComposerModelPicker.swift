@@ -12,6 +12,8 @@ struct ComposerModelPicker: View {
     let hasConversation: Bool
     let available: TurnModelCatalog
     let refresh: (() async -> Void)?
+    var contextTokens: Int? = nil
+    var contextWindow: Int? = nil
     let onClose: () -> Void
     @State private var pending: TurnModelChange?
 
@@ -28,7 +30,10 @@ struct ComposerModelPicker: View {
                               systemImage: model == nil ? "checkmark" : "circle")
                     }
                     .accessibilityIdentifier("composer.model.current")
-                    ForEach(available.options) { option in
+                }
+                ForEach(available.groups(agent: agent)) { group in
+                    Section(group.title) {
+                    ForEach(group.options) { option in
                         Button { choose(option.model) } label: {
                             HStack(alignment: .top, spacing: 10) {
                                 Image(systemName: model == option.model ? "checkmark.circle.fill" : "circle")
@@ -41,9 +46,23 @@ struct ComposerModelPicker: View {
                         }
                         .accessibilityIdentifier("composer.model.select.\(option.id)")
                     }
+                    }
                 }
                 if !available.accountUsage.isEmpty {
                     Section(L("Subscription limits")) { ProviderAccountUsageRows(rows: available.accountUsage) }
+                }
+                if hasConversation {
+                    Section(L("Context")) {
+                        if let tokens = contextTokens, tokens > 0 {
+                            HStack { Text(L("Reported context")); Spacer()
+                                Text("\(tokens.formatted()) \(L("tokens"))") }
+                            if let window = contextWindow, window > 0 {
+                                Text("\(Int((Double(tokens) / Double(window) * 100).rounded()))% \(L("of context window"))")
+                            }
+                        } else { Text(L("Context size has not been reported by the provider.")) }
+                        Text(L("Switching models reloads conversation context and can consume input tokens. Cached input and the amount billed depend on the provider; an exact charge is not reported here."))
+                            .font(.caption).foregroundStyle(Theme.muted)
+                    }
                 }
                 Section {
                     if available.stale {
@@ -66,7 +85,7 @@ struct ComposerModelPicker: View {
             Button(L("Switch model")) { apply(change.choice) }
             Button(L("Cancel"), role: .cancel) { pending = nil }
         } message: { _ in
-            Text(L("On your next message, the conversation context will be reloaded for the selected model. The provider may summarize context to fit its limits. Chat history and permissions are preserved."))
+            Text(L("On your next message, the conversation context will be reloaded for the selected model. This can consume input tokens; cached input and billing depend on the provider. The provider may summarize context to fit its limits. Chat history and permissions are preserved."))
         }
         #if targetEnvironment(macCatalyst)
         .frame(width: 420, height: 660)

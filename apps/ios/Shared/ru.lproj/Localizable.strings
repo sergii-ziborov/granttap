@@ -2863,3 +2863,21 @@
 "Relay could not save this submission. It remains on this device." = "Реле не смогло сохранить запрос. Он остаётся на этом устройстве.";
 "The relay queue is full. Your submission remains on this device." = "Очередь реле заполнена. Запрос остаётся на этом устройстве.";
 "The saved message expired before the computer received it." = "Срок хранения сообщения истёк до его получения компьютером.";
+
+"Reported context" = "Переданный размер контекста";
+
+"of context window" = "окна контекста";
+
+"Context size has not been reported by the provider." = "Провайдер не сообщил размер текущего контекста.";
+
+"Switching models reloads conversation context and can consume input tokens. Cached input and the amount billed depend on the provider; an exact charge is not reported here." = "Смена модели заново загружает контекст разговора и может расходовать входные токены. Кэширование и стоимость зависят от провайдера; точная сумма здесь недоступна.";
+
+"On your next message, the conversation context will be reloaded for the selected model. This can consume input tokens; cached input and billing depend on the provider. The provider may summarize context to fit its limits. Chat history and permissions are preserved." = "Со следующим сообщением контекст разговора будет заново загружен для выбранной модели. Это может расходовать входные токены; кэширование и оплата зависят от провайдера. Он может сократить контекст до своих лимитов. История чата и разрешения сохраняются.";
+
+"Loading the request…" = "Загрузка запроса…";
+
+"The request is being refreshed from your computer. Decisions appear after the encrypted request is received." = "Запрашиваем актуальные данные с компьютера. Действия появятся после получения зашифрованного запроса.";
+
+"Request" = "Запрос";
+
+"This Mesh needs your attention." = "Этому Mesh нужно ваше внимание.";

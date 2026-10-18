@@ -49,13 +49,10 @@ struct TaskSwipeCard<Content: View>: View {
                 .offset(x: revealed == id ? -176 : 0)
         }
         .clipShape(RoundedRectangle(cornerRadius: Theme.radius))
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 20).onEnded { value in
-                let horizontal = value.translation.width
-                guard abs(horizontal) > 32,
-                      abs(horizontal) > abs(value.translation.height) * 1.3 else { return }
+        .background(
+            TaskCardSwipeGesture { left in
                 withAnimation(.easeOut(duration: 0.18)) {
-                    revealed = horizontal < 0 ? id : nil
+                    revealed = left ? id : nil
                 }
             }
         )

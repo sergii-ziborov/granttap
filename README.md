@@ -100,7 +100,8 @@ The publicly readable Apple/Mac source uses the
 [GrantTap Commercial Source License](LICENSE), with the Mac end-user terms
 above. It is not an MIT grant to redistribute or resell the application.
 Earlier copies validly released under MIT retain their original rights.
-Third-party components keep their own licenses. The MCP/CLI is Apache-2.0 licensed;
+Third-party components keep their own licenses. MCP/CLI 0.8.76 onward uses the GrantTap Commercial Source License;
+versions through 0.8.75 retain Apache-2.0;
 [relay](https://github.com/sergii-ziborov/granttap-relay) and
 [website](https://github.com/sergii-ziborov/granttap-site) have their own licenses.
 

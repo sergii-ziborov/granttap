@@ -7,7 +7,9 @@ eligible message first without creating a second queue.
 
 An unsent offline message can wait up to 24 hours. Its receipt window starts
 with its first actual dispatch. Explicit Retry starts a fresh bounded wait for
-the same message ID, retaining its original date, route, text and attachments.
+the same message ID after transport failure, retaining its original date, route, text and attachments.
+An authenticated computer refusal is terminal: explicit user Retry creates a new
+operation ID and renames the retained local bubble without duplicating it.
 These anchors persist across relaunch; pruning cannot discard a just-retried
 older message before the computer reconnects.
 

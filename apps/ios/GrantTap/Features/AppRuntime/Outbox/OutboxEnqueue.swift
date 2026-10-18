@@ -229,6 +229,7 @@ extension AppModel {
         deliveries[index].updatedAt = observedAt
         deliveries[index].nextRetryAt = nil
         deliveries[index].state = .failed
+        deliveries[index].rejectedByComputer = true
         deliveries[index].error = receipt.error ?? L("The computer rejected this message.")
         deliveries[index].processingAcknowledgedAt = nil
         deliveries[index].processingRetryStartedAt = nil

@@ -25,10 +25,12 @@ extension ContentView {
                 pendingSection
                 nowSessionsSection
             }
+            .accessibilityIdentifier("now.scroll")
             .tabItem { Label(L("Now"), systemImage: "bolt.fill") }
             .tag(PersonalTab.now)
 
             tabScroll { tasksSection }
+                .accessibilityIdentifier("tasks.scroll")
                 .tabItem { Label(L("Tasks"), systemImage: "tray.full") }
                 .tag(PersonalTab.tasks)
 

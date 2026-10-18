@@ -89,3 +89,9 @@ the composer. A pending control remains disabled until the computer replies;
 its refusal or timeout restores the previous state. Resume remains in Task
 controls. Neutral filled Retry and Mesh actions use the inverse neutral ink in
 both appearances. Rendering tests verify the real Now Retry contrast.
+
+`Session/Views/TaskCardSwipeGesture.swift` rejects vertical intent before pan
+recognition, preserving the parent scroll gesture during live Task updates.
+Horizontal swipes retain Send and Archive. Direction tests live in
+`GrantTapTests/Features/TaskInterface/Session`; scrolling is exercised with a
+streaming 240-Task fixture in `GrantTapUITests/TaskScrollUITests.swift`.

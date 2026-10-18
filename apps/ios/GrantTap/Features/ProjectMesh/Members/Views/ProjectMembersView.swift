@@ -6,20 +6,8 @@ struct ProjectMembersView: View {
     @State private var showInvite = false
 
     var computers: [ProjectComputerSummary] {
-        let bindings = snapshot.bindings ?? []
-        return ProjectManagePresentation.endpointIds(snapshot).map { endpoint in
-            let matches = bindings.filter { $0.endpointId == endpoint }
-            let repositories = Set(matches.map(\.repositoryId)).count
-            let executionAvailable = snapshot.executions.contains {
-                $0.computerId == endpoint && $0.endedAt == nil
-            }
-            return ProjectComputerSummary(
-                endpointId: endpoint,
-                displayName: computerName(endpoint),
-                repositoryCount: repositories,
-                available: matches.isEmpty ? executionAvailable : matches.contains(where: \.available)
-            )
-        }
+        ProjectMembership.computers(snapshot: snapshot, paired: model.connectionRegistry.connections,
+                                    endpointRooms: model.meshComputerRoomByEndpointId)
     }
 
     var body: some View {
@@ -147,7 +135,9 @@ struct ProjectMembersView: View {
     /// that would let it in.
     @ViewBuilder private var unboundSection: some View {
         let unbound = ProjectMembership.unbound(
-            snapshot: snapshot, paired: model.connectionRegistry.connections
+            snapshot: snapshot, paired: model.connectionRegistry.connections,
+            endpointRooms: model.meshComputerRoomByEndpointId,
+            participating: model.meshProjectSourceRooms[snapshot.projectId] ?? []
         )
         if !unbound.isEmpty {
             Section {
@@ -203,13 +193,6 @@ struct ProjectMembersView: View {
         )
     }
 
-    private func computerName(_ endpoint: String) -> String {
-        if let connection = model.connectionRegistry.connections.first(where: { $0.id == endpoint }) {
-            return connection.displayName
-        }
-        guard endpoint.count > 24 else { return endpoint }
-        return "\(L("Computer")) \(endpoint.prefix(8))"
-    }
 }
 
 struct ProjectComputerRow: View {

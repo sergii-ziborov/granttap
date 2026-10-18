@@ -84,6 +84,8 @@ extension ContentView {
                                       fallback: selectedComposeSession == nil ? nil
                                           : model.turnOverrides.agentDefaults(for: activeComposeAgent).model?.id,
                                       hasConversation: selectedComposeSession != nil,
+                                      contextTokens: selectedComposeSession?.contextTokensUsed,
+                                      contextWindow: selectedComposeSession?.contextWindow,
                                       refresh: { await model.refreshProviderMetadata() })
                     Spacer(minLength: 4)
                     ListeningMicButton(isRecording: dictator.isRecording,

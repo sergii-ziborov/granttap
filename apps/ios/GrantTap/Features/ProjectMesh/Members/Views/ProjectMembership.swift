@@ -19,14 +19,38 @@ struct UnboundProjectComputer: Identifiable, Equatable {
 /// from here.
 enum ProjectMembership {
     static func unbound(
-        snapshot: ProjectMeshSnapshot, paired: [LinkedComputer]
+        snapshot: ProjectMeshSnapshot, paired: [LinkedComputer],
+        endpointRooms: [String: String] = [:], participating: Set<String> = []
     ) -> [UnboundProjectComputer] {
-        let bound = Set(ProjectManagePresentation.endpointIds(snapshot))
+        let endpoints = ProjectManagePresentation.endpointIds(snapshot)
+        let bound = Set(endpoints + endpoints.compactMap { endpointRooms[$0] }).union(participating)
         return paired
             .filter { !bound.contains($0.id) }
             .map { UnboundProjectComputer(endpointId: $0.id, displayName: $0.displayName) }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName)
                 == .orderedAscending }
+    }
+
+    /// Only authenticated publisher-to-room mappings can identify endpoint aliases.
+    /// Names and identical repository paths never establish computer identity.
+    static func computers(snapshot: ProjectMeshSnapshot, paired: [LinkedComputer],
+                          endpointRooms: [String: String]) -> [ProjectComputerSummary] {
+        let endpoints = ProjectManagePresentation.endpointIds(snapshot)
+        let groups = Dictionary(grouping: endpoints) { endpointRooms[$0] ?? $0 }
+        return groups.keys.sorted().map { identity in
+            let aliases = Set(groups[identity] ?? [])
+            let bindings = (snapshot.bindings ?? []).filter { aliases.contains($0.endpointId) }
+            let pairedComputer = paired.first { $0.id == identity }
+            let canonical = aliases.contains(snapshot.publisherEndpointId ?? "")
+                ? snapshot.publisherEndpointId! : aliases.sorted().first!
+            let name = pairedComputer?.displayName ?? (canonical.count > 24
+                ? "\(L("Computer")) \(canonical.prefix(8))" : canonical)
+            return ProjectComputerSummary(endpointId: canonical, displayName: name,
+                repositoryCount: Set(bindings.map(\.repositoryId)).count,
+                available: bindings.isEmpty ? snapshot.executions.contains {
+                    aliases.contains($0.computerId) && $0.endedAt == nil
+                } : bindings.contains(where: \.available))
+        }
     }
 
     /// True when every paired computer already takes part in this Project, so

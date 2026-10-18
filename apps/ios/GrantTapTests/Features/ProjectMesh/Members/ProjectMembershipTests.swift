@@ -2,6 +2,25 @@ import XCTest
 @testable import GrantTap
 
 final class ProjectMembershipTests: XCTestCase {
+    @MainActor
+    func testAuthenticatedEndpointAliasesShowOnePairedComputer() {
+        let model = AppModel()
+        model.connectionRegistry = .init(connections: [computer("paired-room", label: "My MacBook Pro")],
+                                         preferredId: "paired-room")
+        model.meshComputerRoomByEndpointId = ["Mac.lan": "paired-room", "former-name": "paired-room"]
+        model.meshProjectSourceRooms["project"] = ["paired-room"]
+        let view = ProjectMembersView(snapshot: snapshot(boundTo: ["Mac.lan", "former-name"]), model: model)
+        XCTAssertEqual(view.computers.count, 1)
+        XCTAssertEqual(view.computers.first?.displayName, "My MacBook Pro")
+        XCTAssertEqual(view.computers.first?.repositoryCount, 1)
+        XCTAssertTrue(ProjectMembership.unbound(snapshot: snapshot(boundTo: ["Mac.lan"]),
+            paired: model.connectionRegistry.connections, endpointRooms: model.meshComputerRoomByEndpointId,
+            participating: ["paired-room"]).isEmpty)
+        XCTAssertEqual(ProjectMembership.unbound(snapshot: snapshot(boundTo: ["Mac.lan"]),
+            paired: [computer("stranger", label: "Mac.lan")], endpointRooms: ["Mac.lan": "paired-room"])
+            .map(\.endpointId), ["stranger"], "matching display names never grant membership")
+    }
+
     private func computer(_ id: String, label: String) -> LinkedComputer {
         let pairing = Pairing(
             relayUrl: "wss://relay.granttap.ai", room: id, role: "phone",

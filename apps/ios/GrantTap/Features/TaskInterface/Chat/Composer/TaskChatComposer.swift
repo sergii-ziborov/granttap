@@ -114,7 +114,9 @@ extension TaskChatView {
                                       current: currentSession.model,
                                       catalog: model.turnModelCatalog(agent: currentSession.agent, session: currentSession),
                                       fallback: model.turnOverrides.agentDefaults(for: currentSession.agent).model?.id,
-                                      hasConversation: true, refresh: { await model.refreshProviderMetadata() })
+                                      hasConversation: true, contextTokens: currentSession.contextTokensUsed,
+                                      contextWindow: currentSession.contextWindow,
+                                      refresh: { await model.refreshProviderMetadata() })
                     Spacer(minLength: 4)
                     if !showsStopControl || dictator.isRecording || dictator.isStarting {
                         ListeningMicButton(isRecording: dictator.isRecording,

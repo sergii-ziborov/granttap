@@ -20,3 +20,8 @@ Local tests verify native level mapping, persistence, wire overrides and reduced
 motion. `AnimatedEffortUITests` verifies dragging, model limits, reset and Done
 on both clients. See [Task Composer](../../README.md) and the root engineering
 contract.
+
+The native slider opts its containing List out of delayed content touches. A
+quick horizontal drag reaches the thumb on touch-down; the List retains normal
+vertical scrolling. `AnimatedEffortUITests` exercises the initial drag, level
+changes, model restrictions, reset, and reopening the picker.

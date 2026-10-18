@@ -1,6 +1,6 @@
 {
   "title": "Terms of Use",
-  "updated": "2026-10-16",
+  "updated": "2026-10-18",
   "intro": "These terms cover the GrantTap app, encrypted relay, and related support services. GrantTap extends coding-agent sessions on computers you control; it does not replace the agent or move your project into a GrantTap cloud.",
   "sections": [
     {
@@ -81,7 +81,7 @@
     {
       "heading": "Ownership and open source",
       "paragraphs": [
-        "GrantTap branding, app design, Apple-client code, relay, and website remain the property of their owner. The standalone GrantTap MCP is licensed under Apache License 2.0. Earlier relay and website versions released under MIT retain those license rights. Third-party components keep their own licenses; current terms are listed on the Licenses page and in each repository."
+        "GrantTap branding, app design, Apple-client code, relay, and website remain the property of their owner. GrantTap MCP 0.8.76 onward uses its own Commercial Source License; versions through 0.8.75 retain Apache License 2.0. Earlier relay and website versions released under MIT retain those license rights. Third-party components keep their own licenses; current terms are listed on the Licenses page and in each repository."
       ],
       "links": [
         {

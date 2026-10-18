@@ -35,9 +35,13 @@ struct TurnModelCatalog: Equatable {
         let aliases = TurnModel.supported(by: provider).filter { !seen.contains($0.id) }.map {
             TurnModelOption(model: $0, label: $0.label, detail: aliasDetail($0))
         }
-        return Self(options: rows + aliases, checkedAt: native.map(\.observedAt).max(),
+        return Self(options: TurnModelOrdering.sorted(rows + aliases, provider: provider), checkedAt: native.map(\.observedAt).max(),
                     stale: provider != "claude" && native.isEmpty,
                     accountUsage: ProviderAccountUsageRow.resolve(catalog.map { [$0] } ?? [], provider: provider))
+    }
+
+    func groups(agent: String) -> [TurnModelGroup] {
+        TurnModelOrdering.groups(options, provider: AgentIdentity.normalize(agent))
     }
 
     func efforts(for modelId: String?, agent: String) -> [TurnEffort] {

@@ -93,6 +93,8 @@ extension AppModel {
         if ProcessInfo.processInfo.environment["GRANTTAP_OPEN_SESSION"] != nil {
             sessionToOpen = sessionId
         }
+        NotificationNavigationFixture.apply(to: self)
+        TaskScrollFixture.apply(to: self)
         #endif
         pushToWatch()
     }

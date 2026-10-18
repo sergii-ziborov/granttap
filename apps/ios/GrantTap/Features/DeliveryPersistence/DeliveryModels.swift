@@ -5,7 +5,7 @@ enum DeliveryState: String, Codable {
 }
 
 struct OutgoingDelivery: Codable, Identifiable {
-    let id: String
+    var id: String
     let text: String
     let agent: String?
     let cwd: String?
@@ -34,9 +34,12 @@ struct OutgoingDelivery: Codable, Identifiable {
     var nextRetryAt: Double?
     /// Relay persistence is independent of the provider computer's receipt.
     var relayStoredAt: Double? = nil
-    /// Explicit Retry renews the local wait without changing message identity
-    /// or its original timeline date. Legacy rows keep their original anchor.
+    /// Explicit Retry renews the local wait while preserving the timeline date.
+    /// Transport retries retain identity; a refused invocation gets a new id.
     var manualRetryStartedAt: Double? = nil
+    /// Authenticated terminal refusal. A user's explicit Retry starts a new
+    /// operation instead of replaying the computer's durable rejected outcome.
+    var rejectedByComputer: Bool? = nil
     /// Receipt timeouts start with the first actual dispatch, after any offline
     /// wait. Subsequent attempts share that bounded transport window.
     var transportAttemptStartedAt: Double? = nil

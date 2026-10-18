@@ -4,6 +4,16 @@ import XCTest
 
 @MainActor
 final class TurnModelCatalogTests: XCTestCase {
+    func testCursorReasoningVariantsRunFromStrongestToLightestWithinFamily() {
+        let ids = ["auto", "gpt-5.3-codex-low", "gpt-5.3-codex-low-fast", "gpt-5.3-codex",
+                   "gpt-5.3-codex-high", "gpt-5.3-codex-xhigh", "gpt-5.3-codex-high-fast"]
+        let rows = ids.enumerated().map { row($0.element, provider: "cursor", priority: $0.offset) }
+        let catalog = ProjectEndpointModelCatalog(endpointId: "mac-a", observedAt: 2_000, models: rows)
+        let resolved = TurnModelCatalog.resolve(agent: "cursor", endpointId: "mac-a", catalogs: [catalog], now: 2_000)
+        XCTAssertEqual(resolved.options.map(\.id), ["auto", "gpt-5.3-codex-xhigh", "gpt-5.3-codex-high",
+            "gpt-5.3-codex-high-fast", "gpt-5.3-codex", "gpt-5.3-codex-low", "gpt-5.3-codex-low-fast"])
+    }
+
     private func row(_ id: String, provider: String = "codex", endpoint: String = "mac-a",
                      source: String = "advertised", priority: Int? = nil) -> ProjectAdvertisedModel {
         ProjectAdvertisedModel(modelId: id, provider: provider, endpointId: endpoint,
