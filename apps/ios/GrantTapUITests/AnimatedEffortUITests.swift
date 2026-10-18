@@ -62,11 +62,10 @@ final class AnimatedEffortUITests: XCTestCase {
         press(handoff)
         XCTAssertTrue(app.buttons["handoff.close"].waitForExistence(timeout: 5))
         press(app.buttons["handoff.close"])
-        let model = app.buttons.matching(identifier: "composer.model")
-        for _ in 0..<8 where !model.allElementsBoundByIndex.contains(where: \.isHittable) {
+        for _ in 0..<8 where visibleControlsModel(in: app) == nil {
             scroll(app, down: false)
         }
-        let visible = model.allElementsBoundByIndex.first(where: \.isHittable)
+        let visible = visibleControlsModel(in: app)
         XCTAssertNotNil(visible)
         press(visible!)
         XCTAssertTrue(app.sliders["composer.effort.slider"].waitForExistence(timeout: 5))
@@ -87,6 +86,14 @@ final class AnimatedEffortUITests: XCTestCase {
         #else
         if down { app.swipeUp() } else { app.swipeDown() }
         #endif
+    }
+
+    private func visibleControlsModel(in app: XCUIApplication) -> XCUIElement? {
+        // XCTest can report a scrolled row as hittable while the pinned header covers it.
+        let headerBottom = control(app, "chat.controls.done").frame.maxY + 16
+        return app.buttons.matching(identifier: "composer.model").allElementsBoundByIndex.first {
+            $0.isHittable && $0.frame.minY >= headerBottom && $0.frame.maxY < app.frame.maxY
+        }
     }
 
     private func control(_ app: XCUIApplication, _ id: String) -> XCUIElement {

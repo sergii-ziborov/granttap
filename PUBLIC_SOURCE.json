@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "80fad1c3fc46e0df8dd4f3efad2557994e495e05",
+  "sourceCommit": "7bfa10b210fa0c68f74853f155095a94345935e6",
   "files": [
     {
       "path": "LICENSE",
@@ -4264,7 +4264,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/AnimatedEffortUITests.swift",
-      "sha256": "3ea16654c00910e90a09772a03f2a5e4ebcd47d52026b658ebfa80d00cfa6d2c"
+      "sha256": "9a9c1c570e41449fce5a963c8a9417fa1965a852bbc6570edc2a0948d73d847f"
     },
     {
       "path": "apps/ios/GrantTapUITests/ApprovalDetailsUITests.swift",
