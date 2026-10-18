@@ -79,8 +79,10 @@ extension AppModel {
                 attachments: row.attachments, preferredMcp: row.preferredMcp, skill: row.skill,
                 projectId: row.projectId, model: row.model, permissionMode: row.permissionMode, effort: row.effort,
                 createdAt: now, updatedAt: now, attempts: 0, state: .queued, error: nil, nextRetryAt: nil,
+                awaitingSessionRemap: row.awaitingSessionRemap,
                 chatQueue: ChatMessageQueueContext(waiting: true, transport: row.chatQueue?.transport ?? .relay, taskId: row.chatQueue?.taskId,
-                    queuedAt: now, relayManaged: true, notBefore: now, sendImmediately: true))
+                    queuedAt: now, relayManaged: true, notBefore: now, sendImmediately: true),
+                taskOriginId: row.taskOriginId, continuationOriginId: row.continuationOriginId)
             deliveries = DeliveryPersistence.admit(replacement, into: deliveries).deliveries
             relayQueueNeedsSync = true
         }
@@ -94,7 +96,8 @@ enum RelayTaskQueueStatus {
         if row.chatQueue?.cancelRequested == true { return L("Waiting for relay cancellation") }
         return switch row.relayJob?.serverState {
         case .none: row.chatQueue?.sendImmediately == true ? L("Sending now…") : L("Saving to relay…")
-        case .queued: row.chatQueue?.sendImmediately == true ? L("Sending now…") : L("Saved on relay")
+        case .queued: row.chatQueue?.sendImmediately == true && row.chatQueue?.waiting != false
+            ? L("Sending now…") : L("Saved on relay")
         case .accepted: L("Accepted by computer")
         case .completed: L("Delivered")
         case .failed: L("Needs attention")

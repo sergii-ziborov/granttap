@@ -27,10 +27,11 @@ struct EffortSlider: UIViewRepresentable {
         context.coordinator.parent = self
         slider.minimumValue = 0
         slider.maximumValue = Float(max(1, scale.choices.count - 1))
-        slider.value = Float(scale.index ?? 0)
+        // Catalog or animation updates cannot take the thumb away from an active drag.
+        if !slider.isTracking { slider.value = Float(scale.index ?? 0) }
         slider.isEnabled = scale.choices.count > 1
         slider.accessibilityLabel = L("Reasoning effort")
-        slider.accessibilityValue = scale.effective?.label ?? L("Keep current effort")
+        if !slider.isTracking { slider.accessibilityValue = scale.effective?.label ?? L("Keep current effort") }
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }

@@ -7,6 +7,7 @@ struct SessionInfo: Codable, Identifiable, Equatable {
     var taskId: String? = nil
     var computerId: String? = nil
     var transfer: TaskTransferNotice? = nil
+    var creationOrigins: [SessionCreationOrigin]? = nil
     var title: String?
     var cwd: String?
     var branch: String?
@@ -36,7 +37,7 @@ struct SessionInfo: Codable, Identifiable, Equatable {
         case model, effort, summary, accessLevel, state
         case startedAt, lastActivityAt, lastMessageAt, tokensSession, tokensLastTurn
         case contextTokensUsed, contextWindow, mcpServers, skills, childThreads, shellAllowed
-        case paused, transfer
+        case paused, transfer, creationOrigins
     }
 
     var isPaused: Bool { paused == true }
@@ -155,6 +156,8 @@ extension SessionInfo {
         model = try? c.decode(String.self, forKey: .model)
         effort = try? c.decode(String.self, forKey: .effort)
         transfer = try? c.decode(TaskTransferNotice.self, forKey: .transfer)
+        creationOrigins = (try? c.decode([SessionCreationOrigin].self, forKey: .creationOrigins))
+            .map { Array($0.prefix(32)) }
         summary = try? c.decode(String.self, forKey: .summary)
         accessLevel = try? c.decode(String.self, forKey: .accessLevel)
         state = (try? c.decode(String.self, forKey: .state)) ?? "idle"
@@ -215,4 +218,9 @@ extension SessionInfo {
         if let value = try? c.decode(String.self, forKey: key) { return Int(value) }
         return nil
     }
+}
+
+struct SessionCreationOrigin: Codable, Equatable {
+    let originId: String
+    let controllerPublicKey: String
 }

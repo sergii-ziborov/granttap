@@ -131,6 +131,7 @@ extension AppModel {
     }
 
     private func applyLiveCatalog(_ nextSessions: [SessionInfo], fromRoom room: String?,
+                                  nativeIds: Set<String>,
                                   replaceEmpty: Bool = false) {
         if nextSessions.isEmpty && !self.sessions.isEmpty && !replaceEmpty {
             append("sessions.status ignored empty live (kept \(self.sessions.count))")
@@ -139,10 +140,9 @@ extension AppModel {
             // an unchanged list redraws every screen that shows chats.
             self.sessions = nextSessions
         }
-        let liveIds = Set(self.sessions.map(\.sessionId))
         if !self.localOnlySessionIds.isEmpty {
             let before = self.localOnlySessionIds.count
-            self.localOnlySessionIds = self.localOnlySessionIds.subtracting(liveIds)
+            self.localOnlySessionIds = self.localOnlySessionIds.subtracting(nativeIds)
             if self.localOnlySessionIds.count != before { self.persistLocalOnlySessions() }
         }
         preloadActiveSessionEvents(self.sessions)
@@ -248,6 +248,13 @@ extension AppModel {
             }
         }
         var displayed = status
+        if let room = sourceNamespace {
+            recoverPendingTaskOrigins(from: status.sessions + (status.history ?? []), room: room)
+        }
+        let nativeIds = Set((status.sessions + (status.history ?? [])).filter {
+            sourceNamespace == nil || !localOnlySessionIds.contains($0.sessionId)
+                || sourceRoom(forSessionId: $0.sessionId) == sourceNamespace
+        }.map(\.sessionId))
         if let visibleCatalog {
             displayed.sessions = visibleCatalog.live
             displayed.history = visibleCatalog.history
@@ -262,6 +269,7 @@ extension AppModel {
             })
         }
         applyLiveCatalog(remoteLive, fromRoom: visibleCatalog == nil ? sourceNamespace : nil,
+                         nativeIds: nativeIds,
                          replaceEmpty: visibleCatalog != nil)
         applyHistoryCatalog(catalog.history, remoteLive: remoteLive,
                             replaceEmpty: visibleCatalog != nil)

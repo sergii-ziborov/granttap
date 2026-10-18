@@ -120,26 +120,11 @@ extension AppModel {
         // aliases. A crash can therefore leave either the old fully blocked state
         // or the new native route, never an unblocked phone UUID on the wire.
         for i in deliveries.indices where deliveries[i].sessionId == oldId {
-            let d = deliveries[i]
-            deliveries[i] = OutgoingDelivery(
-                id: d.id, text: d.text, agent: d.agent, cwd: d.cwd,
-                sessionId: newId, requestId: d.requestId, roomId: d.roomId,
-                attachments: d.attachments,
-                attachmentRefs: d.attachmentRefs,
-                preferredMcp: d.preferredMcp, skill: d.skill, projectId: d.projectId,
-                model: d.model, permissionMode: d.permissionMode, effort: d.effort,
-                createdAt: d.createdAt,
-                updatedAt: d.awaitingSessionRemap == true ? remappedAt : d.updatedAt,
-                attempts: d.attempts, state: d.state,
-                error: d.error, nextRetryAt: d.nextRetryAt,
-                processingAcknowledgedAt: d.processingAcknowledgedAt,
-                processingRetryStartedAt: d.processingRetryStartedAt,
-                admissionRejected: d.admissionRejected,
-                attemptGeneration: d.attemptGeneration,
-                awaitingSessionRemap: d.awaitingSessionRemap == true
-                    ? false : d.awaitingSessionRemap,
-                chatQueue: d.chatQueue
-            )
+            deliveries[i].sessionId = newId
+            if deliveries[i].awaitingSessionRemap == true {
+                deliveries[i].updatedAt = remappedAt
+                deliveries[i].awaitingSessionRemap = false
+            }
         }
         persistDeliveries()
 

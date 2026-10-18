@@ -154,6 +154,8 @@
         "The iPhone, iPad and Mac apps are available by TestFlight invitation. Find the build number in About. The computer MCP updates separately."
       ],
       "bullets": [
+        "Apps 202 · TestFlight · October 18, 2026. Messages and queues in a new chat save to the relay before the computer opens its task. Chat ID changes and repeated Send now preserve delivery state. Update the computer MCP to 0.8.75 for this behavior.",
+        "MCP 0.8.75. Queued follow-ups wait for the original task and continue that chat after the computer returns. Controller, provider and Project checks remain in place; repeated delivery does not create a second task.",
         "Apps 201 · TestFlight · October 18, 2026. Full beta access without buying a subscription. Approvals and messages confirm relay storage without waiting for the computer. New queue uploads do not wait behind older receipt requests. Adaptive chat for iPhone Duo, rotation and the keyboard.",
         "Apps 199 · TestFlight · October 17, 2026. Transfer offers Claude Code, Codex and Grok Build models and reasoning effort. Claude or Codex cloud transfers run through the source computer with MCP 0.8.72. Fixed repeated reconnections after relay admission is refused.",
         "MCP 0.8.74. Cursor questions, answer choices and visible warnings reach GrantTap. Retained Cursor chats open without waiting for the working-tree check. Transfer preparation supports committing changes before handing off a task."
@@ -161,7 +163,7 @@
       "links": [
         {
           "label": "Computer MCP version on npm",
-          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.74"
+          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.75"
         }
       ]
     },

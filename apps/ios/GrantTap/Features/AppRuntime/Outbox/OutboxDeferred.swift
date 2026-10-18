@@ -97,6 +97,7 @@ extension AppModel {
         for index in deliveries.indices
         where deliveries[index].sessionId == sessionId
             && deliveries[index].awaitingSessionRemap == true
+            && deliveries[index].chatQueue?.relayManaged != true
             && (deliveries[index].state == .queued || deliveries[index].state == .sending) {
             if let generation = deliveries[index].attemptGeneration {
                 liveDeliveryAttemptGenerations.remove(generation)

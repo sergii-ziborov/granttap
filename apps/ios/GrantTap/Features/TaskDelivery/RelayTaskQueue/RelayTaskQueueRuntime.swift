@@ -54,7 +54,7 @@ extension AppModel {
             if relayQueueOperations[id] == generation { relayQueueOperations.removeValue(forKey: id) }
         }
         guard !Task.isCancelled, let row = deliveries.first(where: { $0.id == id }) else { return }
-        guard row.awaitingSessionRemap != true else { return }
+        guard row.awaitingSessionRemap != true || row.continuationOriginId != nil else { return }
         #if targetEnvironment(macCatalyst)
         if row.chatQueue?.transport == .localMCP {
             do { try await synchronizeLocalRelayTaskQueue(id) }
@@ -85,9 +85,7 @@ extension AppModel {
                                           transport: RelayTaskQueueTransport) async throws {
         guard var row = deliveries.first(where: { $0.id == id }) else { return }
         if row.relayJob == nil {
-            var message = wireUserMessage(for: row)
-            message.attachments = row.attachments
-            message.attachmentRefs = nil
+            let message = relayQueuedMessage(for: row)
             let due = row.chatQueue?.notBefore ?? row.createdAt
             let created = floor(row.chatQueue?.queuedAt ?? row.createdAt)
             let sendImmediately = row.chatQueue?.sendImmediately == true
@@ -130,9 +128,12 @@ extension AppModel {
         default: .failed
         }
         let error = RelayTaskQueueStatus.failure(receipt)
+        let newlyStored = [.queued, .accepted, .completed].contains(receipt.state)
+            && deliveries[index].chatQueue?.waiting == false && deliveries[index].relayStoredAt == nil
         guard deliveries[index].relayJob?.serverState != receipt.state
             || deliveries[index].relayJob?.resultCode != receipt.resultCode
-            || deliveries[index].state != state || deliveries[index].error != error else { return }
+            || deliveries[index].state != state || deliveries[index].error != error || newlyStored else { return }
+        if newlyStored { deliveries[index].relayStoredAt = Date().timeIntervalSince1970 * 1_000 }
         deliveries[index].relayJob?.serverState = receipt.state
         deliveries[index].relayJob?.resultCode = receipt.resultCode
         deliveries[index].state = state

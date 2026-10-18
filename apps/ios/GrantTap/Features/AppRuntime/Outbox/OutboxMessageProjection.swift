@@ -26,7 +26,7 @@ extension AppModel {
             if let cwd = delivery.cwd { return cwd }
             return localOnly ? session?.cwd : nil
         }()
-        return Payloads.message(
+        var message = Payloads.message(
             delivery.text,
             messageId: delivery.id,
             agent: wireAgent,
@@ -42,5 +42,12 @@ extension AppModel {
             permissionMode: delivery.permissionMode,
             effort: delivery.effort
         )
+        if localOnly, !correlatedReply, delivery.continuationOriginId == nil {
+            message.taskOriginId = delivery.taskOriginId
+            message.retryId = delivery.manualRetryStartedAt.flatMap {
+                $0.isFinite ? "\(delivery.id):\($0)" : nil
+            }
+        }
+        return message
     }
 }

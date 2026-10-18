@@ -9,7 +9,7 @@ struct OutgoingDelivery: Codable, Identifiable {
     let text: String
     let agent: String?
     let cwd: String?
-    let sessionId: String?
+    var sessionId: String?
     let requestId: String?
     /// Authenticated relay room selected when the message was created.
     /// Optional only so pre-room-pinning persisted rows can migrate safely.
@@ -61,6 +61,8 @@ struct OutgoingDelivery: Codable, Identifiable {
     /// been submitted to the provider; cancellation is therefore local and exact.
     var chatQueue: ChatMessageQueueContext? = nil
     var relayJob: RelayTaskQueueReservation? = nil
+    var taskOriginId: String? = nil
+    var continuationOriginId: String? = nil
 }
 
 enum DeliveryOutboxPolicy {

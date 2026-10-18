@@ -33,6 +33,8 @@ extension AppModel {
             chatQueue: ChatMessageQueueContext(waiting: true, transport: transport,
                                                taskId: session.taskId, queuedAt: now)
         )
+        candidate.continuationOriginId = pendingTaskOrigin(sessionId: resolvedSessionId(session.sessionId),
+            agent: session.agent, room: candidate.roomId)
         if !demoMode {
             candidate.chatQueue?.relayManaged = true
             candidate.chatQueue?.notBefore = floor((notBefore?.timeIntervalSince1970 ?? now / 1_000) * 1_000)

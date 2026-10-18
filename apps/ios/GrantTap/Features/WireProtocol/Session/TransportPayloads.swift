@@ -103,7 +103,7 @@ struct ApprovalsStatus: Codable {
 }
 
 struct UserMessage: Codable {
-    let type: String              // "user.message"
+    var type: String              // "user.message" or an inner queued continuation
     var messageId: String?
     let text: String
     var agent: String?            // "codex" | "claude" for a new task
@@ -124,6 +124,9 @@ struct UserMessage: Codable {
     /// How hard the model should work on this turn; nil keeps the chat's own.
     var effort: String?
     let createdAt: Double
+    var taskOriginId: String? = nil
+    var retryId: String? = nil
+    var originMessageId: String? = nil
 }
 
 struct DeliveryReceipt: Codable {

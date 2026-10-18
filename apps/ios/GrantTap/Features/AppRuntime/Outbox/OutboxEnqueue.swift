@@ -14,6 +14,7 @@ extension AppModel {
         let stubId = mcpReply ? nil : candidate.sessionId
         deliveries = admission.deliveries
         persistDeliveries()
+        if admission.shouldSend, isNewTask { rememberPendingTaskOrigin(candidate) }
         if admission.shouldSend, !mcpReply, let stubId {
             appendLocalChatEntry(
                 sessionId: stubId,
@@ -27,7 +28,9 @@ extension AppModel {
             )
         }
         if admission.shouldSend {
-            if candidate.awaitingSessionRemap == true {
+            if candidate.chatQueue?.relayManaged == true {
+                resumeRelayTaskQueues(immediate: true)
+            } else if candidate.awaitingSessionRemap == true {
                 append("outbox.deferred id=\(messageId.prefix(8)) awaiting native session")
             } else if candidate.roomId.map(deliveryRoomIsUp) != true {
                 append("outbox.queued id=\(messageId.prefix(8)) computer offline")
@@ -89,14 +92,7 @@ extension AppModel {
             return connectionRegistry.preferredId
         }()
         let isNewTask = !mcpReply && resolvedIncoming == nil
-        let awaitingSessionRemap = !mcpReply
-            && resolvedIncoming.map { localOnlySessionIds.contains($0) } == true
-            && deliveries.contains { delivery in
-                delivery.sessionId == resolvedIncoming
-                    && delivery.awaitingSessionRemap != true
-                    && delivery.admissionRejected != true
-                    && (delivery.state == .queued || delivery.state == .sending)
-            }
+        let awaitingSessionRemap = shouldAwaitNativeSession(resolvedIncoming, replyingToMCP: mcpReply)
         let effectiveAgent = AgentIdentity.normalize(
             agent
                 ?? resolvedIncoming.flatMap { sid in
@@ -121,7 +117,7 @@ extension AppModel {
         if let sourceRoom, let stubId {
             rememberSessionSourceRoom(sourceRoom, sessionId: stubId)
         }
-        let candidate = OutgoingDelivery(
+        var candidate = OutgoingDelivery(
             id: messageId, text: text,
             // Persist the canonical provider for retries and existing-session
             // follow-ups too. Native session UUIDs are not globally unique
@@ -144,6 +140,7 @@ extension AppModel {
             attempts: 0, state: .queued, error: nil, nextRetryAt: nil,
             awaitingSessionRemap: awaitingSessionRemap
         )
+        configurePendingTaskDelivery(&candidate, isNewTask: isNewTask)
         let admission = DeliveryPersistence.admit(candidate, into: deliveries)
         finishMessageAdmission(
             admission, candidate: candidate, mcpReply: mcpReply,
