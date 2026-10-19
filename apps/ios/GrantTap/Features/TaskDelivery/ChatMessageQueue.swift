@@ -82,10 +82,13 @@ extension AppModel {
 
     func sendChatQueuedMessageNow(_ id: String) {
         guard let index = deliveries.firstIndex(where: { $0.id == id }),
-              ChatMessageQueuePolicy.canCancel(deliveries[index]),
-              deliveries[index].awaitingSessionRemap != true else { return }
+              canSendChatQueuedMessageNow(deliveries[index]) else { return }
         if deliveries[index].chatQueue?.relayManaged == true {
             requestRelayTaskQueueRestart(id)
+            return
+        }
+        if deliveries[index].chatQueue?.waiting == false && deliveries[index].state != .failed {
+            checkLegacyQueuedDelivery(at: index)
             return
         }
         let now = Date().timeIntervalSince1970 * 1_000
@@ -104,13 +107,18 @@ extension AppModel {
         deliveries[index].error = nil
         deliveries[index].nextRetryAt = nil
         deliveries[index].updatedAt = now
+        deliveries[index].relayStoredAt = nil
+        deliveries[index].transportAttemptStartedAt = nil
+        deliveries[index].manualRetryStartedAt = now
+        renewRejectedDeliveryIdentity(at: index)
+        let releasedId = deliveries[index].id
         appendQueuedMessageToTranscript(deliveries[index])
         if demoMode {
             deliveries[index].state = .delivered
             return
         }
         persistDeliveries()
-        attemptDelivery(id)
+        attemptDelivery(releasedId)
     }
 
     func resumeChatQueues(observed sessions: [SessionInfo], fromRoom room: String? = nil,

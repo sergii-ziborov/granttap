@@ -23,10 +23,10 @@ extension AppModel {
         if let generation = deliveries[index].attemptGeneration {
             liveDeliveryAttemptGenerations.remove(generation)
         }
-        let retainsImagePreview = deliveries[index].attachments.contains {
-            $0.mimeType.hasPrefix("image/") && !$0.data.isEmpty
+        let retainsAttachmentPreview = deliveries[index].attachments.contains {
+            !$0.data.isEmpty
         }
-        if retainsImagePreview {
+        if retainsAttachmentPreview {
             deliveries[index].state = .delivered
             deliveries[index].updatedAt = Date().timeIntervalSince1970 * 1000
             deliveries[index].error = nil

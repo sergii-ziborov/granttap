@@ -78,7 +78,7 @@ final class ChatMessageQueueTests: XCTestCase {
         XCTAssertEqual(model.deliveries.first { $0.id == first.id }?.state, .delivered)
     }
 
-    func testLegacyQueueCannotCancelOrResendAnAlreadySubmittedMessage() throws {
+    func testLegacyQueueChecksTheSameOperationWithoutCreatingAnotherMessage() throws {
         let model = makeModel()
         model.queueChatMessage("Submitted", to: session())
         let id = try XCTUnwrap(model.deliveries.first?.id)
@@ -89,7 +89,10 @@ final class ChatMessageQueueTests: XCTestCase {
         model.deliveries[0].chatQueue?.waiting = false
         XCTAssertFalse(model.cancelChatQueuedMessage(id))
         model.sendChatQueuedMessageNow(id)
-        XCTAssertEqual(model.deliveries.first?.attempts, 1)
+        XCTAssertEqual(model.deliveries.first?.attempts, 1, "checking a submitted message never resubmits it")
+        XCTAssertEqual(model.deliveries.first?.id, id)
+        XCTAssertEqual(model.deliveries.count, 1)
+        XCTAssertNotEqual(model.deliveries.first?.chatQueue?.waiting, true)
         XCTAssertTrue(model.activities.isEmpty)
     }
 

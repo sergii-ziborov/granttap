@@ -61,8 +61,7 @@ final class ChatActivityRailUITests: XCTestCase {
         XCTAssertTrue(agents.isEnabled)
         XCTAssertTrue(agents.label.contains("2 agents"), agents.label)
         press(agents)
-        XCTAssertTrue(app.staticTexts["Agent conversations are nested executions of this Task."]
-            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["chat.agents.done"].waitForExistence(timeout: 5))
         let conversation = app.descendants(matching: .any)
             .matching(identifier: "chat.agents.conversation.demo-agent-release").firstMatch
         XCTAssertTrue(conversation.waitForExistence(timeout: 5))

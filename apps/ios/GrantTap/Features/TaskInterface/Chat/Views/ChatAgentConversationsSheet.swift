@@ -8,17 +8,28 @@ struct ChatAgentConversationsSheet: View {
     var onClose: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
+    private var latestEntries: [ActivityEntry] {
+        model.activities[model.resolvedSessionId(session.sessionId)]?.entries ?? entries
+    }
+    private var currentRows: [ChildThreadDisplayRow] {
+        ChildThreadTree.rows(rootId: model.resolvedSessionId(session.sessionId),
+            threads: model.knownSession(for: session.sessionId, preferredAgent: session.agent)?.childThreads
+                ?? threads.map(\.thread), activity: latestEntries)
+    }
+
     var body: some View {
-        ChatSheetNavigation(title: L("Agent conversations"), doneIdentifier: "chat.agents.done",
+        ChatSheetNavigation(title: L("Agents"), doneIdentifier: "chat.agents.done",
             onClose: { if let onClose { onClose() } else { dismiss() } }) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
-                    Text(L("Agent conversations are nested executions of this Task."))
-                        .font(.subheadline).foregroundStyle(Theme.muted)
-                    ForEach(threads) { row in
+                    if currentRows.isEmpty {
+                        Text(L("No agents have been reported for this Task yet."))
+                            .font(.subheadline).foregroundStyle(Theme.muted)
+                    }
+                    ForEach(currentRows) { row in
                         AgentThreadTranscript(
                             row: row,
-                            entries: entries.filter { $0.childThreadId == row.thread.threadId },
+                            entries: latestEntries.filter { $0.childThreadId == row.thread.threadId },
                             accent: Theme.accent(for: session.agent),
                             servers: session.mcpServers ?? []
                         ) {
@@ -31,6 +42,9 @@ struct ChatAgentConversationsSheet: View {
                 .padding(16)
             }
             .background(Theme.bg)
+            .onAppear {
+                model.relayForSession(session.sessionId)?.requestSessionsRefresh()
+            }
         }
     }
 }

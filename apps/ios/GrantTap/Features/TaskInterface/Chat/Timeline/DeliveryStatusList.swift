@@ -48,6 +48,9 @@ struct DeliveryStatusList: View {
                         Button(L("Retry")) { model.retryDelivery(delivery.id) }
                             .font(.body.weight(.bold))
                     }
+                    if delivery.state == .failed {
+                        Button(L("Cancel delivery")) { model.cancelDelivery(delivery.id) }
+                    }
                 }
                 .font(.system(size: 10.5, weight: .semibold))
                 .foregroundStyle(tint(delivery.state))

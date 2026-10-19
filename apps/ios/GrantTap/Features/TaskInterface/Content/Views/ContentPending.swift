@@ -173,6 +173,9 @@ extension ContentView {
                                          textColor: Theme.glyphInk(for: "codex")) {
                         model.retryDelivery(delivery.id)
                     }
+                    DecisionActionButton(title: L("Cancel delivery"), tint: Theme.ink, filled: false) {
+                        model.cancelDelivery(delivery.id)
+                    }
                     if let sessionId = delivery.sessionId,
                        let session = model.sessions.first(where: { $0.sessionId == sessionId }) {
                         DecisionActionButton(title: L("Open task"), tint: Theme.ink,

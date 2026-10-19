@@ -49,6 +49,7 @@ enum DeliveryTick: Equatable {
 struct DeliveryTicksView: View {
     let tick: DeliveryTick
     let onRetry: (() -> Void)?
+    var onCancel: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 4) {
@@ -61,6 +62,11 @@ struct DeliveryTicksView: View {
                 Button(L("Retry"), action: onRetry)
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(Theme.riskHigh)
+            }
+            if let onCancel {
+                Button(L("Cancel delivery"), action: onCancel)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(Theme.muted)
             }
         }
     }

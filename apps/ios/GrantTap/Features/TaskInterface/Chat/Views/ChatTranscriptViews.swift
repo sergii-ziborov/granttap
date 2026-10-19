@@ -84,6 +84,9 @@ struct AgentThreadTranscript: View {
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(Theme.ink)
                             .lineLimit(2)
+                        if let title = thread.title, title != row.displayLabel {
+                            Text(title).font(.system(size: 12)).foregroundStyle(Theme.muted).lineLimit(2)
+                        }
                         HStack(spacing: 5) {
                             if let model = thread.model, !model.isEmpty {
                                 Text(model)

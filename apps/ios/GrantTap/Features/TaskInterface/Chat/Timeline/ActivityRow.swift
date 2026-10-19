@@ -85,6 +85,9 @@ struct ActivityRow: View {
                         tick: tick,
                         onRetry: model.deliveryRetryId(forEntryId: entry.id).map { id in
                             { model.retryDelivery(id) }
+                        },
+                        onCancel: model.deliveryCancellationId(forEntryId: entry.id).map { id in
+                            { model.cancelDelivery(id) }
                         }
                     )
                 }
@@ -157,6 +160,9 @@ struct ActivityRow: View {
                         tick: tick,
                         onRetry: model.deliveryRetryId(forEntryId: entry.id).map { id in
                             { model.retryDelivery(id) }
+                        },
+                        onCancel: model.deliveryCancellationId(forEntryId: entry.id).map { id in
+                            { model.cancelDelivery(id) }
                         }
                     )
                 }

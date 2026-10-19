@@ -74,12 +74,11 @@ struct ChatQueuedMessagesSheet: View {
                     if row.relayJob?.serverState == .failed { confirmingRetry = row.id }
                     else { model.sendChatQueuedMessageNow(row.id) }
                 } label: {
-                    Label(L(row.state == .failed ? "Retry" : "Send now"), systemImage: "arrow.up")
+                    Label(L(actionTitle(row)), systemImage: "arrow.up")
                         .frame(minHeight: 44)
                 }
                 .accessibilityIdentifier("chat.queue.send.\(row.id)")
-                .disabled(!ChatMessageQueuePolicy.canCancel(row) || session.isPaused
-                    || row.awaitingSessionRemap == true)
+                .disabled(!model.canSendChatQueuedMessageNow(row) || session.isPaused)
                 Spacer()
                 Button { model.cancelChatQueuedMessage(row.id) } label: {
                     Image(systemName: "trash").frame(width: 44, height: 44)
@@ -88,10 +87,22 @@ struct ChatQueuedMessagesSheet: View {
                 .accessibilityIdentifier("chat.queue.cancel.\(row.id)")
                 .disabled(!ChatMessageQueuePolicy.canCancel(row))
             }
+            if row.chatQueue?.relayManaged != true, row.chatQueue?.waiting == false, row.state != .failed {
+                Text(L("Check delivery refreshes this chat's history without sending the message again."))
+                    .font(.caption).foregroundStyle(Theme.muted)
+            } else if row.relayJob?.serverState == .accepted {
+                Text(L("The computer accepted this message. Continue in the chat to pause the agent."))
+                    .font(.caption).foregroundStyle(Theme.muted)
+            }
         }
         .pointerButtonStyle()
         .padding(.vertical, 8)
         .accessibilityElement(children: .contain)
+    }
+
+    private func actionTitle(_ row: OutgoingDelivery) -> String {
+        if row.state == .failed { return "Retry" }
+        return row.chatQueue?.relayManaged != true && row.chatQueue?.waiting == false ? "Check delivery" : "Send now"
     }
 
     private func open(_ attachment: UserAttachment) {

@@ -785,6 +785,12 @@
 "No linked Project computer is ready to receive policy." = "Ни один подключённый компьютер проекта не готов принять политику.";
 "Policy update could not be delivered." = "Не удалось доставить обновление политики.";
 "Agents" = "Агенты";
+"Agents · %d" = "Агенты · %d";
+"Cancel delivery" = "Отменить доставку";
+"Check delivery" = "Проверить доставку";
+"Check delivery refreshes this chat's history without sending the message again." = "Проверка обновляет историю чата, не отправляя сообщение повторно.";
+"The computer accepted this message. Continue in the chat to pause the agent." = "Компьютер принял сообщение. Приостановить агента можно в чате.";
+"No agents have been reported for this Task yet." = "Данные об агентах этой задачи пока не получены.";
 "Skills" = "Навыки";
 "Shell" = "Командная строка";
 "Scripts" = "Скрипты";

@@ -188,6 +188,7 @@ extension AppModel {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self,
                   let index = self.deliveries.firstIndex(where: { $0.id == id }),
+                  self.deliveries[index].state == .queued || self.deliveries[index].state == .sending,
                   DeliveryOutboxPolicy.terminalDeadline(for: self.deliveries[index]) == deadline,
                   Date().timeIntervalSince1970 * 1000 >= deadline else { return }
             let now = Date().timeIntervalSince1970 * 1000

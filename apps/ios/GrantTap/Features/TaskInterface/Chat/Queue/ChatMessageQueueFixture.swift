@@ -4,7 +4,7 @@ import Foundation
 enum ChatMessageQueueFixture {
     @MainActor static func apply(to model: AppModel, at now: Double) {
         guard ProcessInfo.processInfo.environment["GRANTTAP_DEMO"] == "1",
-              ["1", "failed", "relay"].contains(ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"]),
+              ["1", "failed", "relay", "delivery-failed", "legacy-sent"].contains(ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"]),
               let session = model.sessions.first(where: {
                   $0.sessionId == AppModelDemoFixtures.codexSessionId
               }) else { return }
@@ -47,6 +47,19 @@ enum ChatMessageQueueFixture {
             model.deliveries[0].attempts = 5
             model.deliveries[0].chatQueue?.waiting = false
             model.deliveries[0].error = L("Delivery was not confirmed after five attempts.")
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "delivery-failed" {
+            model.deliveries = Array(model.deliveries.prefix(1))
+            model.deliveries[0].chatQueue = nil
+            model.deliveries[0].state = .failed
+            model.deliveries[0].error = L("No terminal response arrived from the computer.")
+            model.appendQueuedMessageToTranscript(model.deliveries[0])
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CHAT_QUEUE"] == "legacy-sent" {
+            model.deliveries = Array(model.deliveries.prefix(1))
+            model.deliveries[0].chatQueue?.waiting = false
+            model.deliveries[0].state = .sending
+            model.deliveries[0].attempts = 1
         }
     }
 }

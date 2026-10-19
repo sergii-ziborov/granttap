@@ -37,11 +37,12 @@ retry window or attachment preview retention.
 the persisted delivery UUID. An interrupted local send requires explicit retry
 after inspecting the chat. A fresh catalog releases the next message.
 
-The queue belongs to this GrantTap client. It advances while GrantTap can
-observe the computer; relaunch resumes retained rows. It does not import the
-provider application's independently composed drafts or install a scheduler.
-The shared UI lives in `TaskInterface/Chat/Queue`; queue tests live in
-`GrantTapTests/Features/TaskDelivery` and `GrantTapUITests/ChatMessageQueueUITests.swift`.
+New queues use the encrypted durable relay queue described in
+[`RelayTaskQueue/README.md`](RelayTaskQueue/README.md). They survive a closed app
+or an offline computer. Legacy client-managed rows resume when this client can
+observe the computer. Neither path imports drafts composed in the provider app.
+The shared UI lives in `TaskInterface/Chat/Queue`; recovery tests live in
+`TaskDelivery/tests`, legacy queue tests in `GrantTapTests/Features/TaskDelivery` and `GrantTapUITests/ChatMessageQueueUITests.swift`.
 
 Persistence and retry compatibility remain in `Delivery.swift` and
 `MessageOutbox.swift` while those large legacy files are split. Tests live in
@@ -50,3 +51,17 @@ Persistence and retry compatibility remain in `Delivery.swift` and
 Catalog refreshes and reconnects respect live send generations and persisted
 receipt/backoff deadlines. The provider window is ten minutes and the machine
 lease eleven minutes; a received processing receipt is non-terminal.
+
+`NativeDeliveryConfirmation.swift` retires a message once its own user entry is
+confirmed in the native transcript, independently of turn completion. Matching
+is scoped to computer, provider, session and dispatch time, consumes each native
+entry once, and persists that binding across restart. Late receipts and old
+processing timers cannot revive a completed row. `LegacyQueueRecovery.swift`
+checks a submitted legacy message by refreshing its native history; it never
+resubmits uncertain work, even after a computer's dedupe lease expires. A confirmed
+computer refusal gets a fresh ID on explicit Retry, with one retained bubble.
+
+`DeliveryCancellation.swift` removes failed or never-submitted deliveries and
+their local retry lifecycle from the chat and Needs You. Already-running agent
+work is controlled by Pause. Cancellation of relay-managed queue rows still
+requires the relay's durable cancellation receipt.

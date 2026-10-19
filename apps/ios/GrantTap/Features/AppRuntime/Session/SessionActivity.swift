@@ -90,6 +90,7 @@ extension AppModel {
         }
         // Usage is independent of whether the detail screen happens to be open.
         recordCapabilityUsage(from: activity, sourceNamespace: sourceNamespace)
+        confirmDeliveriesFromNativeTranscript(activity, sourceRoom: sourceNamespace)
         // Never replace a loaded transcript with an empty "missing session" ack
         // (publishSessionEvents used to send entries=[] when resolve failed).
         let before = self.activities[activity.sessionId]?.entries.count ?? 0

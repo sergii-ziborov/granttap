@@ -241,6 +241,7 @@ extension AppModel {
         // A member's message was never in this outbox; its receipt is theirs.
         if handOffReceiptToMember(receipt) { return }
         guard let index = deliveryRow(for: receipt, fromRoom: room) else { return }
+        guard deliveries[index].state != .delivered else { return }
         let row = deliveries[index]
         if let generation = deliveries[index].attemptGeneration {
             liveDeliveryAttemptGenerations.remove(generation)

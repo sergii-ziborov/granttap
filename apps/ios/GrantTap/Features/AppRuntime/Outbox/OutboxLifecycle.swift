@@ -10,6 +10,7 @@ extension AppModel {
         var transitionedExpiredProcessing = false
         var failedOriginSessionIds: Set<String> = []
         for index in snapshot.indices {
+            guard snapshot[index].state == .queued || snapshot[index].state == .sending else { continue }
             if snapshot[index].chatQueue?.waiting == true || snapshot[index].chatQueue?.relayManaged == true { continue }
             if let storedAt = snapshot[index].relayStoredAt,
                snapshot[index].processingAcknowledgedAt == nil,
@@ -82,7 +83,8 @@ extension AppModel {
             let retention = retainsAttachmentPreview
                 ? DeliveryOutboxPolicy.sentImagePreviewRetentionMs
                 : DeliveryOutboxPolicy.terminalLifecycleMs
-            return (awaitingOrigin || retainsAttachmentPreview) && now - delivery.createdAt <= retention
+            return ((awaitingOrigin || retainsAttachmentPreview) && now - delivery.createdAt <= retention)
+                || (delivery.nativeEchoId != nil && now - delivery.updatedAt <= DeliveryOutboxPolicy.terminalLifecycleMs)
         }
         if delivery.state == .queued, delivery.attempts == 0,
            delivery.processingAcknowledgedAt == nil {

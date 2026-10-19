@@ -66,6 +66,8 @@ struct OutgoingDelivery: Codable, Identifiable {
     var relayJob: RelayTaskQueueReservation? = nil
     var taskOriginId: String? = nil
     var continuationOriginId: String? = nil
+    /// Exact native user entry which confirmed admission, independent of turn completion.
+    var nativeEchoId: String? = nil
 }
 
 enum DeliveryOutboxPolicy {

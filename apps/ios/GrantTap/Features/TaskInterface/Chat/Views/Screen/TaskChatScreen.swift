@@ -137,8 +137,8 @@ extension TaskChatView {
                 if agentThreadsExpanded { revealAgentThreads(proxy) }
             } label: {
                 HStack(spacing: 7) {
-                    Image(systemName: "point.3.connected.trianglepath.dotted")
-                    Text(String(format: L("Agent conversations · %d"), childThreads.count))
+                    ChatAgentGlyph()
+                    Text(String(format: L("Agents · %d"), childThreads.count))
                     Spacer()
                     Image(systemName: open ? "chevron.up" : "chevron.down")
                         .font(.system(size: 9, weight: .bold))
@@ -150,7 +150,7 @@ extension TaskChatView {
             }
             .pointerButtonStyle()
             .id("agent-threads")
-            .accessibilityLabel(String(format: L("Agent conversations · %d"), childThreads.count))
+            .accessibilityLabel(String(format: L("Agents · %d"), childThreads.count))
 
             if open {
                 ForEach(childThreads) { row in

@@ -2,6 +2,36 @@
 import XCTest
 
 final class ChatComposerAccessoriesUITests: XCTestCase {
+    func testFailedDeliveryCanBeCancelledOnItsChatBubble() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
+            "GRANTTAP_TEST_CHAT_QUEUE": "delivery-failed", "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        let cancel = app.buttons["Cancel delivery"].firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 15))
+        capture(app, "Cancel failed delivery in chat")
+        cancel.tap()
+        XCTAssertFalse(app.buttons["Cancel delivery"].firstMatch.exists)
+        XCTAssertFalse(app.buttons["Retry"].firstMatch.exists)
+        XCTAssertTrue(app.textFields["composer.message"].isEnabled)
+    }
+
+    func testSubmittedLegacyMessageOffersAnEnabledReceiptCheck() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
+            "GRANTTAP_TEST_CHAT_QUEUE": "legacy-sent", "GRANTTAP_TEST_LANGUAGE": "en"]
+        app.launch()
+        XCTAssertTrue(app.buttons["chat.queue"].waitForExistence(timeout: 15))
+        app.buttons["chat.queue"].tap()
+        let check = app.buttons["chat.queue.send.queue-1"]
+        XCTAssertTrue(check.waitForExistence(timeout: 5))
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertEqual(check.label, "Check delivery")
+        capture(app, "Recover an already submitted message")
+    }
+
     func testQueueStartsAsAFloatingControlAndOpensTheRetainedMessages() {
         let app = launch("1", queue: true)
         XCTAssertTrue(app.buttons["chat.queue"].waitForExistence(timeout: 15))
@@ -79,8 +109,7 @@ final class ChatComposerAccessoriesUITests: XCTestCase {
         let agents = app.buttons["chat.work.agents"]
         XCTAssertTrue(agents.isHittable)
         agents.tap()
-        XCTAssertTrue(app.staticTexts["Agent conversations are nested executions of this Task."]
-            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["chat.agents.done"].waitForExistence(timeout: 5))
         capture(app, "Accessible full width work rail")
     }
 

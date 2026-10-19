@@ -35,9 +35,11 @@ struct ChatActivityRail: View {
                 .buttonStyle(ChatAccessoryPillStyle())
                 .accessibilityIdentifier("chat.work.files")
                 Button { sheet = .agents } label: {
-                    Label(threads.isEmpty ? L("Agent conversations")
-                          : LPlural(threads.count, one: "%d agent", many: "%d agents"),
-                          systemImage: "person.2")
+                    HStack(spacing: 6) {
+                        ChatAgentGlyph()
+                        Text(threads.isEmpty ? L("Agents")
+                             : LPlural(threads.count, one: "%d agent", many: "%d agents"))
+                    }
                 }
                 .buttonStyle(ChatAccessoryPillStyle())
                 .accessibilityIdentifier("chat.work.agents")
