@@ -13,6 +13,22 @@ const reports = ['a', 'b'].map(repositoryId => ({ repositoryId, sourceRevision: 
     { source: 'src/file.swift', target: 'src/other.swift', relation: 'calls' }],
   totalFiles: 2, truncated: false } }));
 
+test('source search includes evidenced external services without crossing repository identities', () => {
+  const data = boardData(reports.map(report => ({ ...report, codeMap: { ...report.codeMap,
+    externals: [{ id: 'ext:queue', label: 'Queue service', kind: 'queue' }],
+    roads: [{ source: 'src/file.swift', target: 'ext:queue', relation: 'produces' }],
+  } })));
+  const found = graphFileMatches(data, 'Queue service');
+  assert.equal(found.length, 2);
+  assert.deepEqual(found.map(match => match.file.repositoryId), ['a', 'b']);
+  assert.ok(found.every(match => match.file.isExternal && match.sections.length === 0));
+  for (const match of found) {
+    const links = graphFileLinks(data, match.file);
+    assert.equal(links[0].neighbor.repositoryId, match.file.repositoryId);
+    assert.equal(links[0].direction, 'in');
+  }
+});
+
 test('inspecting the last section preserves its exact repository and source lines', () => {
   const data = boardData(reports), file = findGraphFile(data, { repositoryId: 'b', path: 'src/file.swift' });
   assert.equal(findGraphFile(data, { id: file.id }), file);

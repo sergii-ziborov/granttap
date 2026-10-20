@@ -35,3 +35,12 @@ test('restored file identity stays within its repository and never moves another
   assert.equal(received[0].repositoryId, 'a'); assert.deepEqual(camera.position.toArray(), [20, 30, 40]);
   state.save(board, { selection: () => null }, {}); restoreGraphView(board, {}, state.load());
 });
+
+test('different repository viewers in the same Project keep separate camera state', () => {
+  const dom = new JSDOM('', { url: 'https://graph.local' });
+  const make = repositoryId => ({ projectIds: ['shared-project'], files: [{ repositoryId, _path: 'main.swift' }] });
+  const board = { getCamera: () => ({ position: new THREE.Vector3(20, 30, 40) }),
+    getControls: () => ({ target: new THREE.Vector3() }) };
+  graphViewState(dom.window, make('first')).save(board, { selection: () => null }, {});
+  assert.equal(graphViewState(dom.window, make('second')).load(), null);
+});

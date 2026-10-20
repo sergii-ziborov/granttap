@@ -67,6 +67,7 @@ final class ChatComposerAccessoriesUITests: XCTestCase {
         let contentCenterY = (picker.frame.maxY + app.frame.maxY) / 2
         XCTAssertEqual(loader.frame.midY, contentCenterY, accuracy: 30)
         capture(app, "Centered workspace loading")
+        app.buttons["demo.workspace.complete"].tap()
         XCTAssertTrue(app.staticTexts["No files in this folder."].waitForExistence(timeout: 8))
         XCTAssertFalse(loader.exists)
     }

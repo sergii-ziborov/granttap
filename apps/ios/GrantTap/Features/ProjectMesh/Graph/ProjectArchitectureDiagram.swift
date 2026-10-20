@@ -34,13 +34,15 @@ struct ProjectArchitectureDiagram: View {
                 if let map = report.codeMap, !map.files.isEmpty {
                     Button { showTowers = true } label: {
                         Label(L("Open code towers full screen"), systemImage: "building.2.crop.circle")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
                     .accessibilityIdentifier("architecture.towers.\(report.repositoryId)")
                 }
                 Button { showFullGraph = true } label: {
                     Label(L("Open full graph"), systemImage: "arrow.up.left.and.arrow.down.right")
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier("architecture.fullscreen.\(report.repositoryId)")
                 if report.relations.isEmpty {

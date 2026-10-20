@@ -144,13 +144,13 @@ final class SubscriptionStore: ObservableObject {
         await refreshAccountSubscription()
     }
 
-    func purchase(_ product: Product) async {
+    func purchase(_ product: Product, additionalOptions: Set<Product.PurchaseOption> = []) async {
         purchaseInProgress = true
         lastError = nil
         defer { purchaseInProgress = false }
         do {
             let accountToken = try ManagedPurchaseIdentity.token(for: currentAccountID())
-            switch try await product.purchase(options: [.appAccountToken(accountToken)]) {
+            switch try await product.purchase(options: additionalOptions.union([.appAccountToken(accountToken)])) {
             case .success(.verified(let transaction)):
                 await transaction.finish()
                 await refresh()

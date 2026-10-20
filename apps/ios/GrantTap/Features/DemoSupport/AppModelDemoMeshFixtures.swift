@@ -98,6 +98,8 @@ enum AppModelDemoMeshFixtures {
 
     static func largeArchitectureGraph() -> ProjectRepositoryGraph {
         var report = architectureGraph()
+        // Match the demo iOS binding: limited coverage is separate from an old revision.
+        report.sourceRevision = String(repeating: "b", count: 40)
         report.analysisStatus = "INCOMPLETE"
         let files = (0..<650).map { index in
             ProjectCodeMap.File(

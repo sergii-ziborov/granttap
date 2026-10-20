@@ -7,6 +7,7 @@ struct SubscriptionView: View {
     @ObservedObject var store: SubscriptionStore
     private let offersOverride: [SubscriptionOffer]?
     @State private var showAccount = false
+    @State private var showCancellation = false
 
     init(store: SubscriptionStore? = nil, offers: [SubscriptionOffer]? = nil) {
         self.store = store ?? .shared
@@ -56,7 +57,7 @@ struct SubscriptionView: View {
 
             Section(L("Manage")) {
                 Button(L("Restore purchases")) { Task { await store.restore() } }
-                manageSubscriptionLink
+                manageSubscriptionControl("Manage subscription")
                 if store.currentAccountID() != nil {
                     Link(L("Managed computers"), destination: URL(string:
                         "https://granttap.com/account\(AppLocale.code == "ru" ? "?lang=ru" : "")#managed-computers")!)
@@ -73,6 +74,9 @@ struct SubscriptionView: View {
         .task { await store.start() }
         .sheet(isPresented: $showAccount) {
             AccountConnectionView(onAccountReady: { showAccount = false })
+        }
+        .sheet(isPresented: $showCancellation) {
+            SubscriptionCancellationView(store: store)
         }
         .overlay {
             if store.purchaseInProgress { ProgressView().controlSize(.large) }
@@ -177,15 +181,9 @@ struct SubscriptionView: View {
                 .font(.caption).foregroundStyle(Theme.muted)
 
             if isCurrent(offer) {
-                #if targetEnvironment(macCatalyst)
-                Link(L("Manage"), destination: Self.appleSubscriptions)
+                manageSubscriptionControl("Manage")
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("subscription.\(offer.id)")
-                #else
-                Button(L("Manage")) { Task { await store.manage() } }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityIdentifier("subscription.\(offer.id)")
-                #endif
             } else {
                 Button(L(offer.hasSevenDayTrial ? "Start 7-day free trial" : "Subscribe")) { subscribe(offer) }
                     .buttonStyle(.borderedProminent)
@@ -196,12 +194,12 @@ struct SubscriptionView: View {
         .padding(.vertical, 5)
     }
 
-    @ViewBuilder private var manageSubscriptionLink: some View {
-        #if targetEnvironment(macCatalyst)
-        Link(L("Manage subscription"), destination: Self.appleSubscriptions)
-        #else
-        Button(L("Manage subscription")) { Task { await store.manage() } }
-        #endif
+    @ViewBuilder private func manageSubscriptionControl(_ title: String) -> some View {
+        if store.currentAccountID() != nil {
+            Button(L(title)) { showCancellation = true }
+        } else {
+            Link(L(title), destination: Self.appleSubscriptions)
+        }
     }
 
     func subscribe(_ offer: SubscriptionOffer) {

@@ -6,13 +6,21 @@ Graph consumes the current received Weavatrix report from Project Mesh. The
 shared build card owns waiting, receipt confirmation and retry presentation;
 the machine runtime owns automatic repository analysis and revision changes.
 An existing graph stays available while a new report is being built.
+The graph and code city actions have 44-point targets across their complete
+rows. Their center and trailing areas remain interactive during a pending
+refresh, and both viewers return to the same saved report.
 
-The iPhone and iPad code city uses SceneKit with measured source geometry.
-The visible dock supports zoom, Fit, Focus and Orbit / Pan. The view menu adds
-top/isometric views, rotation, help, color and highlight settings, and an
-immersive view. Camera target and position survive color and view settings;
-idle rendering pauses after camera interaction ends. Reduce Motion removes
-camera-flight animation.
+iPhone, iPad and Mac use the same bundled Repo Lens Cyberboard. No runtime
+scan or network request runs in the viewer. The code city includes source
+sections, evidenced external services, directed links, file/symbol/service
+search, measured highlights, filters, help and camera controls. A measured
+native scene remains available when WebKit cannot render the city; Retry opens
+the full viewer again.
+
+The initial camera and Fit / Top / ISO frame every received module and tower
+using both horizontal and vertical field of view, including portrait phones.
+The responsive dock reserves its measured height so inspectors and search
+remain above it. Choosing a source closes the keyboard before focus changes.
 
 An already open scene consumes new received maps. File additions and removals
 update the geometry while retaining the camera, colour mode and valid selection.
@@ -26,7 +34,7 @@ direction and endpoint. Health shows measured lines, language, observed links
 and report provenance. A missing structural health score is shown as unknown.
 Git revision and the analysis content fingerprint remain distinct.
 
-The Mac consumes the same wire reports through the local
+Every Apple client consumes the same wire reports through the local
 [Repo Lens viewer](../../../../../macos/GraphWeb/README.md). Apple clients do not
 import machine-runtime internals. Reports remain part of the protected offline
 Mesh replica and inspection needs no network after receipt.

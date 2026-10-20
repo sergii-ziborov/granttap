@@ -20,7 +20,7 @@ final class MacGraphControlsUITests: XCTestCase {
         let last = app.webViews.buttons["healthSection36 · L360"]
         XCTAssertTrue(last.waitForExistence(timeout: 5)); last.click()
         XCTAssertTrue(app.webViews.staticTexts["Observed source"].exists)
-        app.webViews.buttons["Health"].firstMatch.click()
+        CodeCityJourney.control("Health", in: app).click()
         XCTAssertTrue(app.webViews.staticTexts["Health evidence"].exists)
         let image = XCTAttachment(screenshot: app.windows.firstMatch.screenshot())
         image.name = "Mac code city with measured tower health evidence"

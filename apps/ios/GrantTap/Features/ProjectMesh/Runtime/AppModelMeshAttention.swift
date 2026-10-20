@@ -2,6 +2,16 @@ import Foundation
 
 @MainActor
 extension AppModel {
+    var meshAttentionStates: [String: ProjectMeshAttentionState] {
+        get { meshAttentionStore.states }
+        set {
+            if ProjectMeshAttentionStore.presentationChanged(from: meshAttentionStore.states, to: newValue) {
+                objectWillChange.send()
+            }
+            meshAttentionStore.states = newValue
+        }
+    }
+
     var meshNeedsYouEvents: [ProjectMeshEvent] {
         guard agentMeshPreferences.meshEnabled else { return [] }
         let now = Date().timeIntervalSince1970 * 1_000

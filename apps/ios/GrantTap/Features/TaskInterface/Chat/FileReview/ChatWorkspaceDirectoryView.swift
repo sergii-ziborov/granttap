@@ -38,6 +38,17 @@ struct ChatWorkspaceDirectoryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: path.isEmpty ? .infinity : nil)
         .foregroundStyle(Theme.ink)
+        #if DEBUG
+        .overlay(alignment: .bottomTrailing) {
+            if loading && path.isEmpty && DemoWorkspaceRead.enabled(model) {
+                Button { DemoWorkspaceRead.completion.finish() } label: {
+                    Text("Complete sample read").frame(minHeight: 44).contentShape(Rectangle())
+                }
+                    .accessibilityIdentifier("demo.workspace.complete")
+                    .padding()
+            }
+        }
+        #endif
         .task(id: path) { await load(offset: 0) }
         .sheet(item: $selected) { entry in
             ChatWorkspaceFileSheet(model: model, session: session, path: entry.path, editSession: editSession) { selected = nil }

@@ -17,6 +17,23 @@ struct ProjectMeshAttentionState: Codable, Equatable {
     var updatedAt: Double? = nil
 }
 
+/// Receipt timestamps stay durable without invalidating every visible list.
+final class ProjectMeshAttentionStore {
+    var states: [String: ProjectMeshAttentionState]
+
+    init(states: [String: ProjectMeshAttentionState]) { self.states = states }
+
+    static func presentationChanged(from old: [String: ProjectMeshAttentionState],
+                                    to new: [String: ProjectMeshAttentionState]) -> Bool {
+        guard old.count == new.count else { return true }
+        return new.contains { id, state in
+            guard let previous = old[id] else { return true }
+            return previous.status != state.status || previous.snoozedUntil != state.snoozedUntil
+                || previous.createdAt != state.createdAt || previous.presentedAt != state.presentedAt
+        }
+    }
+}
+
 struct ProjectMeshArchive: Codable {
     var snapshots: [String: ProjectMeshSnapshot]
     var pendingEvents: [ProjectMeshEvent]

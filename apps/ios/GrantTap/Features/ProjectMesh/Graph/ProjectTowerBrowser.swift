@@ -28,7 +28,9 @@ struct ProjectTowerBrowser: View {
                     Section {
                         Text("\(map.files.count) / \(map.totalFiles) \(L("reported files"))")
                             .font(.caption).foregroundStyle(Theme.muted)
-                        if map.truncated { Text(L("Partial map")).foregroundStyle(Theme.riskMed) }
+                        if let title = ProjectCodeMapScope(map).partialTitle {
+                            Text(title).foregroundStyle(Theme.riskMed)
+                        }
                     }
                     if groups.isEmpty {
                         Text(L("No matching files or sections.")).foregroundStyle(Theme.muted)

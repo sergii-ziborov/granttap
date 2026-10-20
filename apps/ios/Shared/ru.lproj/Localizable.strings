@@ -2887,3 +2887,58 @@
 "Request" = "Запрос";
 
 "This Mesh needs your attention." = "Этому Mesh нужно ваше внимание.";
+
+"Partial source details" = "Часть деталей исходников не передана";
+
+"The computer limited some source details or links to fit this report. File counts show the received towers." = "Компьютер ограничил часть деталей исходников или связей, чтобы вместить отчёт. Счётчик файлов показывает полученные башни.";
+
+"The reported analysis is complete." = "Анализ по отчёту завершён.";
+"%d of %d repositories ready" = "Готово репозиториев: %d из %d";
+"Architecture" = "Архитектура";
+"Build architecture now to receive a current report." = "Постройте архитектуру, чтобы получить актуальный отчёт.";
+"Choose a permitted computer" = "Выберите разрешённый компьютер";
+"Last computer report" = "Последний отчёт компьютера";
+"Needs attention" = "Требует внимания";
+"New Task route" = "Маршрут новых задач";
+"No architecture analysis reported for this repository." = "Для этого репозитория ещё нет отчёта об архитектуре.";
+"No report" = "Нет отчёта";
+"Open Cortex diagnostics" = "Открыть диагностику Cortex";
+"Open graph and analysis status" = "Открыть граф и состояние анализа";
+"Pending policy revision" = "Ожидаемая версия правил";
+"Reported policy revision" = "Полученная версия правил";
+"Repository unavailable" = "Репозиторий недоступен";
+"Snapshot received" = "Снимок получен";
+"Strict coverage" = "Полнота строгого контроля";
+"This snapshot is incomplete; missing Tasks or events are not deletions." = "Снимок неполный; отсутствующие задачи и события не считаются удалёнными.";
+"Partial report" = "Частичный отчёт";
+"Saved report · needs refresh" = "Сохранённый отчёт · нужно обновить";
+"Repositories available" = "Репозитории доступны";
+"Binding not reported" = "Нет отчёта о привязке";
+"Source revision" = "Ревизия исходного кода";
+"Report fingerprint" = "Отпечаток отчёта";
+
+"Manage or cancel" = "Управление или отмена";
+"Continue to Apple's subscription settings" = "Перейти к подпискам Apple";
+"Apple manages cancellation. Access continues until the current period ends. Cancel a free trial at least 24 hours before it ends to avoid renewal." = "Отмена выполняется в Apple. Доступ сохраняется до конца оплаченного периода. Чтобы пробная подписка не продлилась, отмените её минимум за 24 часа до окончания.";
+"One discounted month" = "Месяц со скидкой";
+"%@ for one month, then %@ per month until cancelled." = "%@ за один месяц, затем %@ в месяц до отмены.";
+"Available once per GrantTap account. Apple confirms the price and renewal before purchase." = "Доступно один раз для аккаунта GrantTap. Apple покажет цену и условия продления перед покупкой.";
+"Use this offer" = "Воспользоваться предложением";
+"Checking your offer…" = "Проверяем предложение…";
+"There is no eligible offer for this account right now." = "Сейчас для этого аккаунта нет доступного предложения.";
+"Thank you. Your feedback was saved." = "Спасибо. Ваш отзыв сохранён.";
+"Reason (optional)" = "Причина (необязательно)";
+"Choose a reason" = "Выберите причину";
+"Comment (optional)" = "Комментарий (необязательно)";
+"Send feedback" = "Отправить отзыв";
+"Feedback is optional and is sent to GrantTap support. It does not cancel or change your subscription." = "Отзыв необязателен и отправляется в поддержку GrantTap. Он не отменяет и не меняет подписку.";
+"Help us improve" = "Помогите улучшить GrantTap";
+"Price" = "Цена";
+"Technical problem" = "Техническая проблема";
+"Missing a feature" = "Не хватает функции";
+"Not using it" = "Не пользуюсь";
+"This offer is no longer available. You can still manage or cancel with Apple." = "Предложение больше недоступно. Управление и отмена подписки в Apple по-прежнему доступны.";
+
+"Feedback is optional and is sent to GrantTap support. Comments are encrypted at rest and kept for up to 90 days. It does not cancel or change your subscription." = "Отзыв необязателен и отправляется в поддержку GrantTap. Комментарии зашифрованы при хранении и сохраняются до 90 дней. Отзыв не отменяет и не меняет подписку.";
+
+"Retry saving feedback" = "Повторить сохранение отзыва";

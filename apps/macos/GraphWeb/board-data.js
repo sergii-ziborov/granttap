@@ -6,12 +6,14 @@ function sourceNodes(report) {
     return map.files.map(file => ({
       id: file.path, label: file.path.split('/').at(-1), path: file.path,
       module: `${report.repositoryId}/${file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '.'}`,
+      moduleTitle: file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)',
       kind: 'file', lineCount: file.lineCount, language: file.language, symbols: file.symbols || [],
     }));
   }
   return (report.nodes || []).map(node => ({
     id: node.id, label: node.label, path: node.id,
     module: report.repositoryId, kind: node.kind, symbols: [],
+    moduleTitle: report.repositoryId.split('/').at(-1),
   }));
 }
 
@@ -23,12 +25,28 @@ function edgeType(relation) {
   return 'relation';
 }
 
+function placeExternalServices(modules, services) {
+  if (!services.length) return;
+  const left = Math.min(...modules.map(module => module._cx - module._half));
+  const near = Math.min(...modules.map(module => module._cz - module._half));
+  const far = Math.max(...modules.map(module => module._cz + module._half));
+  const rows = Math.min(8, services.length), center = (near + far) / 2;
+  const step = Math.max(16, Math.min(28, (far - near) / Math.max(1, rows - 1)));
+  services.forEach((service, index) => {
+    service.x = left - 32 - Math.floor(index / rows) * 20;
+    service.z = center + (index % rows - (rows - 1) / 2) * step;
+  });
+}
+
 export function boardData(reports) {
   const modules = [], files = [], edges = [], exts = [];
   const identities = new Map(), componentIds = new Map();
   const selected = (reports || []).map(report => ({ report, nodes: sourceNodes(report) }))
     .filter(item => item.nodes.length);
   const names = [...new Set(selected.flatMap(item => item.nodes.map(node => node.module)))].sort();
+  const multiple = new Set(selected.map(item => item.report.repositoryId)).size > 1;
+  const titles = new Map(selected.flatMap(({ report, nodes }) => nodes.map(node => [node.module,
+    multiple ? `${report.repositoryId.split('/').at(-1)} · ${node.moduleTitle}` : node.moduleTitle])));
   const columns = Math.max(1, Math.ceil(Math.sqrt(names.length)));
   const layouts = new Map();
   const largestHalf = Math.max(20, ...names.map(name => {
@@ -42,7 +60,7 @@ export function boardData(reports) {
     const cx = (index % columns - (columns - 1) / 2) * spacing;
     const cz = (Math.floor(index / columns) - (Math.ceil(names.length / columns) - 1) / 2) * spacing;
     layouts.set(name, { index, grid, cx, cz, position: 0 });
-    modules.push({ name, n: count, _cx: cx, _cz: cz, _half: grid * 9 + 8, _g: grid });
+    modules.push({ name, displayName: titles.get(name), n: count, _cx: cx, _cz: cz, _half: grid * 9 + 8, _g: grid });
   });
   selected.forEach(({ report, nodes }) => {
     nodes.forEach(node => {
@@ -79,8 +97,7 @@ export function boardData(reports) {
         analysisStatus: report.analysisStatus, partial: report.analysisStatus !== 'COMPLETE',
         symbolsUnavailable: true,
         kind: external.kind, isExternal: true, modIdx: -1, color: 0x8fa7c7,
-        x: -130 - Math.floor(exts.length / 8) * 18,
-        z: (exts.length % 8 - 3.5) * 20, fanIn: 0, fanOut: 0, height: 7 });
+        x: 0, z: 0, fanIn: 0, fanOut: 0, height: 7 });
     }
     // The file map and architecture report describe different levels of the
     // same repository. Keep services/components beside file towers instead of
@@ -95,10 +112,10 @@ export function boardData(reports) {
         symbolsUnavailable: true,
         kind: node.kind, isExternal: true, modIdx: -1,
         color: node.kind === 'service' ? 0x59d0a0 : 0xc38bff,
-        x: -130 - Math.floor(exts.length / 8) * 18,
-        z: (exts.length % 8 - 3.5) * 20, fanIn: 0, fanOut: 0, height: 7 });
+        x: 0, z: 0, fanIn: 0, fanOut: 0, height: 7 });
     }
   });
+  placeExternalServices(modules, exts);
   const byId = [...files, ...exts];
   selected.forEach(({ report }) => {
     const map = report.codeMap;

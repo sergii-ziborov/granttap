@@ -14,6 +14,14 @@ final class RelayReconnectBackoffTests: XCTestCase {
         XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 15, openFor: 45, closeCode: 1006), 1)
     }
 
+    func testCongestionWaitsForTheRelayWithoutResettingAfterAHealthyConnection() {
+        XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 45, closeCode: 1013,
+            reason: "backpressure; retry-after=5"), 5)
+        XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 0.1, closeCode: 1013), 5)
+        XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 8, openFor: 0.1, closeCode: 1013,
+            reason: "backpressure; retry-after=5"), 8)
+    }
+
     func testAPolicyRefusalWaitsAtLeastAMinute() {
         XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 0.15, closeCode: 1008), 60)
         XCTAssertEqual(RelayReconnectBackoff.delayAfterClose(current: 1, openFor: 120, closeCode: 1008), 60,

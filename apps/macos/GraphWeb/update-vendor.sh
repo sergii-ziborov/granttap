@@ -130,3 +130,4 @@ cp "$source_root/vendor/three/addons/controls/OrbitControls.js" "$generated/thre
 cp "$source_root/vendor/three/addons/renderers/CSS2DRenderer.js" "$generated/three/addons/renderers/CSS2DRenderer.js"
 cp "$source_root/styles/features/cyberboard/scene.css" "$generated/scene.css"
 git -C "$repo_lens" rev-parse HEAD > "$web_root/REPO_LENS_COMMIT"
+bash "$web_root/bundle-viewer.sh"

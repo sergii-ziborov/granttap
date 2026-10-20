@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file: 'unsafe-inline'; style-src 'self' file: 'unsafe-inline'; img-src data:; connect-src 'none'">
   <title>Mesh graph</title>
   <link rel="stylesheet" href="scene.css">
   <link rel="stylesheet" href="graph-ui.css">
@@ -11,11 +11,9 @@
     html,body,#graph{width:100%;height:100%;margin:0;overflow:hidden;background:#060a10}
     #empty{display:grid;position:absolute;inset:0;place-items:center;color:#a2b7c7;font:15px -apple-system,sans-serif}
   </style>
-  <script type="importmap">
-    {"imports":{"three":"./three/three.module.js","three/addons/controls/OrbitControls.js":"./three/addons/controls/OrbitControls.js","three/addons/renderers/CSS2DRenderer.js":"./three/addons/renderers/CSS2DRenderer.js"}}
-  </script>
   <script>
-    window.graphFailure = () => {
+    window.graphFailure = error => {
+      window.graphLoadError = error?.message || error?.blockedURI || error?.target?.src || 'Renderer unavailable';
       window.webkit?.messageHandlers?.graphStatus?.postMessage('failed');
       const message = document.getElementById('empty');
       if (message) {
@@ -24,6 +22,7 @@
       }
     };
     window.addEventListener('error', window.graphFailure);
+    window.addEventListener('securitypolicyviolation', window.graphFailure);
     window.addEventListener('unhandledrejection', window.graphFailure);
     window.setMeshReports = (encoded, language = 'en') => {
       document.documentElement.lang = language === 'ru' ? 'ru' : 'en';
@@ -37,6 +36,6 @@
 <body>
   <div id="graph"></div>
   <div id="empty">Loading Mesh graph…</div>
-  <script type="module" src="./mesh-graph.js"></script>
+  <script src="./viewer.js"></script>
 </body>
 </html>

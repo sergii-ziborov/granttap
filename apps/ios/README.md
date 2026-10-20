@@ -305,5 +305,5 @@ On Mac, **Help → GrantTap Help** and **GrantTap → About GrantTap** open page
 in the main application window. Settings on Mac, iPhone and iPad contains the
 same help, Terms, Privacy, licenses and pricing documents, readable offline.
 Purchase and subscription prices are loaded from StoreKit for the storefront.
-The US Mac launch plan is $39.99 once; optional Personal tiers are $1.99, $3.99
-and $5.99 monthly for 1, 5 and 10 computers. See [subscriptions](../../docs/subscriptions.md).
+The US Mac launch plan is $39.99 once; managed plans are Personal $4.99/month
+for 2 computers, Personal Plus $7.99/month for 5, and Fleet $13.99/month for 15. See [subscriptions](../../docs/subscriptions.md).

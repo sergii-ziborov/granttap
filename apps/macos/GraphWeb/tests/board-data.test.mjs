@@ -2,6 +2,15 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import { boardData } from '../board-data.js';
 
+test('module labels use relative source folders while routing keeps full repository identity', () => {
+  const data = boardData([{ repositoryId: 'example.org/company/portable-repository', codeMap: {
+    files: [{ path: 'Sources/Networking/Client.swift', lineCount: 20, symbols: [] }], roads: [],
+  } }]);
+  assert.equal(data.MODULES[0].displayName, 'Sources/Networking');
+  assert.equal(data.files[0].repositoryId, 'example.org/company/portable-repository');
+  assert.equal(data.files[0].module, data.MODULES[0].name);
+});
+
 test('repositories share one board without merging equal native node IDs', () => {
   const data = boardData(['api', 'worker'].map(repositoryId => ({
     repositoryId,

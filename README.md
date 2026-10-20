@@ -60,16 +60,22 @@ do not represent a verified production purchase.
 
 ## Optional Personal subscription
 
-The planned first-launch managed plans are **Personal $3.99/month for up to
-2 computers**, **Personal Plus $6.99/month for up to 5**, and **Fleet
-$11.99/month for up to 15**. All core features are shared. Only managed
+The planned first-launch managed plans are **Personal $4.99/month for up to
+2 computers**, **Personal Plus $7.99/month for up to 5**, and **Fleet
+$13.99/month for up to 15**. All core features are shared. Only managed
 publishing computers are counted; agents, Tasks and approvals are not billed
 separately. AI accounts and tokens remain separate, and technical limits apply.
 Active Personal includes linked Mac managed-client access without an additional
 Mac Local purchase. A controller-only Mac uses no publishing-computer seat.
 Apple's purchase sheet controls availability, localized pricing and eligible
 seven-day trial offers. These are planned US prices; there are no annual launch
-plans. Restore and manage purchases in Settings.
+plans. Restore and manage purchases in Settings. Official TestFlight builds
+include full access without a subscription.
+
+Manage or cancel always opens Apple's subscription settings directly. Eligible
+subscribers may receive one discounted month, once per account; Apple's sheet
+shows the localized offer price and regular renewal. Cancellation feedback is
+optional and is never required to open Apple's cancellation controls.
 
 Without Personal, a licensed Mac can use encrypted endpoint discovery with
 direct traffic, or an entirely self-hosted relay. The phone periodically resolves

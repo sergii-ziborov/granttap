@@ -22,6 +22,7 @@ final class ProjectMeshRejoinTests: XCTestCase {
 
     func testAChatSplitAcrossTwoTasksIsRejoinedAndTheStaleTaskLeaves() {
         let model = AppModel()
+        model.meshSnapshots = [:]
         model.agentMeshPreferences = .defaults
 
         // Two Task records from the same Project, provider, endpoint, workspace
@@ -91,6 +92,7 @@ final class ProjectMeshRejoinTests: XCTestCase {
 
     func testADuplicateOnOneComputerIsRejoinedThoughItCarriesNoExecution() {
         let model = AppModel()
+        model.meshSnapshots = [:]
         model.agentMeshPreferences = .defaults
 
         // An execution is keyed by computer, provider, and chat, so two Tasks

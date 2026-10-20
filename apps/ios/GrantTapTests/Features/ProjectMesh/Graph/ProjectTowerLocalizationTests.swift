@@ -23,12 +23,29 @@ final class ProjectTowerLocalizationTests: XCTestCase {
         XCTAssertEqual(LPlural(36, one: "%d reported section", many: "%d reported sections"), "36 reported sections")
     }
 
+    func testCompleteTowerCountsDoNotClaimThatBoundedSourceDetailsAreComplete() {
+        let complete = ProjectTowerViewFixtures.map()
+        XCTAssertEqual(ProjectCodeMapScope(complete), .complete)
+        XCTAssertNil(ProjectCodeMapScope(complete).partialTitle)
+        let limited = ProjectCodeMap(files: complete.files, externals: complete.externals,
+            roads: complete.roads, totalFiles: complete.totalFiles,
+            totalExternals: complete.totalExternals, truncated: true)
+        XCTAssertEqual(ProjectCodeMapScope(limited), .limitedDetails)
+        XCTAssertNotNil(ProjectCodeMapScope(limited).partialTitle)
+        let missing = ProjectCodeMap(files: complete.files, externals: complete.externals,
+            roads: complete.roads, totalFiles: complete.totalFiles + 1,
+            totalExternals: complete.totalExternals, truncated: false)
+        XCTAssertEqual(ProjectCodeMapScope(missing), .missingTowers)
+        XCTAssertNotNil(ProjectCodeMapScope(missing).partialTitle)
+    }
+
     func testRussianCameraActionsAndOneFewManySectionFormsAreTranslated() {
         setenv("GRANTTAP_TEST_LANGUAGE", "ru", 1)
         XCTAssertEqual(L("Zoom in"), "Увеличить")
         XCTAssertEqual(L("Orbit"), "Вращение")
         XCTAssertEqual(L("Pan"), "Перемещение")
         XCTAssertEqual(L("Observed source"), "Данные исходного кода")
+        XCTAssertEqual(L("Partial source details"), "Часть деталей исходников не передана")
         for (count, value) in [1: "1 секция в отчёте", 2: "2 секции в отчёте", 5: "5 секций в отчёте",
                                11: "11 секций в отчёте", 22: "22 секции в отчёте", 100: "100 секций в отчёте"] {
             XCTAssertEqual(LPlural(count, one: "%d reported section", many: "%d reported sections"), value)

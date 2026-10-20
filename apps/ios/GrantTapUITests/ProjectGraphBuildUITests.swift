@@ -62,6 +62,13 @@ final class ProjectGraphBuildUITests: XCTestCase {
         report.tap()
         XCTAssertTrue(app.buttons["Close graph"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.textFields["architecture.search"].exists)
+        app.buttons["Close graph"].tap()
+        let towers = app.buttons["architecture.towers.github.com/sergii-ziborov/granttap"]
+        XCTAssertTrue(towers.waitForExistence(timeout: 5))
+        towers.tap()
+        CodeCityJourney.waitForViewer(app)
+        app.buttons["Close code towers"].tap()
+        XCTAssertTrue(progress(app).firstMatch.waitForExistence(timeout: 5))
     }
 
     func testHealthKeepsProgressAndGraphNavigationTogetherAboveRepositoryRows() {

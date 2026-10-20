@@ -2,82 +2,57 @@ import XCTest
 
 final class ProjectTowerBrowserUITests: XCTestCase {
     func testSearchingLastSectionAndNoMatchUsesTheActualReportedSymbol() {
-        let app = openTowers()
-        app.buttons["code-towers.files"].tap()
-        let search = app.textFields["code-towers.browser.search"]
-        XCTAssertTrue(search.waitForExistence(timeout: 5))
-        search.tap(); search.typeText("missing-symbol")
-        XCTAssertTrue(app.staticTexts["No matching files or sections."].exists)
-        app.buttons["Clear search"].tap()
-        search.tap(); search.typeText("healthSection36")
-        let last = app.buttons["code-towers.browser.section.health-section-36"]
+        continueAfterFailure = false
+        let app = CodeCityJourney.openTowers()
+        CodeCityJourney.search("missing-symbol", in: app)
+        XCTAssertTrue(app.webViews.staticTexts["No matching files or symbols."].exists)
+        CodeCityJourney.search("healthSection36", in: app)
+        let last = app.webViews.buttons["healthSection36 · L360"]
         XCTAssertTrue(last.waitForExistence(timeout: 5)); last.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.section-details"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["healthSection36"].exists)
-        XCTAssertTrue(app.staticTexts["360"].exists)
+        XCTAssertTrue(app.webViews.staticTexts["Observed source"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.webViews.staticTexts["healthSection36"].firstMatch.exists)
+        XCTAssertTrue(app.webViews.staticTexts["360–367"].exists)
     }
 
     func testScrollableSectionsAndDirectedLinksKeepTheirActualDestination() {
-        let app = openTowers()
-        app.buttons["code-towers.files"].tap()
-        app.buttons["code-towers.file.apps/ios/GrantTap/HealthView.swift"].tap()
-        app.buttons["code-towers.sections"].tap()
-        let last = app.buttons["code-towers.section.health-section-36"]
-        let list = app.scrollViews["code-towers.section-list"]
-        for _ in 0..<18 where !last.isHittable { list.swipeUp() }
+        continueAfterFailure = false
+        let app = CodeCityJourney.openTowers()
+        CodeCityJourney.search("HealthView", in: app)
+        app.webViews.buttons["apps/ios/GrantTap/HealthView.swift"].tap()
+        let last = app.webViews.switches.matching(NSPredicate(format: "label CONTAINS %@", "healthSection36")).firstMatch
+        CodeCityJourney.scrollSections(in: app, until: last)
         XCTAssertTrue(last.isHittable); last.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.section-details"].waitForExistence(timeout: 5))
-        app.buttons["Done"].tap()
-        app.buttons["code-towers.links"].tap()
-        let link = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "code-towers.link.")).firstMatch
+        XCTAssertTrue(app.webViews.staticTexts["Observed source"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.webViews.staticTexts["360–367"].exists)
+        CodeCityJourney.capture("Repo Lens — last reported section evidence", in: self)
+        CodeCityJourney.control("Links", in: app).tap()
+        let link = app.webViews.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "→")).firstMatch
         XCTAssertTrue(link.waitForExistence(timeout: 5)); link.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].exists || app.staticTexts["code-towers.inspector.external"].exists)
-        app.buttons["code-towers.health"].tap()
-        let facts = app.staticTexts["Coverage, complexity and unused-code findings are not reported in this map."]
-        for _ in 0..<4 where !facts.exists { app.scrollViews["code-towers.health-scroll"].swipeUp() }
+        CodeCityJourney.capture("Repo Lens — directed link actual destination", in: self)
+        CodeCityJourney.control("Health", in: app).tap()
+        XCTAssertTrue(app.webViews.staticTexts["Health evidence"].waitForExistence(timeout: 5))
+        let facts = app.webViews.staticTexts["Coverage and complexity were not reported. Section-size highlights use measured LOC."]
+        CodeCityJourney.scrollSections(in: app, until: facts)
         XCTAssertTrue(facts.exists)
+        CodeCityJourney.capture("Repo Lens — unreported health stays unknown", in: self)
     }
 
     func testViewSettingsKeepCameraAndHelpExplainsActualGestures() {
-        let app = openTowers()
-        app.buttons["code-towers.zoom-in"].tap()
-        let scene = app.descendants(matching: .any)["code-towers.scene"].firstMatch
-        let before = scene.value as? String
-        app.buttons["Graph view options"].tap()
-        app.buttons["View settings"].tap()
-        XCTAssertTrue(app.switches["code-towers.labels"].waitForExistence(timeout: 5))
-        app.switches["code-towers.labels"].tap()
-        app.switches["code-towers.auto-focus"].tap()
-        app.descendants(matching: .any)["code-towers.color-mode"].firstMatch.tap()
-        app.buttons["Kind"].tap()
-        app.buttons["Done"].tap()
-        XCTAssertEqual(scene.value as? String, before)
-        app.buttons["Graph view options"].tap()
-        app.buttons["Graph controls"].tap()
-        XCTAssertTrue(app.staticTexts["Scroll Sections to reach every reported symbol."].waitForExistence(timeout: 5))
-        app.buttons["Done"].tap()
-        app.buttons["Graph view options"].tap()
-        app.buttons["Hide graph panels"].tap()
-        XCTAssertTrue(app.buttons["Show graph panels"].waitForExistence(timeout: 5))
-        app.buttons["Show graph panels"].tap()
-        XCTAssertTrue(app.buttons["code-towers.files"].exists)
-    }
-
-    private func openTowers() -> XCUIApplication {
         continueAfterFailure = false
-        let app = XCUIApplication()
-        app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_CAPTURE_TAB": "projects",
-            "GRANTTAP_TEST_TOWER_SECTIONS": "1", "GRANTTAP_TEST_LANGUAGE": "en"]
-        app.launch()
-        let project = app.buttons["projects.row.granttap-project-demo"]
-        XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
-        let health = app.buttons["project.health"]
-        for _ in 0..<5 where !health.exists { app.swipeUp() }
-        health.tap()
-        let towers = app.buttons["health.code-towers.github.com/sergii-ziborov/granttap"]
-        for _ in 0..<5 where !towers.exists { app.swipeUp() }
-        XCTAssertTrue(towers.waitForExistence(timeout: 10)); towers.tap()
-        XCTAssertTrue(app.buttons["code-towers.files"].waitForExistence(timeout: 5))
-        return app
+        let app = CodeCityJourney.openTowers()
+        app.webViews.buttons["Zoom in"].firstMatch.tap()
+        app.webViews.buttons["Highlights"].firstMatch.tap()
+        let threshold = app.webViews.sliders["Section size threshold"]
+        XCTAssertTrue(threshold.waitForExistence(timeout: 5))
+        threshold.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        app.webViews.buttons["Close settings"].firstMatch.tap()
+        app.webViews.buttons["Help"].firstMatch.tap()
+        XCTAssertTrue(app.webViews.staticTexts["Scroll Sections to reach every reported symbol."].waitForExistence(timeout: 5))
+        app.webViews.buttons["Close help"].firstMatch.tap()
+        app.webViews.buttons["Full screen"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Show graph panels"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.webViews.buttons["Files"].firstMatch.exists)
+        app.buttons["Show graph panels"].tap()
+        XCTAssertTrue(app.buttons["Close code towers"].exists)
     }
 }

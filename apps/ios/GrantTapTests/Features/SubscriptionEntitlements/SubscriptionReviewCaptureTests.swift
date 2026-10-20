@@ -5,7 +5,7 @@ import XCTest
 @MainActor
 final class SubscriptionReviewCaptureTests: XCTestCase {
     func testNativePaywallOffersShowEligibleTrialAndKnownComputerLimits() throws {
-        let prices = ["$3.99", "$6.99", "$11.99"]
+        let prices = ["$4.99", "$7.99", "$13.99"]
         let store = SubscriptionStore(startObserving: false, productLoader: { [] },
             currentAccountID: { "12345678-1234-4123-8123-123456789012" })
         for (product, price) in zip(SubscriptionProduct.ordered, prices) {

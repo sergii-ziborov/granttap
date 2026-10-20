@@ -1,5 +1,7 @@
 import { findGraphFile, sourceSection, graphFileLinks } from './graph-inspection.js';
-import { graphText } from './graph-language.js';
+import { graphButton, graphText } from './graph-language.js';
+import { graphControlIcon } from './graph-control-icons.js';
+import { frameGraphSource } from './graph-source-framing.js';
 
 const element = (document, tag, text, className) => {
   const node = document.createElement(tag);
@@ -72,14 +74,19 @@ function health(content, context) {
 
 export function createGraphInspector(root, data, board) {
   const document = root.ownerDocument;
-  const panel = element(document, 'aside', null, 'rel-method-panel granttap-inspector');
+  // Repo Lens excludes HUD surfaces from its capture-phase tower gestures.
+  const panel = element(document, 'aside', null, 'rel-method-panel granttap-inspector hud');
   panel.setAttribute('aria-label', graphText(document, 'Tower details')); panel.hidden = true; root.append(panel);
   const state = { file: null, index: null, tab: 'Sections', threshold: 100 };
-  const context = { document, data, board, state };
-  const button = (title, action) => {
-    const node = element(document, 'button', graphText(document, title)); node.type = 'button';
-    node.addEventListener('click', action); return node;
+  let frameGeneration = 0;
+  const frame = () => {
+    const generation = ++frameGeneration;
+    document.defaultView.requestAnimationFrame?.(() => document.defaultView.requestAnimationFrame(() => {
+      if (generation === frameGeneration && !panel.hidden) frameGraphSource(board, root, panel, state.file);
+    }));
   };
+  const context = { document, data, board, state };
+  const button = (title, action) => graphButton(document, title, action);
   const fact = (parent, title, value) => {
     const row = element(document, 'div', null, 'graph-fact');
     row.append(interfaceElement(document, 'span', title), element(document, 'strong', value ?? graphText(document, 'Not reported')));
@@ -89,10 +96,13 @@ export function createGraphInspector(root, data, board) {
   function render() {
     const { file, tab } = state;
     if (!file) return;
-    panel.replaceChildren(); panel.hidden = false;
+    panel.replaceChildren(); panel.hidden = false; root.classList.add('graph-inspecting');
     const head = element(document, 'header');
-    head.append(element(document, 'h2', file.isExternal ? file.name : file._path || file.name), button('Close details', close));
-    panel.append(head, element(document, 'p', file.repositoryId || file.module));
+    const dismiss = button('Close details', close); graphControlIcon(dismiss, 'Close details');
+    head.append(element(document, 'h2', file.isExternal ? file.name.split(' · ')[0] : file.name), dismiss);
+    const path = element(document, 'p', file.isExternal ? file.repositoryId : file._path || file.name);
+    path.title = file.repositoryId || file.module;
+    panel.append(head, path);
     const tabs = element(document, 'nav');
     for (const name of ['Sections', 'Links', 'Health']) {
       const control = button(name, () => { state.tab = name; render(); });
@@ -110,12 +120,12 @@ export function createGraphInspector(root, data, board) {
   function openFile(selection) {
     const selected = findGraphFile(data, selection);
     if (!selected) return false;
-    state.file = selected; state.index = null; state.tab = 'Sections'; render(); return true;
+    state.file = selected; state.index = null; state.tab = 'Sections'; render(); frame(); return true;
   }
 
   function openMethod(selection) {
     if (!openFile(selection)) return false;
-    state.index = selection.index; render(); return true;
+    state.index = selection.index; render(); frame(); return true;
   }
 
   function openEdge(selection) {
@@ -124,12 +134,15 @@ export function createGraphInspector(root, data, board) {
   }
 
   function close() {
-    panel.hidden = true;
+    frameGeneration += 1;
+    panel.hidden = true; root.classList.remove('graph-inspecting');
+    board.getCamera?.().clearViewOffset?.();
     root.dispatchEvent(new document.defaultView.Event('graphselection'));
   }
 
   function restoreSelection(selection) {
     if (!openFile(selection)) return false;
+    frameGeneration += 1;
     state.index = sourceSection(state.file, selection.index) ? selection.index : null;
     state.tab = ['Sections', 'Links', 'Health'].includes(selection.tab) ? selection.tab : 'Sections';
     render();
@@ -139,7 +152,7 @@ export function createGraphInspector(root, data, board) {
   }
 
   Object.assign(context, { button, fact, render, openFile });
-  return { openFile, openMethod, openEdge, close, restoreSelection,
+  return { openFile, openMethod, openEdge, close, restoreSelection, frame,
     setThreshold(value) {
       const offset = panel.querySelector('.graph-inspector-scroll')?.scrollTop || 0;
       state.threshold = value;

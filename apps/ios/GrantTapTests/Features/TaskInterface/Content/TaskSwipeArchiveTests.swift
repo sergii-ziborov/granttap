@@ -40,6 +40,7 @@ final class TaskSwipeArchiveTests: XCTestCase {
         }
 
         let model = AppModel()
+        model.meshSnapshots = [:]
         model.archivedSessionIds = []
         model.archivedSessions = [:]
         let first = session("first")
@@ -62,6 +63,7 @@ final class TaskSwipeArchiveTests: XCTestCase {
 
     func testTaskWithoutALiveExecutionStillRendersItsHistoryCard() {
         let model = AppModel()
+        model.meshSnapshots = [:]
         let route = TaskRoute(projectId: "project", taskId: "task")
         model.meshSnapshots["project"] = ProjectMeshSnapshot(
             type: "mesh.snapshot", sessionId: "project", projectId: "project",

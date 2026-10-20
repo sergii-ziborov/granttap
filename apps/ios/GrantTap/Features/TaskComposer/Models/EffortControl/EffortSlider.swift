@@ -42,7 +42,7 @@ struct EffortSlider: UIViewRepresentable {
         @objc func changed(_ slider: UISlider) {
             let value = Double(slider.value / max(1, slider.maximumValue))
             guard let choice = parent.scale.choice(at: value) else { return }
-            slider.value = slider.value.rounded()
+            if !slider.isTracking { slider.value = slider.value.rounded() }
             slider.accessibilityValue = choice.label
             if parent.selection != choice { parent.selection = choice }
         }
@@ -73,6 +73,18 @@ final class EffortSliderControl: UISlider {
     override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         becomeFirstResponder()
         return super.beginTracking(touch, with: event)
+    }
+    override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
+        super.endTracking(touch, with: event)
+        settle()
+    }
+    override func cancelTracking(with event: UIEvent?) {
+        super.cancelTracking(with: event)
+        settle()
+    }
+    private func settle() {
+        value = value.rounded()
+        sendActions(for: .valueChanged)
     }
     override func accessibilityIncrement() { increase() }
     override func accessibilityDecrement() { decrease() }

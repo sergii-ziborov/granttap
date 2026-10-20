@@ -16,9 +16,9 @@ offer attached to a production subscription. It is not a production purchase.
 
 | First-launch plan | US monthly price | Managed publishing computers | Technical product ID |
 | --- | --- | --- | --- |
-| Personal | $3.99 | 2 | `com.ziborov.granttap.personal.solo.monthly` |
-| Personal Plus | $6.99 | 5 | `com.ziborov.granttap.personal.monthly` |
-| Fleet | $11.99 | 15 | `com.ziborov.granttap.personal.studio.monthly` |
+| Personal | $4.99 | 2 | `com.ziborov.granttap.personal.solo.monthly` |
+| Personal Plus | $7.99 | 5 | `com.ziborov.granttap.personal.monthly` |
+| Fleet | $13.99 | 15 | `com.ziborov.granttap.personal.studio.monthly` |
 
 Only these three monthly subscriptions are in the first commercial catalog.
 `com.ziborov.granttap.personal.fleet.monthly` is unused preparation for the old
@@ -51,6 +51,15 @@ rights. Own-relay mode does not use paid admission. Sandbox testing and explicit
 beta grants remain separate from production purchases. Failed synchronization
 must not require another purchase. An outage or cancellation does not delete
 local history, images or pairings, or revoke a purchased Mac Local license.
+
+Manage or cancel opens Apple's subscription settings immediately. An optional
+retention offer gives eligible existing subscribers one month at approximately
+half price, once per GrantTap account, then renews at the regular monthly price.
+StoreKit supplies the local offer price and purchase confirmation. The account
+server verifies Apple history before signing an offer and records verified
+redemption durably. Official TestFlight remains free and shows no purchase offer.
+Optional cancellation feedback is encrypted at rest, retained for up to 90 days,
+and deleted with the account. Feedback never blocks Apple's cancellation link.
 
 ## Without a subscription
 

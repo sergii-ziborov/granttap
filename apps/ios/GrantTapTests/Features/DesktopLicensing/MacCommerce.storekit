@@ -48,7 +48,7 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "3.99",
+          "displayPrice": "4.99",
           "familyShareable": false,
           "groupNumber": 3,
           "internalID": "personal-two",
@@ -80,7 +80,7 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "6.99",
+          "displayPrice": "7.99",
           "familyShareable": false,
           "groupNumber": 2,
           "internalID": "personal-five",
@@ -112,7 +112,7 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "11.99",
+          "displayPrice": "13.99",
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "personal-fifteen",

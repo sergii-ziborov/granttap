@@ -1,12 +1,18 @@
 {
   "title": "Privacy Policy",
-  "updated": "2026-10-16",
+  "updated": "2026-10-20",
   "intro": "This policy covers the GrantTap Mac, iPhone, iPad and Apple Watch apps, its local machine helper, the encrypted relay, and granttap.com. GrantTap creates no advertising profile or readable cloud chat history.",
   "sections": [
     {
       "heading": "Subscription verification",
       "paragraphs": [
         "Personal uses the signed-in GrantTap account UUID as Apple appAccountToken. The account service independently verifies Apple-signed purchases and retains product IDs, original/renewal transaction IDs, signed time, expiry and revocation status for computer limits. It does not receive payment-card details or your Apple password. Sandbox purchases are not paid production rights. Account deletion removes these service records but does not cancel the Apple subscription."
+      ]
+    },
+    {
+      "heading": "Optional cancellation feedback",
+      "paragraphs": [
+        "If you explicitly send feedback, the account service keeps your selected reason, optional comment, account ID and submission time for support. Comments are encrypted at rest; authorized support operators can read them. Feedback is retained for up to 90 days and removed when you delete your account. It is not included in capacity metrics, advertising, or agent chat history. Sending it does not cancel a subscription."
       ]
     },
     {

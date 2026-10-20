@@ -1,4 +1,6 @@
 const russian = {
+  'External services': 'Внешние сервисы',
+  'Clear search': 'Очистить поиск',
   'Files and sections': 'Файлы и секции', 'Close files': 'Закрыть файлы',
   'Find a file or symbol': 'Найти файл или символ', 'No matching files or symbols.': 'Нет подходящих файлов или символов.',
   'Highlight settings': 'Настройки подсветки', 'Close settings': 'Закрыть настройки',
@@ -37,5 +39,21 @@ export function graphText(document, key) {
 export function graphButton(document, label, action, literal = false) {
   const node = document.createElement('button'); node.type = 'button';
   node.textContent = literal ? label : graphText(document, label); node.title = node.textContent;
-  node.addEventListener('click', action); return node;
+  let touch = null, handledAt = -Infinity;
+  node.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'touch') touch = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  });
+  node.addEventListener('pointercancel', () => { touch = null; });
+  node.addEventListener('pointerup', event => {
+    const start = touch; touch = null;
+    if (!start || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) return;
+    handledAt = document.defaultView.performance.now();
+    event.preventDefault(); action(event);
+  });
+  node.addEventListener('click', event => {
+    if ((event.pointerType === 'touch' || event.detail > 0)
+      && document.defaultView.performance.now() - handledAt < 600) return;
+    action(event);
+  });
+  return node;
 }

@@ -25,3 +25,8 @@ The native slider opts its containing List out of delayed content touches. A
 quick horizontal drag reaches the thumb on touch-down; the List retains normal
 vertical scrolling. `AnimatedEffortUITests` exercises the initial drag, level
 changes, model restrictions, reset, and reopening the picker.
+
+During a drag the native thumb keeps its continuous position while the binding
+selects the nearest supported level. Release or cancellation snaps the thumb to
+that level. Rounding every movement would fight UIKit's tracking and can lose a
+short or slow drag. Local tests cover continuous tracking and both terminal events.

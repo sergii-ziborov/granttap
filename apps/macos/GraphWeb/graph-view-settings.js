@@ -1,9 +1,16 @@
 import { applySectionHighlights } from './graph-inspection.js';
 import { graphButton, graphText } from './graph-language.js';
 
+function toggleGraphPopover(root, panel) {
+  const opening = panel.hidden;
+  root.querySelectorAll('.graph-view-settings').forEach(value => { value.hidden = true; });
+  root.querySelector('#cb-legend')?.classList.add('collapsed');
+  panel.hidden = !opening;
+}
+
 export function graphViewSettings(root, data, board, inspector, preferences, save) {
   const document = root.ownerDocument, panel = document.createElement('aside');
-  panel.className = 'graph-view-settings'; panel.hidden = true; root.append(panel);
+  panel.className = 'graph-view-settings hud'; panel.hidden = true; root.append(panel);
   const title = document.createElement('header'); title.textContent = graphText(document, 'Highlight settings');
   title.append(graphButton(document, 'Close settings', () => { panel.hidden = true; })); panel.append(title);
   const label = document.createElement('label'); label.textContent = graphText(document, 'Highlight sections above');
@@ -23,12 +30,12 @@ export function graphViewSettings(root, data, board, inspector, preferences, sav
     legend.classList.toggle('collapsed'); panel.hidden = true;
   })); }
   update();
-  return () => { panel.hidden = !panel.hidden; };
+  return () => toggleGraphPopover(root, panel);
 }
 
 export function graphControlsHelp(root) {
   const document = root.ownerDocument, panel = document.createElement('aside');
-  panel.className = 'graph-view-settings'; panel.hidden = true; root.append(panel);
+  panel.className = 'graph-view-settings hud'; panel.hidden = true; root.append(panel);
   const title = document.createElement('header'); title.textContent = graphText(document, 'Graph controls');
   title.append(graphButton(document, 'Close help', () => { panel.hidden = true; })); panel.append(title);
   for (const key of ['Drag to orbit; choose Pan to move the scene.', 'Pinch or use the zoom buttons to change scale.',
@@ -36,5 +43,5 @@ export function graphControlsHelp(root) {
     'The tower label rail scrolls with your finger or mouse wheel.', 'Fit restores the whole map.']) {
     const row = document.createElement('p'); row.textContent = graphText(document, key); panel.append(row);
   }
-  return () => { panel.hidden = !panel.hidden; };
+  return () => toggleGraphPopover(root, panel);
 }

@@ -8,7 +8,7 @@ final class UIEdgeCoverageTests: XCTestCase {
     func testNeedsYouNeverAppearsAgainInAtRisk() {
         let now = Date().timeIntervalSince1970 * 1_000
         let session = edgeSession("needs-you", at: now - 3 * 24 * 60 * 60 * 1_000)
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessions = [session]
         model.pending = [ApprovalRequest(
             type: "approval.request", requestId: "approval", agent: "codex",
@@ -25,7 +25,7 @@ final class UIEdgeCoverageTests: XCTestCase {
 
     func testHideRemovesTaskFromActiveUntilItIsRestored() {
         let session = edgeSession("hide-restore", at: Date().timeIntervalSince1970 * 1_000)
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessions = [session]
         let content = ContentView(selectedTab: .tasks, modelOverride: model)
 
@@ -49,7 +49,7 @@ final class UIEdgeCoverageTests: XCTestCase {
         closedTwentyHours.state = "finished"
         var closedTwentySixHours = edgeSession("closed-26h", at: now - 26 * 60 * 60 * 1_000)
         closedTwentySixHours.state = "finished"
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessionSourceRooms = [:]
         model.sessions = [open]
         model.sessionHistory = [closedTwentyHours, closedTwentySixHours]
@@ -62,7 +62,7 @@ final class UIEdgeCoverageTests: XCTestCase {
 
     func testACardReportsHowLongAgoTheTaskWasActive() {
         let now = Date().timeIntervalSince1970 * 1_000
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessions = [edgeSession("aging", at: now - 3 * 60 * 60 * 1_000)]
         let item = try? XCTUnwrap(ContentView(modelOverride: model).activeTaskItems.first)
         XCTAssertEqual(item?.idleSeconds(nowMs: now), 3 * 60 * 60)
@@ -79,7 +79,7 @@ final class UIEdgeCoverageTests: XCTestCase {
         waiting.state = "waiting"
         var finished = edgeSession("finished-history", at: now - 2)
         finished.title = "Finished native title"
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessions = [idle, waiting]
         model.sessionHistory = [finished]
         model.demoMode = true
@@ -105,7 +105,7 @@ final class UIEdgeCoverageTests: XCTestCase {
 
     func testStaleWorkingStateWithoutOpenExecutionIsNotWorking() {
         let now = Date().timeIntervalSince1970 * 1_000
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.meshSnapshots = ["project": staleWorkingSnapshot(at: now)]
         let content = ContentView(modelOverride: model)
 
@@ -115,7 +115,7 @@ final class UIEdgeCoverageTests: XCTestCase {
 
     func testContentSessionsCoversConnectionHintsFilteringAndOpenState() {
         let session = edgeSession("needle", at: Date().timeIntervalSince1970 * 1_000)
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.sessions = [session]
         model.demoMode = true
         let tasks = ContentView(
@@ -127,7 +127,7 @@ final class UIEdgeCoverageTests: XCTestCase {
         tasks.open(session)
         tasks.prepareNewTask()
 
-        let empty = AppModel()
+        let empty = emptyMeshModel()
         empty.connectionRegistry = .empty
         XCTAssertTrue(ContentView(modelOverride: empty).emptySessionsHint.contains("Account Mesh"))
         empty.connectionRegistry = ConnectionRegistryLogic.upsert(
@@ -153,7 +153,7 @@ final class UIEdgeCoverageTests: XCTestCase {
     }
 
     func testContentViewPresentsSecondarySheetsAndParsesPairingURLs() {
-        let model = AppModel()
+        let model = emptyMeshModel()
         model.demoMode = true
         for view in [
             ContentView(showPairing: true, modelOverride: model),
@@ -231,6 +231,12 @@ final class UIEdgeCoverageTests: XCTestCase {
         let waiting = SecurityGate(authenticator: EdgeAuthenticator(result: nil))
         waiting.setEnabled(true)
         assertRendered(SecurityLockView(security: waiting, pendingCount: 0))
+    }
+
+    private func emptyMeshModel() -> AppModel {
+        let model = AppModel()
+        model.meshSnapshots = [:]
+        return model
     }
 
     private func edgeSession(_ id: String, at: Double) -> SessionInfo {

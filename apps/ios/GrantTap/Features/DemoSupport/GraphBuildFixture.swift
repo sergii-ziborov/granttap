@@ -9,6 +9,12 @@ enum GraphBuildFixture {
         model.projectGraphAttemptAt[mesh.projectId] = now
         if state == "cached-pending" {
             mesh.repositoryGraphs = [AppModelDemoMeshFixtures.architectureGraph()]
+        } else if state == "unavailable" {
+            var report = AppModelDemoMeshFixtures.architectureGraph()
+            report.analysisStatus = "UNAVAILABLE"
+            report.analysisErrorCode = "REPOSITORY_IDENTITY_MISMATCH"
+            report.sourceRevision = String(repeating: "b", count: 40)
+            mesh.repositoryGraphs = [report]
         } else {
             mesh.repositoryGraphs = []
         }
@@ -17,7 +23,7 @@ enum GraphBuildFixture {
             model.projectGraphRequests[mesh.projectId] = nil
         } else {
             var request = ProjectGraphRequest(createdAt: now)
-            if state == "failure" {
+            if state == "failure" || state == "unavailable" {
                 request.pending = false
                 request.result = .failed
             }

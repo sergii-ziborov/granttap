@@ -85,68 +85,34 @@ final class ProjectGraphUITests: XCTestCase {
 
     func testHealthOpensRepoLensStyleCodeTowersInFullScreen() {
         continueAfterFailure = false
-        let app = openDemoProject(graph: true)
-        let health = app.buttons["project.health"]
-        for _ in 0..<5 where !health.exists { app.swipeUp() }
-        XCTAssertTrue(health.waitForExistence(timeout: 10))
-        health.tap()
-        XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
-        let towers = app.buttons["health.code-towers.github.com/sergii-ziborov/granttap"]
-        for _ in 0..<5 where !towers.exists { app.swipeUp() }
-        XCTAssertTrue(towers.waitForExistence(timeout: 10), app.debugDescription)
-        towers.tap()
-        XCTAssertTrue(app.buttons["Close code towers"].waitForExistence(timeout: 10))
-        let search = app.descendants(matching: .any)["code-towers.search"].firstMatch
-        XCTAssertTrue(search.waitForExistence(timeout: 5), app.debugDescription)
+        let app = CodeCityJourney.openTowers(sections: false)
+        app.webViews.buttons["Fit"].firstMatch.tap()
         let image = XCTAttachment(screenshot: app.screenshot())
-        image.name = "Health code towers full screen"
+        image.name = "Shared Repo Lens code city on iPhone"
         image.lifetime = .keepAlways
         add(image)
-        search.tap()
-        search.typeText("HealthView")
-        let file = app.buttons["code-towers.file.apps/ios/GrantTap/HealthView.swift"]
-        XCTAssertTrue(file.waitForExistence(timeout: 5))
-        file.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].label.contains("HealthView.swift"))
-        search.tap()
-        search.typeText("Relay service")
-        let external = app.buttons["code-towers.external.ext:relay"]
-        XCTAssertTrue(external.waitForExistence(timeout: 5))
-        external.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.inspector.external"].waitForExistence(timeout: 5))
+        CodeCityJourney.search("HealthView", in: app)
+        app.webViews.buttons["apps/ios/GrantTap/HealthView.swift"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["apps/ios/GrantTap/HealthView.swift"].waitForExistence(timeout: 5))
+        CodeCityJourney.search("Relay service", in: app)
+        let external = app.webViews.buttons.matching(NSPredicate(
+            format: "label CONTAINS %@", "Relay service")).firstMatch
+        XCTAssertTrue(external.waitForExistence(timeout: 5)); external.tap()
+        CodeCityJourney.control("Health", in: app).tap()
+        XCTAssertTrue(app.webViews.staticTexts["Health evidence"].waitForExistence(timeout: 5))
     }
 
     func testHealthNavigatesALargePartialCodeCity() {
         continueAfterFailure = false
-        let app = openDemoProject(largeGraph: true)
-        let health = app.buttons["project.health"]
-        for _ in 0..<5 where !health.exists { app.swipeUp() }
-        XCTAssertTrue(health.waitForExistence(timeout: 10))
-        health.tap()
-        XCTAssertTrue(app.staticTexts["Partial map"].waitForExistence(timeout: 10))
-        let towers = app.buttons["health.code-towers.github.com/sergii-ziborov/granttap"]
-        XCTAssertTrue(towers.waitForExistence(timeout: 10))
-        towers.tap()
-        XCTAssertTrue(app.buttons["Close code towers"].waitForExistence(timeout: 20))
-        XCTAssertTrue(app.staticTexts.containing(NSPredicate(
-            format: "label CONTAINS %@", "650/653"
-        )).firstMatch.exists)
-        let image = XCTAttachment(screenshot: app.screenshot())
-        image.name = "Large partial code city"
-        image.lifetime = .keepAlways
-        add(image)
-        let search = app.descendants(matching: .any)["code-towers.search"].firstMatch
-        XCTAssertTrue(search.waitForExistence(timeout: 10))
-        search.tap()
-        search.typeText("Source649")
-        let file = app.buttons["code-towers.file.apps/ios/GrantTap/Features/Area25/Source649.swift"]
-        XCTAssertTrue(file.waitForExistence(timeout: 10))
-        file.tap()
-        XCTAssertTrue(app.staticTexts["code-towers.inspector.path"].waitForExistence(timeout: 10))
+        DenseCodeCityJourney.run(in: self)
+    }
+
+    func testDenseCodeCityOverviewAndSourceInspector() {
+        continueAfterFailure = false
+        let app = DenseCodeCityJourney.openDenseInspector(in: self)
         app.buttons["Close code towers"].tap()
         XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Partial map"].exists)
+        XCTAssertTrue(app.staticTexts["Partial report"].exists)
     }
 
     func testStatisticsHasTaskDiagramAndEvidenceBars() {

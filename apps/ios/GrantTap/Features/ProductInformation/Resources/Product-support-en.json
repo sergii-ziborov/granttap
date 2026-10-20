@@ -1,6 +1,6 @@
 {
   "title": "Support",
-  "updated": "2026-10-18",
+  "updated": "2026-10-20",
   "intro": "Install GrantTap → connect an execution computer with GrantTap MCP → open your Task. This guide explains account passkeys, direct pairing, Mac access, connection modes and recovery.",
   "sections": [
     {
@@ -27,7 +27,7 @@
     {
       "heading": "Purchase, restore and connection modes",
       "paragraphs": [
-        "Planned US launch prices: Personal: $3.99 per month — up to 2 computers; Personal Plus: $6.99 per month — up to 5 computers; Fleet: $11.99 per month — up to 15 computers. Mac Local: $39.99 once. Apple’s purchase sheet controls availability, local pricing and any eligible trial. Models and AI tokens are separate.",
+        "Planned US launch prices: Personal: $4.99 per month — up to 2 computers; Personal Plus: $7.99 per month — up to 5 computers; Fleet: $13.99 per month — up to 15 computers. Mac Local: $39.99 once. Apple’s purchase sheet controls availability, local pricing and any eligible trial. Models and AI tokens are separate.",
         "Use Restore purchases in Settings with the same Apple Account that made the purchase. Manage subscription opens Apple's controls. Deleting the app does not cancel a subscription.",
         "Active Personal includes linked Mac managed access; no additional Mac Local purchase is required for that path. Mac Local opens local control and your own relay without a Personal subscription. Managed hosting is not part of the one-time purchase."
       ]
@@ -154,6 +154,9 @@
         "The iPhone, iPad and Mac apps are available by TestFlight invitation. Find the build number in About. The computer MCP updates separately."
       ],
       "bullets": [
+        "Apps 206 · TestFlight · October 20, 2026. Shared offline Repo Lens code city with readable labels and adapted portrait and landscape inspectors. Search, source sections, directed links and recovery remain available. Health distinguishes current, saved, partial and missing reports, with details for each repository. Reduced scrolling interruptions during Mesh persistence. Updated planned subscription prices, optional cancellation feedback and eligible one-month retention offers. TestFlight keeps full free access.",
+        "MCP 0.8.81 · October 20, 2026. Complete setup, account, connection and delivery guide with confirmed Personal $4.99, Personal Plus $7.99 and Fleet $13.99 pricing. Trial and TestFlight access are explained separately.",
+        "MCP 0.8.80 · October 19, 2026. Reconnection respects the relay retry delay. Pending encrypted messages survive reconnects; relay storage and an agent response remain separate delivery stages.",
         "Apps 202 · TestFlight · October 18, 2026. Messages and queues in a new chat save to the relay before the computer opens its task. Chat ID changes and repeated Send now preserve delivery state. Update the computer MCP to 0.8.75 for this behavior.",
         "MCP 0.8.75. Queued follow-ups wait for the original task and continue that chat after the computer returns. Controller, provider and Project checks remain in place; repeated delivery does not create a second task.",
         "Apps 201 · TestFlight · October 18, 2026. Full beta access without buying a subscription. Approvals and messages confirm relay storage without waiting for the computer. New queue uploads do not wait behind older receipt requests. Adaptive chat for iPhone Duo, rotation and the keyboard.",
@@ -163,7 +166,7 @@
       "links": [
         {
           "label": "Computer MCP version on npm",
-          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.75"
+          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.81"
         }
       ]
     },
@@ -188,7 +191,16 @@
     {
       "heading": "What remains after cancellation?",
       "paragraphs": [
-        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid."
+        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid.",
+        "Open Settings → Subscription → Manage or cancel in the app, or Manage or cancel with Apple in your account on the website. The Apple settings link is available immediately. Cancel a free trial at least 24 hours before it ends to avoid renewal.",
+        "Eligible existing subscribers can check the app for one month at about half the regular monthly price, once per GrantTap account. Apple confirms the localized promotional price and the regular monthly renewal before purchase. Offer availability is checked with Apple; TestFlight keeps full free access.",
+        "You can optionally choose a reason or send a comment. Feedback is separate from cancellation, is encrypted at rest, is kept for up to 90 days, and is removed with your account."
+      ],
+      "links": [
+        {
+          "label": "Manage subscriptions with Apple",
+          "href": "https://apps.apple.com/account/subscriptions"
+        }
       ]
     },
     {

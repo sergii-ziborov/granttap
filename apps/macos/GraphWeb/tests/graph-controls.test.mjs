@@ -23,14 +23,15 @@ function fixture(language = 'en') {
     focusNode(id) { selected.push([id]); }, focusSection(id, index) { selected.push([id, index]); } };
   dom.window.webkit = { messageHandlers: { graphStatus: { postMessage: value => messages.push(value) } } };
   const inspector = createGraphInspector(root, data, board), host = createGraphControls(root, data, board, inspector);
-  const click = title => { const button = [...root.querySelectorAll('button')].find(value => value.textContent === title); assert.ok(button, title); button.click(); };
+  const click = title => { const button = [...root.querySelectorAll('button')].find(value => value.textContent === title || value.getAttribute('aria-label') === title); assert.ok(button, title); button.click(); };
   return { dom, root, board, data, inspector, host, camera, controls, segment, selected, messages, click };
 }
 
 test('camera controls, section search and measured highlights work through the visible UI', () => {
   const value = fixture(); const { root, click, camera, controls, selected, segment } = value;
-  click('+'); assert.ok(Math.abs(camera.position.length() - Math.sqrt(10400) * 0.8) < 1e-8);
-  click('−'); assert.ok(Math.abs(camera.position.length() - Math.sqrt(10400)) < 1e-8);
+  const distance = camera.position.distanceTo(controls.target);
+  click('Zoom in'); assert.ok(Math.abs(camera.position.distanceTo(controls.target) - distance * 0.8) < 1e-8);
+  click('Zoom out'); assert.ok(Math.abs(camera.position.distanceTo(controls.target) - distance) < 1e-8);
   for (const title of ['Fit', 'Top', 'ISO']) click(title);
   click('Orbit'); assert.equal(controls.mouseButtons.LEFT, 2); assert.equal(controls.touches.ONE, 1);
   click('Pan'); assert.equal(controls.mouseButtons.LEFT, 0);
@@ -38,7 +39,10 @@ test('camera controls, section search and measured highlights work through the v
   search.value = 'long'; search.dispatchEvent(new value.dom.window.Event('input'));
   click('long · L11'); assert.deepEqual(selected.at(-1), [0, 1]);
   click('Files'); search.value = 'missing'; search.dispatchEvent(new value.dom.window.Event('input'));
-  assert.match(root.textContent, /No matching files/); click('Close files');
+  assert.match(root.textContent, /No matching files/);
+  click('Clear search'); assert.equal(search.value, '');
+  assert.equal(root.querySelector('.graph-browser details button').textContent, 'main.swift');
+  click('Close files');
   click('Highlights'); const slider = root.querySelector('input[type=range]');
   slider.value = '200'; slider.dispatchEvent(new value.dom.window.Event('input'));
   assert.equal(segment.material.color.getHex(), 0x123456);
@@ -55,13 +59,16 @@ test('full screen restores camera, selected source section and highlight prefere
   assert.equal(value.segment.material.color.getHex(), 0xffb454);
   value.inspector.openMethod({ id: 0, index: 1 });
   value.camera.position.set(30, 40, 50); value.controls.target.set(2, 3, 4);
+  value.camera.setViewOffset(390, 700, 0, 140, 390, 700);
   value.click('Full screen'); assert.deepEqual(value.messages, ['fullscreen']);
-  const camera = new THREE.PerspectiveCamera(), controls = { target: new THREE.Vector3(), mouseButtons: {}, touches: {}, update() {} };
+  const camera = new THREE.PerspectiveCamera(50, 390 / 700), controls = { target: new THREE.Vector3(), mouseButtons: {}, touches: {}, update() {} };
   const next = { ...value.board, getCamera: () => camera, getControls: () => controls };
   const secondRoot = value.dom.window.document.createElement('main');
   const inspector = createGraphInspector(secondRoot, value.data, next);
   createGraphControls(secondRoot, value.data, next, inspector);
   assert.deepEqual(camera.position.toArray(), [30, 40, 50]); assert.deepEqual(controls.target.toArray(), [2, 3, 4]);
+  assert.equal(camera.view.offsetY / camera.view.fullHeight, 0.2);
+  assert.equal(camera.aspect, 390 / 700, 'a saved offset must not restore the previous viewport aspect');
   assert.equal(inspector.selection().index, 1); assert.match(secondRoot.textContent, /Observed source/);
   inspector.close(); inspector.setThreshold(150); assert.equal(inspector.selection(), null);
 });
@@ -70,6 +77,16 @@ test('Russian controls and invalid saved preferences remain usable', () => {
   const value = fixture('ru');
   value.click('Файлы'); assert.match(value.root.textContent, /Файлы и секции/);
   value.click('Закрыть файлы'); value.click('Справка'); assert.match(value.root.textContent, /Перетаскивайте/);
+});
+
+test('Fit dismisses source details so the whole city can be inspected', () => {
+  const value = fixture();
+  value.inspector.openMethod({ id: 0, index: 1 });
+  assert.ok(value.inspector.selection());
+  value.click('Fit');
+  assert.equal(value.inspector.selection(), null);
+  assert.equal(value.root.querySelector('.granttap-inspector').hidden, true);
+  value.host.dispose(); value.dom.window.close();
 });
 
 test('an updated report retains the selected symbol when files and sections are inserted', () => {

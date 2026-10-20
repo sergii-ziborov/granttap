@@ -33,16 +33,22 @@ enum ProjectInsightReports {
     }
 
     static func needsAnalysis(_ snapshot: ProjectMeshSnapshot) -> Bool {
+        !staleRepositoryIds(snapshot).isEmpty
+    }
+
+    static func staleRepositoryIds(_ snapshot: ProjectMeshSnapshot,
+                                   reports selected: [ProjectRepositoryGraph]? = nil) -> Set<String> {
         let identities = identityMap(snapshot)
-        let reports = reports(snapshot, identities: identities)
-        return (snapshot.bindings ?? []).filter(\.available).contains { binding in
+        let reports = selected ?? reports(snapshot, identities: identities)
+        return Set((snapshot.bindings ?? []).filter(\.available).compactMap { binding -> String? in
             let canonical = identities[binding.repositoryId] ?? binding.repositoryId
             let revision = observedRevision(binding, canonical: canonical, snapshot: snapshot)
-            return !reports.contains {
+            let current = reports.contains {
                 (identities[$0.repositoryId] ?? $0.repositoryId) == canonical && isAnalyzed($0)
                     && (revision == nil || ($0.sourceRevision ?? $0.revision) == revision)
             }
-        }
+            return current ? nil : canonical
+        })
     }
 
     private static func identityMap(_ snapshot: ProjectMeshSnapshot) -> [String: String] {

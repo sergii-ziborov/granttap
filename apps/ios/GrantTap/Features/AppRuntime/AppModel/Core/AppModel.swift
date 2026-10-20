@@ -173,7 +173,7 @@ final class AppModel: ObservableObject {
     @Published var pendingMeshEvents: [ProjectMeshEvent] = restoredMesh.pendingEvents {
         didSet { transcriptRevision &+= 1 }
     }
-    @Published var meshAttentionStates: [String: ProjectMeshAttentionState] = restoredMesh.attentionStates
+    let meshAttentionStore = ProjectMeshAttentionStore(states: restoredMesh.attentionStates)
     @Published var agentMeshPreferences: AgentMeshPreferences = AgentMeshPreferencesStore.load()
     @Published var grokBotConnection: GrokBotEndpointConnection? = GrokBotEndpointStore.load()
 

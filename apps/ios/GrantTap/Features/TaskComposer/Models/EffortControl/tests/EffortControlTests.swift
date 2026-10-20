@@ -4,6 +4,39 @@ import XCTest
 
 @MainActor
 final class EffortControlTests: XCTestCase {
+    func testActiveDragKeepsFractionalPositionWhileSelectingTheNativeLevel() {
+        var selected: TurnEffort?
+        let parent = EffortSlider(scale: EffortScale(choices: TurnEffort.allCases,
+            selection: nil, fallback: .medium),
+            selection: Binding(get: { selected }, set: { selected = $0 }))
+        let slider = ContinuousEffortSlider()
+        slider.maximumValue = 5
+        slider.value = 0.8
+        parent.makeCoordinator().changed(slider)
+        XCTAssertEqual(selected, .medium)
+        XCTAssertEqual(slider.value, 0.8, accuracy: 0.001,
+                       "Selecting a discrete level must not move the thumb during a native drag")
+    }
+
+    func testReleasingOrCancellingSettlesTheThumbAndCommitsTheSupportedLevel() {
+        var selected: TurnEffort?
+        let parent = EffortSlider(scale: EffortScale(choices: TurnEffort.allCases,
+            selection: nil, fallback: .medium),
+            selection: Binding(get: { selected }, set: { selected = $0 }))
+        let coordinator = parent.makeCoordinator()
+        let slider = EffortSliderControl()
+        slider.maximumValue = 5
+        slider.addTarget(coordinator, action: #selector(EffortSlider.Coordinator.changed(_:)), for: .valueChanged)
+        slider.value = 2.7
+        slider.endTracking(nil, with: nil)
+        XCTAssertEqual(slider.value, 3)
+        XCTAssertEqual(selected, .xhigh)
+        slider.value = 1.2
+        slider.cancelTracking(with: nil)
+        XCTAssertEqual(slider.value, 1)
+        XCTAssertEqual(selected, .medium)
+    }
+
     func testScaleUsesOnlySupportedLevelsAndKeepsUnknownDefaultUnknown() {
         for provider in AgentIdentity.composeIds {
             let choices = TurnEffort.supported(by: provider)
@@ -67,4 +100,8 @@ final class EffortControlTests: XCTestCase {
                            EffortMotion.particles(for: effort, time: 200, reduceMotion: true))
         }
     }
+}
+
+private final class ContinuousEffortSlider: UISlider {
+    override var isTracking: Bool { true }
 }

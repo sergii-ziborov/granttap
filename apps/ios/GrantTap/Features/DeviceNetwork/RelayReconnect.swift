@@ -47,6 +47,9 @@ enum RelayReconnectBackoff {
     /// 1008 and the relay's 44xx closes are policy refusals: admission, cool-down, rate limit.
     static func delayAfterClose(current: TimeInterval, openFor: TimeInterval?, closeCode: Int,
                                 reason: String? = nil) -> TimeInterval {
+        if closeCode == 1013 {
+            return max(current, reason.flatMap(retryAfter) ?? 5)
+        }
         if closeCode == 1008 || (4400...4499).contains(closeCode) {
             return max(current, policyDelay, reason.flatMap(retryAfter) ?? 0)
         }

@@ -57,3 +57,76 @@ enum ProjectHealthDiagnostics {
             .map { RepositoryIdentityIndex.canonical($0, snapshots: [snapshot]) }).sorted()
     }
 }
+
+/// Build the repository index once, so a scrolling row never re-selects every report.
+struct ProjectHealthPresentation: Equatable {
+    struct Repository: Identifiable, Equatable {
+        let id: String
+        let name: String
+        let disambiguation: String?
+        let report: ProjectRepositoryGraph?
+        let stale: Bool
+
+        var ready: Bool { report?.analysisStatus == "COMPLETE" && report?.truncated == false && !stale }
+        var usable: Bool { report.map(ProjectInsightReports.isAnalyzed) ?? false }
+
+        var statusTitle: String {
+            guard let report else { return L("No report") }
+            if report.analysisStatus == "UNAVAILABLE" { return L("Needs attention") }
+            if usable && stale { return L("Saved report · needs refresh") }
+            if ready { return L("Ready") }
+            return L(usable ? "Partial report" : "Architecture needs refresh")
+        }
+
+        var detail: String? {
+            guard let report else { return L("No architecture analysis reported for this repository.") }
+            if report.analysisStatus == "UNAVAILABLE" {
+                return ProjectRepositoryGraph.unavailableReason(report.analysisErrorCode)
+            }
+            guard usable else { return L("Build architecture now to receive a current report.") }
+            return [LPlural(report.totalNodes, one: "%d component", many: "%d components"),
+                    LPlural(report.totalRelations, one: "%d relation", many: "%d relations")].joined(separator: " · ")
+        }
+    }
+
+    let repositories: [Repository]
+    let reports: [ProjectRepositoryGraph]
+    let computers: [ProjectHealthDiagnostics.Computer]
+    let needsAnalysis: Bool
+    var readyCount: Int { repositories.filter(\.ready).count }
+    var attentionCount: Int { repositories.count - readyCount }
+
+    init(snapshot: ProjectMeshSnapshot, connections: [LinkedComputer]) {
+        let ids = ProjectHealthDiagnostics.graphRepositoryIds(snapshot)
+        reports = ProjectInsightReports.reports(snapshot)
+        let stale = ProjectInsightReports.staleRepositoryIds(snapshot, reports: reports)
+        let indexed = Dictionary(grouping: reports) {
+            RepositoryIdentityIndex.canonical($0.repositoryId, snapshots: [snapshot])
+        }
+        let names = Dictionary(grouping: ids, by: ProjectRepositories.repositoryLeaf)
+        repositories = ids.map { id in
+            let name = ProjectRepositories.repositoryLeaf(id)
+            return Repository(id: id, name: name,
+                disambiguation: names[name, default: []].count > 1 ? id : nil,
+                report: indexed[id]?.first, stale: stale.contains(id))
+        }
+        computers = ProjectHealthDiagnostics.computers(snapshot, connections: connections)
+        needsAnalysis = !stale.isEmpty
+    }
+}
+
+/// Unrelated AppModel changes do not rebuild Health's report and identity indices.
+final class ProjectHealthPresentationCache {
+    private var snapshot: ProjectMeshSnapshot?
+    private var connections: [LinkedComputer] = []
+    private var presentation: ProjectHealthPresentation?
+
+    func value(for next: ProjectMeshSnapshot, connections nextConnections: [LinkedComputer]) -> ProjectHealthPresentation {
+        if snapshot == next, connections == nextConnections, let presentation { return presentation }
+        let result = ProjectHealthPresentation(snapshot: next, connections: nextConnections)
+        snapshot = next
+        connections = nextConnections
+        presentation = result
+        return result
+    }
+}

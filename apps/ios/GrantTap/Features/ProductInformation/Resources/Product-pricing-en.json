@@ -1,26 +1,26 @@
 {
   "title": "Pricing and connection modes",
-  "updated": "2026-10-16",
+  "updated": "2026-10-20",
   "intro": "TestFlight includes all features without a purchase or subscription. These are planned US prices for the first commercial release; paid products are not available yet.",
   "sections": [
     {
       "heading": "Personal",
       "paragraphs": [
-        "$3.99 / month. Up to 2 managed computers.",
+        "$4.99 / month. Up to 2 managed computers.",
         "For your main machine and one more computer."
       ]
     },
     {
       "heading": "Personal Plus",
       "paragraphs": [
-        "$6.99 / month. Up to 5 managed computers.",
+        "$7.99 / month. Up to 5 managed computers.",
         "For several working machines and projects."
       ]
     },
     {
       "heading": "Fleet",
       "paragraphs": [
-        "$11.99 / month. Up to 15 managed computers.",
+        "$13.99 / month. Up to 15 managed computers.",
         "For a larger personal fleet of computers."
       ]
     },
@@ -64,7 +64,16 @@
     {
       "heading": "What remains after cancellation?",
       "paragraphs": [
-        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid."
+        "Paid access continues until the stated date unless the entitlement is separately revoked. Downloaded local history, chats and images are not deleted. A purchased Mac Local license remains valid.",
+        "Open Settings → Subscription → Manage or cancel in the app, or Manage or cancel with Apple in your account on the website. The Apple settings link is available immediately. Cancel a free trial at least 24 hours before it ends to avoid renewal.",
+        "Eligible existing subscribers can check the app for one month at about half the regular monthly price, once per GrantTap account. Apple confirms the localized promotional price and the regular monthly renewal before purchase. Offer availability is checked with Apple; TestFlight keeps full free access.",
+        "You can optionally choose a reason or send a comment. Feedback is separate from cancellation, is encrypted at rest, is kept for up to 90 days, and is removed with your account."
+      ],
+      "links": [
+        {
+          "label": "Manage subscriptions with Apple",
+          "href": "https://apps.apple.com/account/subscriptions"
+        }
       ]
     },
     {

@@ -33,4 +33,11 @@ enum ProjectTowerViewFixtures {
         report.analysisId = "fixture-analysis"
         return report
     }
+
+    static func largeMap() -> ProjectCodeMap {
+        ProjectCodeMap(files: (0..<650).map { index in
+            .init(path: "Sources/Area\(index / 25)/File\(index).swift", language: "swift",
+                  lineCount: 20 + index, symbols: [])
+        }, roads: [], totalFiles: 653, truncated: true)
+    }
 }

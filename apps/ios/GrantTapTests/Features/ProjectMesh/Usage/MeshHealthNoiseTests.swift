@@ -1,4 +1,5 @@
 import XCTest
+import Combine
 @testable import GrantTap
 
 /// Mesh Health shows what a person can act on: repositories and their real
@@ -65,4 +66,74 @@ final class MeshHealthNoiseTests: XCTestCase {
         XCTAssertEqual(ProjectMeshLogic.merged(current: old, incoming: base, nowMs: 6).repositoryGraphs?.count, 2,
                        "a snapshot that carries no graphs says nothing about them")
     }
+
+    func testHealthCountsCompletePartialUnavailableAndMissingSeparately() {
+        var partial = graph("partial")
+        partial.analysisStatus = "INCOMPLETE"
+        let value = mesh([graph("repo"), partial,
+                          graph("broken", unavailable: "ENGINE_ADMISSION_UNAVAILABLE")], at: 1,
+                         bindings: ["repo", "partial", "broken", "missing"].map { binding($0, revision: "head") })
+        let health = ProjectHealthPresentation(snapshot: value, connections: [])
+        XCTAssertEqual(health.repositories.count, 4)
+        XCTAssertEqual(health.readyCount, 1, "a partial report is inspectable, but is not complete")
+        XCTAssertEqual(health.attentionCount, 3)
+        XCTAssertEqual(health.repositories.filter(\.usable).count, 2)
+        XCTAssertNil(health.repositories.first { $0.id == "missing" }?.report)
+    }
+
+    func testHealthDistinguishesForksAndRefreshesCachedFailures() {
+        let repositories = ["repo", "github.com/one/app", "github.com/two/app"]
+        let value = mesh(repositories.map { graph($0, unavailable: "REPOSITORY_NOT_BOUND") }, at: 1,
+                         bindings: repositories.map { binding($0, revision: "head") })
+        let cache = ProjectHealthPresentationCache()
+        let initial = cache.value(for: value, connections: [])
+        XCTAssertEqual(initial.repositories.filter { $0.disambiguation != nil }.count, 2)
+        XCTAssertEqual(initial.readyCount, 0)
+        var repaired = value
+        repaired.repositoryGraphs = repositories.map { graph($0) }
+        let fresh = cache.value(for: repaired, connections: [])
+        XCTAssertEqual(fresh.readyCount, 3, "a received successful report replaces its cached failure")
+        XCTAssertEqual(cache.value(for: repaired, connections: []), fresh)
+        XCTAssertTrue(fresh.repositories.allSatisfy { $0.report?.analysisErrorCode == nil })
+    }
+
+    func testHealthKeepsOldArchitectureInspectableWithoutCallingItCurrent() {
+        let value = mesh([graph("repo")], at: 1, bindings: [binding("repo", revision: "new-head")])
+        let health = ProjectHealthPresentation(snapshot: value, connections: [])
+        XCTAssertEqual(health.readyCount, 0)
+        XCTAssertTrue(health.needsAnalysis)
+        XCTAssertTrue(health.repositories[0].usable)
+        XCTAssertTrue(health.repositories[0].stale)
+        XCTAssertEqual(health.repositories[0].report?.revision, "head")
+        let truncated = ProjectRepositoryGraph(projectId: "p", repositoryId: "repo", revision: "head",
+            weavatrixVersion: "2.17.4", analysisStatus: "COMPLETE", nodes: [], relations: [],
+            totalNodes: 3, totalRelations: 0, truncated: true)
+        let partial = ProjectHealthPresentation(snapshot: mesh([truncated], at: 2,
+            bindings: [binding("repo", revision: "head")]), connections: [])
+        XCTAssertEqual(partial.readyCount, 0)
+        XCTAssertTrue(partial.repositories[0].usable)
+    }
+    @MainActor
+    func testTimestampOnlyAttentionUpdatesRemainDurableWithoutInvalidatingTheUI() {
+        let model = AppModel()
+        var updates = 0
+        let observation = model.objectWillChange.sink { updates += 1 }
+        defer { observation.cancel() }
+        model.meshAttentionStates["scroll-fixture"] = .init(status: .acknowledged, createdAt: 1, updatedAt: 1)
+        let first = updates
+        model.meshAttentionStates["scroll-fixture"] = .init(status: .acknowledged, createdAt: 1, updatedAt: 2)
+        XCTAssertEqual(updates, first)
+        XCTAssertEqual(model.meshAttentionStates["scroll-fixture"]?.updatedAt, 2)
+        model.meshAttentionStates["scroll-fixture"] = .init(status: .answered, createdAt: 1, updatedAt: 3)
+        XCTAssertGreaterThan(updates, first, "a human decision must update its visible state")
+        let answered = updates
+        model.meshAttentionStates["scroll-fixture"] = .init(status: .snoozed, snoozedUntil: 10, updatedAt: 4)
+        XCTAssertGreaterThan(updates, answered)
+        let snoozed = updates
+        model.meshAttentionStates["scroll-fixture"] = .init(status: .snoozed, snoozedUntil: 20, updatedAt: 5)
+        XCTAssertGreaterThan(updates, snoozed, "a changed reminder time is visible")
+        model.meshAttentionStates.removeValue(forKey: "scroll-fixture")
+        XCTAssertNil(model.meshAttentionStates["scroll-fixture"])
+    }
+
 }

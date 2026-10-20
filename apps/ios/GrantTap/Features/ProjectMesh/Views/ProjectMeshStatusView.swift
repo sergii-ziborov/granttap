@@ -1,9 +1,10 @@
 import SwiftUI
 
+/// Observe the selected Mesh, while unrelated application changes leave its list intact.
 struct ProjectMeshStatusView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
-    @State private var towerReport: ProjectRepositoryGraph?
+    @State private var presentationCache = ProjectHealthPresentationCache()
 
     private var currentSnapshot: ProjectMeshSnapshot {
         model.meshSnapshots[snapshot.projectId] ?? snapshot
@@ -18,182 +19,110 @@ struct ProjectMeshStatusView: View {
 
     var body: some View {
         let snapshot = currentSnapshot
+        let connections = model.connectionRegistry.connections
+        ProjectHealthList(snapshot: snapshot, model: model,
+            health: presentationCache.value(for: snapshot, connections: connections),
+            request: model.projectGraphRequests[snapshot.projectId],
+            policy: model.projectGovernance[snapshot.projectId],
+            pendingPolicy: model.pendingProjectPolicyRevisions[snapshot.projectId], connections: connections)
+            .equatable()
+            .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
+    }
+}
+
+private struct ProjectHealthList: View, Equatable {
+    let snapshot: ProjectMeshSnapshot
+    let model: AppModel
+    let health: ProjectHealthPresentation
+    let request: ProjectGraphRequest?
+    let policy: ProjectGovernanceProjection?
+    let pendingPolicy: Int?
+    let connections: [LinkedComputer]
+    @State private var towerReport: ProjectRepositoryGraph?
+    @State private var repositoryIssue: ProjectHealthPresentation.Repository?
+    @State private var diagnosticsExpanded = false
+
+    private var currentSnapshot: ProjectMeshSnapshot { snapshot }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.model === rhs.model && lhs.snapshot == rhs.snapshot && lhs.request == rhs.request
+            && lhs.policy == rhs.policy && lhs.pendingPolicy == rhs.pendingPolicy
+            && lhs.connections == rhs.connections
+    }
+
+    var body: some View {
         List {
-            Section(L("Mesh")) {
-                CompatLabeledContent(
-                    L("Mode"), value: ProjectManagePresentation.meshSummary(snapshot)
-                )
-                CompatLabeledContent(L("Tasks"), value: "\(snapshot.tasks.count)")
-                CompatLabeledContent(L("Executions"), value: "\(snapshot.executions.count)")
-                CompatLabeledContent(L("Snapshot received"), value: ReportBuilder.stamp(snapshot.generatedAt))
-                if snapshot.incomplete == true {
-                    Text(L("This snapshot is incomplete; missing Tasks or events are not deletions."))
-                        .font(.caption).foregroundStyle(.orange)
+            Section(L("Architecture")) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(String(format: L("%d of %d repositories ready"), health.readyCount, health.repositories.count))
+                        .font(.headline)
+                    Spacer(minLength: 8)
+                    Image(systemName: health.attentionCount == 0 && !health.repositories.isEmpty
+                          ? "checkmark.circle.fill" : "circle.dotted")
+                        .foregroundStyle(health.attentionCount == 0 ? Theme.ok : Theme.muted)
+                }
+                .accessibilityIdentifier("health.architecture.summary")
+                Text(L("Snapshot received") + " · " + ReportBuilder.stamp(snapshot.generatedAt))
+                    .font(.caption).foregroundStyle(Theme.muted)
+                ProjectGraphBuildCard(
+                    request: request,
+                    reports: health.reports, needsAnalysis: health.needsAnalysis,
+                    actionIdentifier: "health.code-towers.refresh"
+                ) {
+                    Task { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                NavigationLink {
+                    ProjectGraphView(snapshot: snapshot, model: model)
+                } label: {
+                    Label(L("Open graph and analysis status"), systemImage: "point.3.connected.trianglepath.dotted")
                 }
             }
-            architectureSection
-            Section(L("Policy and execution")) {
-                if let policy = model.projectGovernance[snapshot.projectId] {
-                    CompatLabeledContent(L("Reported policy revision"), value: "\(policy.revision)")
-                    CompatLabeledContent(L("Enforcement"), value: policy.enforcement.rawValue)
-                    if let ready = policy.strictReady {
-                        CompatLabeledContent(L("Strict coverage"), value: ready ? L("Ready") : L("Incomplete"))
+            Section(L("Repositories")) {
+                ForEach(health.repositories) { repository in
+                    if let report = repository.report, repository.usable,
+                       report.codeMap?.files.isEmpty == false {
+                        Button { towerReport = report } label: { ProjectHealthRepositoryRow(repository: repository) }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("health.code-towers.\(repository.id)")
+                    } else {
+                        Button { repositoryIssue = repository } label: {
+                            ProjectHealthRepositoryRow(repository: repository)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("health.repository-issue.\(repository.id)")
                     }
-                } else {
-                    Text(L("No Mesh policy status has been reported by a computer."))
-                        .font(.caption).foregroundStyle(.orange)
                 }
-                if let pending = model.pendingProjectPolicyRevisions[snapshot.projectId] {
-                    CompatLabeledContent(L("Pending policy revision"), value: "\(pending)")
-                }
-                let route = model.projectGovernance[snapshot.projectId]?.policy?.execution ?? snapshot.execution
-                CompatLabeledContent(
-                    L("New Task route"),
-                    value: route?.targetEndpointId.map {
-                        ProjectHealthDiagnostics.computerName(
-                            $0, connections: model.connectionRegistry.connections
-                        )
-                    } ?? L("Choose a permitted computer")
-                )
             }
             Section(L("Computers")) {
-                let computers = ProjectHealthDiagnostics.computers(
-                    snapshot, connections: model.connectionRegistry.connections
-                )
-                if computers.isEmpty {
+                if health.computers.isEmpty {
                     Text(L("No computer has reported a Mesh binding or execution."))
-                        .font(.caption).foregroundStyle(.orange)
+                        .font(.caption).foregroundStyle(Theme.muted)
                 }
-                ForEach(computers) { computer in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(computer.name)
-                        Text(computerDetail(computer))
-                            .font(.caption).foregroundStyle(computer.available == false ? .orange : Theme.muted)
-                    }
+                ForEach(health.computers) { computer in
+                    ProjectHealthComputerRow(computer: computer, lastSeen: connections
+                        .first { $0.id == computer.id }?.lastCatalogAt)
                 }
             }
-            Section(L("Cortex Loom")) {
-                ForEach(ProjectHealthDiagnostics.computers(
-                    snapshot, connections: model.connectionRegistry.connections
-                )) { computer in
-                    CompatLabeledContent(
-                        computer.name,
-                        value: computer.cortex.map { $0.enabled ? $0.state : L("Off") }
-                            ?? L("No report")
-                    )
+            Section {
+                DisclosureGroup(L("Diagnostics"), isExpanded: $diagnosticsExpanded) {
+                    ProjectHealthDetails(snapshot: snapshot, computers: health.computers, model: model)
                 }
-                NavigationLink(L("Open Cortex diagnostics")) {
-                    ProjectCortexView(snapshot: snapshot, model: model)
-                }
-            }
-            Section(L("Measurements")) {
-                NavigationLink(L("Open Mesh statistics and usage")) {
-                    ProjectMeshStatisticsView(snapshot: snapshot, model: model)
-                }
-                Text(L("Missing usage reports remain unknown; Health describes the state of Mesh bindings, policy, and libraries."))
-                    .font(.caption).foregroundStyle(Theme.muted)
-            }
-            Section(L("Repository bindings")) {
-                if bindings.isEmpty {
-                    Text(L("No repository bindings reported."))
-                        .foregroundColor(Theme.muted)
-                } else {
-                    ForEach(bindings) { binding in ProjectBindingRow(binding: binding, model: model) }
-                }
+                .accessibilityIdentifier("health.diagnostics")
             }
         }
         .pageNavigationTitle(L("Health"))
         .accessibilityIdentifier("health.scroll")
-        .task(id: snapshot.projectId) { await model.observeProjectInsights(projectId: snapshot.projectId) }
         .refreshable { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
+        .sheet(item: $repositoryIssue) { repository in
+            ProjectHealthRepositoryDetails(repository: repository, snapshot: currentSnapshot, model: model)
+        }
         .fullScreenCover(item: $towerReport) { report in
             if let map = report.codeMap {
-                ProjectTowersFullScreen(
-                    report: report,
-                    repositoryName: ProjectOtherSide.displayName(of: report.repositoryId,
-                                                                 in: currentSnapshot),
-                    map: map
-                )
+                ProjectTowersFullScreen(report: report,
+                    repositoryName: ProjectOtherSide.displayName(of: report.repositoryId, in: currentSnapshot), map: map)
             }
         }
     }
-
-    @ViewBuilder private var architectureSection: some View {
-        let snapshot = currentSnapshot
-        Section(L("Weavatrix architecture")) {
-            ProjectGraphBuildCard(
-                request: model.projectGraphRequests[snapshot.projectId],
-                reports: ProjectInsightReports.reports(snapshot),
-                needsAnalysis: ProjectInsightReports.needsAnalysis(snapshot),
-                actionIdentifier: "health.code-towers.refresh"
-            ) {
-                Task { _ = await model.requestProjectGraphAnalysis(projectId: snapshot.projectId) }
-            }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            NavigationLink {
-                ProjectGraphView(snapshot: snapshot, model: model)
-            } label: {
-                Label(L("Open graph and analysis status"),
-                      systemImage: "point.3.connected.trianglepath.dotted")
-            }
-            let repositoryIds = ProjectHealthDiagnostics.graphRepositoryIds(snapshot)
-            ForEach(repositoryIds, id: \.self) { repositoryId in
-                let report = ProjectHealthDiagnostics.graphReport(
-                    for: repositoryId, snapshot: snapshot
-                )
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(ProjectRepositories.repositoryLeaf(repositoryId))
-                    if repositoryIds.filter({ ProjectRepositories.repositoryLeaf($0)
-                        == ProjectRepositories.repositoryLeaf(repositoryId) }).count > 1 {
-                        Text(repositoryId).font(.caption2).foregroundStyle(Theme.muted)
-                    }
-                    Text(graphDetail(report))
-                        .font(.caption).foregroundStyle(report?.analysisStatus == "COMPLETE" ? Theme.muted : .orange)
-                    if let report, report.analysisStatus != "UNAVAILABLE" {
-                        Text("Weavatrix \(report.weavatrixVersion) · \(report.revision.prefix(12))")
-                            .font(.caption2).foregroundStyle(Theme.muted)
-                        if let map = report.codeMap, !map.files.isEmpty {
-                            Text("\(map.files.count)/\(map.totalFiles) \(L("files")) · \(map.roads.count) \(L("relations"))")
-                                .font(.caption2).foregroundStyle(Theme.muted)
-                            if map.truncated {
-                                Text(L("Partial map"))
-                                    .font(.caption2).foregroundStyle(.orange)
-                            }
-                        }
-                        if report.codeMap?.files.isEmpty == false {
-                            Button {
-                                towerReport = report
-                            } label: {
-                                Label(L("Open code towers full screen"),
-                                      systemImage: "building.2.crop.circle")
-                            }
-                            .accessibilityIdentifier("health.code-towers.\(repositoryId)")
-                        } else {
-                            Text(L("Code towers have not been reported. Rebuild architecture on an updated computer."))
-                                .font(.caption).foregroundStyle(.orange)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func computerDetail(_ computer: ProjectHealthDiagnostics.Computer) -> String {
-        let bindings = LPlural(
-            computer.bindingCount, one: "%d repository binding", many: "%d repository bindings"
-        )
-        let state = computer.available.map { $0 ? L("Available") : L("Unavailable") }
-            ?? L("Binding not reported")
-        return "\(bindings) · \(state)"
-    }
-
-    private func graphDetail(_ report: ProjectRepositoryGraph?) -> String {
-        guard let report else { return L("No architecture analysis reported for this repository.") }
-        if report.analysisStatus == "UNAVAILABLE" {
-            return ProjectRepositoryGraph.unavailableReason(report.analysisErrorCode)
-        }
-        return "\(report.analysisStatus ?? L("Legacy report")) · \(report.totalNodes) components · \(report.totalRelations) relations"
-    }
-
 }

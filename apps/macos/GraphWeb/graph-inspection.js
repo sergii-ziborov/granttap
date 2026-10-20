@@ -1,3 +1,5 @@
+import { updateGraphFog } from './graph-camera-framing.js';
+
 export function findGraphFile(data, selection) {
   const nodes = [...data.files, ...(data.exts || [])];
   if (typeof selection?.id === 'number') return nodes.find(file => file.id === selection.id);
@@ -25,10 +27,11 @@ export function graphFileLinks(data, file) {
 
 export function graphFileMatches(data, query) {
   const needle = String(query || '').trim().toLocaleLowerCase();
-  return data.files.map(file => ({ file,
-    sections: file.symbolsUnavailable ? [] : file.methods.map((section, index) => ({ section, index }))
+  return [...data.files, ...(data.exts || [])].map(file => ({ file,
+    sections: file.symbolsUnavailable ? [] : (file.methods || []).map((section, index) => ({ section, index }))
       .filter(item => needle && item.section.name.toLocaleLowerCase().includes(needle)),
-  })).filter(item => !needle || item.file._path.toLocaleLowerCase().includes(needle) || item.sections.length);
+  })).filter(item => !needle || item.file._path.toLocaleLowerCase().includes(needle)
+    || item.file.name?.toLocaleLowerCase().includes(needle) || item.sections.length);
 }
 
 export function zoomGraphCamera(board, factor) {
@@ -39,7 +42,7 @@ export function zoomGraphCamera(board, factor) {
   board.stopCameraFlight();
   camera.position.copy(controls.target).add(delta.multiplyScalar(
     Math.min(controls.maxDistance || 12_000, Math.max(controls.minDistance || 8, distance * factor)) / distance));
-  controls.update();
+  updateGraphFog(board); controls.update();
   return true;
 }
 
