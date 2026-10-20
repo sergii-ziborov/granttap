@@ -55,6 +55,7 @@ struct MeshCyberboardView: UIViewRepresentable {
         private var deliveredReports: [ProjectRepositoryGraph]?
         private var deliveredLanguage: String?
         private var deliveryGeneration = 0
+        private var documentReady = false
         var onFullscreen: () -> Void
 
         init(reports: [ProjectRepositoryGraph], failed: Binding<Bool>, onFullscreen: @escaping () -> Void) {
@@ -64,7 +65,15 @@ struct MeshCyberboardView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            documentReady = true
             deliver(to: webView)
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            documentReady = false
+            deliveredReports = nil
+            deliveredLanguage = nil
+            deliveryGeneration += 1
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -91,6 +100,7 @@ struct MeshCyberboardView: UIViewRepresentable {
         }
 
         func deliver(to webView: WKWebView) {
+            guard documentReady else { return }
             let language = AppLocale.code
             // JSON key order is not identity. Equal reports must preserve the
             // renderer, source search and camera through native layout updates.

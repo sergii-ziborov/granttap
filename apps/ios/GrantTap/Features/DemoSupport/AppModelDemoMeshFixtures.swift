@@ -80,6 +80,16 @@ enum AppModelDemoMeshFixtures {
     }
 
     #if DEBUG
+    static func sourceBodyArchitectureGraph() -> ProjectRepositoryGraph {
+        var report = architectureGraph()
+        let symbols = (18...20).map { line in ProjectCodeMap.Symbol(id: "constant-\(line)",
+            label: "CONTEXT_LIMIT_\(line)", kind: "constant", startLine: line, lineCount: 1) }
+        report.codeMap = ProjectCodeMap(files: [
+            .init(path: "src/Context.rs", language: "rust", lineCount: 253, symbols: symbols)
+        ], roads: [], totalFiles: 1, truncated: true)
+        return report
+    }
+
     static func scrollableArchitectureGraph() -> ProjectRepositoryGraph {
         var report = architectureGraph()
         guard let map = report.codeMap else { return report }

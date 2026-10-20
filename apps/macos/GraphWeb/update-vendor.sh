@@ -58,11 +58,11 @@ source = source.replace("const hb=$('#d-healthbar'); hb.style.width=Math.round(a
                         "const hb=$('#d-healthbar'); hb.style.width=it.length?Math.round(ah*100)+'%':'0%'; hb.style.background=", 1)
 source = source.replace('const ah=avgHealth(f);', 'const ah=f.unknownHealth?0.5:avgHealth(f);')
 source = source.replace('`LOC ${f.loc}`', 'f.loc==null?`LOC n/a`:`LOC ${f.loc}`')
-source = source.replace('`METHODS ${f.methods.length}`', 'f.symbolsUnavailable?`METHODS n/a`:`METHODS ${f.methods.length}`')
+source = source.replace('`METHODS ${f.methods.length}`', 'f.symbolsUnavailable?`METHODS n/a`:`METHODS ${f.reportedSectionCount??f.methods.length}`')
 source = source.replace('gauge(4,n,11.4, ah,                                    healthColor(ah).getHex(), `HEALTH ${Math.round(ah*100)}%`);',
                         'gauge(4,n,11.4, f.unknownHealth?0:ah, f.unknownHealth?COL.doc:healthColor(ah).getHex(), f.unknownHealth?`HEALTH n/a`:`HEALTH ${Math.round(ah*100)}%`);')
 source = source.replace("$('#d-loc').textContent=f.loc; $('#d-meth').textContent=f.methods.length;",
-                        "$('#d-loc').textContent=f.loc==null?'—':f.loc; $('#d-meth').textContent=f.symbolsUnavailable?'—':f.methods.length;")
+                        "$('#d-loc').textContent=f.loc==null?'—':f.loc; $('#d-meth').textContent=f.symbolsUnavailable?'—':(f.reportedSectionCount??f.methods.length);")
 source = source.replace("hb.style.width=Math.round(ah*100)+'%';\n    hb.style.background", "hb.style.width=f.unknownHealth?'0%':Math.round(ah*100)+'%';\n    hb.style.background")
 old = "$('#d-health').textContent='●'.repeat(pips)+'○'.repeat(5-pips);"
 new = "$('#d-health').textContent=(f.isExternal&&!(f.items||[]).length)||f.methods?.every(m=>m.health==null)?'—':'●'.repeat(pips)+'○'.repeat(5-pips);"
@@ -119,6 +119,13 @@ PY
 mkdir -p "$generated/three/addons/controls" "$generated/three/addons/renderers"
 bun build "$scratch/cyberboard/cb-core.js" --target browser --external three \
   --external 'three/*' --outfile "$generated/cb-core.js" >/dev/null
+python3 - "$generated/cb-core.js" <<'PY'
+from pathlib import Path
+import re, sys
+path = Path(sys.argv[1])
+path.write_text(re.sub(r'^// .*?/cyberboard/([^/\n]+)$', r'// Repo Lens cyberboard/\1',
+                       path.read_text(), flags=re.MULTILINE))
+PY
 cp "$source_root/vendor/three/three.module.js" "$generated/three/three.module.js"
 python3 - "$generated/three/three.module.js" <<'PY'
 from pathlib import Path

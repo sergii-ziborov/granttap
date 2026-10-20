@@ -1,3 +1,5 @@
+import { sourceSegments } from './graph-source-sections.js';
+
 // Convert the bounded Weavatrix reports visible to this Mesh into Repo Lens data.
 // The renderer never receives source contents, credentials, or synthetic demo data.
 function sourceNodes(report) {
@@ -69,10 +71,7 @@ export function boardData(reports) {
       const position = layout.position++;
       const x = layout.cx + ((position % layout.grid) - (layout.grid - 1) / 2) * 16;
       const z = layout.cz + (Math.floor(position / layout.grid) - (layout.grid - 1) / 2) * 16;
-      const methods = node.symbols.map(symbol => ({ id: symbol.id, kind: symbol.kind, name: symbol.label,
-        loc: Math.max(1, Number(symbol.lineCount) || 1), line: symbol.startLine, health: null }));
-      if (!methods.length) methods.push({ name: 'Symbols unavailable',
-        loc: Math.max(1, Number(node.lineCount) || 20), health: null });
+      const methods = sourceSegments(node);
       const id = files.length;
       identities.set(`${report.repositoryId}\u0000${node.id}`, id);
       if (!report.codeMap?.files?.length) componentIds.set(`${report.repositoryId}\u0000${node.id}`, id);
@@ -83,6 +82,7 @@ export function boardData(reports) {
         partial: report.truncated || report.codeMap?.truncated || report.analysisStatus !== 'COMPLETE',
         language: node.language,
         unknownHealth: true, symbolsUnavailable: node.symbols.length === 0,
+        reportedSectionCount: node.symbols.length,
         loc: node.lineCount ?? null, height: methods.reduce((sum, method) => sum + method.loc * 0.085 + 0.45, 0),
         coverage: null, fanIn: 0, fanOut: 0 });
     });

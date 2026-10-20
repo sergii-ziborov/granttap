@@ -9,7 +9,7 @@ export function findGraphFile(data, selection) {
 
 export function sourceSection(file, index) {
   const method = file?.methods?.[index];
-  if (!method || file.symbolsUnavailable) return null;
+  if (!method || file.symbolsUnavailable || method.sourceRemainder) return null;
   return { id: method.id, name: method.name, kind: method.kind, line: method.line,
     endLine: method.line == null ? null : method.line + method.loc - 1,
     loc: method.loc, repositoryId: file.repositoryId, path: file._path,
@@ -29,7 +29,7 @@ export function graphFileMatches(data, query) {
   const needle = String(query || '').trim().toLocaleLowerCase();
   return [...data.files, ...(data.exts || [])].map(file => ({ file,
     sections: file.symbolsUnavailable ? [] : (file.methods || []).map((section, index) => ({ section, index }))
-      .filter(item => needle && item.section.name.toLocaleLowerCase().includes(needle)),
+      .filter(item => !item.section.sourceRemainder && needle && item.section.name.toLocaleLowerCase().includes(needle)),
   })).filter(item => !needle || item.file._path.toLocaleLowerCase().includes(needle)
     || item.file.name?.toLocaleLowerCase().includes(needle) || item.sections.length);
 }

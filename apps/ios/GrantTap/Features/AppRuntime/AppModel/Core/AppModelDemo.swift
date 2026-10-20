@@ -32,7 +32,9 @@ extension AppModel {
         #if DEBUG
         ChatMessageQueueFixture.apply(to: self, at: now)
         TaskHandoffFixture.apply(to: self, snapshot: &mesh, at: now)
-        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_TOWER_SECTIONS"] == "1" {
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_GRAPH_SOURCE_BODY"] == "1" {
+            mesh.repositoryGraphs = [AppModelDemoMeshFixtures.sourceBodyArchitectureGraph()]
+        } else if ProcessInfo.processInfo.environment["GRANTTAP_TEST_TOWER_SECTIONS"] == "1" {
             mesh.repositoryGraphs = [AppModelDemoMeshFixtures.scrollableArchitectureGraph()]
         } else if ProcessInfo.processInfo.environment["GRANTTAP_TEST_GRAPH_LARGE"] == "1" {
             mesh.repositoryGraphs = [AppModelDemoMeshFixtures.largeArchitectureGraph()]

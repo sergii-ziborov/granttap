@@ -43,6 +43,7 @@
 		087ED834FB39439C98C19D15 /* ProjectApprovalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2720D26C9847B99CF87B8BF1 /* ProjectApprovalTests.swift */; };
 		08A0F7E8FD18FB263845FC93 /* InviteScopeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B945E39EA206B335C1DB40 /* InviteScopeUITests.swift */; };
 		08D36CDF6F223FD50C3C1040 /* ProductInformationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED7E6AB60C3FC06B71273CB /* ProductInformationTests.swift */; };
+		092740A853EEC50F512B6610 /* ProjectSourceBodyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9103EDF77E93E4377E8FB9D /* ProjectSourceBodyUITests.swift */; };
 		0950B82DD379D7C54A318E70 /* NotificationRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E1A258E549B90150150907 /* NotificationRequestSheet.swift */; };
 		097C99393E81A561761986BD /* Dictation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFCB422BE8FD12502E4B8FD /* Dictation.swift */; };
 		099207BC38A1EE332343A2D2 /* ClaudeQuestionsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BEA3DEE5369CB085697C612 /* ClaudeQuestionsUITests.swift */; };
@@ -519,6 +520,7 @@
 		7CA6DFAAFB59253010D674A7 /* SessionBackgroundRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3455AA7E61FE2621E87A61A /* SessionBackgroundRefresh.swift */; };
 		7CB0252B3F96F426490B5144 /* ProjectRepositoriesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4604BC12B22B975C4F643C4 /* ProjectRepositoriesSection.swift */; };
 		7CC0811B967255C6A6D4AF2C /* QRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C6AEACD4C271945BAD7768 /* QRScanner.swift */; };
+		7D04DC1BB439E74481EEE013 /* MeshCyberboardReadinessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4889E589D7AEB95A9A9A903A /* MeshCyberboardReadinessTests.swift */; };
 		7D0AA7EEF878781A0FA9F603 /* RelayTaskQueueActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973FE19C74CCEA3E5295A6B3 /* RelayTaskQueueActions.swift */; };
 		7D141DED50B78E53BE415D12 /* CapabilityTranscriptLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75FD213CC0F3308A9248E9 /* CapabilityTranscriptLinkTests.swift */; };
 		7D6A64C1CB8CC538D7FA6E45 /* SessionUsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE273A22E2BC825C2761D04D /* SessionUsageSnapshotTests.swift */; };
@@ -1438,6 +1440,7 @@
 		4849C388521C2405B811369C /* ProjectTaskDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTaskDraft.swift; sourceTree = "<group>"; };
 		4864F41B93B0E2442AE6BB1D /* MemberLinkDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberLinkDetailView.swift; sourceTree = "<group>"; };
 		486EE1656ABC3953AAB8618C /* MacLocalMCPUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLocalMCPUsage.swift; sourceTree = "<group>"; };
+		4889E589D7AEB95A9A9A903A /* MeshCyberboardReadinessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshCyberboardReadinessTests.swift; sourceTree = "<group>"; };
 		48B3BE8A7D2FB7258FE5A936 /* DeliveryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryModels.swift; sourceTree = "<group>"; };
 		4927FF2D82C78192EF71B703 /* HealthScrollingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthScrollingUITests.swift; sourceTree = "<group>"; };
 		498797B32E489D58A6A3F6C6 /* ComposerDraftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposerDraftTests.swift; sourceTree = "<group>"; };
@@ -2138,6 +2141,7 @@
 		E86AAB8C661363CF9F5D9B03 /* AppModelProjectMeshForwarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelProjectMeshForwarding.swift; sourceTree = "<group>"; };
 		E8AA321AD6A95225D0A4806D /* LongTranscriptUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongTranscriptUITests.swift; sourceTree = "<group>"; };
 		E8CCE0F2A3B23B149128F390 /* WatchJourneyCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchJourneyCoverageTests.swift; sourceTree = "<group>"; };
+		E9103EDF77E93E4377E8FB9D /* ProjectSourceBodyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSourceBodyUITests.swift; sourceTree = "<group>"; };
 		E96A3EAA6BB434D45AB6BE50 /* ProjectEnvironmentVariableEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEnvironmentVariableEditorTests.swift; sourceTree = "<group>"; };
 		E9C2E3B2CA301D16A60324FA /* PairingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingSheet.swift; sourceTree = "<group>"; };
 		E9CA4FA2507308BF8C91E541 /* MeshTaskPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshTaskPlacementTests.swift; sourceTree = "<group>"; };
@@ -2658,6 +2662,7 @@
 				340F14309D41D232C7F2C698 /* ProjectGraphBuildUITests.swift */,
 				2AF2A7313BC66CC76F9B5C69 /* ProjectGraphUITests.swift */,
 				A6D6522CD58CD9893D9E830C /* ProjectInsightsUITests.swift */,
+				E9103EDF77E93E4377E8FB9D /* ProjectSourceBodyUITests.swift */,
 				568D1A889AEF440B65CC3F08 /* ProjectTaskCreationUITests.swift */,
 				25E6B2CC613DF3FAC3981F0E /* ProjectTowerBrowserUITests.swift */,
 				F8CC1BB46AE4ED88ADF3B3D1 /* ProjectTowerControlsUITests.swift */,
@@ -4692,6 +4697,7 @@
 		E03CD5F65E3D04FD196B9F0C /* Graph */ = {
 			isa = PBXGroup;
 			children = (
+				4889E589D7AEB95A9A9A903A /* MeshCyberboardReadinessTests.swift */,
 				6F2F4653FAD8C1D15D51B55F /* ProjectCodeCityRecoveryTests.swift */,
 				912F264368E4D240B650EE7C /* ProjectTowerBrowserViewTests.swift */,
 				53655A8F789D44E2C5D677BF /* ProjectTowerCameraTests.swift */,
@@ -6176,6 +6182,7 @@
 				DB35CCB8B5D1A6C40714C197 /* MemberHubFixture.swift in Sources */,
 				86B84648BE58625BDBF9B234 /* MemberLinkHubTests.swift in Sources */,
 				7FDD2825DF72405D2FA30EEC /* MemberLinkTests.swift in Sources */,
+				7D04DC1BB439E74481EEE013 /* MeshCyberboardReadinessTests.swift in Sources */,
 				871CA6BDF5186DF93ADAE24C /* MeshHealthNoiseTests.swift in Sources */,
 				09C19E2346D66400261840AC /* MeshTaskPlacementTests.swift in Sources */,
 				0FEE17D855586F054AC2A2CB /* MessageImageContentTests.swift in Sources */,
@@ -6423,6 +6430,7 @@
 				8B3BB18EA7C6AEE9EE522088 /* ProjectGraphBuildUITests.swift in Sources */,
 				87D1E20DBDED02BF165F78DF /* ProjectGraphUITests.swift in Sources */,
 				058B1BB4A89126C327B543C2 /* ProjectInsightsUITests.swift in Sources */,
+				092740A853EEC50F512B6610 /* ProjectSourceBodyUITests.swift in Sources */,
 				6640455D6579C7CED4EFDFD5 /* ProjectTaskCreationUITests.swift in Sources */,
 				CEA4C9B6C1317774E988BFDD /* ProjectTowerBrowserUITests.swift in Sources */,
 				947F65C1FB764E781CE5D85B /* ProjectTowerControlsUITests.swift in Sources */,
@@ -6632,7 +6640,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6701,7 +6709,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6788,7 +6796,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6875,7 +6883,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6913,7 +6921,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -7030,7 +7038,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 206;
+				CURRENT_PROJECT_VERSION = 207;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;

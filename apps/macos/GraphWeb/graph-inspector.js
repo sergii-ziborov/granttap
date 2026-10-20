@@ -20,6 +20,7 @@ function sections(content, context) {
     if (file.symbolsUnavailable || !file.methods?.length) {
       list.append(interfaceElement(document, 'p', 'No source sections were reported for this tower.'));
     } else file.methods.forEach((method, i) => {
+      if (method.sourceRemainder) return;
       const row = button('', () => {
         state.index = i; board.focusSection(file.id, i); context.render();
       });

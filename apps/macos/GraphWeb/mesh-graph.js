@@ -2,12 +2,16 @@ import { createCyberboard } from './cb-core.js';
 import { boardData } from './board-data.js';
 import { createGraphInspector } from './graph-inspector.js';
 import { createGraphControls } from './graph-controls.js';
+import { graphText } from './graph-language.js';
 
 let cyberboard;
 let hostControls;
 window.mountMeshGraph = () => {
   try {
     const data = boardData(window.meshReports);
+    for (const file of data.files) for (const segment of file.methods) {
+      if (segment.sourceRemainder) segment.name = graphText(document, segment.name);
+    }
     hostControls?.save();
     hostControls?.dispose();
     hostControls = undefined;

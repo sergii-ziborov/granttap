@@ -104,7 +104,7 @@ final class ProjectTowerLiveMapTests: XCTestCase {
             try await Task.sleep(nanoseconds: 100_000_000)
         }
         let bridge = MeshCyberboardView(reports: [report], failed: .constant(false)).makeCoordinator()
-        bridge.deliver(to: web)
+        bridge.webView(web, didFinish: nil)
         try await Task.sleep(nanoseconds: 200_000_000)
         _ = try await web.evaluateJavaScript("""
             [...document.querySelectorAll('.graph-tools button')].find(b => b.textContent === 'Files').click();

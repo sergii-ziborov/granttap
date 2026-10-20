@@ -72,3 +72,9 @@ report refresh. Top and ISO remain directly available as named icon buttons.
 The phone inspector uses a compact bottom panel; landscape uses a side panel.
 Legend filters open from Highlights and help replaces that popover without
 discarding the selected source.
+
+A neutral source body represents measured file lines outside the union of known
+section ranges. It keeps a 253-line file visible when only three one-line
+constants were reported. This body is never counted, searched, highlighted or
+listed as an additional function or symbol. Missing file size or section
+locations do not generate an additional measured source body. Overlapping ranges are counted once.

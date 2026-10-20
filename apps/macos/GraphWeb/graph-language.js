@@ -1,4 +1,6 @@
 const russian = {
+  'Other source lines': 'Остальные строки исходника',
+  'Symbols unavailable': 'Секции не переданы',
   'External services': 'Внешние сервисы',
   'Clear search': 'Очистить поиск',
   'Files and sections': 'Файлы и секции', 'Close files': 'Закрыть файлы',
