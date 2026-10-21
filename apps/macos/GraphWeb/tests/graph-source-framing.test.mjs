@@ -26,3 +26,17 @@ for (const [width, height, panel] of [[390, 700, { left: 10, top: 370, right: 38
 test('transient zero-sized viewports do not change the camera', () => {
   assert.equal(frameGraphSource({}, { getBoundingClientRect: () => ({ width: 0, height: 0 }) }, {}, {}), false);
 });
+
+test('a short selected file uses the free viewport rather than fitting a large empty module tile', () => {
+  const camera = new THREE.PerspectiveCamera(50, 390 / 700, 0.5, 2000);
+  camera.position.set(0, 40, 60);
+  const controls = { target: new THREE.Vector3(), update() { camera.lookAt(this.target); camera.updateMatrixWorld(); } };
+  const board = { getCamera: () => camera, getControls: () => controls, stopCameraFlight() {} };
+  const root = { getBoundingClientRect: () => ({ left: 0, top: 0, right: 390, bottom: 700, width: 390, height: 700 }) };
+  const panel = { getBoundingClientRect: () => ({ left: 10, top: 370, right: 380, bottom: 620 }) };
+  const file = { x: 18, z: -32, height: 8 };
+  frameGraphSource(board, root, panel, file);
+  const top = new THREE.Vector3(file.x, 8, file.z).project(camera);
+  const bottom = new THREE.Vector3(file.x, 0, file.z).project(camera);
+  assert.ok(Math.abs(top.y - bottom.y) * 350 > 80, 'small source sections must be readable after file focus');
+});

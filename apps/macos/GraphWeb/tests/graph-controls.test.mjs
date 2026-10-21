@@ -30,7 +30,7 @@ function fixture(language = 'en') {
 test('camera controls, section search and measured highlights work through the visible UI', () => {
   const value = fixture(); const { root, click, camera, controls, selected, segment } = value;
   const distance = camera.position.distanceTo(controls.target);
-  click('Zoom in'); assert.ok(Math.abs(camera.position.distanceTo(controls.target) - distance * 0.8) < 1e-8);
+  click('Zoom in'); assert.ok(Math.abs(camera.position.distanceTo(controls.target) - distance * 0.9) < 1e-8);
   click('Zoom out'); assert.ok(Math.abs(camera.position.distanceTo(controls.target) - distance) < 1e-8);
   for (const title of ['Fit', 'Top', 'ISO']) click(title);
   click('Orbit'); assert.equal(controls.mouseButtons.LEFT, 2); assert.equal(controls.touches.ONE, 1);

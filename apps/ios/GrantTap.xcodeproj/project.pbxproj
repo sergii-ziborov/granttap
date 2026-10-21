@@ -419,6 +419,7 @@
 		6533E5A4F67750D6F07491E3 /* ChatWorkspaceFileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A183C614671D3E9A42708004 /* ChatWorkspaceFileSheet.swift */; };
 		655C1913D6513810995B6DD3 /* ProductInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B708F9974474A8D302AAA0 /* ProductInformationView.swift */; };
 		6560D677FD61BFAACA703438 /* AttachmentStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E66E8FE3D1AE7B96E24BFA /* AttachmentStrip.swift */; };
+		657535EDCA185EAB15388010 /* ProjectCodeCityInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178B722CEBF71C4821312462 /* ProjectCodeCityInteractionTests.swift */; };
 		65E31DBA71EFA8A1877697A7 /* ProjectComputerNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D266A38EE2AF95876969A473 /* ProjectComputerNetworkTests.swift */; };
 		65F576A8FDC532001949D9CD /* ChatCapabilityRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076ACB6787530AC144BFD407 /* ChatCapabilityRowView.swift */; };
 		6640455D6579C7CED4EFDFD5 /* ProjectTaskCreationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568D1A889AEF440B65CC3F08 /* ProjectTaskCreationUITests.swift */; };
@@ -1246,6 +1247,7 @@
 		16938948B8D0BF6E34400F7E /* ControllerInviteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerInviteCoordinator.swift; sourceTree = "<group>"; };
 		169F6DE3E0562288D5DBCC46 /* RepositoryMembershipMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryMembershipMerge.swift; sourceTree = "<group>"; };
 		177A760B32B8DF9544308C5D /* ContentNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentNavigation.swift; sourceTree = "<group>"; };
+		178B722CEBF71C4821312462 /* ProjectCodeCityInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCodeCityInteractionTests.swift; sourceTree = "<group>"; };
 		17AA4B23E8BF43A6A386A0F0 /* LocalTaskOrigins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTaskOrigins.swift; sourceTree = "<group>"; };
 		181E688DCFA40F59DAB5B649 /* ProjectStatisticsDiagrams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStatisticsDiagrams.swift; sourceTree = "<group>"; };
 		1835D6F75C92FE2A4FC4C136 /* ProjectMeshGraphMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectMeshGraphMerge.swift; sourceTree = "<group>"; };
@@ -4710,6 +4712,7 @@
 			isa = PBXGroup;
 			children = (
 				4889E589D7AEB95A9A9A903A /* MeshCyberboardReadinessTests.swift */,
+				178B722CEBF71C4821312462 /* ProjectCodeCityInteractionTests.swift */,
 				6F2F4653FAD8C1D15D51B55F /* ProjectCodeCityRecoveryTests.swift */,
 				912F264368E4D240B650EE7C /* ProjectTowerBrowserViewTests.swift */,
 				53655A8F789D44E2C5D677BF /* ProjectTowerCameraTests.swift */,
@@ -6225,6 +6228,7 @@
 				62F37DD61BFBF9CB46EBE3F2 /* ProjectArchitectureViewportTests.swift in Sources */,
 				8203ABD3CE54FA300119E9CB /* ProjectAuxiliaryContractTests.swift in Sources */,
 				09F60D4E16A1127A7F7A0052 /* ProjectCapabilityUsageTests.swift in Sources */,
+				657535EDCA185EAB15388010 /* ProjectCodeCityInteractionTests.swift in Sources */,
 				E08DBFF7FD81A02DCE92019A /* ProjectCodeCityRecoveryTests.swift in Sources */,
 				65E31DBA71EFA8A1877697A7 /* ProjectComputerNetworkTests.swift in Sources */,
 				88D93ECA2A336F02750091BF /* ProjectComputerWorkTests.swift in Sources */,
@@ -6656,7 +6660,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6725,7 +6729,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6812,7 +6816,7 @@
 				CODE_SIGN_ENTITLEMENTS = GrantTap/GrantTapLocal.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				"ENABLE_AUDIO_INPUT[sdk=macosx*]" = YES;
@@ -6899,7 +6903,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -6937,7 +6941,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -7054,7 +7058,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 208;
+				CURRENT_PROJECT_VERSION = 209;
 				DEVELOPMENT_TEAM = XMS5ZC28UJ;
 				INFOPLIST_FILE = GrantTapWatch/Info.plist;
 				MARKETING_VERSION = 1.0;

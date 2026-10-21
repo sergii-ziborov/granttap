@@ -1,6 +1,7 @@
 import { graphButton, graphText } from './graph-language.js';
 import { sectionKinds, sectionKind, checkColors, linkKinds } from './graph-highlight-policy.js';
 import { graphControlIcon } from './graph-control-icons.js';
+import { sourceBodyColor } from './graph-section-appearance.js';
 
 export function graphLegend(root, data, preferences) {
   const document = root.ownerDocument, panel = document.createElement('aside');
@@ -29,7 +30,7 @@ export function graphLegend(root, data, preferences) {
       row('Code checks need review', checkColors.review);
       row('Code checks not measured', checkColors.unknown);
     }
-    row('Other source lines', 0x71b7d0);
+    row('Other source lines', sourceBodyColor);
     if (data.files.some(file => file.isEndpoint)) row('Entry points', 0x2fe6a0);
     for (const [key, kind] of Object.entries(linkKinds)) {
       const count = data.edges.filter(edge => edge.type === key).length;

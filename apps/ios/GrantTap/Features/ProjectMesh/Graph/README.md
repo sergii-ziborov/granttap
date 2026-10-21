@@ -6,6 +6,9 @@ Graph consumes the current received Weavatrix report from Project Mesh. The
 shared build card owns waiting, receipt confirmation and retry presentation;
 the machine runtime owns automatic repository analysis and revision changes.
 An existing graph stays available while a new report is being built.
+Repository cards distinguish Code map (files, functions and source checks) from
+Architecture (components and dependencies). Partial reports retain their status;
+fingerprints, revisions and coverage limitations are in Report details.
 The graph and code city actions have 44-point targets across their complete
 rows. Their center and trailing areas remain interactive during a pending
 refresh, and both viewers return to the same saved report.

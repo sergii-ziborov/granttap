@@ -14,8 +14,8 @@ export function frameGraphSource(board, root, panel, file) {
   camera.fov = 360 / Math.PI * Math.atan(Math.tan(fov * Math.PI / 360) * height / box.height);
   camera.aspect = width / height;
   fitGraphCamera(board, { files: [file], MODULES: [
-    { _cx: file.x, _cz: file.z, _half: 14 },
-  ] }, 'iso');
+    { _cx: file.x, _cz: file.z, _half: file.isExternal ? 5 : 1.6 },
+  ] }, 'iso', 2);
   camera.fov = fov; camera.aspect = aspect;
   camera.setViewOffset(box.width, box.height, box.width / 2 - (free.left + free.right) / 2,
     box.height / 2 - (free.top + free.bottom) / 2, box.width, box.height);

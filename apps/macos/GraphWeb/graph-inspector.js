@@ -157,6 +157,7 @@ export function createGraphInspector(root, data, board) {
 
   Object.assign(context, { button, fact, render, openFile });
   return { openFile, openMethod, openEdge, close, restoreSelection, frame,
+    stopFraming() { frameGeneration += 1; },
     setPreferences(preferences) {
       const offset = panel.querySelector('.graph-inspector-scroll')?.scrollTop || 0;
       state.preferences = { ...preferences }; state.threshold = preferences.threshold;

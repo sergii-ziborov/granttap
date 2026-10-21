@@ -7,6 +7,7 @@ struct ProjectArchitectureDiagram: View {
     @State private var showHypotheses = false
     @State private var showFullGraph = false
     @State private var showTowers = false
+    @State private var showReportDetails = false
 
     private var nodes: [String: ProjectRepositoryGraph.Node] {
         report.nodes.reduce(into: [:]) { result, node in result[node.id] = node }
@@ -15,34 +16,20 @@ struct ProjectArchitectureDiagram: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
-            if let hypotheses = report.architectureHypotheses, !hypotheses.isEmpty {
-                DisclosureGroup(L("Architecture hypotheses"), isExpanded: $showHypotheses) {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(hypotheses) { hypothesis in
-                            hypothesisRow(hypothesis)
-                        }
-                    }
-                }
-            }
             if report.analysisStatus == "UNAVAILABLE" {
-                Text(unavailableReason)
-                    .foregroundStyle(.orange)
+                EmptyView()
             } else if report.analysisStatus == nil {
                 Text(L("This computer sent a legacy graph without an architecture analysis. Update GrantTap Engine to inspect verified component relations."))
                     .foregroundStyle(.orange)
             } else {
                 if let map = report.codeMap, !map.files.isEmpty {
                     Button { showTowers = true } label: {
-                        Label(L("Open code towers full screen"), systemImage: "building.2.crop.circle")
-                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                            .contentShape(Rectangle())
+                        mapAction("Code map", detail: "Files, functions and source checks", icon: "building.2.crop.circle")
                     }
                     .accessibilityIdentifier("architecture.towers.\(report.repositoryId)")
                 }
                 Button { showFullGraph = true } label: {
-                    Label(L("Open full graph"), systemImage: "arrow.up.left.and.arrow.down.right")
-                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                        .contentShape(Rectangle())
+                    mapAction("Architecture", detail: "Components and dependencies", icon: "point.3.connected.trianglepath.dotted")
                 }
                 .accessibilityIdentifier("architecture.fullscreen.\(report.repositoryId)")
                 if report.relations.isEmpty {
@@ -59,7 +46,15 @@ struct ProjectArchitectureDiagram: View {
                         }
                     }
                 }
+                if let hypotheses = report.architectureHypotheses, !hypotheses.isEmpty {
+                    DisclosureGroup(L("Architecture hypotheses"), isExpanded: $showHypotheses) {
+                        LazyVStack(alignment: .leading, spacing: 12) {
+                            ForEach(hypotheses) { hypothesis in hypothesisRow(hypothesis) }
+                        }
+                    }
+                }
             }
+            reportDetails
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,29 +74,63 @@ struct ProjectArchitectureDiagram: View {
             HStack {
                 Text(repositoryName).font(.headline)
                 Spacer()
-                Text(report.analysisStatus ?? L("Legacy"))
+                Text(statusTitle)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(report.analysisStatus == "COMPLETE" ? .green : .orange)
+                    .foregroundStyle(report.analysisStatus == "COMPLETE" && !report.truncated ? .green : .orange)
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(Theme.bg, in: Capsule())
             }
             if report.analysisStatus == "UNAVAILABLE" {
                 Text(unavailableReason)
                     .font(.caption).foregroundStyle(.orange)
             } else {
-                Text("Weavatrix \(report.weavatrixVersion) · \(report.revision.prefix(12))")
-                    .font(.caption).foregroundStyle(Theme.muted)
                 Text(String(format: L("%d components · %d relations"),
                             report.totalNodes, report.totalRelations))
                     .font(.caption).foregroundStyle(Theme.muted)
-                if report.truncated || report.analysisStatus == "INCOMPLETE" {
-                    Text(L("Partial evidence: some components, relations, or inputs are missing."))
-                        .font(.caption).foregroundStyle(.orange)
-                }
             }
         }
     }
 
     private var unavailableReason: String {
         ProjectRepositoryGraph.unavailableReason(report.analysisErrorCode)
+    }
+
+    private var statusTitle: String {
+        if report.analysisStatus == "UNAVAILABLE" { return L("Analysis unavailable") }
+        if report.truncated || report.analysisStatus == "INCOMPLETE" { return L("Partial report") }
+        return report.analysisStatus == "COMPLETE" ? L("Ready") : L("Legacy")
+    }
+
+    private func mapAction(_ title: String, detail: String, icon: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon).font(.title3).frame(width: 28)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L(title)).font(.subheadline.weight(.semibold))
+                Text(L(detail)).font(.caption).foregroundStyle(Theme.muted)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+        }
+        .padding(12).frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
+        .background(Theme.bg, in: RoundedRectangle(cornerRadius: 12))
+        .contentShape(Rectangle())
+    }
+
+    private var reportDetails: some View {
+        DisclosureGroup(L("Report details"), isExpanded: $showReportDetails) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Weavatrix \(report.weavatrixVersion)")
+                Text("\(L("Analysis fingerprint")): \(report.revision)").textSelection(.enabled)
+                if let revision = report.sourceRevision {
+                    Text("\(L("Source revision")): \(revision)").textSelection(.enabled)
+                }
+                if report.truncated || report.analysisStatus == "INCOMPLETE" {
+                    Text(L("Partial evidence: some components, relations, or inputs are missing."))
+                }
+            }
+            .font(.caption).foregroundStyle(Theme.muted)
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 6)
+        }
     }
 
     private var componentInventory: some View {

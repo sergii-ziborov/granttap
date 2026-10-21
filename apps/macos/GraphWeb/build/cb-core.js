@@ -668,6 +668,13 @@ function createCyberboardElevation(ctx) {
     showName(f);
     frameElevationTower(f, Math.max(8, f.height * 0.5), false);
   }
+  function scheduleCameraFrame(callback) {
+    const generation = opts.hostCameraGeneration;
+    requestAnimationFrame(() => {
+      if (generation === opts.hostCameraGeneration)
+        callback();
+    });
+  }
   function frameElevationTower(f, cy, withCodePanel) {
     const panel = withCodePanel ? document.querySelector(".rel-method-panel") : null;
     const panelOn = !!(panel && panel.isConnected);
@@ -794,7 +801,7 @@ function createCyberboardElevation(ctx) {
     const { x0, z0 } = f, rad = f.isExternal ? 3.1 : PILLAR_W * 0.6;
     const pickMethods = !f.isExternal && !!f._path && typeof opts.onMethodOpen === "function";
     const pickItems = f.isExternal && typeof opts.onItemOpen === "function";
-    const all = f.isExternal ? (f.items || []).map((t, i) => ({ idx: i, seg: f.segMid[i], item: t, hc: healthColor(t.health).getHexString(), nm: t.name, sub: `${Math.round(t.val)} ${f.unit || ""} &middot; ${Math.round(t.health * 100)}%${t.time ? " &middot; " + t.time : ""}` })) : f.methods.map((m, i) => ({
+    let all = f.isExternal ? (f.items || []).map((t, i) => ({ idx: i, seg: f.segMid[i], item: t, hc: healthColor(t.health).getHexString(), nm: t.name, sub: `${Math.round(t.val)} ${f.unit || ""} &middot; ${Math.round(t.health * 100)}%${t.time ? " &middot; " + t.time : ""}` })) : f.methods.map((m, i) => ({
       idx: i,
       seg: f.segMid[i],
       dead: !!m.dead,
@@ -802,6 +809,8 @@ function createCyberboardElevation(ctx) {
       nm: m.name,
       sub: m.dead ? "" : `${m.kind || "section"} · L${m.line ?? "—"} · ${m.loc} LOC${m.health == null ? "" : " · " + Math.round(m.health * 100) + "%"}`
     }));
+    if (!f.isExternal)
+      all = all.filter((item) => !f.methods[item.idx].sourceRemainder);
     const N = all.length, rail = _elevCodePanelOpen || N >= ELEV_OVERFLOW_AT, VIS = elevVisibleCount(f, N), overflow = rail && N > VIS;
     const colX = elevCalloutColumnX(f, N);
     _elevCount = N;
@@ -824,6 +833,10 @@ function createCyberboardElevation(ctx) {
       elevGroup.add(new THREE2.Line(g, new THREE2.LineBasicMaterial({ color: COL.cyan, transparent: true, opacity: 0.55 })));
       const el = document.createElement("div");
       el.className = "lbl callout" + (it.dead ? " callout-dead" : "");
+      if (!f.isExternal) {
+        el.dataset.graphFile = String(f.id);
+        el.dataset.graphSection = String(it.idx);
+      }
       const name = document.createElement("b");
       name.style.color = "#" + it.hc;
       name.textContent = it.nm;
@@ -1135,7 +1148,7 @@ function createCyberboardElevation(ctx) {
       console.error("[cyberboard] onMethodOpen failed", e);
     }
     if (!panelReady)
-      requestAnimationFrame(() => {
+      scheduleCameraFrame(() => {
         if (getElevationId() === f.id)
           frameElevationTower(f, cy, true);
       });
@@ -1186,7 +1199,7 @@ function createCyberboardElevation(ctx) {
       console.error("[cyberboard] onItemOpen failed", e);
     }
     if (!panelReady)
-      requestAnimationFrame(() => {
+      scheduleCameraFrame(() => {
         if (getElevationId() === f.id)
           frameElevationTower(f, Math.max(8, f.height * 0.5), true);
       });
@@ -1252,7 +1265,7 @@ function createCyberboardElevation(ctx) {
   }
   function frameFileIfActive(f) {
     if (getElevationId() === f.id)
-      requestAnimationFrame(() => {
+      scheduleCameraFrame(() => {
         if (getElevationId() === f.id)
           frameElevationTower(f, Math.max(8, f.height * 0.5), true);
       });
@@ -2229,7 +2242,7 @@ function createCyberboardInput(ctx) {
     if (ph.length) {
       const hit = ph[0].object.userData;
       focusApi.lockTarget(hit.fileId);
-      if (Number.isInteger(hit.methodIndex)) {
+      if (Number.isInteger(hit.methodIndex) && !hit.sourceBody) {
         focusApi.enterElevation(hit.fileId);
         focusApi.selectMethod(hit.methodIndex);
       }
@@ -3262,6 +3275,7 @@ function createCyberboard(container, opts = {}) {
       seg.position.y = y + hgt / 2;
       seg.userData.fileId = f.id;
       seg.userData.methodIndex = f.segMats.length;
+      seg.userData.sourceBody = !!meth.sourceRemainder;
       grp.add(seg);
       if (!docSeg)
         pickables.push(seg);
@@ -3833,6 +3847,7 @@ function createCyberboard(container, opts = {}) {
   }
   function stopCameraFlight() {
     tween = null;
+    opts.hostCameraGeneration = (opts.hostCameraGeneration || 0) + 1;
     controls.enabled = true;
   }
   return { setGraphDisplayPreferences, getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene: () => scene, getCamera: () => camera, selectMethod, selectItem, focusFile, setLoading, debugRouteStats };

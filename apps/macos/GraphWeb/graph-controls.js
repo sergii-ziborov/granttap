@@ -8,7 +8,7 @@ import { graphControlIcon } from './graph-control-icons.js';
 import { layoutGraphLabels } from './graph-label-layout.js';
 import { graphPreferences } from './graph-highlight-policy.js';
 import { graphLegend } from './graph-legend.js';
-import { applyGraphHighlights } from './graph-highlights.js';
+import { applyGraphHighlights, applyGraphLabelColours } from './graph-highlights.js';
 
 export function createGraphControls(root, data, board, inspector) {
   const document = root.ownerDocument, controls = document.createElement('nav');
@@ -51,11 +51,13 @@ export function createGraphControls(root, data, board, inspector) {
     parent.append(button);
   };
   const zoom = (label, factor, title) => {
-    const control = graphButton(document, label, () => { restoring = false; zoomGraphCamera(board, factor); save(); });
+    const control = graphButton(document, label, () => {
+      restoring = false; inspector.stopFraming(); zoomGraphCamera(board, factor); save();
+    });
     control.textContent = graphText(document, title); control.title = control.textContent;
     graphControlIcon(control, title); controls.append(control);
   };
-  zoom('−', 1.25, 'Zoom out'); zoom('+', 0.8, 'Zoom in');
+  zoom('−', 1 / 0.9, 'Zoom out'); zoom('+', 0.9, 'Zoom in');
   for (const [label, view] of [['Fit', 'reset'], ['Top', 'top'], ['ISO', 'iso']]) {
     action(label, () => {
       root.querySelector(`[data-view="${view}"]`)?.click();
@@ -66,7 +68,7 @@ export function createGraphControls(root, data, board, inspector) {
   const mode = graphButton(document, 'Orbit', () => { restoring = false; preferences.pan = !preferences.pan; updateMode(); save(); });
   function updateMode() {
     mode.textContent = graphText(document, preferences.pan ? 'Pan' : 'Orbit');
-    board.stopCameraFlight();
+    inspector.stopFraming(); board.stopCameraFlight();
     const camera = board.getControls(); camera.mouseButtons.LEFT = preferences.pan ? 2 : 0;
     camera.touches.ONE = preferences.pan ? 1 : 0; mode.setAttribute('aria-pressed', String(preferences.pan));
   }
@@ -82,7 +84,9 @@ export function createGraphControls(root, data, board, inspector) {
   let labelFrame;
   const scheduleLabels = () => {
     if (labelFrame != null) return;
-    labelFrame = document.defaultView.requestAnimationFrame?.(() => { labelFrame = null; layoutGraphLabels(root); });
+    labelFrame = document.defaultView.requestAnimationFrame?.(() => {
+      labelFrame = null; applyGraphLabelColours(root, data, preferences); layoutGraphLabels(root);
+    });
   };
   const labelsObserver = document.defaultView.MutationObserver && new document.defaultView.MutationObserver(scheduleLabels);
   labelsObserver?.observe(root, { childList: true, subtree: true });
@@ -93,12 +97,15 @@ export function createGraphControls(root, data, board, inspector) {
   });
   document.defaultView.addEventListener('resize', resized); scheduleLabels();
   const moved = () => { updateGraphFog(board); save(); scheduleLabels(); };
+  const manual = () => { restoring = false; inspector.stopFraming(); board.stopCameraFlight(); };
   const selectedSource = () => { applyGraphHighlights(root, board, data, preferences, inspector.selection()); save(); scheduleLabels(); };
   root.addEventListener('graphselection', selectedSource); board.getControls().addEventListener?.('change', moved);
+  board.getControls().addEventListener?.('start', manual);
   return { save, dispose() {
     observer?.disconnect();
     labelsObserver?.disconnect(); document.defaultView.cancelAnimationFrame?.(labelFrame);
     document.defaultView.removeEventListener('resize', resized);
     root.removeEventListener('graphselection', selectedSource); board.getControls().removeEventListener?.('change', moved);
+    board.getControls().removeEventListener?.('start', manual);
   } };
 }

@@ -88,3 +88,13 @@ section ranges. It keeps a 253-line file visible when only three one-line
 constants were reported. This body is never counted, searched, highlighted or
 listed as an additional function or symbol. Missing file size or section
 locations do not generate an additional measured source body. Overlapping ranges are counted once.
+
+Manual zoom uses reversible ten-percent steps. It cancels pending source framing,
+camera flights and residual orbit damping while preserving the target, viewing
+direction and viewport offset. Focus retains semantic colours instead of boosting
+them to white. Other source lines use a dim, matte body; they open file details
+and never enter the method callout rail. The Source context switch can hide that
+body without hiding received symbols. Section callouts and legend use the same
+palette as the measured 3D sections. Settings group colour, source context,
+labels and links, with counts of measured callable sections and actual check
+results; unavailable checks remain unknown.

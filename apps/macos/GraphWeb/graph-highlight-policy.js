@@ -29,6 +29,7 @@ export function graphPreferences(saved = {}) {
     edges: saved.edges && typeof saved.edges === 'object' ? { ...saved.edges } : {},
     relatedOnly: saved.relatedOnly === true, pan: saved.pan === true,
     entryPoints: saved.entryPoints !== false,
+    sourceBody: saved.sourceBody !== false,
   };
 }
 

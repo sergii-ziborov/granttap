@@ -49,6 +49,8 @@ window.mountMeshGraph = () => {
           if (Number.isInteger(node.userData?.methodIndex) && node.material?.color) segments.push({
             fileId: node.userData.fileId, index: node.userData.methodIndex,
             color: node.material.color.getHex(), opacity: node.material.opacity,
+            emissiveIntensity: node.material.emissiveIntensity, visible: node.visible,
+            sourceBody: node.userData.sourceBody === true,
           });
         });
         return { segments, position: camera.position.toArray(), target: cyberboard.getControls().target.toArray(),

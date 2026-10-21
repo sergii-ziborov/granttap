@@ -98,8 +98,9 @@ final class ProjectGraphBuildUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10))
         project.tap()
         let destination = app.buttons[health ? "project.health" : "project.openGraph"]
-        for _ in 0..<5 where !destination.exists { app.swipeUp() }
+        for _ in 0..<5 where !destination.isHittable { app.swipeUp(velocity: .slow) }
         XCTAssertTrue(destination.waitForExistence(timeout: 5))
+        XCTAssertTrue(destination.isHittable)
         destination.tap()
         XCTAssertTrue(app.navigationBars[health ? "Health" : "Graph"].waitForExistence(timeout: 5))
         return app

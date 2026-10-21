@@ -36,12 +36,21 @@ export function graphFileMatches(data, query) {
 
 export function zoomGraphCamera(board, factor) {
   const camera = board.getCamera(), controls = board.getControls();
+  if (!Number.isFinite(factor) || factor <= 0) return false;
+  board.stopCameraFlight();
+  if (controls.enableDamping) {
+    const position = camera.position.clone(), target = controls.target.clone();
+    // Drain OrbitControls' pending rotation/pan without moving the user's
+    // current frame. Its next animation tick must not rotate a zoom button.
+    controls.enableDamping = false; controls.update();
+    camera.position.copy(position); controls.target.copy(target); controls.update();
+    controls.enableDamping = true;
+  }
   const delta = camera.position.clone().sub(controls.target);
   const distance = delta.length();
-  if (!distance || !Number.isFinite(factor) || factor <= 0) return false;
-  board.stopCameraFlight();
+  if (!distance) return false;
   camera.position.copy(controls.target).add(delta.multiplyScalar(
-    Math.min(controls.maxDistance || 12_000, Math.max(controls.minDistance || 8, distance * factor)) / distance));
+    Math.min(controls.maxDistance ?? 12_000, Math.max(controls.minDistance ?? 8, distance * factor)) / distance));
   updateGraphFog(board); controls.update();
   return true;
 }

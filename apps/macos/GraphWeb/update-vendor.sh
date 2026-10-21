@@ -24,7 +24,7 @@ new = "dead?new THREE.Color(0xff1b4d):meth.health==null?new THREE.Color(COL.doc)
 assert old in source
 core.write_text(source.replace(old, new))
 source = core.read_text().replace('seg.userData.fileId=f.id;',
-    'seg.userData.fileId=f.id; seg.userData.methodIndex=f.segMats.length;')
+    'seg.userData.fileId=f.id; seg.userData.methodIndex=f.segMats.length; seg.userData.sourceBody=!!meth.sourceRemainder;')
 needle = 'function edgeScopeVisible(e){ return edgeTypeOn[laneType(e)]!==false'
 assert needle in source
 source = source.replace(needle, '''let graphRelatedId = null;
@@ -55,6 +55,7 @@ source = source.replace(needle, '''function focusNode(id) {
   }
   function stopCameraFlight() {
     tween = null;
+    opts.hostCameraGeneration = (opts.hostCameraGeneration || 0) + 1;
     controls.enabled = true;
   }
   return { setGraphDisplayPreferences, getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene:''')
@@ -94,6 +95,20 @@ assert old in source
 new = "const name=document.createElement('b'); name.style.color='#'+it.hc; name.textContent=it.nm; el.append(name, document.createTextNode(it.sub?' '+it.sub:''));"
 elevation.write_text(source.replace(old, new))
 source = elevation.read_text()
+source = source.replace('function frameElevationTower(f, cy, withCodePanel){', '''function scheduleCameraFrame(callback) {
+    const generation = opts.hostCameraGeneration;
+    requestAnimationFrame(() => { if (generation === opts.hostCameraGeneration) callback(); });
+  }
+  function frameElevationTower(f, cy, withCodePanel){''')
+source = source.replace('requestAnimationFrame(()=>', 'scheduleCameraFrame(()=>')
+needle = "const N=all.length, rail="
+assert needle in source
+source = source.replace(needle, "if (!f.isExternal) all = all.filter(item => !f.methods[item.idx].sourceRemainder);\n    " + needle)
+source = source.replace('const all = f.isExternal', 'let all = f.isExternal')
+needle = "el.className='lbl callout'+(it.dead?' callout-dead':'');"
+assert needle in source
+source = source.replace(needle, needle + "\n      if (!f.isExternal) { el.dataset.graphFile=String(f.id); el.dataset.graphSection=String(it.idx); }")
+elevation.write_text(source)
 source = source.replace("hc:(m.dead?'ff1b4d':healthColor(m.health).getHexString())",
     "hc:(m.dead?'ff1b4d':m.health==null?new THREE.Color(COL.doc).getHexString():healthColor(m.health).getHexString())")
 source = source.replace("${m.loc} loc &middot; ${Math.round((m.health||0)*100)}%",
@@ -110,7 +125,7 @@ assert needle in source
 source = source.replace(needle, '''if (ph.length) {
       const hit = ph[0].object.userData;
       focusApi.lockTarget(hit.fileId);
-      if (Number.isInteger(hit.methodIndex)) {
+      if (Number.isInteger(hit.methodIndex) && !hit.sourceBody) {
         focusApi.enterElevation(hit.fileId);
         focusApi.selectMethod(hit.methodIndex);
       }

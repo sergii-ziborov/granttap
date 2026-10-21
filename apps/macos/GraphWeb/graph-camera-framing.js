@@ -1,5 +1,5 @@
 /** Frame received source bounds using the viewport's horizontal and vertical FOV. */
-export function fitGraphCamera(board, data, view = 'reset') {
+export function fitGraphCamera(board, data, view = 'reset', padding = 8) {
   const camera = board.getCamera(), controls = board.getControls();
   camera.clearViewOffset();
   const vector = (x, y, z) => camera.position.clone().set(x, y, z);
@@ -16,7 +16,7 @@ export function fitGraphCamera(board, data, view = 'reset') {
   if (!finite.length || !Number.isFinite(camera.aspect) || camera.aspect <= 0) return false;
   const minimum = vector(Infinity, Infinity, Infinity), maximum = minimum.clone().negate();
   finite.forEach(point => { minimum.min(point); maximum.max(point); });
-  minimum.addScalar(-8); maximum.addScalar(8);
+  minimum.addScalar(-padding); maximum.addScalar(padding);
   const center = minimum.clone().add(maximum).multiplyScalar(0.5);
   const direction = view === 'top' ? vector(0, 1, 0.001) : view === 'iso' ? vector(0.7, 0.8, 1)
     : camera.position.clone().sub(controls.target);

@@ -1,6 +1,6 @@
 {
   "title": "Support",
-  "updated": "2026-10-20",
+  "updated": "2026-10-21",
   "intro": "Install GrantTap → connect an execution computer with GrantTap MCP → open your Task. This guide explains account passkeys, direct pairing, Mac access, connection modes and recovery.",
   "sections": [
     {
@@ -154,6 +154,8 @@
         "The iPhone, iPad and Mac apps are available by TestFlight invitation. Find the build number in About. The computer MCP updates separately."
       ],
       "bullets": [
+        "Apps 209 · TestFlight · October 21, 2026. Selected source sections retain their colours. Neutral file lines no longer appear as functions or overwhelm the measured sections. Short files fill the inspection area; zoom uses small reversible steps and cancels delayed camera movement. Map settings group colour, source context, labels and links, with measured-check counts. Graph separates Code map, Architecture and Report details.",
+        "MCP 0.8.86 · October 21, 2026. Chat catalog scans yield to relay traffic, reconnects publish a fresh catalog, and Usage history no longer delays the next chat update. Repository checks run asynchronously with bounded Git concurrency. Saved transcripts remain readable while scans refresh.",
         "Apps 206 · TestFlight · October 20, 2026. Shared offline Repo Lens code city with readable labels and adapted portrait and landscape inspectors. Search, source sections, directed links and recovery remain available. Health distinguishes current, saved, partial and missing reports, with details for each repository. Reduced scrolling interruptions during Mesh persistence. Updated planned subscription prices, optional cancellation feedback and eligible one-month retention offers. TestFlight keeps full free access.",
         "MCP 0.8.81 · October 20, 2026. Complete setup, account, connection and delivery guide with confirmed Personal $4.99, Personal Plus $7.99 and Fleet $13.99 pricing. Trial and TestFlight access are explained separately.",
         "MCP 0.8.80 · October 19, 2026. Reconnection respects the relay retry delay. Pending encrypted messages survive reconnects; relay storage and an agent response remain separate delivery stages.",
@@ -166,7 +168,7 @@
       "links": [
         {
           "label": "Computer MCP version on npm",
-          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.81"
+          "href": "https://www.npmjs.com/package/granttap-mcp/v/0.8.86"
         }
       ]
     },

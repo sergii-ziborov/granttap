@@ -2895,6 +2895,11 @@
 "The reported analysis is complete." = "Анализ по отчёту завершён.";
 "%d of %d repositories ready" = "Готово репозиториев: %d из %d";
 "Architecture" = "Архитектура";
+"Code map" = "Карта кода";
+"Files, functions and source checks" = "Файлы, функции и проверки исходника";
+"Components and dependencies" = "Компоненты и зависимости";
+"Report details" = "Подробности отчёта";
+"Analysis unavailable" = "Анализ недоступен";
 "Build architecture now to receive a current report." = "Постройте архитектуру, чтобы получить актуальный отчёт.";
 "Choose a permitted computer" = "Выберите разрешённый компьютер";
 "Last computer report" = "Последний отчёт компьютера";
