@@ -4,6 +4,7 @@ struct ProjectCapabilitiesView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
     @State private var showAdd = false
+    @ObservedObject private var recorded = CapabilityExecutionUsageStore.shared
     #if targetEnvironment(macCatalyst)
     @State private var installedSkills: [MacLocalSkill]?
     @State private var installedSkillsError = false
@@ -107,15 +108,16 @@ struct ProjectCapabilitiesView: View {
                 Text(L("Weavatrix and Cortex Loom are linked Engine libraries. They do not appear as MCP servers or Skills."))
             }
             Section(L("Skills")) {
-                if snapshot.skills?.isEmpty != false {
+                let observed = ProjectCapabilityUsage.observedSkills(recorded.byRoom,
+                    snapshot: snapshot, rooms: model.projectUsageRooms)
+                if snapshot.skills?.isEmpty != false && observed.isEmpty {
                     empty("No Mesh skill bundle has been reported. Installed local Skills are a separate inventory.")
                 }
                 ForEach(snapshot.skills ?? []) { skill in
-                    HStack {
-                        ProjectCapabilityRow(info: .skill(skill), snapshot: snapshot, model: model)
-                        Spacer(minLength: 8)
-                        capabilityPolicy(.skill, name: skill.name, skill: skill)
-                    }
+                    ProjectCapabilityRow(info: .skill(skill), snapshot: snapshot, model: model)
+                }
+                ForEach(observed) { info in
+                    ProjectCapabilityRow(info: info, snapshot: snapshot, model: model)
                 }
             }
             #if targetEnvironment(macCatalyst)
@@ -149,11 +151,7 @@ struct ProjectCapabilitiesView: View {
                     empty("No MCP configuration has been reported from this Mesh's computers. Check each computer's runtime and binding in Health.")
                 }
                 ForEach(mcpServers) { server in
-                    HStack(alignment: .top) {
-                        ProjectCapabilityRow(info: .server(server), snapshot: snapshot, model: model)
-                        Spacer(minLength: 8)
-                        capabilityPolicy(.mcp, name: server.name)
-                    }
+                    ProjectCapabilityRow(info: .server(server), snapshot: snapshot, model: model)
                 }
             }
     }
@@ -210,32 +208,4 @@ struct ProjectCapabilitiesView: View {
         Text(L(text)).foregroundStyle(Theme.muted)
     }
 
-    private func capabilityPolicy(
-        _ kind: ProjectCapabilityKind, name: String, skill: ProjectSharedSkill? = nil
-    ) -> some View {
-        let rule = ProjectGovernanceLogic.NamedRule(kind: kind, name: name)
-        let projection = model.projectGovernance[snapshot.projectId]
-        let effect = model.projectPolicyDrafts[snapshot.projectId]?.named[rule]
-            ?? ProjectGovernanceLogic.namedEffects(projection?.policy)[rule]
-        return Menu {
-            ForEach([ProjectPolicyEffect.ask, .deny], id: \.self) { choice in
-                Button(ProjectGovernancePresentation.effectLabel(choice)) {
-                    model.setProjectCapabilityEffect(
-                        projectId: snapshot.projectId, kind: kind,
-                        name: name, effect: choice
-                    )
-                }
-            }
-            if let skill, skill.digest != nil, skill.endpointId != nil,
-               skill.state == "discovered" {
-                Button(L("Approve exact bundle")) {
-                    model.approveProjectSkillBundle(projectId: snapshot.projectId, skill: skill)
-                }
-            }
-        } label: {
-            Text(effect.map(ProjectGovernancePresentation.effectLabel) ?? L("Mesh rule"))
-                .font(.caption).foregroundStyle(Theme.codex)
-        }
-        .disabled(model.demoMode || model.pendingProjectPolicyRevisions[snapshot.projectId] != nil)
-    }
 }

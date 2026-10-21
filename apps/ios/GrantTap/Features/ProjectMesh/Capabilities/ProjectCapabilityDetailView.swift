@@ -5,12 +5,19 @@ struct ProjectCapabilityDetailView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
     @ObservedObject private var usage = CapabilityUsageStore.shared
+    @ObservedObject private var recorded = CapabilityExecutionUsageStore.shared
 
     private var events: [CapabilityUsageEvent] {
         ProjectCapabilityUsage.events(usage.events,
             snapshot: model.meshSnapshots[snapshot.projectId] ?? snapshot,
             rooms: model.projectUsageRooms, kind: info.kind, name: info.name,
             endpointId: info.endpointId, provider: info.provider)
+    }
+
+    private var evidence: ProjectRecordedUsage? {
+        ProjectCapabilityUsage.recorded(recorded.byRoom,
+            snapshot: model.meshSnapshots[snapshot.projectId] ?? snapshot,
+            rooms: model.projectUsageRooms, info: info)
     }
 
     var body: some View {
@@ -33,6 +40,10 @@ struct ProjectCapabilityDetailView: View {
             }
             observedSection
             Section(L("Call history")) {
+                if events.isEmpty, evidence != nil {
+                    Text(L("The computer reported recorded use. Recent call details are not in this snapshot."))
+                        .foregroundStyle(Theme.muted)
+                }
                 ForEach(events.sorted { $0.createdAt > $1.createdAt }.prefix(20)) { event in
                     UsageCallLink(event: event)
                 }
@@ -43,29 +54,33 @@ struct ProjectCapabilityDetailView: View {
                 }
             }
         }
-        .pageNavigationTitle(info.title)
+        .pageNavigationTitle(info.title) {
+            ProjectCapabilityPolicyMenu(info: info,
+                snapshot: model.meshSnapshots[snapshot.projectId] ?? snapshot, model: model)
+        }
     }
 
     private var observedSection: some View {
         Section {
-            if let summary = UsageSummaries(events: events, totals: []).rows.first {
-                CompatLabeledContent(L("Calls"), value: "\(summary.count)")
-                CompatLabeledContent(L("Failed"), value: "\(summary.failures)")
+            let summary = UsageSummaries(events: events, totals: []).rows.first
+            if summary != nil || evidence != nil {
+                CompatLabeledContent(L("Calls"), value: "\(max(summary?.count ?? 0, evidence?.count ?? 0))")
+                CompatLabeledContent(L("Failed"), value: "\(max(summary?.failures ?? 0, evidence?.failures ?? 0))")
                 let unknown = events.filter { $0.effectiveOutcome == .unknown }.count
                 if unknown > 0 { CompatLabeledContent(L("Outcome not reported"), value: "\(unknown)") }
-                CompatLabeledContent(L("Average duration"), value: summary.averageDurationMs.map {
+                CompatLabeledContent(L("Average duration"), value: (evidence?.averageDurationMs ?? summary?.averageDurationMs).map {
                     CapabilityResourceFormat.duration($0)
                 } ?? L("Not reported"))
-                CompatLabeledContent(L("CPU time"), value: summary.cpuTimeMs.map {
+                CompatLabeledContent(L("CPU time"), value: summary?.cpuTimeMs.map {
                     CapabilityResourceFormat.duration($0)
                 } ?? L("Not reported"))
-                CompatLabeledContent(L("Peak memory"), value: summary.peakMemoryBytes.map {
+                CompatLabeledContent(L("Peak memory"), value: summary?.peakMemoryBytes.map {
                     CapabilityResourceFormat.bytes($0)
                 } ?? L("Not reported"))
                 HStack {
                     Text(L("Last used"))
                     Spacer()
-                    Text(Date(timeIntervalSince1970: summary.lastUsedAt / 1_000), style: .relative)
+                    Text(Date(timeIntervalSince1970: max(summary?.lastUsedAt ?? 0, evidence?.lastUsedAt ?? 0) / 1_000), style: .relative)
                         .foregroundStyle(Theme.muted)
                 }
             } else {
@@ -85,11 +100,14 @@ struct ProjectCapabilityRow: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
     @ObservedObject private var usage = CapabilityUsageStore.shared
+    @ObservedObject private var recorded = CapabilityExecutionUsageStore.shared
 
     var body: some View {
         let events = ProjectCapabilityUsage.events(usage.events, snapshot: snapshot,
             rooms: model.projectUsageRooms, kind: info.kind, name: info.name,
             endpointId: info.endpointId, provider: info.provider)
+        let evidence = ProjectCapabilityUsage.recorded(recorded.byRoom, snapshot: snapshot,
+            rooms: model.projectUsageRooms, info: info)
         NavigationLink {
             ProjectCapabilityDetailView(info: info, snapshot: snapshot, model: model)
         } label: {
@@ -101,16 +119,17 @@ struct ProjectCapabilityRow: View {
                 if let provider = info.provider {
                     Text(AgentIdentity.displayName(provider)).font(.caption).foregroundStyle(Theme.muted)
                 }
-                if let last = events.map(\.createdAt).max() {
+                if let last = ([events.map(\.createdAt).max(), evidence?.lastUsedAt].compactMap { $0 }).max() {
                     HStack(spacing: 6) {
-                        Text(String(format: L("%d observed calls"), events.count))
+                        Text(String(format: L("%d observed calls"), max(events.count, evidence?.count ?? 0)))
                         Text("·")
                         Text(Date(timeIntervalSince1970: last / 1_000), style: .relative)
                     }.font(.caption).foregroundStyle(Theme.muted)
                 } else {
-                    Text(L("Usage not reported")).font(.caption).foregroundStyle(Theme.muted)
+                    Text(L("No recorded calls in this snapshot")).font(.caption).foregroundStyle(Theme.muted)
                 }
             }
         }
+        .accessibilityIdentifier("project.capability.\(info.kind.rawValue).\(info.name)")
     }
 }

@@ -3007,3 +3007,13 @@
 "Evidence refreshed" = "Сведения обновлены";
 
 "Could not refresh. Saved evidence is still available." = "Не удалось обновить. Сохранённые сведения доступны.";
+
+"No recorded calls in this snapshot" = "В этом снимке нет записанных вызовов";
+
+"The computer reported recorded use. Recent call details are not in this snapshot." = "Компьютер сообщил о записанных вызовах. Подробности последних вызовов в этом снимке отсутствуют.";
+
+"Observed skill" = "Зафиксированный вызов навыка";
+
+"Observed in this Project" = "Вызов зафиксирован в этом проекте";
+
+"No override" = "Без переопределения";

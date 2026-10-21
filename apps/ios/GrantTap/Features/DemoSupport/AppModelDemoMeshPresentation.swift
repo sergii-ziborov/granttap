@@ -19,6 +19,7 @@ extension AppModel {
         CortexPacketFixture.apply(to: self, mesh: &mesh, at: now)
         ProjectTaskCreationFixture.apply(to: self, at: now)
         MeshArchiveStreamingFixture.apply(to: self)
+        CapabilityUsageFixture.apply(to: self, mesh: &mesh, at: now)
         #endif
     }
 }

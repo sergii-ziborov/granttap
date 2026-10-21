@@ -207,5 +207,20 @@ struct CapabilityUsageStatus: Codable {
     let type: String              // "capability.usage.status"
     let events: [RemoteCapabilityUsageEvent]
     var totals: [CapabilityUsageTotal]? = nil
+    var executionSummaries: [CapabilityExecutionSummary]? = nil
     let generatedAt: Double
+}
+
+struct CapabilityExecutionSummary: Codable, Equatable {
+    let sessionId: String
+    let agent: String
+    let kind: CapabilityUsageKind
+    let name: String
+    var count: Int
+    var failures: Int
+    var cancelled: Int
+    var lastUsedAt: Double
+    var durationMs: Int? = nil
+    var durationCount: Int? = nil
+    let source: String
 }

@@ -192,6 +192,7 @@ final class CapabilityUsageStore: ObservableObject {
     }
 
     func clear() {
+        CapabilityExecutionUsageStore.shared.clear()
         pendingWrite?.cancel()
         pendingWrite = nil
         UserDefaults.standard.set(Date().timeIntervalSince1970 * 1000,

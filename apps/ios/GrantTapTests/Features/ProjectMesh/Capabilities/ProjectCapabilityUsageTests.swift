@@ -4,6 +4,22 @@ import XCTest
 
 @MainActor
 final class ProjectCapabilityUsageTests: XCTestCase {
+    func testRecordedCallsSurviveMissingDetailsAndRequireExactMeshExecutionProviderAndRoom() {
+        let info = ProjectCapabilityInfo.server(.init(name: "github", provider: "claude", endpointId: "mac",
+            configuredEnabled: true, allowed: true, sessionIds: ["same"]))
+        let own = CapabilityExecutionSummary(sessionId: "same", agent: "claude", kind: .mcp,
+            name: "github", count: 350, failures: 2, cancelled: 0, lastUsedAt: 100,
+            durationMs: 7_000, durationCount: 350, source: "transcript")
+        var other = own
+        other.count = 999
+        let reports = ["local-mac": [own], "foreign": [other], "remote": [other]]
+        let actual = ProjectCapabilityUsage.recorded(reports, snapshot: snapshot(),
+            rooms: ["mac": "local-mac", "workstation": "remote"], info: info)
+        XCTAssertEqual(actual?.count, 350)
+        XCTAssertEqual(actual?.failures, 2)
+        XCTAssertEqual(actual?.averageDurationMs, 20)
+        XCTAssertNil(ProjectCapabilityUsage.recorded(reports, snapshot: snapshot(), rooms: [:], info: info))
+    }
     private func snapshot() -> ProjectMeshSnapshot {
         var value = ProjectGovernanceViewFixtures.projectSnapshot()
         value.executions = [
@@ -43,6 +59,20 @@ final class ProjectCapabilityUsageTests: XCTestCase {
         XCTAssertEqual(rows.map(\.id), ["local"])
         XCTAssertTrue(ProjectCapabilityUsage.events(rows, snapshot: snapshot(), rooms: [:],
                                                    kind: .skill, name: "review").isEmpty)
+    }
+
+    func testNativeServerAliasRequiresAnUnambiguousConfiguredIdentity() {
+        var mesh = snapshot()
+        mesh.mcpServers = [.init(name: "code-review", provider: "claude", endpointId: "mac",
+            configuredEnabled: true, allowed: true, sessionIds: ["same"])]
+        let own = event("own", name: "code_review")
+        let rooms = ["mac": "local-mac"]
+        XCTAssertEqual(ProjectCapabilityUsage.events([own], snapshot: mesh, rooms: rooms,
+            kind: .mcp, name: "code-review", endpointId: "mac", provider: "claude").count, 1)
+        mesh.mcpServers?.append(.init(name: "code_review", provider: "claude", endpointId: "mac",
+            configuredEnabled: true, allowed: true, sessionIds: ["same"]))
+        XCTAssertTrue(ProjectCapabilityUsage.events([own], snapshot: mesh, rooms: rooms,
+            kind: .mcp, name: "code-review", endpointId: "mac", provider: "claude").isEmpty)
     }
 
     func testCapabilityDetailsRetainReportedIdentityAndKeepMissingVersionUnknown() {

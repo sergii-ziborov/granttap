@@ -127,6 +127,8 @@ final class MacLocalMCPModel: ObservableObject {
             let usage = try await MacLocalMCPClient.usage(socketPath: socketPath)
             CapabilityUsageStore.shared.merge(usage.status.events, sourceNamespace: "local-mac")
             CapabilityTotalsStore.shared.apply(usage.status.totals, fromRoom: "local-mac")
+            CapabilityExecutionUsageStore.shared.apply(usage.status.executionSummaries,
+                fromRoom: "local-mac", generatedAt: usage.status.generatedAt)
             sessionUsage = Dictionary(usage.sessions.map { ($0.key, $0) },
                                       uniquingKeysWith: { first, _ in first })
             usageError = nil

@@ -57,6 +57,8 @@ extension AppModel {
         client.onCapabilityUsage = { status in
             CapabilityUsageStore.shared.merge(status.events, sourceNamespace: room)
             CapabilityTotalsStore.shared.apply(status.totals, fromRoom: room)
+            CapabilityExecutionUsageStore.shared.apply(status.executionSummaries,
+                fromRoom: room, generatedAt: status.generatedAt)
         }
         attachReplicaReadCallbacks(client, room: room)
         client.onCapabilityCatalog = { status in
