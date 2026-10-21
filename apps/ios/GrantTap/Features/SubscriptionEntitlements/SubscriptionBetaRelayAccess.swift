@@ -22,7 +22,7 @@ extension SubscriptionStore {
     }
 
     /// A tester grant is a separate, expiring account entitlement.
-    func refreshBetaRelayAccess() async {
+    func refreshAccountTransportAccess() async {
         await refreshAccountSubscription()
         if accountSubscriptionAllowsTransport {
             lastTransportCheckAt = clock()
@@ -35,6 +35,12 @@ extension SubscriptionStore {
                 applyAccountGrant(nil)
             }
         }
+        lastTransportCheckAt = clock()
+    }
+
+    func refreshBetaRelayAccess() async {
+        await refreshAccountTransportAccess()
+        if accountSubscriptionAllowsTransport { return }
         if !accountGrantAllowsTransport, !betaRelayAccess, await betaEnvironmentLoader() {
             betaRelayAccess = true
         }

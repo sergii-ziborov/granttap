@@ -1,6 +1,6 @@
 {
   "title": "Privacy Policy",
-  "updated": "2026-10-20",
+  "updated": "2026-10-21",
   "intro": "This policy covers the GrantTap Mac, iPhone, iPad and Apple Watch apps, its local machine helper, the encrypted relay, and granttap.com. GrantTap creates no advertising profile or readable cloud chat history.",
   "sections": [
     {
@@ -44,7 +44,8 @@
       "heading": "Encrypted content and local storage",
       "paragraphs": [
         "The relay receives authenticated ciphertext and a nonce, not readable task content. Pairing and per-task keys are created locally and are absent from relay code, storage, logs, and secrets. Each task has an independent key.",
-        "Readable content exists only on the computer and Apple devices you authorize, plus tools you explicitly use there. GrantTap does not proxy provider model traffic."
+        "Readable content exists only on the computer and Apple devices you authorize, plus tools you explicitly use there. GrantTap does not proxy provider model traffic.",
+        "Compatible relays retain addressed encrypted catalogs, Mesh snapshots and recent chat heads for up to seven days, within a per-room cache limit. Delivery acknowledgements do not remove that cache. Queued encrypted commands are stored separately until delivery, cancellation or expiry. Room presence retains public-key digests, connection status and last-seen times; it does not reveal agent activity or readable content."
       ],
       "bullets": [
         "Received active-chat pages, original images and fetched Mesh snapshots are saved in protected local storage on iPhone, iPad and Mac. Settings can clear this replica without signing out or deleting pairing keys, queued deliveries, provider history or computer policy. Content not yet received is unavailable offline.",

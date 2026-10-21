@@ -68,7 +68,7 @@ final class ProjectComputerWorkTests: XCTestCase {
         XCTAssertEqual(tie.count, 2)
 
         let row = ProjectMeshTaskRow(task: snapshot().tasks[0], execution: snapshot().executions[0], lastActiveAt: now - 7_200_000)
-        XCTAssertTrue(row.recencyLine?.hasPrefix(L("Last active")) == true)
+        XCTAssertTrue(row.recencyLine?.hasPrefix(L("Last activity")) == true)
         XCTAssertNil(ProjectMeshTaskRow(task: snapshot().tasks[0], execution: nil, lastActiveAt: 0).recencyLine)
         RenderProbe.render(List { row })
 
@@ -95,6 +95,22 @@ final class ProjectComputerWorkTests: XCTestCase {
         XCTAssertEqual(card.presence, .waiting)
         XCTAssertEqual(card.stateLabel, L("Paused"))
         RenderProbe.render(card)
+    }
+
+    func testWorkingCardDescribesCurrentWorkWithoutRewritingItsEventTimestamp() {
+        let chat = session("s-live", state: "working", at: now - 3_600_000)
+        let item = TaskListItem(id: "live", destination: .session("s-live"), projectId: "p",
+            taskId: "live", projectName: "Project", title: "Working", summary: nil,
+            state: "working", ownerExecution: snapshot().executions[0], currentSession: chat,
+            historicalExecutions: [], sessionIds: ["s-live"], lastActivityAt: now - 3_600_000)
+        let live = ChatComputerRoute(roomId: "room", computerName: "Workstation", phase: .live)
+        XCTAssertEqual(TaskListCard(item: item, route: live).activityLabel, L("Working now"))
+        XCTAssertEqual(item.lastActivityAt, now - 3_600_000)
+        let model = AppModel()
+        XCTAssertEqual(ContentView(modelOverride: model).health(for: item), .working,
+                       "A quiet transcript alone does not prove a working agent stalled.")
+        let offline = ChatComputerRoute(roomId: "room", computerName: "Workstation", phase: .phoneOffline)
+        XCTAssertTrue(TaskListCard(item: item, route: offline).activityLabel.hasPrefix(L("Last activity")))
     }
 
     func testTheScreensCarryTheNewLines() {

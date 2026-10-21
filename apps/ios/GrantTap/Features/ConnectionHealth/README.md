@@ -20,7 +20,7 @@ corresponding tests are in `GrantTapTests/Features/ConnectionHealth`.
 
 Connection routing and multi-computer regressions live in
 `GrantTapTests/AppRuntimeTests.swift`.
-The header connection pill counts Live MCP computers. `ConnectionDetailSheet`
+The header connection pill reports this device’s relay transport. It becomes Live as soon as an authenticated WebSocket opens, independently of computer availability. `ConnectionDetailSheet`
 lists one row per verified machine, even when QR and passkey created two routes;
 `ComputerConnectionDetailView` shows that machine's own room health, load,
 tools, and repair action. Its multi-computer UI test is in `GrantTapUITests`.
@@ -32,7 +32,9 @@ from the matching room, endpoint, and request with the same enabled, trusted
 native definition. Timeout, modified definitions, and unavailable status do
 not claim success. Tests live in `GrantTapTests/Features/ConnectionHealth`.
 
-The header shows the same Offline title and neutral indicator for a missing
-phone relay link and an offline computer. The detailed connection view keeps
-the specific cause and repair action, so reconnecting does not alternate the
-header between Offline and Mac offline.
+A new or foreground recovery attempt shows a bounded 15-second Connecting state.
+Opening the relay socket ends the header's loader immediately. Computer rows
+retain their own authenticated catalog and heartbeat freshness; a connected relay
+does not invent a running agent. Saved chats stay visible during recovery.
+Relay presence adds room-scoped device connection and last-seen metadata without
+turning persisted content into fresh provider activity.

@@ -21,6 +21,7 @@ struct SessionCard: View {
 
     private var stateLabel: String {
         switch presence {
+        case .connecting: return L("Connecting…")
         case .offline: return L("Offline")
         case .working: return L("Working")
         case .waiting: return L("Waiting")
@@ -32,7 +33,7 @@ struct SessionCard: View {
         switch presence {
         case .working: return Theme.ok
         case .waiting: return Theme.riskMed
-        case .offline, .idle: return Theme.muted
+        case .connecting, .offline, .idle: return Theme.muted
         }
     }
 

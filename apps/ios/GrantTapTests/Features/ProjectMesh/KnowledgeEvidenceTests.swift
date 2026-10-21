@@ -49,6 +49,18 @@ final class KnowledgeEvidenceTests: XCTestCase {
         )
     }
 
+    func testStructuredResultsRemainVisibleBeforeMemoryBackfillCompletes() {
+        var project = snapshot()
+        project.events = [.init(type: "mesh.event", sessionId: "task", eventId: "reported-result",
+            projectId: "mesh", taskId: "task", sourceSessionId: "native",
+            eventType: "TASK_COMPLETED", createdAt: 20,
+            payload: .init(summary: "Targeted checks passed"))]
+        let summary = ProjectKnowledgePresentation.summary(snapshot: project, invocations: [])
+        XCTAssertEqual(summary.results.map(\.text), ["Targeted checks passed"])
+        XCTAssertEqual(summary.results.first?.source, L("Agent report"))
+        XCTAssertTrue(summary.decisions.isEmpty)
+    }
+
     func testKnowledgeLinksDecisionToExactTaskRepositoryAndCommit() {
         var project = snapshot()
         project.repositoryGraphs = [.init(

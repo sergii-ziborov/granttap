@@ -72,12 +72,7 @@ extension AppModel {
         client.onMachineHeartbeat = { [weak self] beat in
             self?.noteMachineHeartbeat(beat, fromRoom: room)
         }
-        client.onControllerPairOffer = { offer in
-            ControllerInviteCoordinator.shared.receive(offer, fromRoom: room)
-        }
-        client.onKnowledgeWriteResult = { result in
-            KnowledgeWriteCoordinator.shared.receive(result, fromRoom: room)
-        }
+        attachControllerKnowledgeCallbacks(client, room: room)
         client.onMachineLoad = { [weak self] load in
             self?.recordMachineLoad(load, fromRoom: room)
         }
@@ -105,7 +100,23 @@ extension AppModel {
             self?.receive(result)
         }
         relaysByRoom[room] = client
+        beginConnectionCheck(room: room)
         client.connect()
+    }
+
+    private func attachControllerKnowledgeCallbacks(_ client: RelayClient, room: String) {
+        client.onRelayPresence = { [weak self] presence in
+            guard let self else { return }
+            if let current = self.roomRuntime[room]?.relayPresence, current.generatedAt > presence.generatedAt { return }
+            self.objectWillChange.send()
+            self.roomRuntime[room, default: RoomRuntime()].relayPresence = presence
+        }
+        client.onControllerPairOffer = { offer in
+            ControllerInviteCoordinator.shared.receive(offer, fromRoom: room)
+        }
+        client.onKnowledgeWriteResult = { result in
+            KnowledgeWriteCoordinator.shared.receive(result, fromRoom: room)
+        }
     }
 
     private func attachProjectRelayCallbacks(_ client: RelayClient, room: String) {
@@ -154,6 +165,7 @@ extension AppModel {
             rt.disconnectedAt = 0
             roomRuntime[room] = rt
             retryUnstoredApprovalDecisions(inRoom: room)
+            Task { @MainActor [weak self] in await self?.restoreRelayTaskQueue(room: room) }
         } else {
             var rt = roomRuntime[room] ?? RoomRuntime()
             rt.socketUp = false

@@ -17,6 +17,8 @@ extension AppModel {
     /// let a relaunch present a long-dead computer as Live before any packet
     /// has actually arrived.
     struct RoomRuntime: Equatable {
+        var relayPresence: RelayPresence? = nil
+        var connectingSince: Double = 0
         var socketUp = false
         var socketUpSince: Double = 0
         var disconnectedAt: Double = 0

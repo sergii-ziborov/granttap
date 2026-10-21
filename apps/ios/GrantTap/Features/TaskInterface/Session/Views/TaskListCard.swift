@@ -7,6 +7,7 @@ struct TaskListCard: View {
     var isPaused: Bool { item.currentSession?.isPaused == true }
 
     var presence: TaskPresence {
+        if route?.phase == .connecting { return .connecting }
         if let route, route.phase != .live { return .offline }
         if isPaused { return .waiting }
         switch item.state {
@@ -18,6 +19,7 @@ struct TaskListCard: View {
 
     var stateLabel: String {
         switch presence {
+        case .connecting: return L("Connecting…")
         case .offline: return L("Offline")
         case .working: return L("Working")
         case .waiting:
@@ -33,7 +35,7 @@ struct TaskListCard: View {
         switch presence {
         case .working: return Theme.ok
         case .waiting: return Theme.riskMed
-        case .offline, .idle: return Theme.muted
+        case .connecting, .offline, .idle: return Theme.muted
         }
     }
 
@@ -67,9 +69,8 @@ struct TaskListCard: View {
                         .foregroundStyle(percent >= 85 ? Theme.riskMed : Theme.muted)
                 }
             }
-            // When the task last did anything, so a quiet card is readable as
-            // quiet rather than mistaken for live work.
-            Text("\(L("Last active")) \(ConnectionLoadFormat.age(seconds: item.idleSeconds()))")
+            // Provider working state is independent of the last transcript event.
+            Text(activityLabel)
                 .font(.system(size: 10.5))
                 .foregroundStyle(Theme.muted)
                 .accessibilityIdentifier("task.lastActive")
@@ -77,6 +78,11 @@ struct TaskListCard: View {
         .padding(12).frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.raised, in: RoundedRectangle(cornerRadius: Theme.radius))
         .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line))
+    }
+
+    var activityLabel: String {
+        if presence == .working { return L("Working now") }
+        return "\(L("Last activity")) \(ConnectionLoadFormat.age(seconds: item.idleSeconds()))"
     }
 
     private var metadata: String {

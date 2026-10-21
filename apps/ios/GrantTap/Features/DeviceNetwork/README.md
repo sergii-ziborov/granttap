@@ -23,3 +23,10 @@ public key. Updated relays use it to select addressed ciphertext, reducing
 traffic sent to unrelated controllers. RelayClient checks that hint before
 attempting decryption; envelopes from earlier clients remain readable. Room
 credentials and encrypted payload authentication remain required.
+
+`RelayPresence` validates optional room-scoped relay device metadata. It is never
+passed to agent activity, usage or approval handlers. Existing verified transport
+access opens immediately while one background revalidation runs; cold startup
+races verified local TestFlight evidence with account access. Unverified evidence
+cannot authorize hosted transport. Reading local caches and starting connection
+checks no longer wait behind account or storefront requests.

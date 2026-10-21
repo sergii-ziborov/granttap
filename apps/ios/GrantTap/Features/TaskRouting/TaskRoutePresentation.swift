@@ -1,6 +1,7 @@
 import Foundation
 
 enum TaskPresence: Equatable {
+    case connecting
     case offline
     case working
     case waiting
@@ -14,6 +15,7 @@ struct TaskSendAvailability: Equatable {
 
 enum TaskRoutePresentation {
     static func presence(nativeState: String, route: ChatComputerRoute?) -> TaskPresence {
+        if route?.phase == .connecting { return .connecting }
         if let route, route.phase != .live { return .offline }
         switch nativeState {
         case "working": return .working
@@ -35,7 +37,8 @@ enum TaskRoutePresentation {
         }
         if let route {
             values.append(route.computerName)
-            values.append(route.phase == .live ? L("Online") : L("Offline"))
+            values.append(route.phase == .connecting ? L("Connecting…")
+                : (route.phase == .live ? L("Online") : L("Offline")))
         }
         return values.joined(separator: " · ")
     }
@@ -88,6 +91,10 @@ enum TaskRoutePresentation {
             )
         }
         guard route.phase != .live else { return nil }
+        if route.phase == .connecting {
+            return TaskSendAvailability(message: L("Connecting… Your message will stay queued until the computer is available."),
+                                        blocksSending: false)
+        }
         return TaskSendAvailability(
             message: String(
                 format: L("%@ is offline. Your message will stay queued until it reconnects."),

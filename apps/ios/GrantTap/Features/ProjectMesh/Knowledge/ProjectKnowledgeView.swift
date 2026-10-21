@@ -4,6 +4,7 @@ struct ProjectKnowledgeView: View {
     let snapshot: ProjectMeshSnapshot
     @ObservedObject var model: AppModel
     @State private var showingDecisionEditor = false
+    @StateObject private var sync = ProjectKnowledgeRefresh()
 
     private var currentSnapshot: ProjectMeshSnapshot {
         model.meshSnapshots[snapshot.projectId] ?? snapshot
@@ -28,12 +29,7 @@ struct ProjectKnowledgeView: View {
     var body: some View {
         let snapshot = currentSnapshot
         List {
-            Section {
-                CompatLabeledContent(L("Source"), value: L("Mesh Memory, events, Task capsules and observed calls"))
-                CompatLabeledContent(L("Snapshot received"), value: ReportBuilder.stamp(summary.freshness))
-            } footer: {
-                Text(L("This device holds a bounded projection. Missing records are not proof that the Mesh has no history."))
-            }
+            syncSection
             knowledgeSection(L("Decisions"), values: summary.decisions,
                              empty: L("No decision was reported in this projection."))
             knowledgeSection(L("Past attempts"), values: summary.attempts,
@@ -116,18 +112,49 @@ struct ProjectKnowledgeView: View {
         .sheet(isPresented: $showingDecisionEditor) {
             KnowledgeDecisionEditor(snapshot: currentSnapshot, model: model)
         }
-        .onAppear(perform: requestHistory)
-        .onChange(of: currentSnapshot.generatedAt) { _ in requestHistory() }
+        .refreshable { await sync.refresh(projectId: snapshot.projectId, model: model) }
+        .task(id: connectionKey) {
+            await sync.refresh(projectId: snapshot.projectId, model: model)
+        }
     }
 
-    private func requestHistory() {
-        for task in currentSnapshot.tasks {
-            let key = AppModel.invocationTaskKey(snapshot.projectId, task.taskId)
-            if model.invocationAvailabilityByTask[key] == "unavailable" {
-                model.refreshInvocationHistory(projectId: snapshot.projectId, taskId: task.taskId)
-            } else {
-                model.requestInvocationHistory(projectId: snapshot.projectId, taskId: task.taskId)
+    var connectionKey: String {
+        let rooms = (model.meshProjectSourceRooms[snapshot.projectId] ?? []).sorted().map { room in
+            "\(room):\(model.roomRuntime[room]?.socketUp == true)"
+        }.joined(separator: "|")
+        #if targetEnvironment(macCatalyst)
+        return "\(snapshot.projectId):\(rooms):\(model.localMCPReader?.isReady == true)"
+        #else
+        return "\(snapshot.projectId):\(rooms)"
+        #endif
+    }
+
+    private var syncSection: some View {
+        Section {
+            CompatLabeledContent(L("Source"), value: L("Mesh Memory, events, Task capsules and observed calls"))
+            CompatLabeledContent(L("Snapshot generated"), value: ReportBuilder.stamp(currentSnapshot.generatedAt))
+            HStack(spacing: 10) {
+                if sync.state == .loading { ProgressView() }
+                Text(syncTitle).font(.caption).foregroundStyle(Theme.muted)
+                Spacer()
+                Button {
+                    Task { await sync.refresh(projectId: snapshot.projectId, model: model) }
+                } label: { Image(systemName: "arrow.clockwise") }
+                    .disabled(sync.state == .loading)
+                    .accessibilityLabel(L("Refresh knowledge"))
+                    .accessibilityIdentifier("knowledge.refresh")
             }
+        } footer: {
+            Text(L("Decisions are recorded explicitly. Agent reports and observed calls appear when supplied by the computer. Missing records do not prove the Mesh has no history."))
+        }
+    }
+
+    private var syncTitle: String {
+        switch sync.state {
+        case .saved: return L("Saved evidence")
+        case .loading: return L("Refreshing knowledge…")
+        case .updated: return L("Evidence refreshed")
+        case .unavailable: return L("Could not refresh. Saved evidence is still available.")
         }
     }
 

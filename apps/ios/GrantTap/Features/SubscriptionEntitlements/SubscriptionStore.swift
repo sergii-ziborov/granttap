@@ -38,6 +38,8 @@ final class SubscriptionStore: ObservableObject {
     private let storeSync: StoreSync
     private let manageSubscriptions: ManageSubscriptions
     var lastTransportCheckAt: Date?
+    var transportReadiness: Task<Bool, Never>?
+    var transportRevalidation: Task<Void, Never>?
 
     init(
         startObserving: Bool = !AppRuntime.isRunningUnitTests,
@@ -104,8 +106,7 @@ final class SubscriptionStore: ObservableObject {
 
     /// Relay routing must wait for verified access, not product discovery.
     func prepareTransport() async {
-        await refreshBetaRelayAccess()
-        if !allowsManagedTransport { await refresh() }
+        _ = await connectionTransportAccess()
     }
 
     func loadStorefront() async {

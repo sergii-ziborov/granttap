@@ -1,14 +1,19 @@
 import Foundation
 
 enum ConnectionFreshness {
+    static let connectionWindowMs: Double = 15_000
+
     /// Display-only grace for short socket blips. Delivery still uses the live
     /// transport and keeps decisions queued until the computer confirms them.
     static func phase(socketUp: Bool, disconnectedAt: Double, heartbeatAt: Double,
-                      catalogAt: Double, socketUpSince: Double, now: Double) -> ConnectionPhase {
+                      catalogAt: Double, socketUpSince: Double, now: Double, connectingSince: Double = 0) -> ConnectionPhase {
         let fresh = [heartbeatAt, catalogAt].contains {
             $0 > 0 && $0 >= now - ConnectionSnapshot.macFreshnessSeconds * 1_000
                 && $0 <= now + 30_000
         }
+        let connecting = connectingSince > 0 && now >= connectingSince
+            && now - connectingSince < connectionWindowMs
+        if connecting && !(socketUp && fresh) { return .connecting }
         if !socketUp {
             let blip = disconnectedAt > 0 && now >= disconnectedAt && now - disconnectedAt < 1_800
             if blip {

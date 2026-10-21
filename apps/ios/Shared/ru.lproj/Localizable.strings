@@ -2983,3 +2983,27 @@
 "%d current · %d saved" = "Актуальных: %d · сохранённых: %d";
 "Show all repositories" = "Показать все репозитории";
 "Test coverage and runtime performance were not measured." = "Покрытие тестами и скорость выполнения не измерены.";
+
+"Connecting securely and checking computer availability…" = "Устанавливаем защищённое соединение и проверяем компьютеры…";
+
+"Saved chats stay available while the connection is checked." = "Сохранённые чаты доступны, пока проверяется соединение.";
+
+"Connecting… Your message will stay queued until the computer is available." = "Подключение… Сообщение останется в очереди до появления компьютера.";
+
+"Working now" = "Работает сейчас";
+
+"Checking connection" = "Проверка соединения";
+
+"Snapshot generated" = "Снимок сформирован";
+
+"Refresh knowledge" = "Обновить знания";
+
+"Decisions are recorded explicitly. Agent reports and observed calls appear when supplied by the computer. Missing records do not prove the Mesh has no history." = "Решения записываются явно. Отчёты агента и вызовы появляются по данным компьютера. Отсутствие записей здесь не означает отсутствие истории Mesh.";
+
+"Saved evidence" = "Сохранённые сведения";
+
+"Refreshing knowledge…" = "Обновление знаний…";
+
+"Evidence refreshed" = "Сведения обновлены";
+
+"Could not refresh. Saved evidence is still available." = "Не удалось обновить. Сохранённые сведения доступны.";

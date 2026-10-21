@@ -18,9 +18,9 @@ extension RelayClient {
     }
 
     @MainActor func resolveNetworkRoute(reconnect: Bool) async {
-        await SubscriptionStore.shared.recheckTransportIfNeeded()
+        let allowed = await SubscriptionStore.shared.connectionTransportAccess()
         let address = await DeviceEndpointDirectory.resolve(pairing: pairing,
-            allowsManaged: SubscriptionStore.shared.allowsManagedTransport)
+            allowsManaged: allowed)
         guard !Task.isCancelled, wantsConnection else { return }
         guard let address else {
             interruptSocketForReplacement()

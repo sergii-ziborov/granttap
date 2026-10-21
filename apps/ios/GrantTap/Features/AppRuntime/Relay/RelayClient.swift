@@ -110,6 +110,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
     var onMachineHeartbeat: ((MachineHeartbeat) -> Void)?
     /// Machine → phone: who is making this computer work right now.
     var onMachineLoad: ((MachineLoad) -> Void)?
+    var onRelayPresence: ((RelayPresence) -> Void)?
     var onConnectionChange: ((Bool) -> Void)?
     #if DEBUG
     var wireDiagnosticCounts: [String: Int] = [:]
@@ -181,6 +182,7 @@ final class RelayClient: NSObject, URLSessionWebSocketDelegate {
         resolvedRelayURL = address
         var request = URLRequest(url: url)
         request.setValue("1", forHTTPHeaderField: "X-GrantTap-Recipient-Routing")
+        request.setValue("1", forHTTPHeaderField: "X-GrantTap-Presence")
         request.setValue(CiphertextRecipient.identifier(publicKey: pairing.myPublicKey),
                          forHTTPHeaderField: "X-GrantTap-Recipient-Key-Id")
         if let pushAuth = pairing.pushAuth, !pushAuth.isEmpty {

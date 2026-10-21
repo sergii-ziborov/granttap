@@ -124,7 +124,7 @@ extension TaskChatView {
                                            tint: accent, action: toggleDictation)
                     }
                     if showsStopControl {
-                        TaskComposerStopButton(pending: controlPending) {
+                        TaskComposerStopButton(pending: controlPending, active: hasLiveTaskActivity) {
                             model.pauseSession(chatSessionId)
                         }
                     }

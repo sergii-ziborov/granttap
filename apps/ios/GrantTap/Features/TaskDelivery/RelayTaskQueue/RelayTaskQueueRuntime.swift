@@ -116,7 +116,8 @@ extension AppModel {
 
     func applyRelayTaskQueueReceipt(_ receipt: RelayTaskJobReceipt, to id: String) {
         guard receipt.id == id, let index = deliveries.firstIndex(where: { $0.id == id }),
-              deliveries[index].chatQueue?.relayManaged == true else { return }
+              deliveries[index].chatQueue?.relayManaged == true,
+              deliveries[index].relayJob?.serverState?.canAdvance(to: receipt.state) != false else { return }
         if receipt.state == .cancelled {
             finishRelayTaskQueueCancellation(at: index)
             return

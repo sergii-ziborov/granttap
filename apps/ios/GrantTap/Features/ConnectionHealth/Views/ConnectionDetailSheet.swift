@@ -11,6 +11,10 @@ struct ConnectionDetailSheet: View {
             ZStack {
                 Theme.bg.ignoresSafeArea()
                 List {
+                    Section(L("Relay")) {
+                        Label(model.relayConnectionSnapshot.statusTitle, systemImage: "network")
+                            .foregroundStyle(model.relayConnectionSnapshot.statusColor)
+                    }
                     if model.demoMode {
                         Section {
                             Text(L("Sample data — nothing reaches a computer."))

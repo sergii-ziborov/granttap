@@ -45,6 +45,11 @@ extension AppModel {
             let requestId = UUID().uuidString
             if invocationPendingRooms.count >= 64 { break }
             invocationPendingRooms[requestId] = roomKey
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 15_000_000_000)
+                guard !Task.isCancelled else { return }
+                self?.expireInvocationRequest(requestId, taskKey: taskKey, roomKey: roomKey)
+            }
             let query = ProjectInvocationQuery(
                 type: "mesh.invocation.query", sessionId: projectId,
                 projectId: projectId, taskId: taskId,
@@ -54,9 +59,23 @@ extension AppModel {
             relay.sendSession(payload: query, sessionId: projectId, ttl: 15 * 60)
             sent = true
         }
-        if sent && !older { invocationRequestedTasks.insert(taskKey) }
+        if sent && !older {
+            invocationRequestedTasks.insert(taskKey)
+            invocationAvailabilityByTask[taskKey] = "loading"
+        }
         if !sent && !older && invocationAvailabilityByTask[taskKey] != "ready" {
             invocationAvailabilityByTask[taskKey] = "offline"
+        }
+    }
+
+    /// Expire only this query generation; late or cross-room replies remain rejected.
+    func expireInvocationRequest(_ requestId: String, taskKey: String, roomKey: String) {
+        guard invocationPendingRooms[requestId] == roomKey else { return }
+        invocationPendingRooms.removeValue(forKey: requestId)
+        guard !invocationPendingRooms.values.contains(where: { $0.hasPrefix("\(taskKey)\u{1f}") }) else { return }
+        invocationRequestedTasks.remove(taskKey)
+        if invocationAvailabilityByTask[taskKey] != "ready" {
+            invocationAvailabilityByTask[taskKey] = "unavailable"
         }
     }
 

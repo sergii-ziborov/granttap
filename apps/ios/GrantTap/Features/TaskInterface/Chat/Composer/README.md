@@ -13,3 +13,9 @@ See the [engineering contract](../../../../../../../AGENTS.md).
 
 `ComposerApprovalButton` opens the shared [chat approval choices](../Permissions/README.md)
 directly beside attachments, preserving the same task rule as Task controls.
+
+`TaskComposerStopButton` carries an indeterminate ring for a working Task with
+a Live route (or the local Mac runtime). Pending pause has its own spinner;
+offline work has no moving activity ring. Reduce Motion keeps a static arc,
+and VoiceOver reads the working/connection/pausing state without announcing
+an invented progress percentage.

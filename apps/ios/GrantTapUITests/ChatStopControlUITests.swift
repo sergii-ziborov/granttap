@@ -12,6 +12,11 @@ final class ChatStopControlUITests: XCTestCase {
         XCTAssertTrue(stop.waitForExistence(timeout: 10))
         XCTAssertTrue(stop.isHittable)
         XCTAssertEqual(stop.label, "Stop task")
+        XCTAssertEqual(stop.value as? String, "Working")
+        let image = XCTAttachment(screenshot: app.screenshot())
+        image.name = "Working task stop control"
+        image.lifetime = .keepAlways
+        add(image)
         let composer = app.textFields["composer.message"]
         composer.tap()
         composer.typeText("Queued follow-up")

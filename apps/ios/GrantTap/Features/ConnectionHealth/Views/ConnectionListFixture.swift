@@ -29,6 +29,18 @@ enum ConnectionListFixture {
                 }
             }
         }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_RELAY_ONLY"] == "1" {
+            let room = String(repeating: "a", count: 32)
+            model.roomRuntime[room]?.lastHeartbeatAt = 0
+            if let index = model.connectionRegistry.connections.firstIndex(where: { $0.id == room }) {
+                model.connectionRegistry.connections[index].lastCatalogAt = 0
+            }
+        }
+        if ProcessInfo.processInfo.environment["GRANTTAP_TEST_CONNECTING"] == "1" {
+            let room = String(repeating: "a", count: 32)
+            model.roomRuntime[room] = .init()
+            model.beginConnectionCheck(room: room)
+        }
     }
 }
 #endif

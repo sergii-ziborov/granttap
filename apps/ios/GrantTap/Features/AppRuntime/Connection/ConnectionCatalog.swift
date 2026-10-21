@@ -233,7 +233,8 @@ extension AppModel {
         let age: Int? = catalogAt > 0 ? Int(max(0, (now - catalogAt) / 1000)) : nil
         let phase = ConnectionFreshness.phase(socketUp: rt.socketUp,
             disconnectedAt: rt.disconnectedAt, heartbeatAt: rt.lastHeartbeatAt,
-            catalogAt: catalogAt, socketUpSince: rt.socketUpSince, now: now)
+            catalogAt: catalogAt, socketUpSince: rt.socketUpSince, now: now,
+            connectingSince: rt.connectingSince)
         let room = conn.id
         let short = room.count > 10 ? String(room.prefix(8)) + "…" : room
         return ConnectionSnapshot(

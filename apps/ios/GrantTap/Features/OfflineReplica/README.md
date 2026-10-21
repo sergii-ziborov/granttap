@@ -51,3 +51,9 @@ Queue → Send now. Local gallery identifiers survive outbox cleanup. A matched
 native user turn receives cached image aliases in block order; incomplete or
 ambiguous picture groups retain the original preview. Native aliases read the
 same device store after the outbox is removed and while offline.
+
+Compatible relays also keep bounded encrypted catalogs, Mesh snapshots and recent
+chat heads for reconnect while the computer is offline. This seven-day read
+cache is separate from queued commands and the device’s protected offline copy.
+Expiry or cache eviction does not cancel queued work. Historical pages and
+content never published still require the original computer.

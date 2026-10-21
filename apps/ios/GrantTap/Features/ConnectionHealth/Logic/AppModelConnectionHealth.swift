@@ -38,7 +38,24 @@ extension AppModel {
         }) {
             return snapshotForConnection(live)
         }
+        if let checking = connectionRegistry.connections.first(where: {
+            visibleRooms.contains($0.id) && snapshotForConnection($0).phase == .connecting
+        }) { return snapshotForConnection(checking) }
         return snapshotForConnection(preferred)
+    }
+
+    /// The header answers whether this device reached the relay. Computer health stays in its own rows.
+    var relayConnectionSnapshot: ConnectionSnapshot {
+        let snapshot = connectionSnapshot
+        guard !demoMode, snapshot.linked else { return snapshot }
+        let visible = accountVisibleRooms()
+        let routes = roomRuntime.filter { visible.contains($0.key) }.map(\.value)
+        let now = Date().timeIntervalSince1970 * 1_000
+        let phase: ConnectionPhase = routes.contains(where: \.socketUp) ? .live
+            : routes.contains { $0.connectingSince > 0 && now - $0.connectingSince < ConnectionFreshness.connectionWindowMs }
+                ? .connecting : .phoneOffline
+        return ConnectionSnapshot(phase: phase, linked: true, deviceName: snapshot.deviceName,
+            machineName: nil, roomShort: nil, catalogAgeSeconds: snapshot.catalogAgeSeconds)
     }
 
     var isMacCatalogFresh: Bool {
@@ -65,6 +82,7 @@ extension AppModel {
         refreshAfterConnect = true
         let client = connectionRegistry.preferredId.flatMap { relaysByRoom[$0] } ?? relay
         if let client {
+            beginConnectionCheck(room: client.pairing.room)
             client.forceReconnect(requestPeerRecovery: true)
         } else if let startIfNeeded {
             startIfNeeded()
@@ -82,6 +100,7 @@ extension AppModel {
         reconnect: ((String) async -> Void)? = nil
     ) async {
         setRefreshHint(L("Reconnecting…"))
+        beginConnectionCheck(room: roomId)
         refreshAfterConnect = true
         if let reconnect {
             await reconnect(roomId)
@@ -90,6 +109,20 @@ extension AppModel {
         }
         if roomId == connectionRegistry.preferredId, connected {
             setRefreshHint(L("Phone linked — waiting for Mac…"))
+        }
+    }
+
+    /// A bounded check prevents cached state being presented as a new outage.
+    func beginConnectionCheck(room: String) {
+        let started = Date().timeIntervalSince1970 * 1_000
+        var state = roomRuntime[room] ?? RoomRuntime()
+        state.connectingSince = started
+        objectWillChange.send()
+        roomRuntime[room] = state
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(ConnectionFreshness.connectionWindowMs * 1_000_000))
+            guard self?.roomRuntime[room]?.connectingSince == started else { return }
+            self?.objectWillChange.send()
         }
     }
 
@@ -104,10 +137,11 @@ extension AppModel {
             stopDemo()
         case .notLinked, .needRepair:
             break
-        case .phoneOffline:
+        case .connecting, .phoneOffline:
             setRefreshHint(L("Reconnecting…"))
             refreshAfterConnect = true
             if let id = connectionRegistry.preferredId {
+                beginConnectionCheck(room: id)
                 if let reconnect { await reconnect(id) }
                 else { await reconnectConnection(roomId: id) }
             } else if let relay {

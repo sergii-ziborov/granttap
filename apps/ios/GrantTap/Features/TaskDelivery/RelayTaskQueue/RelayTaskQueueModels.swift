@@ -15,6 +15,16 @@ struct RelayQueuedTask: Codable {
 
 enum RelayTaskJobState: String, Codable {
     case queued, accepted, completed, failed, cancelled, expired
+
+    func canAdvance(to next: RelayTaskJobState) -> Bool {
+        if self == next { return true }
+        switch self {
+        case .queued: return true
+        case .accepted: return next == .completed || next == .failed
+        case .failed: return next == .cancelled
+        case .completed, .cancelled, .expired: return false
+        }
+    }
 }
 
 struct RelayTaskJobReceipt: Decodable {

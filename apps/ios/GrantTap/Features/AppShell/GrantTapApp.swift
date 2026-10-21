@@ -69,8 +69,8 @@ struct AppLifecycleDependencies {
                     return
                 }
                 AppModel.shared.restoreLocalReplica()
-                await SubscriptionStore.shared.prepareTransport()
                 AppModel.shared.start()
+                await SubscriptionStore.shared.prepareTransport()
                 await SubscriptionStore.shared.loadStorefront()
             }
         },

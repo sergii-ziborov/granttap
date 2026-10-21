@@ -198,7 +198,7 @@ extension AppRuntimeTests {
 
     func testConnectionSnapshotCopyCoversEveryPersonalHealthPhase() {
         let phases: [ConnectionPhase] = [
-            .demo, .notLinked, .phoneOffline, .macOffline, .needRepair, .live,
+            .demo, .notLinked, .connecting, .phoneOffline, .macOffline, .needRepair, .live,
         ]
         for phase in phases {
             let snapshot = ConnectionSnapshot(

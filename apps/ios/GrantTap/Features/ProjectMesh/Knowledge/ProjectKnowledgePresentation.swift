@@ -127,7 +127,9 @@ enum ProjectKnowledgePresentation {
                               + decisions).prefix(16)),
             attempts: Array((durableFor("attempt", snapshot: snapshot, entries: durable)
                              + callAttempts + wrongTurns).prefix(32)),
-            results: Array(durableFor("result", snapshot: snapshot, entries: durable).prefix(16)),
+            results: Array((durableFor("result", snapshot: snapshot, entries: durable)
+                            + reportedResults(snapshot, graphIds: graphIds, memoryRefs: memoryRefs,
+                                              correctedIds: correctedIds)).prefix(16)),
             packets: (snapshot.cortex ?? []).filter { $0.packet != nil }
                 .sorted { $0.endpointId < $1.endpointId },
             revisions: Array(revisions.prefix(32)),
@@ -135,6 +137,23 @@ enum ProjectKnowledgePresentation {
                            max(invocations.map(\.event.occurred_at).max() ?? 0,
                                (snapshot.knowledge ?? []).map(\.recordedAt).max() ?? 0))
         )
+    }
+
+    private static func reportedResults(
+        _ snapshot: ProjectMeshSnapshot, graphIds: Set<String>,
+        memoryRefs: Set<String>, correctedIds: Set<String>
+    ) -> [Entry] {
+        snapshot.events.sorted { $0.createdAt > $1.createdAt }.compactMap { event in
+            guard event.eventType == "TASK_COMPLETED", event.payload.failed != true,
+                  !memoryRefs.contains(event.eventId), !correctedIds.contains(event.eventId),
+                  let text = event.payload.summary?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !text.isEmpty else { return nil }
+            let repository = repositoryId(for: event, snapshot: snapshot)
+            return Entry(id: "event:\(event.eventId)", text: text, source: L("Agent report"),
+                         taskId: event.taskId, repositoryId: repository,
+                         commitSha: commit(event.payload.commitSha), revision: nil,
+                         hasGraph: repository.map(graphIds.contains) == true)
+        }
     }
 
     private static func durableFor(

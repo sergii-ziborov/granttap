@@ -26,6 +26,7 @@ extension ContentView {
             return GrantTapAccountAPI.session == nil
                 ? L("Open Account Mesh to sign in, or add a device by QR.")
                 : L("Your Account Mesh is ready. Chats will appear when an agent joins it.")
+        case .connecting: return L("Connecting securely and checking computer availability…")
         case .phoneOffline, .macOffline: return L("A linked computer is offline. Open connection status to repair it.")
         case .needRepair: return L("This connection needs repair before tasks can update.")
         case .live, .demo: return L("Open a Mesh to start a Task, or pull to refresh.")
@@ -202,8 +203,7 @@ extension ContentView {
         if hasRecentToolFailure(session.sessionId) { return .toolFailure }
         if let used = session.contextTokensUsed, let window = session.contextWindow,
            window > 0, Double(used) / Double(window) >= 0.85 { return .highContext }
-        if let route = ownerRoute(item), route.phase != .live { return .offline }
-        if session.state == "working", session.idleFor >= 15 * 60 { return .possiblyStalled }
+        if let route = ownerRoute(item), route.phase != .live, route.phase != .connecting { return .offline }
         if session.state == "working" { return .working }
         return ["idle", "waiting"].contains(session.state) ? .idle : .finished
     }

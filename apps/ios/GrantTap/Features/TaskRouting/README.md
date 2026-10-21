@@ -18,3 +18,9 @@ The durable delivery route is owned by `MessageOutbox.swift`; compact new-task
 controls are in [`../TaskComposer`](../TaskComposer/README.md). Tests live in
 `GrantTapTests/Features/TaskRouting`. See [`AGENTS.md`](../../../../../AGENTS.md)
 for repository architecture and quality rules.
+
+Working cards say Working now while their route is Live. Event timestamps remain
+unchanged and inactive/offline cards label that clock Last activity. Quiet
+transcript age alone does not classify a provider-confirmed working Task as
+stalled. Connecting routes retain the cached grouping while their cards show
+Connecting instead of claiming a new outage.

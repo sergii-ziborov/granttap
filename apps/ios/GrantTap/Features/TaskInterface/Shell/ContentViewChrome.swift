@@ -72,12 +72,12 @@ extension ContentView {
             #endif
         } label: {
             HStack(spacing: 5) {
-                Circle().fill(model.connectionSnapshot.statusColor).frame(width: 7, height: 7)
-                let computers = model.connectionOverview
-                let live = computers.filter { model.snapshotForConnection($0).phase == .live }.count
-                Text(computers.count > 1
-                     ? "\(live)/\(computers.count) \(L("Live"))"
-                     : model.connectionSnapshot.statusTitle)
+                if model.relayConnectionSnapshot.phase == .connecting {
+                    ProgressView().scaleEffect(0.65).frame(width: 12, height: 12)
+                } else {
+                    Circle().fill(model.relayConnectionSnapshot.statusColor).frame(width: 7, height: 7)
+                }
+                Text(model.relayConnectionSnapshot.statusTitle)
                     .font(.system(size: 11, weight: .semibold))
             }
         }

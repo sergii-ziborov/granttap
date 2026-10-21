@@ -30,7 +30,7 @@ enum ComputerAvailabilityTone: Equatable {
         switch phase {
         case .live:
             self = .live
-        case .demo, .macOffline, .needRepair:
+        case .connecting, .demo, .macOffline, .needRepair:
             self = .transitional
         case .notLinked, .phoneOffline:
             self = .offline
@@ -62,7 +62,8 @@ enum TaskComposerRoutePresentation {
     }
 
     static func providerMetadata(phase: ConnectionPhase, mcpCount: Int) -> String {
-        let availability = phase == .live ? L("Online") : L("Offline")
+        let availability = phase == .connecting ? L("Connecting…")
+            : (phase == .live ? L("Online") : L("Offline"))
         let capabilities = mcpCount == 0 ? L("No MCP") : "\(mcpCount) MCP"
         return "\(availability) · \(capabilities)"
     }

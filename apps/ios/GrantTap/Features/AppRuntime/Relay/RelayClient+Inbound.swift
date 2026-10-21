@@ -29,6 +29,7 @@ extension RelayClient {
     func handle(_ text: String) {
         noteWireDiagnostic("envelope")
         guard let data = text.data(using: .utf8) else { return }
+        if handleRelayPresence(data) { return }
         if handleSubmissionControl(data) { return }
         guard let env = try? JSONDecoder().decode(Envelope.self, from: data),
               env.v == 1,

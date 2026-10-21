@@ -152,11 +152,11 @@ struct ProjectMeshTaskRow: View {
             .compactMap { $0 }.joined(separator: " · ")
     }
 
-    /// "Last active 2 h ago", from the Task's own executions.
+    /// Last recorded event, independent of the current provider state.
     var recencyLine: String? {
         guard let lastActiveAt, lastActiveAt > 0 else { return nil }
         let seconds = Int(max(0, Date().timeIntervalSince1970 - lastActiveAt / 1_000))
-        return "\(L("Last active")) \(ConnectionLoadFormat.age(seconds: seconds))"
+        return "\(L("Last activity")) \(ConnectionLoadFormat.age(seconds: seconds))"
     }
 
     var body: some View {

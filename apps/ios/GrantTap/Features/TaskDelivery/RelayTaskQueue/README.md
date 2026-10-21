@@ -33,3 +33,11 @@ or running job is checked every second, a long wait every five seconds. Failed
 and expired jobs cannot change on the relay and are not polled until the person
 retries or removes them.
 Tests mirror this feature under `GrantTapTests/Features/TaskDelivery`.
+
+`RelayTaskQueueRecovery` rebuilds an empty local queue from the relay's active-job
+list and authenticated original ciphertext using the existing pairing. It works
+without the computer. It preserves job identity, schedule, attachments and turn
+options, and never resubmits recovered work. Another sender/room or tampered
+signed schedule cannot be adopted. Server state advances monotonically, so a
+slow list response cannot move accepted work back to queued. Local data is a
+cache of relay-confirmed work; uploads without a receipt remain locally pending.

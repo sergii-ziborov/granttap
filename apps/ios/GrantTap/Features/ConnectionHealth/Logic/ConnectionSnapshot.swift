@@ -1,11 +1,11 @@
 import Foundation
 import SwiftUI
 
-/// Honest link health: keys on device (**Linked**) vs Mac publisher freshness (**Live**).
-/// Phone WebSocket up alone must never read as “Connected” when Mac is dead.
+/// Computer freshness and relay transport share display values, with independent snapshots.
 enum ConnectionPhase: Equatable {
     case demo
     case notLinked
+    case connecting
     case phoneOffline
     case macOffline
     case needRepair
@@ -32,6 +32,7 @@ struct ConnectionSnapshot: Equatable {
         switch phase {
         case .demo: return L("Demo")
         case .notLinked: return L("Need pair")
+        case .connecting: return L("Connecting…")
         case .phoneOffline, .macOffline: return L("Offline")
         case .needRepair: return L("Need re-pair")
         case .live: return L("Live")
@@ -42,7 +43,7 @@ struct ConnectionSnapshot: Equatable {
         switch phase {
         case .demo: return Theme.muted
         case .notLinked, .needRepair: return Theme.riskMed
-        case .phoneOffline, .macOffline: return Theme.muted
+        case .connecting, .phoneOffline, .macOffline: return Theme.muted
         case .live: return Theme.ok
         }
     }
@@ -53,6 +54,8 @@ struct ConnectionSnapshot: Equatable {
             return L("Sample data — nothing reaches a computer.")
         case .notLinked:
             return L("No computers linked. Scan a QR from any Mac/PC agent chat to add one.")
+        case .connecting:
+            return L("Connecting securely and checking computer availability…")
         case .phoneOffline:
             return L("This iPhone is not on the relay. Tap Reconnect to reopen the link.")
         case .macOffline:
@@ -79,7 +82,7 @@ struct ConnectionSnapshot: Equatable {
         switch phase {
         case .demo: return L("Exit Demo")
         case .notLinked: return L("Add computer")
-        case .phoneOffline, .macOffline: return L("Reconnect")
+        case .connecting, .phoneOffline, .macOffline: return L("Reconnect")
         case .needRepair: return L("Scan QR / Pair")
         case .live: return L("Reconnect")
         }
@@ -95,6 +98,8 @@ struct ConnectionSnapshot: Equatable {
             return L("Demo never executes a command on a computer.")
         case .notLinked:
             return L("Ask any agent to connect GrantTap — scan adds that computer. You can link several Macs/PCs.")
+        case .connecting:
+            return L("Saved chats stay available while the connection is checked.")
         case .phoneOffline:
             return L("Linked keys stay on this iPhone. Reconnect reopens the WebSocket; it does not require a new QR.")
         case .macOffline:

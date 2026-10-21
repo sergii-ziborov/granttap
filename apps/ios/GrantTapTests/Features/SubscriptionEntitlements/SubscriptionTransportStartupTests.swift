@@ -39,7 +39,7 @@ final class SubscriptionTransportStartupTests: XCTestCase {
         await store.prepareTransport()
 
         XCTAssertTrue(store.allowsManagedTransport)
-        XCTAssertEqual(appTransactionReads, 0, "Verified account access must not wait for StoreKit")
+        XCTAssertLessThanOrEqual(appTransactionReads, 1, "Local distribution evidence is checked concurrently without prompting")
         XCTAssertEqual(receiptReads, 0, "Receipt discovery must not delay an authorized connection")
         XCTAssertEqual(store.entitlement, .unavailable)
     }
