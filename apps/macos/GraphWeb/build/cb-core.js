@@ -3473,8 +3473,17 @@ function createCyberboard(container, opts = {}) {
     focusApi?.handleWheel(ev);
   }, { passive: false, capture: true });
   const edgeTypeOn = { inherit: true, import: true, call: true, io: true, local: true };
+  let graphRelatedId = null;
+  function setGraphDisplayPreferences(value) {
+    Object.assign(edgeTypeOn, { inherit: true, import: true, call: true, relation: true, io: true, local: true }, value.edges);
+    Object.assign(markerOn, value.markers);
+    syncAllMarkers();
+    graphRelatedId = value.relatedId;
+    root.querySelectorAll(".edge-toggle").forEach((button) => button.classList.toggle("on", edgeTypeOn[button.dataset.edgeType] !== false));
+    applyEdgeTypeVis();
+  }
   function edgeScopeVisible(e) {
-    return edgeTypeOn[laneType(e)] !== false && (!e.hiddenByScope || e.scopeReveal);
+    return (graphRelatedId == null || e.a === graphRelatedId || e.b === graphRelatedId) && edgeTypeOn[laneType(e)] !== false && (!e.hiddenByScope || e.scopeReveal);
   }
   function contextEdgeVisible(e) {
     const pathEdges = focusApi?.getPathEdges() ?? null;
@@ -3826,7 +3835,7 @@ function createCyberboard(container, opts = {}) {
     tween = null;
     controls.enabled = true;
   }
-  return { getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene: () => scene, getCamera: () => camera, selectMethod, selectItem, focusFile, setLoading, debugRouteStats };
+  return { setGraphDisplayPreferences, getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene: () => scene, getCamera: () => camera, selectMethod, selectItem, focusFile, setLoading, debugRouteStats };
 }
 if (typeof window !== "undefined")
   window.createCyberboard = createCyberboard;

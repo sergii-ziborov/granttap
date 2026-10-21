@@ -76,7 +76,7 @@ enum ProjectInsightReports {
 
     private static func observedRevision(_ binding: ProjectBindingSummary, canonical: String,
                                          snapshot: ProjectMeshSnapshot) -> String? {
-        guard canonical != binding.repositoryId, binding.revision != nil else { return binding.revision }
+        guard binding.revision != nil else { return nil }
         let latest = (snapshot.repositoryDetails ?? []).filter {
             $0.projectId == snapshot.projectId && $0.repositoryId == binding.repositoryId && $0.endpointId == binding.endpointId
         }.max { $0.observedAt < $1.observedAt }

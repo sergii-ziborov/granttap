@@ -31,6 +31,12 @@ enum CodeCityJourney {
         image.name = name; image.lifetime = .keepAlways; test.add(image)
     }
 
+    static func selectCodeCheckColours(in app: XCUIApplication) {
+        let option = control("Code checks", in: app)
+        XCTAssertTrue(option.waitForExistence(timeout: 5)); option.tap()
+        XCTAssertTrue(app.webViews.staticTexts["Only measured static checks affect these colours. Unmeasured code stays unknown."].exists)
+    }
+
     static func openTowers(sections: Bool = true, renderFailure: Bool = false) -> XCUIApplication {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
@@ -48,6 +54,9 @@ enum CodeCityJourney {
         let health = app.buttons["project.health"]
         for _ in 0..<5 where !health.exists { app.swipeUp() }
         health.tap()
+        XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
+        let showAll = app.buttons["health.options.show-all"]
+        if showAll.waitForExistence(timeout: 1) { showAll.tap() }
         let towers = app.buttons["health.code-towers.github.com/sergii-ziborov/granttap"]
         for _ in 0..<5 where !towers.exists { app.swipeUp() }
         XCTAssertTrue(towers.waitForExistence(timeout: 10)); towers.tap()
@@ -59,19 +68,32 @@ enum CodeCityJourney {
     }
 
     static func scrollSections(in app: XCUIApplication, until target: XCUIElement) {
-        let web = app.webViews.firstMatch
-        func visible() -> Bool {
-            guard target.exists else { return false }
+        let window = app.windows.firstMatch
+        func contentBounds() -> CGRect {
+            let tabs = control("Sections", in: app).frame
+            let viewport = app.webViews.firstMatch.frame
             let panel = app.webViews.descendants(matching: .any).matching(
                 NSPredicate(format: "label BEGINSWITH %@", "Tower details")).firstMatch.frame
-            return target.isHittable && target.frame.minY > control("Sections", in: app).frame.maxY
-                && target.frame.maxY < panel.maxY - 8
+            let bottom = min(panel.maxY - 4, control("Fit", in: app).frame.minY - 12)
+            return CGRect(x: viewport.minX, y: tabs.maxY + 8, width: viewport.width,
+                          height: max(0, bottom - tabs.maxY - 8))
         }
-        for _ in 0..<18 where !visible() {
-            let start = web.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.72))
-            let end = web.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.38))
-            start.press(forDuration: 0.05, thenDragTo: end)
+        func visible() -> Bool {
+            guard target.exists else { return false }
+            let content = contentBounds()
+            return target.isHittable && target.frame.minY > content.minY
+                && target.frame.maxY < content.maxY
         }
-        XCTAssertTrue(visible(), "The requested evidence must be inside the visible inspector")
+        for _ in 0..<40 where !visible() {
+            let content = contentBounds()
+            let top = content.minY + 12
+            let bottom = min(content.maxY - 12, top + 80)
+            let reverse = target.exists && !target.frame.isEmpty && target.frame.minY < content.minY
+            let origin = window.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(dx: content.midX, dy: reverse ? top : bottom))
+            let end = origin.withOffset(CGVector(dx: content.midX, dy: reverse ? bottom : top))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
+        XCTAssertTrue(visible(), "Evidence frame \(target.frame) must be inside inspector \(contentBounds())")
     }
 }

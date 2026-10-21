@@ -20,7 +20,7 @@ final class ProjectCodeCityRecoveryUITests: XCTestCase {
         let link = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "code-towers.link.")).firstMatch
         XCTAssertTrue(link.waitForExistence(timeout: 5)); link.tap()
         app.buttons["code-towers.health"].tap()
-        let facts = app.staticTexts["Coverage, complexity and unused-code findings are not reported in this map."]
+        let facts = app.staticTexts["Test coverage and runtime performance were not measured."]
         for _ in 0..<5 where !facts.exists { app.scrollViews["code-towers.health-scroll"].swipeUp() }
         XCTAssertTrue(facts.exists)
         app.buttons["Close file details"].tap()

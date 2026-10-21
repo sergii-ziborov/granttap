@@ -87,7 +87,7 @@ test('opening help replaces the settings popover and preserves the selected sour
   const value = workspace(); value.inspector.openFile({ id: 0 });
   const click = name => [...value.root.querySelectorAll('button')]
     .find(button => button.getAttribute('aria-label') === name || button.textContent === name).click();
-  click('Highlights'); click('Help');
+  click('View settings'); click('Help');
   assert.equal(value.root.querySelectorAll('.graph-view-settings:not([hidden])').length, 1);
   assert.match(value.root.querySelector('.graph-view-settings:not([hidden])').textContent, /Graph controls/);
   assert.equal(value.inspector.selection().path, value.data.files[0]._path);

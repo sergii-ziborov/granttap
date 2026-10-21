@@ -112,7 +112,7 @@ final class ProjectGraphUITests: XCTestCase {
         let app = DenseCodeCityJourney.openDenseInspector(in: self)
         app.buttons["Close code towers"].tap()
         XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Partial report"].exists)
+        XCTAssertTrue(app.staticTexts["Current · partial report"].exists)
     }
 
     func testStatisticsHasTaskDiagramAndEvidenceBars() {

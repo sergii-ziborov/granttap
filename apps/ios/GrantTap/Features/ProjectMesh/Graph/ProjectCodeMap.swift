@@ -16,6 +16,20 @@ struct ProjectCodeMap: Codable, Equatable {
         let kind: String
         let startLine: Int
         let lineCount: Int
+        var metrics: Checks? = nil
+    }
+
+    struct Checks: Codable, Equatable {
+        let measured: Bool
+        let sourceLines: Int
+        let cyclomatic: Int
+        let maxLoopDepth: Int
+        let callers: Int
+
+        var valid: Bool {
+            measured && sourceLines > 0 && cyclomatic > 0 && maxLoopDepth >= 0 && callers >= 0
+                && [sourceLines, cyclomatic, maxLoopDepth, callers].allSatisfy { $0 <= 0xffff_ffff }
+        }
     }
 
     struct Road: Codable, Hashable, Identifiable {
@@ -59,6 +73,7 @@ struct ProjectCodeMap: Codable, Equatable {
                         && symbol.label.count <= 160 && !symbol.kind.isEmpty
                         && symbol.kind.count <= 64 && symbol.startLine > 0
                         && symbol.lineCount > 0
+                        && (symbol.metrics?.valid ?? true)
                 }
         } && roads.allSatisfy { road in
             (paths.contains(road.source) || externalIds.contains(road.source))

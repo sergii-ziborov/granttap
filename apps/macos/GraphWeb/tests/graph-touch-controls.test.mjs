@@ -41,3 +41,19 @@ test('older WebKit mouse compatibility clicks cannot repeat a touch action', () 
   assert.equal(value.calls(), 1);
   value.dom.window.close();
 });
+
+test('a delayed touch click cannot activate a replacement control after rendering a new panel', () => {
+  const dom = new JSDOM('<main></main>'), root = dom.window.document.querySelector('main');
+  const calls = [];
+  const next = graphButton(dom.window.document, 'Next', () => calls.push('next'));
+  const first = graphButton(dom.window.document, 'First', () => { calls.push('first'); root.replaceChildren(next); });
+  root.append(first);
+  for (const type of ['pointerdown', 'pointerup']) {
+    const event = new dom.window.Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerType: 'touch', pointerId: 1, clientX: 10, clientY: 10 }); first.dispatchEvent(event);
+  }
+  next.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, detail: 1, clientX: 10, clientY: 10 }));
+  assert.deepEqual(calls, ['first']);
+  next.click(); assert.deepEqual(calls, ['first', 'next']);
+  dom.window.close();
+});

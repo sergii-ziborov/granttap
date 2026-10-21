@@ -2,6 +2,8 @@ import { findGraphFile, sourceSection, graphFileLinks } from './graph-inspection
 import { graphButton, graphText } from './graph-language.js';
 import { graphControlIcon } from './graph-control-icons.js';
 import { frameGraphSource } from './graph-source-framing.js';
+import { codeCheckDetails, decorateSectionRow } from './graph-code-checks.js';
+import { graphPreferences } from './graph-highlight-policy.js';
 
 const element = (document, tag, text, className) => {
   const node = document.createElement(tag);
@@ -25,7 +27,7 @@ function sections(content, context) {
         state.index = i; board.focusSection(file.id, i); context.render();
       });
       row.dataset.sectionIndex = String(i); row.setAttribute('aria-pressed', String(index === i));
-      row.classList.toggle('size-warning', method.loc > threshold);
+      decorateSectionRow(row, method, state);
       row.append(element(document, 'span', method.name), element(document, 'small',
         `${method.kind || 'symbol'} · L${method.line ?? '—'} · ${method.loc} LOC`));
       list.append(row);
@@ -60,6 +62,8 @@ function health(content, context) {
   const { document, button, fact, data, board, state } = context;
   const { file, index, threshold } = state;
     const section = sourceSection(file, index);
+    if (section) content.append(element(document, 'h3', section.name));
+    codeCheckDetails(content, context, section);
     content.append(interfaceElement(document, 'h3', 'Health evidence'));
     fact(content, 'Kind', file.kind);
     fact(content, 'Analysis', file.analysisStatus); fact(content, 'Source revision', file.sourceRevision);
@@ -68,7 +72,6 @@ function health(content, context) {
     if (section) fact(content, 'Selected section', `${section.loc} LOC · ${section.kind}`);
     fact(content, 'Observed inbound links', file.fanIn); fact(content, 'Observed outbound links', file.fanOut);
     content.append(interfaceElement(document, 'p', file.partial ? 'Partial evidence: this map does not cover every input.' : 'The reported analysis is complete.'));
-    content.append(interfaceElement(document, 'p', 'Coverage and complexity were not reported. Section-size highlights use measured LOC.'));
     fact(content, 'Size highlight threshold', `${threshold} LOC`);
   }
 
@@ -78,7 +81,7 @@ export function createGraphInspector(root, data, board) {
   // Repo Lens excludes HUD surfaces from its capture-phase tower gestures.
   const panel = element(document, 'aside', null, 'rel-method-panel granttap-inspector hud');
   panel.setAttribute('aria-label', graphText(document, 'Tower details')); panel.hidden = true; root.append(panel);
-  const state = { file: null, index: null, tab: 'Sections', threshold: 100 };
+  const state = { file: null, index: null, tab: 'Sections', threshold: 100, preferences: graphPreferences() };
   let frameGeneration = 0;
   const frame = () => {
     const generation = ++frameGeneration;
@@ -154,6 +157,11 @@ export function createGraphInspector(root, data, board) {
 
   Object.assign(context, { button, fact, render, openFile });
   return { openFile, openMethod, openEdge, close, restoreSelection, frame,
+    setPreferences(preferences) {
+      const offset = panel.querySelector('.graph-inspector-scroll')?.scrollTop || 0;
+      state.preferences = { ...preferences }; state.threshold = preferences.threshold;
+      if (state.file && !panel.hidden) { render(); panel.querySelector('.graph-inspector-scroll').scrollTop = offset; }
+    },
     setThreshold(value) {
       const offset = panel.querySelector('.graph-inspector-scroll')?.scrollTop || 0;
       state.threshold = value;

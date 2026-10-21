@@ -25,7 +25,7 @@ enum DenseCodeCityJourney {
         capture(app, "Dense650 — landscape source selected again", in: test)
         app.buttons["Close code towers"].tap()
         XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Partial report"].exists)
+        XCTAssertTrue(app.staticTexts["Current · partial report"].exists)
     }
 
     static func openDenseInspector(in test: XCTestCase) -> XCUIApplication {
@@ -55,7 +55,7 @@ enum DenseCodeCityJourney {
         let health = app.buttons["project.health"]
         for _ in 0..<5 where !health.isHittable { app.swipeUp() }
         XCTAssertTrue(health.isHittable); health.tap()
-        XCTAssertTrue(app.staticTexts["Partial report"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Current · partial report"].waitForExistence(timeout: 10))
         let towers = app.buttons["health.code-towers.github.com/sergii-ziborov/granttap"]
         XCTAssertTrue(towers.waitForExistence(timeout: 10))
         return app

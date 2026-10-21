@@ -79,7 +79,7 @@ struct ProjectHealthRepositoryRow: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: repository.ready ? "checkmark.circle" : repository.usable
                   ? "circle.lefthalf.filled" : "exclamationmark.circle")
-                .foregroundStyle(repository.ready ? Theme.ok : Theme.riskMed)
+                .foregroundStyle(repository.ready ? Theme.ok : repository.current ? Theme.muted : Theme.riskMed)
                 .frame(width: 24).padding(.top, 2)
             VStack(alignment: .leading, spacing: 4) {
                 Text(repository.name).font(.body.weight(.medium)).foregroundStyle(Theme.ink)
@@ -87,7 +87,7 @@ struct ProjectHealthRepositoryRow: View {
                     Text(disambiguation).font(.caption2).foregroundStyle(Theme.muted).lineLimit(1)
                 }
                 Text(repository.statusTitle).font(.caption.weight(.medium))
-                    .foregroundStyle(repository.ready ? Theme.ok : Theme.riskMed)
+                    .foregroundStyle(repository.ready ? Theme.ok : repository.current ? Theme.muted : Theme.riskMed)
                 if let detail = repository.detail {
                     Text(detail).font(.caption).foregroundStyle(Theme.muted).lineLimit(2)
                 }

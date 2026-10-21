@@ -6,9 +6,14 @@ import { graphViewState, restoreGraphView, currentGraphSelection, compatibleGrap
 import { fitGraphCamera, hasVisibleGraphSource, updateGraphFog } from './graph-camera-framing.js';
 import { graphControlIcon } from './graph-control-icons.js';
 import { layoutGraphLabels } from './graph-label-layout.js';
+import { graphPreferences } from './graph-highlight-policy.js';
+import { graphLegend } from './graph-legend.js';
+import { applyGraphHighlights } from './graph-highlights.js';
 
 export function createGraphControls(root, data, board, inspector) {
   const document = root.ownerDocument, controls = document.createElement('nav');
+  const legacyFilters = root.querySelector('#cb-legend');
+  if (legacyFilters) { legacyFilters.hidden = true; legacyFilters.inert = true; }
   const tools = document.createElement('nav'); tools.className = 'graph-tools hud';
   controls.className = 'graph-camera hud'; controls.setAttribute('aria-label', graphText(document, 'Graph camera controls'));
   const store = graphViewState(document.defaultView, data);
@@ -19,9 +24,7 @@ export function createGraphControls(root, data, board, inspector) {
     restoreGraphView(board, inspector, saved, sameViewport);
     if (!sameViewport || !hasVisibleGraphSource(board, data)) saved = { ...saved, refit: true };
   }
-  const threshold = Number(saved?.preferences?.threshold);
-  const preferences = { threshold: Number.isFinite(threshold) ? Math.min(300, Math.max(10, threshold)) : 100,
-    pan: saved?.preferences?.pan === true };
+  const preferences = graphPreferences(saved?.preferences);
   const save = () => store.save(board, inspector, preferences);
   const selected = saved?.selection && findGraphFile(data, saved.selection);
   let restoring = Boolean(selected);
@@ -40,6 +43,7 @@ export function createGraphControls(root, data, board, inspector) {
   restoreGraphView(board, inspector, saved, sameViewport && !saved?.refit);
   const openFiles = createGraphBrowser(root, data, board, inspector);
   const openSettings = graphViewSettings(root, data, board, inspector, preferences, save);
+  const openLegend = graphLegend(root, data, preferences);
   const openHelp = graphControlsHelp(root);
   const action = (label, callback, parent = controls, icon = false) => {
     const button = graphButton(document, label, () => { restoring = false; callback(); });
@@ -67,7 +71,8 @@ export function createGraphControls(root, data, board, inspector) {
     camera.touches.ONE = preferences.pan ? 1 : 0; mode.setAttribute('aria-pressed', String(preferences.pan));
   }
   updateMode(); controls.append(mode);
-  action('Files', openFiles, tools, true); action('Highlights', openSettings, tools, true); action('Help', openHelp, tools, true);
+  action('Files', openFiles, tools, true); action('Legend', openLegend, tools, true);
+  action('View settings', openSettings, tools, true); action('Help', openHelp, tools, true);
   action('Full screen', () => { save(); document.defaultView.webkit?.messageHandlers?.graphStatus?.postMessage('fullscreen'); }, tools, true);
   root.append(controls, tools);
   const measure = () => root.style.setProperty('--graph-dock-space',
@@ -88,7 +93,7 @@ export function createGraphControls(root, data, board, inspector) {
   });
   document.defaultView.addEventListener('resize', resized); scheduleLabels();
   const moved = () => { updateGraphFog(board); save(); scheduleLabels(); };
-  const selectedSource = () => { save(); scheduleLabels(); };
+  const selectedSource = () => { applyGraphHighlights(root, board, data, preferences, inspector.selection()); save(); scheduleLabels(); };
   root.addEventListener('graphselection', selectedSource); board.getControls().addEventListener?.('change', moved);
   return { save, dispose() {
     observer?.disconnect();

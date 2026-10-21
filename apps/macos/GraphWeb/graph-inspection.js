@@ -14,7 +14,7 @@ export function sourceSection(file, index) {
     endLine: method.line == null ? null : method.line + method.loc - 1,
     loc: method.loc, repositoryId: file.repositoryId, path: file._path,
     sourceRevision: file.sourceRevision, analysisRevision: file.analysisRevision,
-    analysisStatus: file.analysisStatus, partial: file.partial };
+    analysisStatus: file.analysisStatus, partial: file.partial, metrics: method.metrics ?? null };
 }
 
 export function graphFileLinks(data, file) {

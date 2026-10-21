@@ -137,3 +137,13 @@ remain inspectable during a refresh. The information sheet explains analysis on
 linked computers, repository revision checks, confirmed report receipt and
 offline access. The synthetic `ProjectGraphBuildUITests` exercise these states
 through the normal Mesh navigation in light and dark appearances.
+
+Health separates report availability, freshness and completeness. A bounded
+current report is inspectable without a global failure warning. Local Health
+options filter repositories by refresh need or error, sort by problems or name,
+and expose technical diagnostics. The shared build status stays compact; real
+repository failures retain their reason, provenance and refresh action.
+
+Optional code checks are passed through Apple decoding to the shared code city.
+Absent measurements remain absent. Details and the independent legend distinguish
+measured threshold warnings, measured sections within limits, and unknown code.

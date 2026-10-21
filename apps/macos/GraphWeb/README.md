@@ -22,9 +22,18 @@ do not reassign a selection by its old row number. The Health tab and scroll
 position remain part of the saved view. A removed symbol returns to its file.
 Camera flights
 stop when the user chooses manual movement. View settings change the measured
-LOC warning threshold and expose the original edge and marker filters. Missing
-coverage, complexity and structural health remain unknown; LOC warnings describe
-size. Repository and source text is assigned through safe text nodes.
+section colours independently by kind, measured size, static code checks or
+neutral appearance. Function, method, type, constant and other received symbol
+kinds have separate colours and dimming controls. Labels and relation types can
+be changed independently, with an explicit reset. Legend opens a read-only
+explanation of the current colours without changing filters or camera.
+
+Code checks use optional Engine measurements: source extent, token-based
+cyclomatic estimate and loop nesting. Green means within the selected checks;
+red means at least one threshold needs review. Unmeasured sections remain
+unknown. These checks do not prove correctness, runtime speed or test coverage.
+Their measured values, thresholds and provenance remain in the Health inspector.
+Missing coverage and structural health scores remain unknown; LOC warnings describe size. Repository and source text is assigned through safe text nodes.
 
 English and Russian controls follow the application language. `graph-ui.css`
 owns the host panels and their pointer, focus and narrow viewport states.
@@ -51,8 +60,9 @@ module, section and focused-tower labels are hidden until the camera separates t
 the selected section and tower paging take priority and clear the detail panel.
 Rebuilding a section rail schedules a collision pass without a continuous layout timer.
 All received sections, facts and full paths remain
-in Files and the source inspector. Neutral blue towers mean that health was not
-reported, while amber section highlights indicate measured size only.
+in Files and the source inspector. Neutral source bodies retain lines outside received symbol ranges. Amber
+means measured size in Size mode; the separate Code checks mode uses measured
+function evidence only.
 On a narrow phone, the open inspector replaces duplicate world-space section
 callouts and their scroll rail with the complete scrollable Sections list.
 The selected tower, section highlight and 3D leaders remain in the scene.
@@ -70,8 +80,8 @@ source; a saved overview must show a readable share of the received map. A valid
 camera, selected symbol, inspector tab and scroll position survive a same-size
 report refresh. Top and ISO remain directly available as named icon buttons.
 The phone inspector uses a compact bottom panel; landscape uses a side panel.
-Legend filters open from Highlights and help replaces that popover without
-discarding the selected source.
+Legend and View are independent buttons. Help replaces the open popover
+without discarding the selected source.
 
 A neutral source body represents measured file lines outside the union of known
 section ranges. It keeps a 253-line file visible when only three one-line

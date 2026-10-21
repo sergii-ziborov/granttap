@@ -69,13 +69,15 @@ struct ProjectHealthPresentation: Equatable {
 
         var ready: Bool { report?.analysisStatus == "COMPLETE" && report?.truncated == false && !stale }
         var usable: Bool { report.map(ProjectInsightReports.isAnalyzed) ?? false }
+        var failed: Bool { report?.analysisStatus == "UNAVAILABLE" }
+        var current: Bool { usable && !stale }
 
         var statusTitle: String {
             guard let report else { return L("No report") }
             if report.analysisStatus == "UNAVAILABLE" { return L("Needs attention") }
             if usable && stale { return L("Saved report · needs refresh") }
             if ready { return L("Ready") }
-            return L(usable ? "Partial report" : "Architecture needs refresh")
+            return L(usable ? "Current · partial report" : "Architecture needs refresh")
         }
 
         var detail: String? {
@@ -95,6 +97,10 @@ struct ProjectHealthPresentation: Equatable {
     let needsAnalysis: Bool
     var readyCount: Int { repositories.filter(\.ready).count }
     var attentionCount: Int { repositories.count - readyCount }
+    var availableCount: Int { repositories.filter(\.usable).count }
+    var currentCount: Int { repositories.filter(\.current).count }
+    var savedCount: Int { repositories.filter { $0.usable && $0.stale }.count }
+    var errorCount: Int { repositories.filter(\.failed).count }
 
     init(snapshot: ProjectMeshSnapshot, connections: [LinkedComputer]) {
         let ids = ProjectHealthDiagnostics.graphRepositoryIds(snapshot)

@@ -25,6 +25,20 @@ assert old in source
 core.write_text(source.replace(old, new))
 source = core.read_text().replace('seg.userData.fileId=f.id;',
     'seg.userData.fileId=f.id; seg.userData.methodIndex=f.segMats.length;')
+needle = 'function edgeScopeVisible(e){ return edgeTypeOn[laneType(e)]!==false'
+assert needle in source
+source = source.replace(needle, '''let graphRelatedId = null;
+  function setGraphDisplayPreferences(value) {
+    Object.assign(edgeTypeOn, {inherit:true, import:true, call:true, relation:true, io:true, local:true}, value.edges);
+    Object.assign(markerOn, value.markers);
+    syncAllMarkers();
+    graphRelatedId = value.relatedId;
+    root.querySelectorAll('.edge-toggle').forEach(button =>
+      button.classList.toggle('on', edgeTypeOn[button.dataset.edgeType] !== false));
+    applyEdgeTypeVis();
+  }
+  function edgeScopeVisible(e){ return (graphRelatedId == null || e.a === graphRelatedId || e.b === graphRelatedId)
+    && edgeTypeOn[laneType(e)]!==false''')
 needle = 'return { destroy, pause, resume, getScene:'
 assert needle in source
 source = source.replace(needle, '''function focusNode(id) {
@@ -43,7 +57,7 @@ source = source.replace(needle, '''function focusNode(id) {
     tween = null;
     controls.enabled = true;
   }
-  return { getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene:''')
+  return { setGraphDisplayPreferences, getControls: () => controls, focusNode, focusSection, stopCameraFlight, destroy, pause, resume, getScene:''')
 core.write_text(source)
 focus = root / "cb-focus.js"
 source = focus.read_text()

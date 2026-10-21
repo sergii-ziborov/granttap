@@ -2942,3 +2942,39 @@
 "Feedback is optional and is sent to GrantTap support. Comments are encrypted at rest and kept for up to 90 days. It does not cancel or change your subscription." = "Отзыв необязателен и отправляется в поддержку GrantTap. Комментарии зашифрованы при хранении и сохраняются до 90 дней. Отзыв не отменяет и не меняет подписку.";
 
 "Retry saving feedback" = "Повторить сохранение отзыва";
+
+"Health options" = "Настройки Health";
+
+"Show reports" = "Показывать отчёты";
+
+"All repositories" = "Все репозитории";
+
+"Needs refresh" = "Нужен свежий отчёт";
+
+"Errors only" = "Только ошибки";
+
+"Sort reports" = "Сортировка отчётов";
+
+"Problems first" = "Сначала проблемы";
+
+"Show technical diagnostics" = "Техническая диагностика";
+
+"A partial report can be current. It describes a bounded part of the repository, not a failed analysis." = "Частичный отчёт может быть актуальным: он охватывает ограниченную часть репозитория. Это не ошибка анализа.";
+
+"Reset Health options" = "Сбросить настройки Health";
+
+"No repositories match these options." = "Нет репозиториев с выбранными параметрами.";
+
+"%d of %d reports available" = "Доступно отчётов: %d из %d";
+
+"%d current · %d saved · %d errors" = "Актуальных: %d · сохранённых: %d · ошибок: %d";
+
+"Current · partial report" = "Актуальный · частичный отчёт";
+
+"Reports available" = "Отчёты доступны";
+
+"Available reports can be explored. Repository rows show what still needs attention." = "Доступные отчёты можно открыть. Оставшиеся проблемы указаны в строках репозиториев.";
+
+"%d current · %d saved" = "Актуальных: %d · сохранённых: %d";
+"Show all repositories" = "Показать все репозитории";
+"Test coverage and runtime performance were not measured." = "Покрытие тестами и скорость выполнения не измерены.";

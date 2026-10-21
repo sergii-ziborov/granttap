@@ -43,11 +43,11 @@ test('camera controls, section search and measured highlights work through the v
   click('Clear search'); assert.equal(search.value, '');
   assert.equal(root.querySelector('.graph-browser details button').textContent, 'main.swift');
   click('Close files');
-  click('Highlights'); const slider = root.querySelector('input[type=range]');
+  click('View settings'); click('Section size'); const slider = root.querySelector('input[type=range]');
   slider.value = '200'; slider.dispatchEvent(new value.dom.window.Event('input'));
   assert.equal(segment.material.color.getHex(), 0x123456);
-  click('Close settings'); click('Highlights');
-  click('Link and marker filters'); assert.equal(root.querySelector('#cb-legend').classList.contains('collapsed'), false);
+  click('Close settings'); click('Legend');
+  assert.equal(root.querySelector('[aria-label="Map legend"]').hidden, false); click('Close legend');
   click('Help'); assert.match(root.textContent, /Drag to orbit/); click('Close help');
   click('Files'); search.value = ''; search.dispatchEvent(new value.dom.window.Event('input'));
   click('main.swift'); assert.deepEqual(selected.at(-1), [0]);
@@ -56,6 +56,8 @@ test('camera controls, section search and measured highlights work through the v
 
 test('full screen restores camera, selected source section and highlight preferences', () => {
   const value = fixture();
+  assert.equal(value.segment.material.color.getHex(), 0x26d7ed);
+  value.click('View settings'); value.click('Section size'); value.click('Close settings');
   assert.equal(value.segment.material.color.getHex(), 0xffb454);
   value.inspector.openMethod({ id: 0, index: 1 });
   value.camera.position.set(30, 40, 50); value.controls.target.set(2, 3, 4);

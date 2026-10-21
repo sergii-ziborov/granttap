@@ -1,6 +1,6 @@
 {
   "schema": "granttap.public-source.v1",
-  "sourceCommit": "03568be390cbf0e6350026f70defc6eaeb0cfc3e",
+  "sourceCommit": "f314c0e800cc384532929b6bead10b06a127ab89",
   "files": [
     {
       "path": "LICENSE",
@@ -120,7 +120,7 @@
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.pbxproj",
-      "sha256": "55c5009f04f2700a5337c6e568d0b695bd78fc7acf59fe06d5183a8b4c10fe81"
+      "sha256": "5af61d10f1cf184eafd8899970a41af81b5736637157c62ebdd72e360f775252"
     },
     {
       "path": "apps/ios/GrantTap.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
@@ -812,7 +812,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/AppModelDemoMeshFixtures.swift",
-      "sha256": "640449b46b4f86e343acf4ffb0ee19e3b0c871a8c3c26749ae7422d72cb3a912"
+      "sha256": "9ebf3f242849ac152157d6d2172443e09b98d2608d84e0b761cf0112c5e75567"
     },
     {
       "path": "apps/ios/GrantTap/Features/DemoSupport/AppModelDemoMeshPresentation.swift",
@@ -1692,7 +1692,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectCodeMap.swift",
-      "sha256": "157334cb490ca143900187d903d4627a36f67d6c1636f03ba5575bc6b888630c"
+      "sha256": "f98bb3e0f6fc4c15eb1ab230c48019e0826612fd0c7bda2c324158e0bc1491ce"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectCodeMapScope.swift",
@@ -1700,7 +1700,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectGraphBuildCard.swift",
-      "sha256": "6f19c35772daa68a5a66af77a89b72a85322b938df3c527f7353ff80320efeeb"
+      "sha256": "3851e525e6df1d4cb6b0e42024d701747ddd3a7ee9ef965dc2be963e9c86a185"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectGraphInspector.swift",
@@ -1744,7 +1744,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectTowerHealthView.swift",
-      "sha256": "18334acfe0c807b76266a782a1439a787a41c1456e4c9862e05a11adcaf03fb6"
+      "sha256": "bf724ec40898c2edec9660f9fcbda3734614a356f20e21e35335c060e2f9b5c4"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Graph/ProjectTowerHighlighting.swift",
@@ -1804,7 +1804,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Insights/ProjectInsightReports.swift",
-      "sha256": "51aad14e85f87c22e29a5e7a8b4cddc5e9e313c4b0d8e48e13fdf764c4e38f0d"
+      "sha256": "6e0b2b318596165d176e4d27ab1cdee33719c86d2ffed41f70ad7922ab38d370"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Insights/README.md",
@@ -1920,7 +1920,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/README.md",
-      "sha256": "03a7cced6a7fa03a833ba1ec9b47c3168838729f36ccaf5cbddb9a1c2f3bd8cc"
+      "sha256": "ac5a267cba2c83dd66b0d5e320a882b2e969d83fc27ebf2250d4fbbd52d912fe"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Repositories/ProjectComputerUsageView.swift",
@@ -2168,11 +2168,15 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectHealthDiagnostics.swift",
-      "sha256": "1b99685687a6817aab8063922731974d3f6c90f5636cbe806bea0f6c68694615"
+      "sha256": "c4e73efa2a2081e29462c9803a8bb978339ab761f6290dcf168cde9bd0ee6cf1"
+    },
+    {
+      "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectHealthOptions.swift",
+      "sha256": "9b72b5658395572caffd4155c74168d0118b0c24e8a8ba21147b36808804002a"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectHealthRows.swift",
-      "sha256": "2192641e7e0d6010c44341cb702dbd32d81f1e80c2eb860fe7e78a3b9654c986"
+      "sha256": "4d377e52e230e331d31dcf055b164cbc8d238432b29864c4e4411d447b6c54fc"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectListRowView.swift",
@@ -2188,7 +2192,7 @@
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectMeshStatusView.swift",
-      "sha256": "d8b79466902a2d482f69adae513f17305613368680412985cea0516ff1a93458"
+      "sha256": "8c20d091b875ce2bb77a1971f150f8190a2ae226c5a43d0e575a3cf47531dc23"
     },
     {
       "path": "apps/ios/GrantTap/Features/ProjectMesh/Views/ProjectMeshTimelineViews.swift",
@@ -4023,6 +4027,10 @@
       "sha256": "431ec59de008ea645de41b6c1e98d76f4bfce4571bd5a7760cb133027d10edc5"
     },
     {
+      "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Usage/HealthReportControlsTests.swift",
+      "sha256": "4f2a07d90b4d70a6b9c12d47adcc51f17c5042b16365cad24c2325b1d90ef446"
+    },
+    {
       "path": "apps/ios/GrantTapTests/Features/ProjectMesh/Usage/MeshHealthNoiseTests.swift",
       "sha256": "1bde1a8a897fa8331edf46cac902d109daa5cbf47933b18b3dd50269c8f62abf"
     },
@@ -4524,7 +4532,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/CodeCityJourney.swift",
-      "sha256": "171fc1e19fef731387330b2718fa370737e852abce6d8180089802f8c05ad25d"
+      "sha256": "9f8912174dfbf8ddbbbdf39acec2231210e1c05e60cdd406830469ce5d40795d"
     },
     {
       "path": "apps/ios/GrantTapUITests/ComposerApprovalUITests.swift",
@@ -4536,7 +4544,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/DenseCodeCityJourney.swift",
-      "sha256": "a2e34f1fc2d9e31231b480f59586c56c530cb423c6f2b727e3d3f703f2bdfbd3"
+      "sha256": "afc2c0043a0fe2cfc996705f5bdfcffbbd14e8a15d4210ec3bd00086491306fc"
     },
     {
       "path": "apps/ios/GrantTapUITests/DeviceNameUITests.swift",
@@ -4548,7 +4556,11 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/HealthDiagnosticsUITests.swift",
-      "sha256": "4ab8aeecb2b17bd42c96e14465744f7e5eed14acb572d0a2c92e2428d4f4a4c7"
+      "sha256": "c5b284f3aafa0dc150d07bb16efa2239e8467e0e03e510c38abbca079f0981c0"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/HealthOptionsUITests.swift",
+      "sha256": "b6c96a6fe8f8675de06cc7647c1a81831c914524bd5b040c36e38c19d6e99839"
     },
     {
       "path": "apps/ios/GrantTapUITests/HealthScrollingUITests.swift",
@@ -4612,7 +4624,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectCodeCityRecoveryUITests.swift",
-      "sha256": "023ff5721d17e60776a662aa01950d5df4d753c36d0ca554917afa51bd672e85"
+      "sha256": "d1929ee7a858f9f756fb344f724f95a0331314860a6a05718b9d98d104b790bb"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectControllerDeviceUITests.swift",
@@ -4624,7 +4636,7 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectGraphUITests.swift",
-      "sha256": "c17ce01a9968336d471e2e23af3cf80f535e1482bc03028726247bb95c01be8c"
+      "sha256": "e9cb4158851e48930c45811d5e6ff0b24f39fd7db4e3fe5a943a19f048576d54"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectInsightsUITests.swift",
@@ -4640,11 +4652,15 @@
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectTowerBrowserUITests.swift",
-      "sha256": "64c2f945d8c15b9a4f32b76460cc3671ecfac4b92ea15cae7897e381da7b9ce2"
+      "sha256": "d0b36f1f6e03edd489ff49ebefd5e58f91715419fa487b3206c3e561f5761c4c"
     },
     {
       "path": "apps/ios/GrantTapUITests/ProjectTowerControlsUITests.swift",
       "sha256": "691238fcc7f45195fb997d67cc5a89762ff4f3907c909e8731fe239d20918ac0"
+    },
+    {
+      "path": "apps/ios/GrantTapUITests/ProjectTowerPreferencesUITests.swift",
+      "sha256": "d1deec7201ad7ca5b7f35f57adc62dc57de3eea82674dfab3ccfc46a0528c041"
     },
     {
       "path": "apps/ios/GrantTapUITests/ReportPreviewUITests.swift",
@@ -4812,7 +4828,7 @@
     },
     {
       "path": "apps/ios/Shared/ru.lproj/Localizable.strings",
-      "sha256": "0945ede1bc7d439cf146ba0b4dd85bc7dd98cf860beae4a22cd1e965c9174cee"
+      "sha256": "b9e52ba244a2a45d51f128f3b0f544dfa76087599f71a14737807898fedf7228"
     },
     {
       "path": "apps/ios/THIRD_PARTY_NOTICES.md",
@@ -4824,7 +4840,7 @@
     },
     {
       "path": "apps/ios/project.yml",
-      "sha256": "fe8eadb42177116178c8466b5b56ba368e2964c7928053f5ff0ce867434d33bb"
+      "sha256": "3264300fe0209c5bc909c71117eed13b440dca60ae3485db28388ea48f6bd999"
     },
     {
       "path": "apps/ios/workspace-project.yml",
@@ -4880,7 +4896,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/README.md",
-      "sha256": "f9d1833622423fcfc1c8f25794e2f391b31fc2078273595b12814de7cf9c25b8"
+      "sha256": "972d5f8a78d2bc27c26d6d53ca2d96659e49e83c6fddae266286497b3f5d9e36"
     },
     {
       "path": "apps/macos/GraphWeb/REPO_LENS_COMMIT",
@@ -4900,7 +4916,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/build/cb-core.js",
-      "sha256": "ea0aa7fe996bec5fe6208ab20636a912e374c29ba9551333287edfe369c882dd"
+      "sha256": "0bbe19a18b1d3d796cfeb170206e77d1dee0285dd849aa0b138363d3cff607a1"
     },
     {
       "path": "apps/macos/GraphWeb/build/scene.css",
@@ -4920,7 +4936,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/build/viewer.js",
-      "sha256": "58937c8747a819298c89c7080c3954c4ec4e59e583b60bdfcd107cffd0084fbf"
+      "sha256": "294fa9ae234700fd21619d35a90b784481682c9e6b79dec8f42f23001a7aac0d"
     },
     {
       "path": "apps/macos/GraphWeb/bundle-viewer.sh",
@@ -4935,20 +4951,32 @@
       "sha256": "551f5d0e4b4b5f7fb2c7c63637ed6fb912d293d53a38c1f96bb6b5e38219b2cd"
     },
     {
+      "path": "apps/macos/GraphWeb/graph-code-checks.js",
+      "sha256": "0b13df5d3507c033c17f9c0b8598de35e45533b6ef808ca39bfb7896f3ee7831"
+    },
+    {
       "path": "apps/macos/GraphWeb/graph-control-icons.js",
-      "sha256": "843cd29fd45df5cd356aefaf6d1f0a8d07641caa22992819b51e88f07324107e"
+      "sha256": "167069a0df4a15bd7704adf1f86a1b34fde7f776bae11b406336912b4b32f777"
     },
     {
       "path": "apps/macos/GraphWeb/graph-controls.js",
-      "sha256": "6007bd2d419412d54f11ad30f896c23e5bd8d15f8dadf2f8fe4a1eb02aae0788"
+      "sha256": "c932c196d519f3008840c968326f7e1060c4734eba0add40ab99525d34a1d5f4"
+    },
+    {
+      "path": "apps/macos/GraphWeb/graph-highlight-policy.js",
+      "sha256": "466f84aea72462c89d23b517db2e5ddaee5946382b7c12056511068b3746a74a"
+    },
+    {
+      "path": "apps/macos/GraphWeb/graph-highlights.js",
+      "sha256": "5ec42a42d91285a3eedb23a595177081ae2c843b5145ef71ec37419633f7c11f"
     },
     {
       "path": "apps/macos/GraphWeb/graph-inspection.js",
-      "sha256": "72df061ea3ecdcb668024275ac44831d72aa886cab648cef9588e162a3f03ecf"
+      "sha256": "11b093035841950fb629c35acf736a81e9aae023b3b620b31b5e57b1edcf233c"
     },
     {
       "path": "apps/macos/GraphWeb/graph-inspector.js",
-      "sha256": "edb540730f8cb1afad7a269a17fa6967bcee63c84b6e88a85c586c6adb8f9a25"
+      "sha256": "b5674e34c99dcfbd48f9432119061d4abc301d0977e7853a452d5d0bb88f8d7e"
     },
     {
       "path": "apps/macos/GraphWeb/graph-label-layout.js",
@@ -4956,7 +4984,11 @@
     },
     {
       "path": "apps/macos/GraphWeb/graph-language.js",
-      "sha256": "defa0ea38ad886c3a7dc7cdbf4b07c2a73a78bb820f06f4a98ae38c4a701c951"
+      "sha256": "69ff752a5078b058b4ce91e3c24795609579e69bbb621c3004241e4ecec5f1a6"
+    },
+    {
+      "path": "apps/macos/GraphWeb/graph-legend.js",
+      "sha256": "c514ab03cc729f945a83f6b7739d36a8e3a2b860dd978a6de015bd142e5bb6d5"
     },
     {
       "path": "apps/macos/GraphWeb/graph-source-framing.js",
@@ -4964,15 +4996,15 @@
     },
     {
       "path": "apps/macos/GraphWeb/graph-source-sections.js",
-      "sha256": "2ade7df732afbef8fe36cef169404c5dffa24e0560e8a52b1e3587dead33855b"
+      "sha256": "4de8f9b1adfd673d3d44ec870b61b8a6bc240c6d8c895d874a33a4d48186f1f0"
     },
     {
       "path": "apps/macos/GraphWeb/graph-ui.css",
-      "sha256": "a98116d2f013cdee86177aec2fea526fe72bedef1cb637d0ebf86e093d7bf0ba"
+      "sha256": "59de854b0631dfc65c4df76e1374277c556776d1c4f8ab7b51338727c5f71540"
     },
     {
       "path": "apps/macos/GraphWeb/graph-view-settings.js",
-      "sha256": "36b9dd7b529321f23f66214c56caa701089d7c19c2ce2d1be2c940ea502ae60b"
+      "sha256": "9a062fc7750f68c3560330ed310126799b360b6ff3ea9c259fe7e8a285d98139"
     },
     {
       "path": "apps/macos/GraphWeb/graph-view-state.js",
@@ -4984,7 +5016,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/mesh-graph.js",
-      "sha256": "a7f13350b33b2de122b6c5b8f3e6d6d10548c1a28c6d7fdfcc2d08d1218fad8e"
+      "sha256": "2a59a2229a12c4c4870d028ae5d8f9651801c56bb8bb0097c6b0bab5556177e1"
     },
     {
       "path": "apps/macos/GraphWeb/tests/board-data.test.mjs",
@@ -4996,7 +5028,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-controls.test.mjs",
-      "sha256": "438b3c103ffd8d5b3930e93e651ebf7f648bd31aa7670a999edccb2604713ae3"
+      "sha256": "372cfea2a4342a3805386b36d1c4600b4ae6bf7cd8cbd7d479b0fa4fd7faf4a2"
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-inspection.test.mjs",
@@ -5004,7 +5036,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-inspector.test.mjs",
-      "sha256": "e3d58724fa9d37c0d51f85bfbe2398b14525be373235b97eb98d2d55c9558fad"
+      "sha256": "d303e31d75350cd7a8775836723b86481bb7dac711de2ab1ddd9e85dcdea307e"
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-label-layout.test.mjs",
@@ -5012,7 +5044,11 @@
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-layout-recovery.test.mjs",
-      "sha256": "e96f3d41f5ecd55c11459cad26c23f566b48d7bbfebe0705ff5b339d482abfa3"
+      "sha256": "000cf70fd1574d9fd4f4bd546deb17669a99c66f200de2c239b33c71d4f7795e"
+    },
+    {
+      "path": "apps/macos/GraphWeb/tests/graph-preferences-fixture.mjs",
+      "sha256": "4f02b66239c38ab7fa0e1414bd41fb6290392341f663a77259ad6729d233c648"
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-source-framing.test.mjs",
@@ -5024,7 +5060,11 @@
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-touch-controls.test.mjs",
-      "sha256": "1124c0be5f8b968bc17f9ea46065ce792581e8610d2e3546b73f45b568afc8f7"
+      "sha256": "ee6fb7f544e9411ec9c00704a90ec3465b3be157f0b883a17c6c2ee58bc9c150"
+    },
+    {
+      "path": "apps/macos/GraphWeb/tests/graph-view-preferences.test.mjs",
+      "sha256": "7679323925b1970e14bc8747f1f80fd72baaeacc3a325b0c9daf205d12e98f49"
     },
     {
       "path": "apps/macos/GraphWeb/tests/graph-view-state.test.mjs",
@@ -5032,7 +5072,7 @@
     },
     {
       "path": "apps/macos/GraphWeb/update-vendor.sh",
-      "sha256": "a72a599dc3c762d1d9981494025e77f515aa3b88883daef4e877e20653efde5b"
+      "sha256": "c3e26f67de0b46867e2d143c901df3bb14844ba7c22e14fd1dfbebdfdb94bd62"
     },
     {
       "path": "apps/macos/Package.swift",

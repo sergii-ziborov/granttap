@@ -21,9 +21,9 @@ test('the inspector scrolls every section and opens source, links and honest hea
   rows[35].click(); assert.deepEqual(selected[0], [0, 35]);
   assert.match(root.textContent, /Observed source/); assert.match(root.textContent, /176–220/);
   assert.equal(inspector.selection().index, 35);
-  inspector.setThreshold(40); assert.ok(root.querySelector('[data-section-index="35"]').classList.contains('size-warning'));
+  inspector.setPreferences({ mode: 'size', threshold: 40 }); assert.ok(root.querySelector('[data-section-index="35"]').classList.contains('size-warning'));
   [...root.querySelectorAll('button')].find(button => button.textContent === 'Health details').click();
-  assert.match(root.textContent, /Partial evidence/); assert.match(root.textContent, /not reported/);
+  assert.match(root.textContent, /Partial evidence/); assert.match(root.textContent, /not measured/);
   assert.match(root.textContent, /git-a/); assert.match(root.textContent, /40 LOC/);
   [...root.querySelectorAll('button')].find(button => button.textContent === 'Links').click();
   [...root.querySelectorAll('button')].find(button => button.textContent.includes('src/store.swift')).click();

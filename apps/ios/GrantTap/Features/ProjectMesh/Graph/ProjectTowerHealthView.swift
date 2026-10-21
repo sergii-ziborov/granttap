@@ -26,7 +26,7 @@ struct ProjectTowerHealthView: View {
                     .font(.subheadline.weight(.semibold))
                 Text(L("No structural health score was reported."))
                     .font(.subheadline)
-                Text(L("Coverage, complexity and unused-code findings are not reported in this map."))
+                Text(L("Test coverage and runtime performance were not measured."))
                     .font(.caption).foregroundStyle(Theme.muted)
                 if ProjectTowerInspection.links(path: path, roads: roads).isEmpty {
                     Text(L("No links were observed for this item. Unused-code status remains unknown."))

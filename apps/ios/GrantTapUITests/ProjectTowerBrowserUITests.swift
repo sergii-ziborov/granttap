@@ -31,7 +31,7 @@ final class ProjectTowerBrowserUITests: XCTestCase {
         CodeCityJourney.capture("Repo Lens — directed link actual destination", in: self)
         CodeCityJourney.control("Health", in: app).tap()
         XCTAssertTrue(app.webViews.staticTexts["Health evidence"].waitForExistence(timeout: 5))
-        let facts = app.webViews.staticTexts["Coverage and complexity were not reported. Section-size highlights use measured LOC."]
+        let facts = app.webViews.staticTexts["Test coverage and runtime performance were not measured."]
         CodeCityJourney.scrollSections(in: app, until: facts)
         XCTAssertTrue(facts.exists)
         CodeCityJourney.capture("Repo Lens — unreported health stays unknown", in: self)
@@ -41,7 +41,9 @@ final class ProjectTowerBrowserUITests: XCTestCase {
         continueAfterFailure = false
         let app = CodeCityJourney.openTowers()
         app.webViews.buttons["Zoom in"].firstMatch.tap()
-        app.webViews.buttons["Highlights"].firstMatch.tap()
+        CodeCityJourney.control("View settings", in: app).tap()
+        let sizeMode = app.webViews.switches["Section size"].firstMatch
+        XCTAssertTrue(sizeMode.waitForExistence(timeout: 5)); sizeMode.tap()
         let threshold = app.webViews.sliders["Section size threshold"]
         XCTAssertTrue(threshold.waitForExistence(timeout: 5))
         threshold.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()

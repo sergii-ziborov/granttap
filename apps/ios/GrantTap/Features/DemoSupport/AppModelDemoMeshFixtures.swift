@@ -98,7 +98,9 @@ enum AppModelDemoMeshFixtures {
             return ProjectCodeMap.File(path: file.path, language: file.language, lineCount: 380,
                 symbols: (1...36).map { index in
                     .init(id: "health-section-\(index)", label: "healthSection\(index)", kind: "function",
-                          startLine: index * 10, lineCount: 8)
+                          startLine: index * 10, lineCount: 8,
+                          metrics: index == 36 ? .init(measured: true, sourceLines: 8,
+                              cyclomatic: 18, maxLoopDepth: 4, callers: 2) : nil)
                 })
         }
         report.codeMap = ProjectCodeMap(files: files, externals: map.externals, roads: map.roads,

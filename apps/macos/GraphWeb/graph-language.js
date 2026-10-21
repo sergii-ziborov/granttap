@@ -1,4 +1,29 @@
 const russian = {
+  'Show entry points': 'Точки входа', 'Entry points': 'Точки входа',
+  'Legend': 'Легенда', 'Map legend': 'Легенда карты', 'Close legend': 'Закрыть легенду',
+  'View settings': 'Настройки вида', 'Colour by': 'Окраска', 'Section kind': 'Тип секции',
+  'Code checks': 'Проверки кода', 'Neutral': 'Нейтральная',
+  'Functions': 'Функции', 'Methods': 'Методы', 'Types': 'Типы', 'Constants': 'Константы',
+  'Variables': 'Переменные', 'Other symbols': 'Другие символы',
+  'Show module labels': 'Подписи модулей', 'Show file labels': 'Подписи файлов',
+  'Show section labels': 'Подписи секций', 'Only links of the selected file': 'Только связи выбранного файла',
+  'Imports': 'Импорты', 'Calls': 'Вызовы', 'Inheritance': 'Наследование',
+  'Other relations': 'Другие связи', 'External links': 'Внешние связи', 'Local links': 'Локальные связи',
+  'Cyclomatic complexity': 'Цикломатическая сложность', 'Loop nesting': 'Вложенность циклов',
+  'Above the selected size threshold': 'Выше порога размера',
+  'Within selected code checks': 'В пределах выбранных проверок',
+  'Code checks need review': 'Проверки требуют внимания', 'Code checks not measured': 'Проверки не измерены',
+  'Opening this legend does not change filters.': 'Открытие легенды не меняет фильтры.',
+  'Only measured static checks affect these colours. Unmeasured code stays unknown.': 'Цвета основаны на измеренных статических проверках. Без измерений состояние неизвестно.',
+  'Reset view settings': 'Сбросить настройки вида',
+  'Legend explains the current colours without changing filters.': 'Легенда объясняет цвета, не меняя фильтры.',
+  'Code checks compare measured source size, complexity and nesting with your thresholds. They do not prove correctness or test coverage.': 'Проверки сравнивают размер, сложность и вложенность с вашими порогами. Они не доказывают корректность и покрытие тестами.',
+  'Measured source lines': 'Измеренные строки исходника',
+  'Cyclomatic complexity estimate': 'Оценка цикломатической сложности',
+  'Maximum loop nesting': 'Максимальная вложенность циклов', 'Resolved callers': 'Найденные вызывающие функции',
+  'Static checks are source estimates, not proof of correctness.': 'Статические проверки — оценки исходника, а не доказательство корректности.',
+  'Test coverage and runtime performance were not measured.': 'Покрытие тестами и скорость выполнения не измерены.',
+  'Measured callable sections': 'Измеренные функции и методы', 'Sections needing review': 'Секции, требующие внимания',
   'Other source lines': 'Остальные строки исходника',
   'Symbols unavailable': 'Секции не переданы',
   'External services': 'Внешние сервисы',
@@ -38,11 +63,14 @@ export function graphText(document, key) {
   return document.documentElement.lang.startsWith('ru') ? russian[key] ?? key : key;
 }
 
+const recentTouches = new WeakMap();
+
 export function graphButton(document, label, action, literal = false) {
   const node = document.createElement('button'); node.type = 'button';
   node.textContent = literal ? label : graphText(document, label); node.title = node.textContent;
   let touch = null, handledAt = -Infinity;
   node.addEventListener('pointerdown', event => {
+    handledAt = -Infinity; recentTouches.delete(document);
     if (event.pointerType === 'touch') touch = { x: event.clientX, y: event.clientY, id: event.pointerId };
   });
   node.addEventListener('pointercancel', () => { touch = null; });
@@ -50,9 +78,13 @@ export function graphButton(document, label, action, literal = false) {
     const start = touch; touch = null;
     if (!start || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) return;
     handledAt = document.defaultView.performance.now();
+    recentTouches.set(document, { at: handledAt, x: event.clientX, y: event.clientY });
     event.preventDefault(); action(event);
   });
   node.addEventListener('click', event => {
+    const recent = recentTouches.get(document), now = document.defaultView.performance.now();
+    if (event.detail > 0 && recent && now - recent.at < 600
+      && Math.hypot(event.clientX - recent.x, event.clientY - recent.y) < 12) return;
     if ((event.pointerType === 'touch' || event.detail > 0)
       && document.defaultView.performance.now() - handledAt < 600) return;
     action(event);

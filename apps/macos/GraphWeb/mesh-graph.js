@@ -44,7 +44,14 @@ window.mountMeshGraph = () => {
       window.graphViewSnapshot = () => {
         const camera = cyberboard.getCamera();
         camera.updateMatrixWorld();
-        return { position: camera.position.toArray(), target: cyberboard.getControls().target.toArray(),
+        const segments = [];
+        cyberboard.getScene().traverse(node => {
+          if (Number.isInteger(node.userData?.methodIndex) && node.material?.color) segments.push({
+            fileId: node.userData.fileId, index: node.userData.methodIndex,
+            color: node.material.color.getHex(), opacity: node.material.opacity,
+          });
+        });
+        return { segments, position: camera.position.toArray(), target: cyberboard.getControls().target.toArray(),
           fogDensity: cyberboard.getScene().fog?.density || 0,
           aspect: camera.aspect, towers: [...data.files, ...data.exts].map(file => ({ id: file.id,
             projected: camera.position.clone().set(file.x, file.height / 2, file.z).project(camera).toArray(),

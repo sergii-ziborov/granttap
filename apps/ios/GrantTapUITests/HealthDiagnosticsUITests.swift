@@ -4,7 +4,7 @@ final class HealthDiagnosticsUITests: XCTestCase {
     func testReceivedCortexPacketSeparatesSelectedAndOmittedTokens() {
         continueAfterFailure = false
         let app = openHealth(cortexPacket: true)
-        let diagnostics = app.buttons["health.diagnostics"]
+        let diagnostics = app.descendants(matching: .any).matching(identifier: "health.diagnostics").firstMatch
         reveal(diagnostics, in: app)
         diagnostics.tap()
         let cortex = app.buttons["Open Cortex diagnostics"]
@@ -31,7 +31,7 @@ final class HealthDiagnosticsUITests: XCTestCase {
     func testDiagnosticsPreservePolicyAndUnknownCortexState() {
         continueAfterFailure = false
         let app = openHealth()
-        let diagnostics = app.buttons["health.diagnostics"]
+        let diagnostics = app.descendants(matching: .any).matching(identifier: "health.diagnostics").firstMatch
         reveal(diagnostics, in: app)
         diagnostics.tap()
         let policy = app.staticTexts["Reported policy revision"]
@@ -88,6 +88,14 @@ final class HealthDiagnosticsUITests: XCTestCase {
         reveal(health, in: app)
         health.tap()
         XCTAssertTrue(app.navigationBars["Health"].waitForExistence(timeout: 5))
+        app.buttons["health.options"].tap()
+        let diagnostics = app.switches["health.options.diagnostics"]
+        if diagnostics.value as? String == "0" {
+            diagnostics.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        }
+        XCTAssertTrue(diagnostics.waitForExistence(timeout: 3))
+        XCTAssertTrue(NSPredicate(format: "value == '1'").evaluate(with: diagnostics))
+        app.buttons["Done"].tap()
         return app
     }
 

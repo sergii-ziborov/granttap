@@ -1,7 +1,8 @@
 /** Render measured source that was not assigned to a reported symbol separately. */
 export function sourceSegments(node) {
   const methods = node.symbols.map(symbol => ({ id: symbol.id, kind: symbol.kind, name: symbol.label,
-    loc: Math.max(1, Number(symbol.lineCount) || 1), line: symbol.startLine, health: null }));
+    loc: Math.max(1, Number(symbol.lineCount) || 1), line: symbol.startLine, health: null,
+    metrics: symbol.metrics ?? null }));
   if (!methods.length) return [{ name: 'Symbols unavailable',
     loc: Math.max(1, Number(node.lineCount) || 20), health: null, sourceRemainder: true }];
   const total = node.lineCount;
