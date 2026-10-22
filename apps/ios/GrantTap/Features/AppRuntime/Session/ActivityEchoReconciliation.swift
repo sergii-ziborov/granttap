@@ -53,7 +53,9 @@ extension AppModel {
             let match = candidateDeliveries
                 .filter {
                     !consumed.contains($0.id)
-                        && $0.text.trimmingCharacters(in: .whitespacesAndNewlines) == text
+                        && $0.rejectedByComputer != true && $0.admissionRejected != true
+                        && remote.createdAt >= ($0.manualRetryStartedAt ?? $0.transportAttemptStartedAt ?? $0.createdAt) - 1_000
+                        && Self.nativeEchoTextMatches($0, text: text)
                         && Self.echoMatches($0, remoteAt: remote.createdAt)
                 }
                 .min {

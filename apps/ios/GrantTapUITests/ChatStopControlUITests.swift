@@ -17,7 +17,7 @@ final class ChatStopControlUITests: XCTestCase {
         image.name = "Working task stop control"
         image.lifetime = .keepAlways
         add(image)
-        let composer = app.textFields["composer.message"]
+        let composer = app.textViews["composer.message"]
         composer.tap()
         composer.typeText("Queued follow-up")
         XCTAssertTrue(stop.isHittable, "Writing a follow-up must not hide control of the running task.")

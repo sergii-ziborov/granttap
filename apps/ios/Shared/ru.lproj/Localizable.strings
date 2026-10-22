@@ -3037,3 +3037,24 @@
 "View subscription plans" = "Посмотреть тарифы подписки";
 
 "No purchase is required for your current testing access. Apple confirms any purchase price and terms." = "Для текущего тестового доступа покупка не нужна. Цену и условия любой покупки подтверждает Apple.";
+
+"No agents were reported for this request." = "Для этого запроса агенты не указаны.";
+
+
+
+"7 days" = "7 дней";
+
+"30 days" = "30 дней";
+
+"90 days" = "90 дней";
+
+"Until cache is full" = "При заполнении кеша";
+
+
+"Messages and Mesh are saved on this device for offline reading. Earlier messages download automatically while connected. Attachment cleanup is configured below." = "Сообщения и Mesh сохраняются на устройстве для чтения офлайн. Более ранние сообщения загружаются автоматически при подключении. Очистка вложений настраивается ниже.";
+
+"Attachment cache" = "Кеш вложений";
+
+"Remove unused attachments after" = "Удалять неиспользуемые вложения через";
+
+"Downloaded pictures and submitted documents use up to 256 MB. Cleanup runs when the app opens and saves attachments. Pictures can download again when their computer is available. Pending messages and their original attachments are kept." = "Загруженные изображения и отправленные документы занимают до 256 МБ. Кеш очищается при запуске приложения и сохранении вложений. Изображения можно загрузить снова, когда компьютер доступен. Ожидающие сообщения и их исходные вложения сохраняются.";

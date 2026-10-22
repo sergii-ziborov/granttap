@@ -37,7 +37,7 @@ struct ContentView: View {
     @State var openedTaskRoute: TaskRoute?
     @State var handoffSession: SessionInfo?
     @StateObject var dictator: Dictator
-    @FocusState var composeFocused: Bool
+    @State var composeFocused = false
     @State var replyRequestId: String?
     @State var pendingPairing: Pairing?
     @State var pairingLinkError: String?

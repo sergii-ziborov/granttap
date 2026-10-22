@@ -90,23 +90,34 @@ struct AttachmentThumbnails: View {
 struct ComposerField: View {
     let placeholder: String
     @Binding var text: String
-    var focus: FocusState<Bool>.Binding
+    var focus: Binding<Bool>
     let onSubmit: () -> Void
+    @Binding var attachments: [AttachmentDraft]
+    var onPasteError: (String) -> Void
+    var allowsDocumentPaste = true
+    var minimumHeight: CGFloat = 22
+    var maximumHeight: CGFloat = 132
+    var submitsOnReturn = true
+    var identifier = "composer.message"
+    @State private var height: CGFloat = 22
 
     var body: some View {
-        Group {
-            if #available(iOS 16.0, *) {
-                TextField(placeholder, text: $text, axis: .vertical).lineLimit(1...6)
-            } else {
-                TextField(placeholder, text: $text)
+        ZStack(alignment: .topLeading) {
+            if text.isEmpty {
+                Text(placeholder).foregroundStyle(Theme.muted).allowsHitTesting(false)
             }
+            PasteComposerEditor(text: $text, focus: focus, placeholder: placeholder,
+                minimumHeight: minimumHeight, maximumHeight: maximumHeight,
+                submitsOnReturn: submitsOnReturn, identifier: identifier, onSubmit: onSubmit,
+                onPaste: { pasted in
+                    guard allowsDocumentPaste else { return false }
+                    do { return try MarkdownPaste.append(pasted, to: &attachments) }
+                    catch { onPasteError(error.localizedDescription); return true }
+                }, height: $height)
+                .frame(height: max(minimumHeight, height))
         }
         .font(.system(size: 16))
         .foregroundStyle(Theme.ink)
-        .focused(focus)
-        .submitLabel(.send)
-        .onSubmit(onSubmit)
-        .accessibilityIdentifier("composer.message")
         .padding(.horizontal, 4)
         .padding(.top, 2)
     }

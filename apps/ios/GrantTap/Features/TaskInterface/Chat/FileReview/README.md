@@ -15,7 +15,7 @@ The review displays recorded successful edits, not a fabricated final Git diff.
 Tests live in `GrantTapTests/Features/TaskInterface/Chat/FileReview` and the
 changed-file scenario in `GrantTapUITests/TranscriptHistoryUITests.swift`.
 
-`ChatActivityRail` keeps the latest reply's file count and recorded added/removed
+`ChatActivityRail` keeps the pinned request's file count and recorded added/removed
 lines above the composer. A completed summary supersedes that reply's tool
 records; previous replies keep their own recorded changes. Its Files sheet
 opens Modified diffs and the scoped All files tree. Nested execution
@@ -49,3 +49,5 @@ or consume a reserved strip beside the horizontal list.
 Complete file previews open the `../FileEditing` editor. Its public
 `AppModelTaskFileEdits.swift` entry submits proposed changes as a durable Task
 request; the original file is unchanged until the computer agent processes it.
+
+The Files and Agents rail follows the same root user request as the pinned strip. Attachment-only fragments at one timestamp belong to that request. Nested conversations need a start time or observed activity inside its boundaries; a conversation from another request is not counted. Opening Agents keeps that request selected as fresh events arrive.

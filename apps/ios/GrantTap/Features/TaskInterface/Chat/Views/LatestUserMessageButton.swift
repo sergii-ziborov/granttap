@@ -47,10 +47,14 @@ extension TaskChatView {
         .accessibilityIdentifier("chat.latest-user-message")
     }
 
-    private var previousRequestTitle: String {
+    var displayedRequestEntry: ActivityEntry? {
         let first = transcriptHistory?.hasMore != true && !historyLoading && userMessageAnchor != nil
             ? userMessageAnchor.flatMap { requestIndex.request(containing: $0) } : nil
-        if let entry = previousUserEntry ?? first {
+        return latestUserEntry ?? first
+    }
+
+    private var previousRequestTitle: String {
+        if let entry = displayedRequestEntry {
             let text = entry.text.prefix(240).replacingOccurrences(of: "\n", with: " ")
             return text.isEmpty ? L("Attachment") : text
         }

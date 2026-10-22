@@ -104,26 +104,15 @@ extension ContentView {
                         .font(.system(size: 11.5))
                         .foregroundStyle(Theme.riskHigh)
                 }
-                ZStack(alignment: .topLeading) {
-                    if messageText.isEmpty {
-                        Text(dictator.isRecording ? L("Listening…") : composePlaceholder)
-                            .font(.system(size: 17))
-                            .foregroundStyle(Theme.muted)
-                            .padding(.top, 8)
-                            .padding(.leading, 5)
-                            .allowsHitTesting(false)
-                    }
-                    TextEditor(text: $messageText)
-                        .font(.system(size: 17))
-                        .foregroundStyle(Theme.ink)
-                        .frame(minHeight: 120, maxHeight: 260)
-                        .focused($composeFocused)
-                        .modifier(ClearTextEditorBackground())
+                ComposerField(placeholder: dictator.isRecording ? L("Listening…") : composePlaceholder,
+                    text: $messageText, focus: $composeFocused, onSubmit: send,
+                    attachments: $attachments, onPasteError: { attachmentError = $0 },
+                    allowsDocumentPaste: replyRequestId == nil,
+                    minimumHeight: 120, maximumHeight: 260, submitsOnReturn: false,
+                    identifier: "compose.task-text")
                         .onChange(of: dictator.transcript) { t in
                             if dictator.isRecording { messageText = t }
                         }
-                        .accessibilityIdentifier("compose.task-text")
-                }
                 HStack(spacing: 8) {
                     AttachmentMenuButton(attachments: $attachments)
                     ComposerModelPill(agent: activeComposeAgent, model: newTaskModelBinding, effort: newTaskEffortBinding,

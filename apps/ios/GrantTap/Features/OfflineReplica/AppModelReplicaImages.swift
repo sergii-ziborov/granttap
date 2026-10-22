@@ -8,7 +8,10 @@ struct ReplicaImageJob: Codable, Equatable {
 
 @MainActor
 extension AppModel {
-    func imageConversation(forEntryId id: String) -> String? {
+    func imageConversation(forEntryId id: String, preferredSessionId: String? = nil) -> String? {
+        if let preferredSessionId, activities[preferredSessionId]?.entries.contains(where: {
+            $0.id == id || ($0.images ?? []).contains { $0.id == id }
+        }) == true { return preferredSessionId }
         let matches = activities.values.filter { activity in
             activity.entries.contains { $0.id == id || ($0.images ?? []).contains { $0.id == id } }
         }
@@ -50,18 +53,17 @@ extension AppModel {
         let pageCursor = cursor ?? store.cursor(scope: scope, sessionId: sessionId, imageId: imageId)
             ?? oldRoom.flatMap { store.cursor(scope: $0, sessionId: sessionId, imageId: imageId) }
         let bytes: Data
-        #if targetEnvironment(macCatalyst)
-        if let session = (sessions + sessionHistory).first(where: { $0.sessionId == sessionId }),
-           usesLocalMCP(for: session), let reader = localMCPReader {
-            bytes = try await reader.image(for: session, imageId: imageId, cursor: pageCursor)
-        } else {
-            guard let client = relayForSession(sessionId) else { throw ReplicaImageTransfer.TransferError.unavailable }
-            bytes = try await replicaImageTransfer.data(sessionId: sessionId, imageId: imageId, cursor: pageCursor, client: client)
+        do {
+            bytes = try await transferMessageImage(sessionId: sessionId, imageId: imageId, cursor: pageCursor)
+        } catch {
+            guard pageCursor != nil, generation == replicaGeneration, !Task.isCancelled,
+                  Self.isInvalidImageLocator(error) else { throw error }
+            // A provider can rotate its log, and earlier clients saved merged
+            // page locators. Retry this same authenticated image by identity.
+            store.forgetCursor(scope: scope, sessionId: sessionId, imageId: imageId)
+            if let oldRoom { store.forgetCursor(scope: oldRoom, sessionId: sessionId, imageId: imageId) }
+            bytes = try await transferMessageImage(sessionId: sessionId, imageId: imageId, cursor: nil)
         }
-        #else
-        guard let client = relayForSession(sessionId) else { throw ReplicaImageTransfer.TransferError.unavailable }
-        bytes = try await replicaImageTransfer.data(sessionId: sessionId, imageId: imageId, cursor: pageCursor, client: client)
-        #endif
         try Task.checkCancellation()
         guard generation == replicaGeneration, MessageImageLoader.thumbnail(bytes) != nil else {
             throw ReplicaImageTransfer.TransferError.invalid
@@ -71,18 +73,38 @@ extension AppModel {
         return bytes
     }
 
-    func cachedMessageImage(sessionId: String, imageId: String) -> Data? {
+    private func transferMessageImage(sessionId: String, imageId: String, cursor: String?) async throws -> Data {
+        #if targetEnvironment(macCatalyst)
+        if let session = (sessions + sessionHistory).first(where: { $0.sessionId == sessionId }),
+           usesLocalMCP(for: session), let reader = localMCPReader {
+            return try await reader.image(for: session, imageId: imageId, cursor: cursor)
+        }
+        #endif
+        guard let client = relayForSession(sessionId) else { throw ReplicaImageTransfer.TransferError.unavailable }
+        return try await replicaImageTransfer.data(sessionId: sessionId, imageId: imageId, cursor: cursor, client: client)
+    }
+
+    private static func isInvalidImageLocator(_ error: Error) -> Bool {
+        if case ReplicaImageTransfer.TransferError.invalid = error { return true }
+        #if targetEnvironment(macCatalyst)
+        if case MacLocalMCPError.incompatible = error { return true }
+        if error is DecodingError { return true }
+        #endif
+        return false
+    }
+
+    func cachedMessageImage(sessionId: String, imageId: String, touch: Bool = true) -> Data? {
         let store = ReplicaImageStore.shared
         let scope = imageStorageScope(sessionId)
-        if let bytes = store.load(scope: scope, sessionId: sessionId, imageId: imageId) { return bytes }
+        if let bytes = store.load(scope: scope, sessionId: sessionId, imageId: imageId, touch: touch) { return bytes }
         // A verified account link can replace this same QR route's storage scope.
         guard let room = sourceRoom(forSessionId: sessionId), room != scope,
-              let bytes = store.load(scope: room, sessionId: sessionId, imageId: imageId) else { return nil }
+              let bytes = store.load(scope: room, sessionId: sessionId, imageId: imageId, touch: touch) else { return nil }
         try? store.save(bytes, scope: scope, sessionId: sessionId, imageId: imageId)
         return bytes
     }
 
-    func enqueueReplicaImages(_ activity: SessionActivity) {
+    func enqueueReplicaImages(_ activity: SessionActivity, rememberPageRoutes: Bool = true) {
         let jobs = activity.entries.flatMap { entry in
             let ids = (entry.images ?? []).filter(\.isValid).map(\.id)
                 + (entry.attachments?.contains("Image") == true ? [entry.id] : [])
@@ -92,10 +114,12 @@ extension AppModel {
         for job in jobs where !replicaImageQueue.contains(where: {
             $0.sessionId == job.sessionId && $0.imageId == job.imageId
         }) {
-            ReplicaImageStore.shared.remember(job, scope: imageStorageScope(job.sessionId))
+            if rememberPageRoutes {
+                ReplicaImageStore.shared.remember(job, scope: imageStorageScope(job.sessionId), authoritative: true)
+            }
             let key = job.sessionId + "\u{0}" + job.imageId
             guard (replicaImageRetryAt[key] ?? 0) < Date().timeIntervalSince1970,
-                  cachedMessageImage(sessionId: job.sessionId, imageId: job.imageId) == nil else { continue }
+                  cachedMessageImage(sessionId: job.sessionId, imageId: job.imageId, touch: false) == nil else { continue }
             replicaImageQueue.append(job)
         }
         guard replicaImageTask == nil, !replicaImageQueue.isEmpty else { return }

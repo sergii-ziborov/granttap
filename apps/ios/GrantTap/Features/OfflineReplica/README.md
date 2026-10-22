@@ -32,8 +32,11 @@ computer and conversation. Fetched Mesh snapshots and their routes also remain
 on device. No model call or agent-authored report participates in replication.
 
 Settings clears the replica's transcripts, catalog, pictures and Mesh projection.
-There is no automatic day-based expiration of received chats or pictures: they
-remain in protected Application Support until the user explicitly clears them.
+Received chats remain until explicitly cleared. The attachment archive is bounded to
+256 MiB. Settings offers 7, 30 (default), or 90 days without use, or retention
+until the cache is full. Cleanup runs at launch, writes, and policy changes.
+Least recently used attachments yield to the byte cap; tiny historical page
+locators remain within the same cap so an evicted picture can be fetched again.
 It preserves identity, pairings, outbound deliveries and computer-enforced policy.
 New server updates refill the replica. Stored content is recovery material for
 offline reading and continuation; it does not recreate a lost provider process,
@@ -57,3 +60,9 @@ chat heads for reconnect while the computer is offline. This seven-day read
 cache is separate from queued commands and the device’s protected offline copy.
 Expiry or cache eviction does not cancel queued work. Historical pages and
 content never published still require the original computer.
+
+Historical page locators are captured only from original received pages, never from a merged transcript with a different cursor. Authoritative pages repair older incomplete locators. Visible galleries retry after connection or foreground changes; manual Retry remains available. The selected execution disambiguates mirrored entries without routing an older execution to the current one.
+
+`ReplicaDocumentStore` keeps submitted document bytes and native-echo aliases in the same protected bounded archive. Pasted Markdown remains previewable after outbox cleanup. Clearing the local replica clears these copies while retaining pending outbound originals, keys and pairings.
+
+If the authenticated image endpoint rejects a stored page locator, the reader discards that locator and retries the same image ID once. Offline/untrusted routes and timeouts keep their valid locators. Neither path changes computer identity, image limits or encryption.

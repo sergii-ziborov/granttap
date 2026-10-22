@@ -5,6 +5,7 @@ struct ChatTranscriptPresentation {
     let items: [CombinedTaskTimelineItem]
     let rows: [ChatTimelineRow]
     let rootEntries: [ActivityEntry]
+    let sourceEntries: [ActivityEntry]
     let replyChanges: [String: [RecordedFileChange]]
     let currentFinalId: String?
     let currentFiles: [RecordedFileChange]
@@ -15,6 +16,7 @@ struct ChatTranscriptPresentation {
     init(items: [CombinedTaskTimelineItem], entries: [ActivityEntry],
          childThreads: [ChildThreadDisplayRow] = []) {
         self.items = items
+        sourceEntries = entries
         rows = ChatActivityGrouping.rows(items)
         rootEntries = entries.filter { $0.childThreadId == nil }
         requests = TranscriptRequestIndex(rootEntries)

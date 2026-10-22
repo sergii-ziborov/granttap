@@ -121,12 +121,14 @@ extension AppModel {
         return UIImage(data: attachment.data)
     }
 
-    func sentAttachment(forEntryId entryId: String, name: String) -> AttachmentDraft? {
-        guard entryId.hasPrefix("local-user-") else { return nil }
+    func sentAttachment(forEntryId entryId: String, name: String, sessionId: String? = nil) -> AttachmentDraft? {
+        guard entryId.hasPrefix("local-user-") else {
+            return savedDocument(forEntryId: entryId, name: name, sessionId: sessionId)
+        }
         let id = String(entryId.dropFirst("local-user-".count))
         guard let delivery = deliveries.first(where: {
             $0.id == id || id.hasPrefix("\($0.id)-")
-        }) else { return nil }
+        }) else { return savedDocument(forEntryId: entryId, name: name, sessionId: sessionId) }
         guard let attachment = delivery.attachments.first(where: { $0.name == name }),
               let data = Data(base64Encoded: attachment.data) else { return nil }
         return AttachmentDraft(name: name, mimeType: attachment.mimeType, data: data)

@@ -48,16 +48,20 @@ extension TaskChatView {
     }
 
     var taskActivityEntries: [ActivityEntry] {
+        taskExecutionEntries.filter { $0.childThreadId == nil }
+    }
+
+    var taskExecutionEntries: [ActivityEntry] {
         var byId: [String: ActivityEntry] = [:]
         var ranks: [String: Int] = [:]
         for sessionId in taskExecutionSessionIds {
-            for entry in model.activities[sessionId]?.entries ?? [] where entry.childThreadId == nil {
+            for entry in model.activities[sessionId]?.entries ?? [] {
                 if ranks[entry.id] == nil { ranks[entry.id] = ranks.count }
                 byId[entry.id] = entry
             }
         }
         if byId.isEmpty {
-            for entry in entries where entry.childThreadId == nil {
+            for entry in entries {
                 if ranks[entry.id] == nil { ranks[entry.id] = ranks.count }
                 byId[entry.id] = entry
             }

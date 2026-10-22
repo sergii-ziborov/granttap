@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MessageImageContentView: View {
     @EnvironmentObject private var model: AppModel
+    @Environment(\.messageImageSessionId) private var imageSessionId
     let entry: ActivityEntry
     let compact: Bool
 
@@ -14,7 +15,8 @@ struct MessageImageContentView: View {
                     .enumerated()), id: \.offset) { _, part in
                     switch part {
                     case .text(let text): RichMessageText(text: text, compact: false)
-                    case .images(let images): MessageImageGallery(images: images, cacheRevision: model.replicaImagesRevision, load: imageData)
+                    case .images(let images): MessageImageGallery(images: images,
+                        cacheRevision: model.replicaImagesRevision, connected: model.connected, load: imageData)
                     }
                 }
             }
@@ -25,7 +27,8 @@ struct MessageImageContentView: View {
         #if DEBUG
         if let data = DemoMessageImages.data(for: attachment.id) { return data }
         #endif
-        guard let sessionId = model.imageConversation(forEntryId: attachment.id) else {
+        guard let sessionId = model.imageConversation(forEntryId: attachment.id,
+                                                      preferredSessionId: imageSessionId) else {
             throw MessageImageLoader.ImageError.unavailable
         }
         return try await model.messageImageData(sessionId: sessionId, imageId: attachment.id)
@@ -35,9 +38,11 @@ struct MessageImageContentView: View {
 struct MessageImageGallery: View {
     let images: [MessageImageAttachment]
     var cacheRevision = 0
+    var connected = false
     let load: (MessageImageAttachment) async throws -> Data
     @StateObject private var loader = MessageImageLoader()
     @State private var preview: ImagePreview?
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 260), spacing: 12)],
@@ -77,7 +82,14 @@ struct MessageImageGallery: View {
             }
         }
         .frame(maxWidth: 1_200, alignment: .leading)
-        .task(id: "\(images.map(\.id)):\(cacheRevision)") { await loader.load(images, data: load) }
+        .task(id: "\(images.map(\.id)):\(cacheRevision):\(connected):\(scenePhase)") {
+            for attempt in 0..<3 {
+                await loader.load(images, data: load)
+                guard !loader.failed.isEmpty, connected, scenePhase == .active, attempt < 2 else { return }
+                do { try await Task.sleep(nanoseconds: 3_000_000_000) }
+                catch { return }
+            }
+        }
         .fullScreenCover(item: $preview) { item in
             ImagePreviewScreen(image: item.image) { preview = nil }
         }

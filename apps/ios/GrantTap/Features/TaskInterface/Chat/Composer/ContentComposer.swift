@@ -69,7 +69,9 @@ extension ContentView {
                     }
                 ComposerField(
                     placeholder: dictator.isRecording ? L("Listening…") : composePlaceholder,
-                    text: $messageText, focus: $composeFocused, onSubmit: send
+                    text: $messageText, focus: $composeFocused, onSubmit: send,
+                    attachments: $attachments, onPasteError: { attachmentError = $0 },
+                    allowsDocumentPaste: replyRequestId == nil
                 )
                 .onChange(of: dictator.transcript) { t in
                     if dictator.isRecording { messageText = t }

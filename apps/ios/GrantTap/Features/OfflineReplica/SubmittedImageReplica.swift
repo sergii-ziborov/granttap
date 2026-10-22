@@ -25,6 +25,7 @@ extension AppModel {
     /// An incomplete echo keeps the local picture instead of dropping its preview.
     func retainImagesForNativeEcho(local: ActivityEntry, caption: ActivityEntry,
                                    incoming: SessionActivity) -> Bool {
+        guard retainDocumentsForNativeEcho(local: local, caption: caption, incoming: incoming) else { return false }
         let pictures = local.images ?? []
         guard !pictures.isEmpty else { return true }
         guard caption.kind == "user" else { return false }

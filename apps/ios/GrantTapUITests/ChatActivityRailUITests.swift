@@ -1,6 +1,25 @@
 import XCTest
 
 final class ChatActivityRailUITests: XCTestCase {
+    func testReadingAnEarlierRequestChangesFilesAndAgentsTogetherWithPinnedRequest() {
+        let app = launch()
+        let pin = app.buttons["chat.latest-user-message"]
+        XCTAssertTrue(app.buttons["chat.work.files"].label.contains("4 files"))
+        for _ in 0..<3 where !pin.label.contains("Previous reply") {
+            pin.tap()
+            _ = pin.waitForExistence(timeout: 2)
+            let changed = NSPredicate(format: "label CONTAINS %@", "Previous reply")
+            _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: changed, object: pin)], timeout: 1)
+        }
+        XCTAssertTrue(pin.label.contains("Previous reply"), pin.label)
+        XCTAssertTrue(app.buttons["chat.work.files"].label.contains("1 file"))
+        XCTAssertFalse(app.buttons["chat.work.agents"].label.contains("2 agents"))
+        app.buttons["chat.work.files"].tap()
+        XCTAssertTrue(app.buttons["chat.files.modified.old-file.swift"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["chat.files.modified.Sources/GraphView.swift"].exists)
+        capture(app, "Earlier request work")
+    }
+
     func testReplyRailCountsOnlyCurrentRecordedChangesAndOpensModifiedDiffs() {
         let app = launch()
         let files = app.buttons["chat.work.files"]
@@ -59,7 +78,7 @@ final class ChatActivityRailUITests: XCTestCase {
         let app = launch()
         let agents = app.buttons["chat.work.agents"]
         XCTAssertTrue(agents.isEnabled)
-        XCTAssertTrue(agents.label.contains("2 agents"), agents.label)
+        XCTAssertTrue(agents.label.contains("1 agent"), agents.label)
         press(agents)
         XCTAssertTrue(app.buttons["chat.agents.done"].waitForExistence(timeout: 5))
         let conversation = app.descendants(matching: .any)

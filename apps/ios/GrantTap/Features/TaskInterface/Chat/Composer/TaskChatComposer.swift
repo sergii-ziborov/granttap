@@ -94,7 +94,9 @@ extension TaskChatView {
                 ComposerField(
                     placeholder: dictator.isRecording ? L("Listening…")
                         : (replyRequestId == nil ? L("Message this chat…") : L("Reply…")),
-                    text: draftBinding, focus: $chatFocused, onSubmit: send
+                    text: draftBinding, focus: $chatFocused, onSubmit: send,
+                    attachments: $attachments, onPasteError: { attachmentError = $0 },
+                    allowsDocumentPaste: replyRequestId == nil
                 )
                 .onChange(of: dictator.transcript) { transcript in
                     if dictator.isRecording { draft = transcript }

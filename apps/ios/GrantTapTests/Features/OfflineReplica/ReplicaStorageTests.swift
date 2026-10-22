@@ -2,6 +2,16 @@ import XCTest
 @testable import GrantTap
 
 final class ReplicaStorageTests: XCTestCase {
+    func testHistoricalPictureRouteCanUpgradeAnEarlierHeadWithoutLosingItsPage() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let store = ReplicaImageStore(directory: folder)
+        defer { store.clear() }
+        store.remember(.init(sessionId: "chat", imageId: "photo", cursor: nil), scope: "computer")
+        store.remember(.init(sessionId: "chat", imageId: "photo", cursor: "actual-page"), scope: "computer")
+        store.remember(.init(sessionId: "chat", imageId: "photo", cursor: nil), scope: "computer")
+        XCTAssertEqual(store.cursor(scope: "computer", sessionId: "chat", imageId: "photo"), "actual-page")
+    }
+
     @MainActor
     func testOfflinePictureReadUsesTheDurableCopyWithoutAnyRelay() async throws {
         let bytes = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==")!

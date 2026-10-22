@@ -7,6 +7,8 @@ struct ChatActivityRail: View {
     let entries: [ActivityEntry]
     let threads: [ChildThreadDisplayRow]
     var recordedFiles: [RecordedFileChange]? = nil
+    var requestId: String? = nil
+    var executionIds: [String] = []
     @State private var sheet: Destination?
 
     private enum Destination: String, Identifiable {
@@ -56,7 +58,8 @@ struct ChatActivityRail: View {
                                    onClose: { sheet = nil }).id(session.sessionId)
             case .agents:
                 ChatAgentConversationsSheet(model: model, session: session, entries: entries,
-                                            threads: threads, onClose: { sheet = nil })
+                                            threads: threads, requestId: requestId, executionIds: executionIds,
+                                            onClose: { sheet = nil })
             }
         }
     }

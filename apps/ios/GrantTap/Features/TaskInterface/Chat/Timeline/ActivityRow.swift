@@ -28,6 +28,7 @@ struct FoldChevron: View {
 
 struct ActivityRow: View {
     @EnvironmentObject private var model: AppModel
+    @Environment(\.messageImageSessionId) private var imageSessionId
     @State private var previewImage: ImagePreview?
     @State private var previewFile: AttachmentPreviewFile?
     @State private var expanded: Bool
@@ -180,9 +181,10 @@ struct ActivityRow: View {
     /// still holds is shown as the picture; one known only by name in a
     /// transcript says its name and opens nothing rather than a broken frame.
     @ViewBuilder private var attachments: some View {
-        if let names = entry.attachments?.filter({ name in
+        let names = model.documentNames(for: entry, sessionId: imageSessionId).filter { name in
             !(entry.images ?? []).contains { $0.name == name }
-        }), !names.isEmpty {
+        }
+        if !names.isEmpty {
             ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 8) {
                     ForEach(names, id: \.self) { name in
@@ -204,7 +206,7 @@ struct ActivityRow: View {
 
     private func attachmentButton(_ name: String) -> some View {
         let image = model.sentAttachmentImage(forEntryId: entry.id, name: name)
-        let file = model.sentAttachment(forEntryId: entry.id, name: name)
+        let file = model.sentAttachment(forEntryId: entry.id, name: name, sessionId: imageSessionId)
         return Button {
             if let image { previewImage = ImagePreview(image: image) }
             else if let file { previewFile = try? AttachmentPreviewFile(file) }
@@ -246,8 +248,8 @@ struct ActivityRow: View {
 
     private var nativePicture: some View {
         MessageImageGallery(images: [.init(id: entry.id, name: L("Image"), markdown: "Image")],
-            cacheRevision: model.replicaImagesRevision) { _ in
-                guard let session = model.imageConversation(forEntryId: entry.id) else {
+            cacheRevision: model.replicaImagesRevision, connected: model.connected) { _ in
+                guard let session = model.imageConversation(forEntryId: entry.id, preferredSessionId: imageSessionId) else {
                     throw MessageImageLoader.ImageError.unavailable
                 }
                 return try await model.messageImageData(sessionId: session, imageId: entry.id)

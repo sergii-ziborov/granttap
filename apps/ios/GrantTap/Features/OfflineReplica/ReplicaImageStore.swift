@@ -12,8 +12,11 @@ struct ReplicaImageStore {
         return ReplicaImageStore(directory: root.appendingPathComponent("GrantTap/images"))
     }
 
-    func load(scope: String, sessionId: String, imageId: String) -> Data? {
-        try? Data(contentsOf: file(scope: scope, sessionId: sessionId, imageId: imageId))
+    func load(scope: String, sessionId: String, imageId: String, touch: Bool = true) -> Data? {
+        let url = file(scope: scope, sessionId: sessionId, imageId: imageId)
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        if touch { try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: url.path) }
+        return data
     }
 
     func save(_ data: Data, scope: String, sessionId: String, imageId: String) throws {
@@ -21,17 +24,21 @@ struct ReplicaImageStore {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try data.write(to: file(scope: scope, sessionId: sessionId, imageId: imageId),
                        options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        prune()
     }
 
-    func remember(_ job: ReplicaImageJob, scope: String) {
+    func remember(_ job: ReplicaImageJob, scope: String, authoritative: Bool = false) {
         let url = file(scope: scope, sessionId: job.sessionId, imageId: job.imageId)
             .appendingPathExtension("route")
         // Keep the cursor of the page that actually advertised this picture.
         // A merged transcript's oldest cursor describes a different page.
-        guard !FileManager.default.fileExists(atPath: url.path) else { return }
+        if let data = try? Data(contentsOf: url),
+           let saved = try? JSONDecoder().decode(ReplicaImageJob.self, from: data),
+           job.cursor == nil || (saved.cursor != nil && !authoritative) || saved == job { return }
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         if let data = try? JSONEncoder().encode(job) {
             try? data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+            prune()
         }
     }
 
@@ -47,6 +54,11 @@ struct ReplicaImageStore {
         let files = (try? FileManager.default.contentsOfDirectory(at: directory,
             includingPropertiesForKeys: [.fileSizeKey])) ?? []
         return files.reduce(0) { $0 + Int64((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0) }
+    }
+
+    func forgetCursor(scope: String, sessionId: String, imageId: String) {
+        let url = file(scope: scope, sessionId: sessionId, imageId: imageId).appendingPathExtension("route")
+        try? FileManager.default.removeItem(at: url)
     }
 
     func clear() {

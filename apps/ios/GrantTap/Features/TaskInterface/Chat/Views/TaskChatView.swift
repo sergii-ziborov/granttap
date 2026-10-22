@@ -22,7 +22,7 @@ struct TaskChatView: View {
     var draftBinding: Binding<String> {
         Binding(get: { composerDraft.text }, set: { composerDraft.text = $0 })
     }
-    @FocusState var chatFocused: Bool
+    @State var chatFocused = false
     @State var attachments: [AttachmentDraft] = []
     @State var attachmentError: String?
     @State var selectedMcp: String?
@@ -154,7 +154,9 @@ struct TaskChatView: View {
         return ChatTranscriptRevision(meshEvents: model.meshEvents(forTaskId: currentSession.taskId),
                                executions: executions,
                                activityRevisions: (executions + [session.sessionId]).map { model.activityRevisions[$0] ?? 0 },
-                               threads: currentSession.childThreads ?? [],
+                               threads: taskExecutionSessionIds.flatMap {
+                                   model.knownSession(for: $0, preferredAgent: nil)?.childThreads ?? []
+                               },
                                roomId: model.connectionRegistry.preferredId)
     }
 
@@ -169,12 +171,16 @@ struct TaskChatView: View {
     var transcriptPresentation: ChatTranscriptPresentation {
         transcriptCache.value(sessionId: session.sessionId, revision: transcriptRevision) { retained in
             let timeline = combinedTimeline
-            let threads = ChildThreadTree.rows(rootId: chatSessionId,
-                threads: currentSession.childThreads ?? [], activity: entries)
+            let allEntries = taskExecutionEntries
+            let threads = taskExecutionSessionIds.flatMap { id in
+                ChildThreadTree.rows(rootId: id,
+                    threads: model.knownSession(for: id, preferredAgent: nil)?.childThreads ?? [],
+                    activity: model.activities[id]?.entries ?? [])
+            }
             return ChatTranscriptPresentation(items: timeline.isEmpty ? retained : timeline,
-                                               entries: entries, childThreads: threads)
+                                               entries: allEntries, childThreads: threads)
         }
     }
 
-    var body: some View { chatScreen }
+    var body: some View { chatScreen.environment(\.messageImageSessionId, chatSessionId) }
 }

@@ -99,8 +99,11 @@ extension TaskChatView {
                         }
                     }
                     .overlay(alignment: .bottomLeading) {
+                        let work = ChatRequestWork(requestId: displayedRequestEntry?.id,
+                            entries: transcriptPresentation.sourceEntries, threads: childThreads)
                         ChatActivityRail(model: model, session: currentSession,
-                            entries: entries, threads: childThreads, recordedFiles: currentReplyFiles)
+                            entries: work.entries, threads: work.threads, recordedFiles: work.files,
+                            requestId: displayedRequestEntry?.id, executionIds: taskExecutionSessionIds)
                             .padding(.bottom, 16)
                     }
                     .overlay(alignment: .bottomTrailing) {
@@ -160,7 +163,8 @@ extension TaskChatView {
                         accent: accent,
                         servers: currentSession.mcpServers ?? [],
                         onExpand: {
-                            model.requestThreadEvents(chatSessionId, threadId: row.thread.threadId)
+                            model.requestThreadEvents(row.executionSessionId ?? chatSessionId,
+                                                      threadId: row.thread.threadId)
                         }
                     )
                     .padding(.leading, Self.threadIndent(row.visualDepth))
@@ -254,6 +258,7 @@ extension TaskChatView {
     }
 
     private func chatAppeared() {
+        model.recoverSavedChatQueueReceipts(for: currentSession)
         model.subscribeSession(
             chatSessionId, active: true, source: "phone-chat:\(chatSessionId)"
         )

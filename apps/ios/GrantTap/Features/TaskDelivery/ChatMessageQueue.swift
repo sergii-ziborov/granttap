@@ -123,6 +123,11 @@ extension AppModel {
 
     func resumeChatQueues(observed sessions: [SessionInfo], fromRoom room: String? = nil,
                           localOnly: Bool = false) {
+        let observedIds = Set(sessions.map { resolvedSessionId($0.sessionId) })
+        for row in deliveries where row.sessionId.map({ observedIds.contains(resolvedSessionId($0)) }) == true
+            && (room == nil || row.roomId == room) {
+            confirmSavedQueueReceipt(row)
+        }
         resumeRelayTaskQueues()
         #if targetEnvironment(macCatalyst)
         if localOnly { resumeLocalQueuedDeliveries() }
@@ -148,6 +153,7 @@ extension AppModel {
         guard let sessionId = row.sessionId else { return }
         let id = "local-user-\(row.id)"
         guard activities[sessionId]?.entries.contains(where: { $0.id == id }) != true else { return }
+        rememberSubmittedDocuments(row)
         appendLocalChatEntry(sessionId: sessionId, agent: row.agent ?? "codex",
                              entry: ActivityEntry(id: id, kind: "user", text: row.text,
                                  createdAt: row.updatedAt, attachments: row.attachments.map(\.name),

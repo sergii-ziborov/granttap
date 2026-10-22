@@ -84,7 +84,10 @@ extension AppModel {
     }
 
     func applyActivity(_ activity: SessionActivity, sourceNamespace: String? = nil) {
-        defer { replicaActivityArrived(activity) }
+        defer {
+            replicaActivityArrived(activity)
+            resumeChatQueues(after: activity, fromRoom: sourceNamespace)
+        }
         if let room = sourceNamespace {
             rememberSessionSourceRoom(room, sessionId: activity.sessionId)
         }

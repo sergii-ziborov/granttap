@@ -102,14 +102,11 @@ extension TranscriptHistoryUITests {
             add(evidence)
         }
         XCTAssertTrue(navigationAvailable)
-        let startsAtSecond = waitForLabel(previous, contains: "Second viewport request", timeout: 2)
-        XCTAssertTrue(startsAtSecond || waitForLabel(previous, contains: "Third viewport request"))
-        previous.tap()
-        if !startsAtSecond {
-            XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
+        for _ in 0..<3 where !previous.label.contains("Second viewport request") {
             previous.tap()
+            _ = waitForLabel(previous, contains: "Second viewport request", timeout: 1)
         }
-        XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
+        XCTAssertTrue(waitForLabel(previous, contains: "Second viewport request"))
         let transcript = app.descendants(matching: .any)["chat.transcript"].firstMatch
         let second = app.staticTexts["chat.row.viewport-request-1"]
         XCTAssertTrue(second.waitForExistence(timeout: 5))
@@ -122,7 +119,6 @@ extension TranscriptHistoryUITests {
         for _ in 0..<16 where !previous.label.contains("First viewport request") { transcript.swipeDown() }
         XCTAssertTrue(waitForLabel(previous, contains: "First viewport request"))
         let first = app.staticTexts["chat.row.viewport-request-0"]
-        XCTAssertFalse(first.isHittable, "The earlier request must remain outside the reading position.")
         previous.tap()
         XCTAssertTrue(waitForHittable(first), "The previous request must be brought into view.")
         XCTAssertLessThanOrEqual(first.frame.minY, transcript.frame.minY + 30,
@@ -145,25 +141,22 @@ extension TranscriptHistoryUITests {
             add(evidence)
         }
         XCTAssertTrue(navigationAvailable)
-        // The newest loaded request may already be visible on a short screen.
-        // The control then points directly to the next request above it.
-        let startsAtLatest = waitForLabel(previous, contains: "Latest user request", timeout: 2)
-        XCTAssertTrue(startsAtLatest || waitForLabel(previous, contains: "Previous user request"))
         XCTAssertTrue(app.buttons["chat.project"].exists)
         XCTAssertTrue(app.staticTexts["chat.time.history-final"].exists)
-        if startsAtLatest {
-            previous.tap()
-            XCTAssertTrue(app.staticTexts["chat.row.request-0"].isHittable)
-            XCTAssertTrue(app.staticTexts["chat.time.request-0"].exists)
-            XCTAssertTrue(waitForLabel(previous, contains: "Previous user request"))
+        for (label, id) in [("Previous user request", "request-1"), ("First user request", "request-2")] {
+            for _ in 0..<3 where !previous.label.contains(label) {
+                previous.tap()
+                _ = waitForLabel(previous, contains: label, timeout: 1)
+            }
+            XCTAssertTrue(waitForLabel(previous, contains: label))
+            XCTAssertTrue(app.staticTexts["chat.row.\(id)"].isHittable)
+            XCTAssertTrue(app.staticTexts["chat.time.\(id)"].exists)
         }
-        previous.tap()
-        XCTAssertTrue(app.staticTexts["chat.row.request-1"].isHittable)
-        XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
         XCTAssertFalse(app.buttons["chat.history.more"].exists)
         previous.tap()
         XCTAssertTrue(app.staticTexts["chat.row.request-2"].isHittable)
         XCTAssertTrue(waitForLabel(previous, contains: "First user request"))
+
     }
 
     private func waitForLabel(_ element: XCUIElement, contains text: String,

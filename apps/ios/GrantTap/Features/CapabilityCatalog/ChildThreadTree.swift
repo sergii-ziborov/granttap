@@ -3,6 +3,7 @@ import Foundation
 struct ChildThreadDisplayRow: Identifiable {
     let thread: ChildThreadInfo
     let visualDepth: Int
+    var executionSessionId: String? = nil
 
     var id: String { thread.threadId }
 
@@ -54,7 +55,7 @@ enum ChildThreadTree {
         func appendChildren(of parentId: String, depth: Int) {
             for thread in childrenByParent[parentId] ?? [] where !emitted.contains(thread.threadId) {
                 emitted.insert(thread.threadId)
-                result.append(ChildThreadDisplayRow(thread: thread, visualDepth: depth))
+                result.append(ChildThreadDisplayRow(thread: thread, visualDepth: depth, executionSessionId: rootId))
                 appendChildren(of: thread.threadId, depth: depth + 1)
             }
         }

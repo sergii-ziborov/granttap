@@ -11,7 +11,7 @@ final class DuoWorkspaceUITests: XCTestCase {
         app.launchEnvironment = ["GRANTTAP_DEMO": "1", "GRANTTAP_OPEN_SESSION": "1",
                                  "GRANTTAP_TEST_LONG_TRANSCRIPT": "1", "GRANTTAP_TEST_LANGUAGE": "en"]
         app.launch()
-        let composer = app.textFields["composer.message"]
+        let composer = app.textViews["composer.message"]
         XCTAssertTrue(composer.waitForExistence(timeout: 15))
         composer.tap()
         composer.typeText("Keep this draft through rotation")

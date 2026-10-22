@@ -11,6 +11,7 @@ extension AppModel {
               environment["GRANTTAP_TEST_CONNECTION_LIST"] != "1",
               environment["GRANTTAP_TEST_INVITE_SCOPES"] == nil else { return }
         #endif
+        ReplicaImageStore.shared.prune()
         loadConnectionRegistry()
         loadCachedSessionCatalogIfNeeded()
     }

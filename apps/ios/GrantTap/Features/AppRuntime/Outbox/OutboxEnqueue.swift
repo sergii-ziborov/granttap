@@ -16,6 +16,7 @@ extension AppModel {
         persistDeliveries()
         if admission.shouldSend, isNewTask { rememberPendingTaskOrigin(candidate) }
         if admission.shouldSend, !mcpReply, let stubId {
+            rememberSubmittedDocuments(candidate)
             appendLocalChatEntry(
                 sessionId: stubId,
                 agent: candidate.agent ?? "codex",

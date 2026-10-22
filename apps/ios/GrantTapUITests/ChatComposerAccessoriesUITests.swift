@@ -14,7 +14,7 @@ final class ChatComposerAccessoriesUITests: XCTestCase {
         cancel.tap()
         XCTAssertFalse(app.buttons["Cancel delivery"].firstMatch.exists)
         XCTAssertFalse(app.buttons["Retry"].firstMatch.exists)
-        XCTAssertTrue(app.textFields["composer.message"].isEnabled)
+        XCTAssertTrue(app.textViews["composer.message"].isEnabled)
     }
 
     func testSubmittedLegacyMessageOffersAnEnabledReceiptCheck() {
@@ -87,7 +87,7 @@ final class ChatComposerAccessoriesUITests: XCTestCase {
         let gone = NSPredicate(format:"exists == false")
         expectation(for:gone,evaluatedWith:app.buttons["chat.queue"])
         waitForExpectations(timeout:5)
-        XCTAssertTrue(app.textFields["composer.message"].exists)
+        XCTAssertTrue(app.textViews["composer.message"].exists)
     }
 
     func testJumpButtonLeavesTheFullWidthWorkRailReachable() {
@@ -121,7 +121,7 @@ final class ChatComposerAccessoriesUITests: XCTestCase {
             "GRANTTAP_TEST_CHAT_WORK":scenario,"GRANTTAP_TEST_LANGUAGE":"en"]
         if queue { app.launchEnvironment["GRANTTAP_TEST_CHAT_QUEUE"]=failed ? "failed" : "1" }
         app.launch()
-        XCTAssertTrue(app.textFields["composer.message"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.textViews["composer.message"].waitForExistence(timeout: 15))
         return app
     }
 

@@ -29,7 +29,9 @@ extension AppModel {
                                                available: available,
                                                versions: active.mapValues(\.lastActivityAt), now: now)
         // Saved pictures must not wait for a long transcript backlog to finish.
-        for id in available { if let saved = activities[id] { enqueueReplicaImages(saved) } }
+        for id in available {
+            if let saved = activities[id] { enqueueReplicaImages(saved, rememberPageRoutes: false) }
+        }
         for request in requests {
             #if targetEnvironment(macCatalyst)
             if let session = active[request.sessionId], usesLocalMCP(for: session),

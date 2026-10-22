@@ -30,7 +30,7 @@ final class LongTranscriptUITests: XCTestCase {
         let hidden = NSPredicate(format: "exists == false")
         expectation(for: hidden, evaluatedWith: jump)
         waitForExpectations(timeout: 5)
-        let composer = app.textFields["composer.message"]
+        let composer = app.textViews["composer.message"]
         XCTAssertTrue(composer.isHittable)
         composer.tap()
         composer.typeText("Responsive after a long transcript")

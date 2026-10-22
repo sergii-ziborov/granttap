@@ -65,3 +65,5 @@ computer refusal gets a fresh ID on explicit Retry, with one retained bubble.
 their local retry lifecycle from the chat and Needs You. Already-running agent
 work is controlled by Pause. Cancellation of relay-managed queue rows still
 requires the relay's durable cancellation receipt.
+
+Legacy queue recovery first reconciles authenticated saved native receipts, without requiring a live computer. Incoming idle transcript snapshots also advance one waiting legacy follow-up after reconciliation; stale snapshots and paused sessions cannot release new work. Picture-only receipts consume one timestamp group once, while uncertain submissions remain inspectable rather than being replayed.

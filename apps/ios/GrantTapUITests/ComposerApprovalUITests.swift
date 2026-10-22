@@ -36,7 +36,7 @@ final class ComposerApprovalUITests: XCTestCase {
         #if targetEnvironment(macCatalyst)
         let field = app.textViews["composer.message"]
         #else
-        let field = app.textFields["composer.message"]
+        let field = app.textViews["composer.message"]
         #endif
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         press(field)

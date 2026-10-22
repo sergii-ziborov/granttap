@@ -79,6 +79,7 @@ extension AppModel {
         DemoLongTranscript.apply(to: self, at: now)
         AttachmentPreviewFixture.applyScrollCapture(to: self, at: now)
         ChatActivityRailFixture.apply(to: self, at: now)
+        MarkdownPasteFixture.prepare()
         #endif
         agentIntegrations = [
             AgentIntegrationInfo(agent: "codex", installed: true, hookConfigured: true),

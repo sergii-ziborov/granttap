@@ -104,6 +104,7 @@ extension AppModel {
     }
 
     func remapLocalSession(from oldId: String, to newId: String) {
+        remapSubmittedReplica(from: oldId, to: newId)
         let remappedAt = Date().timeIntervalSince1970 * 1000
         let deferredFollowUpIds = deliveries
             .filter {
