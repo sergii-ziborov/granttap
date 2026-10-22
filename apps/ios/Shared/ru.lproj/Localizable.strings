@@ -3026,3 +3026,14 @@
 
 "Sandbox — full testing access" = "Sandbox — полный тестовый доступ";
 "All features are available in TestFlight and App Review sandbox. No purchase or subscription is required." = "В TestFlight и Sandbox проверки Apple доступны все функции. Покупка и подписка не требуются.";
+
+
+"Testing access" = "Тестовый доступ";
+
+"Sandbox purchases are for testing. Apple does not charge, and free testing access stays active." = "Покупки Sandbox предназначены для проверки. Apple не списывает деньги, бесплатный тестовый доступ сохраняется.";
+
+"Your GrantTap account has temporary testing access. No subscription is required while it is active." = "У аккаунта GrantTap временный тестовый доступ. Пока он действует, подписка не требуется.";
+
+"View subscription plans" = "Посмотреть тарифы подписки";
+
+"No purchase is required for your current testing access. Apple confirms any purchase price and terms." = "Для текущего тестового доступа покупка не нужна. Цену и условия любой покупки подтверждает Apple.";

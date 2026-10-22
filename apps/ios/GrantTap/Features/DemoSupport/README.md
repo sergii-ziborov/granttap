@@ -16,6 +16,10 @@ Queued sample messages are removed on reset/exit before a later live send can
 persist them. Existing real pending messages are preserved.
 Additional UI-test scenarios and automatic capture launch flags are DEBUG-only.
 
+`SandboxSubscriptionFixture` supplies isolated Sandbox and account-grant
+storefronts for UI checks. It never purchases a product or creates an account;
+the production screen still loads Apple's real catalog.
+
 `GraphBuildFixture` supplies isolated empty, pending, failed, unavailable and cached-report
 request states for Graph and Health UI tests. It sets no account, transport or
 approval override. Retry still calls the public analysis request and reports the

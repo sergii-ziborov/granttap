@@ -15,8 +15,12 @@ The displayed ladder covers 2, 5 and 15 computers.
 `SubscriptionEntitlement.swift` reduces verified StoreKit state into the small
 policy state consumed by remote infrastructure. `SubscriptionStore.swift` is
 the StoreKit boundary. A verified sandbox app transaction grants full TestFlight access without a
-subscription. There is no app-managed trial timer for beta builds. The
-subscription screen shows that access and does not ask a tester to subscribe. A signed-in
+subscription. This includes App Review's Sandbox. There is no app-managed trial
+timer for beta builds. The subscription screen shows that access and does not
+require a tester to subscribe. View subscription plans explicitly reveals the
+normal StoreKit catalog and account-binding flow without revoking free access.
+Only verified sandbox access is described as free Apple test transactions;
+an account testing grant does not imply that Apple's transactions are free. A signed-in
 tester can also receive a time-limited account grant from the Hetzner account
 service when StoreKit cannot return an app transaction. The grant is bound to
 that account, expires, and is rechecked for revocation. Production without a

@@ -8,10 +8,17 @@ struct SubscriptionView: View {
     private let offersOverride: [SubscriptionOffer]?
     @State private var showAccount = false
     @State private var showCancellation = false
+    @State private var showPurchaseOptions = false
 
     init(store: SubscriptionStore? = nil, offers: [SubscriptionOffer]? = nil) {
+        #if DEBUG
+        let fixture = SandboxSubscriptionFixture.configuration()
+        self.store = store ?? fixture?.store ?? .shared
+        offersOverride = offers ?? fixture?.offers
+        #else
         self.store = store ?? .shared
         offersOverride = offers
+        #endif
     }
 
     private var offers: [SubscriptionOffer] { offersForDisplay }
@@ -34,7 +41,25 @@ struct SubscriptionView: View {
                 }
             }
 
-            if !store.hasTestingAccess {
+            if store.hasTestingAccess {
+                Section {
+                    Button {
+                        showPurchaseOptions.toggle()
+                    } label: {
+                        Label(L("View subscription plans"),
+                              systemImage: showPurchaseOptions ? "chevron.up" : "chevron.down")
+                    }
+                    .accessibilityIdentifier("subscription.show-test-purchases")
+                    if showPurchaseOptions {
+                        Text(L(store.betaRelayAccess
+                            ? "Sandbox purchases are for testing. Apple does not charge, and free testing access stays active."
+                            : "No purchase is required for your current testing access. Apple confirms any purchase price and terms."))
+                            .font(.caption).foregroundStyle(Theme.muted)
+                    }
+                }
+            }
+
+            if !store.hasTestingAccess || showPurchaseOptions {
             Section {
                 if store.currentAccountID() == nil {
                     Button(L("Connect with passkey")) { showAccount = true }
@@ -94,8 +119,11 @@ struct SubscriptionView: View {
     @ViewBuilder var statusRow: some View {
         if store.hasTestingAccess {
             VStack(alignment: .leading, spacing: 8) {
-                Label(L("TestFlight — full access"), systemImage: "checkmark.seal.fill")
-                Text(L("All features are available in TestFlight. No purchase or subscription is required."))
+                Label(L(store.betaRelayAccess ? "Sandbox — full testing access" : "Testing access"),
+                      systemImage: "checkmark.seal.fill")
+                Text(L(store.betaRelayAccess
+                    ? "All features are available in TestFlight and App Review sandbox. No purchase or subscription is required."
+                    : "Your GrantTap account has temporary testing access. No subscription is required while it is active."))
                     .font(.caption).foregroundStyle(Theme.muted)
             }
             .accessibilityIdentifier("subscription.testflight-access")
