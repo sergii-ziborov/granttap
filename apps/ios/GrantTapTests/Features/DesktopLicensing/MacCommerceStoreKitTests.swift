@@ -25,9 +25,9 @@ final class MacCommerceStoreKitTests: XCTestCase {
         XCTAssertEqual(Set(products.map(\.id)), Set(ids))
         let prices = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0.price) })
         XCTAssertEqual(prices[DesktopLicense.productID], Decimal(string: "39.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.solo.rawValue], Decimal(string: "3.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.personal.rawValue], Decimal(string: "6.99"))
-        XCTAssertEqual(prices[SubscriptionProduct.studio.rawValue], Decimal(string: "11.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.solo.rawValue], Decimal(string: "4.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.personal.rawValue], Decimal(string: "7.99"))
+        XCTAssertEqual(prices[SubscriptionProduct.studio.rawValue], Decimal(string: "13.99"))
     }
 
     func testSevenDayTrialUsesStoreKitEligibilityAndDoesNotRestartAfterPurchase() async throws {

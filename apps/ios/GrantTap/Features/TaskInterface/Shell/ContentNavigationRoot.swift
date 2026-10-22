@@ -46,9 +46,11 @@ extension ContentView {
             Theme.bg.ignoresSafeArea()
             #if targetEnvironment(macCatalyst)
             if !desktopLicense.license.permitsLocalControl
+                && !model.demoMode
                 && !macRelayCompanionReady
                 && selectedTab != .settings && selectedTab != .devices {
-                DesktopLicenseView(store: desktopLicense, onBack: { selectMacTab(.devices) })
+                DesktopLicenseView(store: desktopLicense, onBack: { selectMacTab(.devices) },
+                    onExploreDemo: { model.startDemo() })
             } else if macLocalMCP.isReady || model.pairing != nil || model.demoMode
                         || selectedTab == .settings || selectedTab == .devices {
                 personalTabs
@@ -60,7 +62,8 @@ extension ContentView {
                     accountLinked: macLocalMCP.status?.accountLinkSaved == true,
                     onRetry: { Task { await refreshMacLocal() } },
                     onSettings: { selectMacTab(.settings) },
-                    onDevices: { selectMacTab(.devices) }
+                    onDevices: { selectMacTab(.devices) },
+                    onExploreDemo: { model.startDemo() }
                 )
             }
             #else

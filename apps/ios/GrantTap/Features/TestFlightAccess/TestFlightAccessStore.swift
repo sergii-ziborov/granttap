@@ -1,8 +1,8 @@
 import Foundation
 import StoreKit
 
-/// Apple's verified sandbox app transaction identifies the beta distribution.
-/// TestFlight controls build expiry; the app never starts a subscription trial.
+/// Apple's verified sandbox transaction identifies non-production testing,
+/// including TestFlight and App Review. It does not prove a paid purchase.
 @MainActor
 enum TestFlightAccessStore {
     static func current() async -> Bool {

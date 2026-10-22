@@ -13,6 +13,7 @@ struct DecisionDeliveryContext {
 
 extension AppModel {
     func decide(_ req: ApprovalRequest, _ decision: String, by: String = "phone", note: String? = nil) {
+        if handleDemoDecision(req, decision: decision) { return }
         // Only explicit Allow/Deny (or notification action) may clear a live gate.
         // Card-body taps / navigation must never call this.
         guard approvalDecisionsInFlight[req.requestId] == nil,

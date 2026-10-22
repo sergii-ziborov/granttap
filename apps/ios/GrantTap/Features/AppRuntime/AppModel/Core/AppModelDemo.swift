@@ -2,11 +2,12 @@ import Foundation
 
 @MainActor
 extension AppModel {
-    /// Deterministic, side-effect-free sample state available in App Store builds.
+    /// Deterministic, isolated sample state available in App Store builds.
     func startDemo() {
         relay?.disconnect()
         relay = nil
         demoMode = true
+        discardDemoDeliveries()
         connected = false
 
         let now = Date().timeIntervalSince1970 * 1000
@@ -26,6 +27,7 @@ extension AppModel {
         }
         #endif
         sessions = AppModelDemoFixtures.sessions(at: now)
+        demoSessionScope = Set(sessions.map(\.sessionId))
         sessionHistory = AppModelDemoFixtures.history(at: now)
         activities = AppModelDemoFixtures.activities(at: now)
         var mesh = AppModelDemoMeshFixtures.snapshot(at: now)
@@ -129,7 +131,7 @@ extension AppModel {
         pendingProjectPolicyRevisions = [:]
         projectPolicyErrors = [:]
         pendingMeshEvents = []
-        deliveries.removeAll { $0.id == "demo-photo-delivery" }
+        discardDemoDeliveries()
         pushToWatch()
     }
 }

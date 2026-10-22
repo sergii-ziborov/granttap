@@ -136,6 +136,7 @@ extension ContentView {
 }
 
 struct MacBrandHeader: View {
+    var isDemo = false
     var body: some View {
         HStack(spacing: 8) {
             Image("BrandMark")
@@ -145,6 +146,10 @@ struct MacBrandHeader: View {
                 .clipShape(RoundedRectangle(cornerRadius: 5))
             Text("GrantTap")
                 .font(.system(size: 17, weight: .semibold))
+            if isDemo {
+                Text(L("Demo")).font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.muted)
+            }
         }
         .foregroundStyle(Theme.ink)
         .frame(maxWidth: .infinity)

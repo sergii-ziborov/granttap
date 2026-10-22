@@ -22,6 +22,7 @@ final class AppModel: ObservableObject {
     var lastAccountSpaceSyncAt: TimeInterval = 0
     @Published var accountSpaceSyncError: String?
     @Published var demoMode = false
+    var demoSessionScope: Set<String> = []
     @Published var connected = false
     /// Offline grace — brief WS blips must not flicker the Connected pill.
     var connectedDebounceTask: Task<Void, Never>?

@@ -1,14 +1,13 @@
 # GrantTap Mac App Store metadata
 
-Prepared for version 1.0, revised 2026-10-16. Three monthly managed plans and
-separate one-time Mac Local are prepared for first commercial launch. Build192
-is in TestFlight; the updated offer remains a draft, with no paid public release
-or review submission implied by these texts.
+Prepared for version 1.0, revised 2026-10-22. App Review preparation.
+Active Personal includes managed Mac access; Mac Local is the separate
+one-time purchase for local control and own relay. Review access is available
+through the public Explore demo entry before either purchase or MCP setup.
 
 - Marketing URL: https://granttap.com
 - Support URL: https://granttap.com/support
 - Privacy Policy URL: https://granttap.com/privacy
-- Terms URL: https://granttap.com/terms
 
 ## English (U.S.)
 
@@ -52,7 +51,7 @@ discovery; own-relay mode uses your endpoint. Supply reachable TLS or a VPN and
 maintain your infrastructure. APNs credentials and guaranteed background delivery
 are not included. Restore with the purchasing Apple Account.
 
-Planned US monthly managed plans: Personal $4.99 for up to 2 computers,
+US monthly managed plans: Personal $4.99 for up to 2 computers,
 Personal Plus $7.99 for 5, Fleet $13.99 for 15. Core features are shared;
 only the managed publishing-computer allowance differs. Agents and Tasks are
 not billed separately. Models and tokens are separate. Local pricing and any
@@ -115,7 +114,7 @@ Mac Local — отдельная разовая покупка $39,99 в США 
 TLS или VPN и свою инфраструктуру. APNs-ключи и гарантированная фоновая доставка
 не включены. Восстановление — с Apple Account покупателя.
 
-Планируемые месячные цены в США: Personal $4,99 — до 2 компьютеров,
+Месячные цены в США: Personal $4,99 — до 2 компьютеров,
 Personal Plus $7,99 — до 5, Fleet $13,99 — до 15. Основные возможности одинаковы;
 отличается лимит managed-компьютеров-исполнителей. Агентов и задачи отдельно
 не тарифицируют. Модели и токены оплачиваются отдельно. Локальную цену и

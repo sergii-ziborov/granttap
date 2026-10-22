@@ -6,6 +6,7 @@ extension AppModel {
     func purgeDemoCatalogResidue(reason: String) {
         let before = sessions.count + sessionHistory.count
         demoMode = false
+        demoSessionScope = []
         sessions = Self.filterRealCatalogSessions(sessions, allowDemo: false)
         sessionHistory = Self.filterRealCatalogSessions(sessionHistory, allowDemo: false)
         for key in activities.keys where Self.isGrantTapDemoSessionId(key) {

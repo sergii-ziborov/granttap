@@ -61,6 +61,7 @@ extension AppModel {
                      skill: String? = nil, roomId: String? = nil, projectId: String? = nil,
                      model: String? = nil,
                      overrides: TurnOverrides = .unchanged) {
+        if handleDemoMessage(text, sessionId: sessionId, requestId: requestId) { return }
         // Reclaim only terminal/expired rows before evaluating admission.
         // Active lifecycles are protected by DeliveryPersistence.admit.
         pruneStaleDeliveries()

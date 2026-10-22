@@ -34,6 +34,7 @@ extension ContentView {
             #endif
             Button(L("Explore demo")) { model.startDemo() }
                 .buttonStyle(OutlineButton(tint: Theme.ink))
+                .accessibilityIdentifier("demo.start")
         }
         .card()
     }

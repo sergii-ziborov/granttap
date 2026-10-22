@@ -10,6 +10,7 @@ struct MacLocalMCPWelcomeView: View {
     let onRetry: () -> Void
     let onSettings: () -> Void
     let onDevices: () -> Void
+    var onExploreDemo: (() -> Void)? = nil
 
     @ObservedObject private var access = MacNativeAccess.shared
     private let installURL = URL(string: "https://granttap.com/#install")!
@@ -27,6 +28,11 @@ struct MacLocalMCPWelcomeView: View {
                         .font(.system(size: 24, weight: .bold))
                 }
 
+                if let onExploreDemo {
+                    Button(L("Explore demo"), action: onExploreDemo)
+                        .buttonStyle(OutlineButton(tint: Theme.ink))
+                        .accessibilityIdentifier("demo.start")
+                }
                 if !checked {
                     HStack(spacing: 12) {
                         ProgressView()

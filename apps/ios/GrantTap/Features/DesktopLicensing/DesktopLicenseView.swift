@@ -5,9 +5,18 @@ import SwiftUI
 struct DesktopLicenseView: View {
     @ObservedObject var store: DesktopLicenseStore = .shared
     var onBack: (() -> Void)? = nil
+    var onExploreDemo: (() -> Void)? = nil
 
     var body: some View {
         List {
+            if let onExploreDemo {
+                Section {
+                    Button(L("Explore demo"), action: onExploreDemo)
+                        .accessibilityIdentifier("demo.start")
+                    Text(L("Demo mode: no command will be executed."))
+                        .font(.footnote).foregroundStyle(Theme.muted)
+                }
+            }
             Section("Mac Local") {
                 switch store.license {
                 case .checking: ProgressView(L("Checking purchase…"))
@@ -17,8 +26,8 @@ struct DesktopLicenseView: View {
                     Label(L("Development evaluation"), systemImage: "hammer")
                     Text(L("This development build is for evaluation. It is not a production purchase."))
                 case .testFlight:
-                    Label(L("TestFlight — full access"), systemImage: "checkmark.seal.fill")
-                    Text(L("All features are available in TestFlight. No purchase or subscription is required."))
+                    Label(L("Sandbox — full testing access"), systemImage: "checkmark.seal.fill")
+                    Text(L("All features are available in TestFlight and App Review sandbox. No purchase or subscription is required."))
                         .font(.footnote).foregroundStyle(Theme.muted)
                 case .notPurchased:
                     Text(L("Mac Local unlocks local agent control and your own relay with one purchase. Active Personal already includes Mac managed-client access without this purchase."))
@@ -27,19 +36,21 @@ struct DesktopLicenseView: View {
                     }
                 }
                 if store.distribution == .inAppUnlock,
-                   store.license == .notPurchased || store.license == .evaluation {
+                   store.license == .notPurchased || store.license == .evaluation || store.license == .testFlight {
                     if let product = store.product {
                         Button {
                             Task { await store.purchase() }
                         } label: {
                             HStack {
-                                Text(L("Buy Mac Local"))
+                                Text(L(store.license == .testFlight ? "Test Mac Local purchase" : "Buy Mac Local"))
                                 Spacer()
                                 Text(product.displayPrice)
                             }
                         }
                         .accessibilityIdentifier("license.purchase")
-                        Text(L("One-time purchase. No automatic renewal. Apple shows the final price before payment."))
+                        Text(L(store.license == .testFlight
+                            ? "Sandbox purchase for testing. Apple does not charge, and it does not grant a production license."
+                            : "One-time purchase. No automatic renewal. Apple shows the final price before payment."))
                             .font(.footnote).foregroundStyle(Theme.muted)
                     } else {
                         Text(L("The Mac license is not available in this storefront yet."))
@@ -64,7 +75,10 @@ struct DesktopLicenseView: View {
         .accessibilityIdentifier("license.page")
         .disabled(store.purchasing)
         .overlay { if store.purchasing { ProgressView() } }
-        .task { await store.start() }
+        .task {
+            await store.start()
+            if store.license == .testFlight { await store.loadPurchaseOptions() }
+        }
     }
 }
 #endif

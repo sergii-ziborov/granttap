@@ -164,7 +164,7 @@ struct ContentView: View {
                         Divider()
                     }
                     VStack(spacing: 0) {
-                        MacBrandHeader()
+                        MacBrandHeader(isDemo: model.demoMode)
                             .allowsHitTesting(false)
                         navigationRoot
                             .frame(maxWidth: .infinity, maxHeight: .infinity)

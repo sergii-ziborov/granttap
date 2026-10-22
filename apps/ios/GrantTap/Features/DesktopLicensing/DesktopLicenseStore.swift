@@ -75,6 +75,13 @@ final class DesktopLicenseStore: ObservableObject {
     func start() async {
         await refresh()
         guard distribution == .inAppUnlock, license != .testFlight else { return }
+        await loadPurchaseOptions()
+    }
+
+    /// The license page may expose optional sandbox purchases during review.
+    /// Free testing access never waits for this catalog during app startup.
+    func loadPurchaseOptions() async {
+        guard distribution == .inAppUnlock else { return }
         do {
             product = try await productLoader().first {
                 $0.id == DesktopLicense.productID && $0.type == .nonConsumable

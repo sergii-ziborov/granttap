@@ -2,13 +2,19 @@
 
 [Engineering index](../../../../../AGENTS.md) · [Graph fixture](GraphBuildFixture.swift) · [Chat work fixture](ChatActivityRailFixture.swift)
 
-This module contains deterministic DEBUG-only data used by screenshot and UI
-tests. `AppModelDemo.swift` owns lifecycle changes; `AppModelDemoFixtures.swift`
-owns the sample catalog, activities, approvals, and schedules.
+The built-in demo is available in App Store builds from Explore demo, including
+the Mac license and connection screens. It requires no account, purchase, local
+MCP, computer or network. `AppModelDemo.swift` owns lifecycle changes;
+`AppModelDemoFixtures.swift` owns the labelled sample catalog and activities.
 
-The module is compiled into Debug and LocalTest only because all fixture symbols
-are enclosed by `#if DEBUG`. Release builds keep only `stopDemo()`, which clears
-possible developer residue after connection recovery.
+`DemoReviewInteractions` resolves sample approvals and chat/question replies in
+memory before either durable delivery queue is touched. Unrelated session or
+request identities are rejected inside demo mode. No command, provider response,
+computer confirmation or purchase is simulated as a real event. Automation
+remains a preview. Exit Demo restores the normal licensing and connection flow.
+Queued sample messages are removed on reset/exit before a later live send can
+persist them. Existing real pending messages are preserved.
+Additional UI-test scenarios and automatic capture launch flags are DEBUG-only.
 
 `GraphBuildFixture` supplies isolated empty, pending, failed, unavailable and cached-report
 request states for Graph and Health UI tests. It sets no account, transport or
