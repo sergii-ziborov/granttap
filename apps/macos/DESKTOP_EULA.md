@@ -1,6 +1,6 @@
 # GrantTap Mac End-User License
 
-Effective September 29, 2026. Licensor: Serhii Ziborov,
+Effective September 29, 2026. Clarified November 18, 2026. Licensor: Serhii Ziborov,
 sergii.ziborov@gmail.com. Copyright © 2026. All rights reserved.
 
 For App Store downloads, Apple's Standard EULA governs the app unless a custom
@@ -13,8 +13,8 @@ this Mac end-user license.
 
 A verified GrantTap Mac purchase grants you a non-exclusive license to use the
 Mac app for personal or internal work on Apple computers you own or control,
-subject to Apple's applicable Usage Rules. The proposed US launch price is
-USD 39.99; the actual purchase sheet and receipt govern price and availability.
+subject to Apple's applicable Usage Rules. The US price is USD 39.99; the actual
+purchase sheet and receipt govern price and availability.
 A non-consumable Mac Local unlock is separate from an auto-renewable Personal
 subscription. The purchase does not expire because a subscription ends. Restore
 Purchases uses the same Apple Account; refunded or revoked purchases lose their
