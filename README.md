@@ -1,11 +1,64 @@
-# GrantTap for Mac, iPhone, iPad and Apple Watch
+# GrantTap for iPhone, iPad, Apple Watch and Mac
 
 > **See the work. Make the decision. Keep the Task moving.**
 
-GrantTap brings local coding-agent work into one control center on Mac, iPhone,
-iPad, and Apple Watch. See which Task needs you, answer approvals and questions
-with context, and return to its conversation without losing the history when a
-session or computer changes.
+GrantTap is a live control center for the coding agents on your computers. See
+which Task needs you, answer approvals and questions with context, send the next
+message, and return to the same conversation from iPhone, iPad or Apple Watch,
+without losing its history when a session or computer changes.
+
+<a href="https://apps.apple.com/app/id6809739366"><img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download GrantTap on the App Store" height="40"></a>
+
+**GrantTap 1.0.2 for iPhone and iPad is a free download on the
+[App Store](https://apps.apple.com/app/id6809739366).** Plans are bought in the
+app through Apple. Apple Watch is a companion to the iPhone app. GrantTap 1.0.1
+for Mac is in App Review: it is available in TestFlight now and comes to the Mac
+App Store after Apple approves it.
+
+## How the pieces fit
+
+```text
+ Your computer                         GrantTap Relay              Your devices
+ Claude Code · Codex · Cursor ·  <=>   ciphertext only:     <=>    GrantTap for iPhone and iPad
+ Grok Build + GrantTap MCP             routes, queues, wakes        Apple Watch through iPhone
+```
+
+- **GrantTap app** (this repository's Apple client source) — Now, Tasks, chats,
+  approvals, questions, Mesh, Health and usage on iPhone, iPad, Apple Watch and Mac.
+- **[GrantTap MCP](https://github.com/sergii-ziborov/granttap-mcp)** — the
+  runtime on each coding computer. Install it with `npm install -g granttap-mcp`,
+  then run `granttap setup` and scan its one-time QR in the app.
+- **[GrantTap Relay](https://github.com/sergii-ziborov/granttap-relay)** — carries
+  end-to-end encrypted traffic between them and keeps it while a device sleeps. It
+  sees routing metadata and ciphertext, never the content.
+
+## What's new
+
+In GrantTap 1.0.2 for iPhone and iPad:
+
+- rename, star and flag chats; starred chats get their own section in Now and Tasks;
+- edit a Mesh's repositories from the phone and rename a Mesh from its screen;
+- choose a New Task's Mesh from a searchable list, and search Repositories by
+  name, remote, Mesh or branch;
+- the model button shows the reasoning effort a chat runs with.
+
+With GrantTap MCP 0.8.195 on the computer, the connection card in Claude
+(including the Claude desktop app), Codex, Cursor and Grok Build lists the phones
+paired with that computer and removes unused ones after a yes on a phone; the
+computer can be linked to your account with a passkey; runtime updates install
+automatically, with an Off switch on the card; and everything that passes the
+relay stays end-to-end encrypted.
+
+Coming in the next iPhone and iPad update (1.0.3), after Apple approves it:
+
+- runs a chat started hang beneath it in Now, Tasks and History, with how each ended;
+- review a chat's uncommitted changes and commit them from the phone;
+- **Devices** lists every phone a computer accepts and everything signed in to
+  your account, with Remove and Sign out;
+- passkey sign-in on the first screen, and sign-in on granttap.com by scanning
+  the QR on its account page.
+
+## Agents and Tasks
 
 A Task keeps its identity and history across provider sessions and computers.
 Claude Code and Codex support the primary control paths. Cursor joins the Task
@@ -47,11 +100,11 @@ without receiving the pairing secret. The account shows linked computers and
 lets you revoke their access. Passkeys need a network connection; QR pairing
 remains available without an account.
 
-The Mac App Store release is being prepared; it is not available for purchase
-yet. The proposed price is **USD 39.99 once** for the Mac License. The selected
-universal configuration is a free download with a non-consumable Mac unlock.
-Final storefront prices and availability are determined by Apple's purchase
-sheet. The iPhone download remains free.
+GrantTap 1.0.1 for Mac is in App Review and available in TestFlight until Apple
+approves it; the Mac License cannot be bought before then. It is **USD 39.99
+once**, sold in the Mac app: the universal configuration is a free download with
+a non-consumable Mac unlock. Final storefront prices and availability are
+determined by Apple's purchase sheet. The iPhone and iPad download is free.
 
 A purchased Mac license includes local control and running your own relay for
 personal or internal use. It remains valid when a Personal subscription ends,
@@ -60,16 +113,16 @@ do not represent a verified production purchase.
 
 ## Optional Personal subscription
 
-The planned first-launch managed plans are **Personal $4.99/month for up to
-2 computers**, **Personal Plus $7.99/month for up to 5**, and **Fleet
-$13.99/month for up to 15**. All core features are shared. Only managed
+The managed plans, bought through Apple in GrantTap for iPhone and iPad, are
+**Personal $4.99/month for up to 2 computers**, **Personal Plus $7.99/month for
+up to 5**, and **Fleet $13.99/month for up to 15**. All core features are shared. Only managed
 publishing computers are counted; agents, Tasks and approvals are not billed
 separately. AI accounts and tokens remain separate, and technical limits apply.
 Active Personal includes linked Mac managed-client access without an additional
 Mac Local purchase. A controller-only Mac uses no publishing-computer seat.
 Apple's purchase sheet controls availability, localized pricing and eligible
-seven-day trial offers. These are planned US prices; there are no annual launch
-plans. Restore and manage purchases in Settings. Official TestFlight builds
+seven-day trial offers. These are US prices; there are no annual plans.
+Restore and manage purchases in Settings. Official TestFlight builds
 include full access without a subscription.
 
 Manage or cancel always opens Apple's subscription settings directly. Eligible
