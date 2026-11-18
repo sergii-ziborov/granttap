@@ -144,7 +144,7 @@ See [purchase and connection modes](docs/subscriptions.md),
 
 - [Shared Apple client and Xcode project](apps/ios/README.md)
 - [Mac build instructions](apps/macos/README.md)
-- [Mac App Store configuration and listing](apps/macos/AppStore/README.md)
+- [Mac App Store listing metadata](apps/macos/AppStore/APP_STORE_METADATA.md)
 - [Third-party notices](apps/ios/THIRD_PARTY_NOTICES.md)
 
 Xcode 26 and XcodeGen generate/build the shared app. The checked-in project
